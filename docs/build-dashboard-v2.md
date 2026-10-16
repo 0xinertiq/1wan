@@ -6,7 +6,8 @@ Read CLAUDE.md and docs/build-trackers.md first. Same rules: push after each ste
 Bottom navigation (pixel icons, 5 items, thumb-reachable on phone; left rail on desktop):
 1. Court (home)  2. Calendar  3. Garden  4. Diary  5. Life (sub-tabs: Money, Trade, Grid, Wins, Samsara)
 Crew roster is reached by tapping a character on the Court, not a tab. Settings in the header menu.
-Remove the Ask Kumo and Ask the crew windows (no paid AI chat; chat stays on the slim claude.ai artifact). In the crew detail show a single "Ask on claude.ai" button that opens a URL set in Settings (empty until she adds it).
+Life has four sub-tabs only: Money | Trade | Grid & Wins | Samsara (see docs/build-trackers.md).
+Remove the Ask Kumo and Ask the crew windows completely, with no replacement button (no paid AI chat in this app). Crew detail shows each character's role, latest output, last-updated time and next scheduled run, and nothing else.
 Remove the routing box. Replace with ONE small status line under the stage, driven by real events only, never fake: e.g. "Olli filed the 07:52 brief", "Pip next: 14:30", or "Fenn is checking prices" only while a real fetch is running. No "thinking" animation without a real task behind it.
 
 ## 2. Court (home)

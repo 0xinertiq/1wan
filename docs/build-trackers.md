@@ -34,8 +34,12 @@ Every tick is either AUTO (derived from a real record) or SELF-REPORT (labelled 
 - Spending log (Coco, manual entry or CSV, no account numbers): `spending` (user_id, at, amount, category, note). Minimal quick-add.
 - Import script `scripts/import_trackers.py` (same style as import_export.py, dry run first, idempotent) reading `data-import/trackers/`. Add all new tables to "Export my data".
 
-## Screens
-Add a "Life" area with tabs: Daily (anchors + routines + today's quests), Money (ladder, cash flow, coming up, funds, net worth, goals), Trade (ledger: sizer, plans, log, review, gamble log), Grid (64 mandala), Wins (Small Wins phases). Mobile first. Gamble results never count in trading stats (keep the separation).
+## Screens (Life area, four sub-tabs, no duplicated content)
+- Money: cash flow, coming up (bills, renewals, salary), sinking funds, net worth, goals, open items.
+- Trade: sizer, plans (this is also the thesis log, with the Samsara template fields), trade log, review tiles, recurring mistakes, gamble log (kept out of trading stats).
+- Grid & Wins: the 64 mandala, the Small Wins ladder (phases and milestones) and the Money Wins Q4 ladder milestones.
+- Samsara: weekly rhythm (study hours, thesis count read from Trade, X posts and replies), course milestones, monthly reviews, a "Write a thesis" button that opens the Trade plan form.
+Daily anchors and routines live in the Garden tab and the Court's Today card, not in Life. Each fact lives in exactly one tab; other places show a read-only summary with a link. Mobile first. Gamble results never count in trading stats.
 
 ## Sakura Garden wiring
 - Trunk water level and health: daily anchors and routines. Thirsty when untouched 2 days, rotting at 5, as now.
