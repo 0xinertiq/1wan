@@ -7,7 +7,13 @@ import { Stage } from "@/components/court/Stage";
 import { Roster } from "@/components/court/Roster";
 import { mdLite } from "@/components/court/mdLite";
 import type { BriefDoc } from "@/components/court/BriefTabs";
-import { AskWin, BriefWin, NeedWin, NewsWin, QuestWin, SprintBar, TodayWin, UsePanel } from "@/components/court/Windows";
+import { AskWin, BriefWin, NeedWin, NewsWin, SprintBar, UsePanel } from "@/components/court/Windows";
+import { CourtProvider } from "@/components/court/CourtState";
+import { TodayLive } from "@/components/court/live/TodayLive";
+import { DiaryLive, GardenLive, StatusLive, WinsLive } from "@/components/court/live/GrowLive";
+import { SettingsLive } from "@/components/court/live/SettingsLive";
+import { bootState } from "@/lib/court/actions";
+import { normalize } from "@/lib/court/state";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +54,7 @@ function toDocs(rows: Brief[], now: Date) {
     });
 }
 
-// Visual shell of the v52 dashboard. Display only: briefs are real, everything else is sample content.
+// The v52 dashboard. Briefs, Today, habits, garden, wins, diary and status run on her saved state.
 export default async function Dashboard() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -60,7 +66,14 @@ export default async function Dashboard() {
   const docs = toDocs((data ?? []) as Brief[], now);
   const initial = data?.[0]?.kind ?? ""; // v52 opens the freshest brief; rows are newest first.
 
+  // Her state document; missing keys fall back to defaults. Rollover and the morning-brief quest
+  // are applied here so the first paint is already right; the client saves what changed.
+  const { data: row } = await supabase.from("user_state").select("data, version").eq("user_id", user.id).maybeSingle();
+  const today = dayKey(now);
+  const boot = bootState(normalize(row?.data ?? {}, today), today);
+
   return (
+    <CourtProvider initial={boot.st} version={row?.version ?? 0} recap={boot.recap} dirty={boot.dirty} nowIso={now.toISOString()}>
     <div className="wrap">
       <PixelDefs />
       <CourtDefs />
@@ -70,7 +83,7 @@ export default async function Dashboard() {
       <div className="layout">
         <div className="col c-l">
           <AskWin />
-          <TodayWin dateLabel={prettyDay(now)} />
+          <TodayLive />
         </div>
         <div className="col c-m">
           <Stage />
@@ -80,12 +93,17 @@ export default async function Dashboard() {
         <div className="col c-r">
           <NeedWin />
           <Roster />
+          <StatusLive />
           <div id="growWrap" aria-label="Growth">
-            <QuestWin />
+            <GardenLive />
+            <WinsLive />
+            <DiaryLive />
           </div>
+          <SettingsLive />
         </div>
       </div>
     </div>
+    </CourtProvider>
   );
 }
 

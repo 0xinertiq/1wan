@@ -1,0 +1,405 @@
+"use client";
+
+import { useState } from "react";
+import { PixelSprite, type SpriteName } from "@/components/PixelSprite";
+import { useCourt } from "../CourtState";
+import { AGENTS } from "../agents";
+import { logQuest } from "@/lib/court/actions";
+import { QUESTS, needFor } from "@/lib/court/quests";
+import {
+  STAGES, activeQ, dayQ, eventsOn, gardenWeek, isDone, manualOpen, openQuests, progOf, qScore, seedInfo, weekHab, winTally,
+  type CourtState, type SeedInfo,
+} from "@/lib/court/state";
+import { addDays, prettyDay, weekKey, dayIdx } from "@/lib/court/time";
+
+// Growth column from dashboard-v52: Sakura Garden (with Habit Quests inside), Tonight count your wins,
+// Fox Diary with the weekly recap, and the "You" status card. Everything saves to her state.
+
+const short = (id: string) => AGENTS.find((a) => a.id === id)?.short ?? id;
+const Mini = ({ name, sm }: { name: SpriteName; sm?: boolean }) => <span className={sm ? "mini sm" : "mini"}><PixelSprite name={name} /></span>;
+const QKEYS = ["q", "stars", "streak", "xp", "lvl"] as const;
+const gid = () => Math.random().toString(36).slice(2, 8);
+
+/* ---------- Habit Quests ---------- */
+export function QuestLive() {
+  const { st, k, nm, events, update, levelUp } = useCourt();
+  const [all, setAll] = useState(false);
+  const [qf, setQf] = useState("all");
+  const aq = activeQ(st, k), done = aq.filter((q) => isDone(st, q.id)).length;
+  const today = eventsOn(events, k);
+  const calReady = (re?: RegExp) => !!re && today.some((e) => !e.allDay && re.test(e.t) && e.b <= nm);
+  const log = (id: string) => update((d) => { const r = logQuest(d, id); if (r.leveled) levelUp(r.leveled); }, [...QKEYS]);
+
+  let list;
+  if (all) {
+    const l = aq.filter((q) => qf === "all" || q.crew === qf);
+    list = l.filter((q) => !isDone(st, q.id)).concat(l.filter((q) => isDone(st, q.id)));
+  } else list = openQuests(st, k, nm).filter((q) => qScore(q, k, nm) < 60 && (q.auto || q.cal || q.calCat)).slice(0, 3);
+  const ck = manualOpen(st, k);
+
+  return (
+    <section className="win" id="questWin" aria-labelledby="qT">
+      <div className="win-title"><h2 id="qT">Habit Quests</h2><span className="sub" id="qCount">{done}/{aq.length} done</span></div>
+      <div className="win-body">
+        <div className="qf" id="qf" role="group" aria-label="Filter quests by crew member" hidden={!all}>
+          {[["all", "All"], ...["kumo", "olli", "fenn", "luna", "momo", "coco"].map((id) => [id, short(id)])].map(([id, n]) => (
+            <button key={id} className="chipb" type="button" aria-pressed={qf === id} onClick={() => setQf(id)}>{n}</button>
+          ))}
+        </div>
+        <div className="quests" id="quests">
+          {list.length ? list.map((q) => {
+            const isD = isDone(st, q.id), p = progOf(st, q.id);
+            let right: React.ReactNode, cls = "";
+            const btn = <button className="btn sm" type="button" onClick={() => log(q.id)}>{q.goal > 1 ? "Log +1" : "Log it"}</button>;
+            if (isD) right = <span className="q-end">DONE</span>;
+            else if (q.cal) {
+              // Calendar quests: confirm once the matching block has ended (Step 4 feeds the events).
+              if (calReady(q.cal)) { right = <button className="btn sm" type="button" onClick={() => log(q.id)}>Yes, did it</button>; cls = " ready"; }
+              else right = <span className="q-end">AUTO</span>;
+            } else if (q.auto) right = <span className="q-end">AUTO</span>;
+            else right = btn;
+            return (
+              <div key={q.id} className={"quest" + (isD ? " done" : "") + cls}>
+                <div className="q-ic">
+                  <div className="mini"><PixelSprite name={q.crew} /></div>
+                  {isD && <span className="ck"><svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" /></svg></span>}
+                </div>
+                <div className="q-t">
+                  <b>{q.title}</b>
+                  <span><span className={q.cad === "Weekly" ? "q-tag wk" : "q-tag"}>{q.cad}</span>{short(q.crew)} · {q.sub}{q.goal > 1 && !isD ? ` (${p}/${q.goal})` : ""}</span>
+                  <span className="q-src">{isD ? (q.auto ? "Counted by Kumo" : "Logged") : q.ck}</span>
+                </div>
+                <div className="q-r"><span className="xp">+{q.xp} EXP</span>{right}</div>
+              </div>
+            );
+          }) : <div className="empty">Today&apos;s habits are done. Lovely.</div>}
+        </div>
+        <details className="bdet" id="ckDet" open={nm >= 1200 && ck.length > 0 ? true : undefined}>
+          <summary>Evening check-in {ck.length > 0 && <span className="badge" id="ckCount">{ck.length}</span>}</summary>
+          <div id="ckBox">
+            {ck.length ? <>
+              {ck.map((q) => <div className="filed-row" key={q.id}><span>{q.title}</span><button className="btn sm" type="button" onClick={() => log(q.id)}>Yes</button></div>)}
+              <p className="note">Three at most. The rest logs itself.</p>
+            </> : <p className="note">All set for tonight.</p>}
+          </div>
+        </details>
+        <button className="btn sm ghost qmore" type="button" id="qMore" onClick={() => setAll(!all)}>{all ? "Show today's top 3" : `Show all ${aq.length} quests`}</button>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Sakura Garden (v52 bonsaiSvg, drawn the same way) ---------- */
+const gslots = [[160, 36], [112, 50], [208, 50], [72, 84], [248, 84], [128, 80], [192, 80], [160, 68], [92, 118], [228, 118], [60, 122], [262, 122], [120, 24], [200, 24], [160, 104], [182, 98]];
+const grn = (i: number, j: number) => { const x = Math.sin((i + 1) * 12.9898 + (j + 1) * 78.233) * 43758.5453; return x - Math.floor(x); };
+const gcol = (m: string) => m === "wilting" ? { b: "#9C8A7A", p: ["#A58B7B", "#8F7A6B", "#B39A86"], d: 7 } : m === "thirsty" ? { b: "#EBD3D6", p: ["#E9C9CF", "#D9B9BA", "#EBD7CF"], d: 3 } : { b: "#FFC9E0", p: ["#FFB3D1", "#FF8FBF", "#FFD1E8"], d: 0 };
+
+function bonsaiSvg(items: { f: SeedInfo }[], nroots: number) {
+  const nodes = [[158, 128], [156, 104], [154, 86]];
+  let wil = 0, thi = 0, br = "", cl = "", fl = "", wd = "";
+  items.forEach((it) => { if (it.f.mood === "wilting") wil++; else if (it.f.mood === "thirsty") thi++; });
+  items.forEach((it, i) => {
+    const s = gslots[i % gslots.length], st = it.f.stage, m = it.f.mood, c = gcol(m), R = st === 0 ? 9 : 12 + st * 4, n = st === 0 ? 2 : 4 + st * 2;
+    const nd = s[1] > 100 ? nodes[0] : s[1] > 60 ? nodes[1] : nodes[2];
+    let g = "";
+    br += `<path d="M${nd[0]} ${nd[1]} Q${Math.round((nd[0] + s[0]) / 2)} ${Math.min(nd[1], s[1]) - 10} ${s[0]} ${s[1] + c.d}" stroke="${wil > 2 ? "#6B4B3E" : "#8A5A44"}" stroke-width="${st > 1 ? 4 : 3}" fill="none" stroke-linecap="round"/>`;
+    if (st > 0) g += `<circle r="${R}" fill="${c.b}" opacity=".6"/>`;
+    for (let j = 0; j < n; j++) {
+      const a = grn(i, j) * 6.283, rd = Math.sqrt(grn(j, i + 7)) * R * 0.85, x = Math.cos(a) * rd, y = Math.sin(a) * rd, r = st === 0 ? 3.4 : 3 + grn(i + 3, j) * 1.6;
+      g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${c.p[j % 3]}"/>`;
+      if (m === "ok" && st > 0 && j % 3 === 0) g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1" fill="#FFE27A"/>`;
+    }
+    if (m === "wilting") {
+      for (let j = 0; j < 3; j++) g += `<circle cx="${((grn(i, j + 20) - 0.5) * R * 1.3).toFixed(1)}" cy="${((grn(j + 20, i) - 0.5) * R * 1.3).toFixed(1)}" r="2.4" fill="#7A8B52"/>`;
+      g += `<circle cx="0" cy="${(R * 0.5).toFixed(1)}" r="2" fill="#5E5148"/>`;
+    }
+    cl += `<g transform="translate(${s[0]} ${s[1] + c.d})"><g class="${m === "ok" ? "sway" : ""}">${g}</g></g>`;
+    if (m !== "ok") fl += `<ellipse cx="${Math.round(72 + grn(i, 40) * 176)}" cy="${238 + Math.round(grn(i, 41) * 4)}" rx="4" ry="2" fill="${c.p[0]}" transform="rotate(${Math.round(grn(i, 42) * 60 - 30)} 160 238)"/>`;
+  });
+  for (let i = 0; i < Math.min(nroots, 6); i++) { const wx = i < 3 ? 64 + i * 14 : 214 + (i - 3) * 14; wd += `<path d="M${wx} 238 q3 -10 -2 -17 M${wx} 238 q6 -8 6 -15" stroke="#5B4A55" stroke-width="2.6" fill="none" stroke-linecap="round"/>`; }
+  const mood = wil ? "sad" : thi ? "meh" : "happy", eye = "#6B4B6B";
+  const face = `<circle cx="143" cy="215" r="2.4" fill="${eye}"/><circle cx="177" cy="215" r="2.4" fill="${eye}"/><ellipse cx="136" cy="221" rx="4" ry="2.4" fill="#FF8FBF" opacity=".6"/><ellipse cx="184" cy="221" rx="4" ry="2.4" fill="#FF8FBF" opacity=".6"/>` +
+    (mood === "happy" ? `<path d="M152 220 q8 8 16 0" stroke="${eye}" stroke-width="2" fill="none" stroke-linecap="round"/>` : mood === "meh" ? `<path d="M153 224 h14" stroke="${eye}" stroke-width="2" stroke-linecap="round"/>` : `<path d="M152 227 q8 -8 16 0" stroke="${eye}" stroke-width="2" fill="none" stroke-linecap="round"/>`);
+  const trunk = wil > 2 ? "#6B4B3E" : "#8A5A44", mold = wil ? '<circle cx="153" cy="166" r="3" fill="#6F7F4A"/><circle cx="160" cy="150" r="2.2" fill="#5E5148"/><circle cx="156" cy="180" r="2.6" fill="#7A8B52"/>' : "";
+  return `<svg class="bonsai" viewBox="0 0 320 250" role="img" aria-label="Sakura bonsai. ${items.length - wil - thi} habits blooming, ${thi} thirsty, ${wil} rotting."><ellipse cx="160" cy="241" rx="108" ry="6" fill="#8B6B5A" opacity=".3"/>${wd}` +
+    `<path d="M154 194 C150 160 168 142 158 112 C154 98 150 92 155 80" stroke="${trunk}" stroke-width="12" fill="none" stroke-linecap="round"/>${mold}${br}${cl}` +
+    `<ellipse cx="160" cy="193" rx="52" ry="5" fill="#8B6B5A"/><path d="M114 196 H206 L198 234 Q197 238 192 238 H128 Q123 238 122 234 Z" fill="#F4A6C6" stroke="#A34876" stroke-width="2.5" stroke-linejoin="round"/><rect x="108" y="190" width="104" height="12" rx="5" fill="#F8BDD6" stroke="#A34876" stroke-width="2.5"/>${face}${fl}</svg>`;
+}
+
+const ROOT_SVG = (
+  <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true"><path d="M32 6 V30 M32 30 Q20 36 14 52 M32 30 Q32 44 28 58 M32 30 Q46 38 52 54 M32 30 Q40 34 44 46" stroke="#9A6B55" strokeWidth="3.5" fill="none" strokeLinecap="round" /><path d="M32 6 q-8 4 -10 12 q8 -1 10 -6 q2 5 10 6 q-2 -8 -10 -12z" fill="#C49A6C" /></svg>
+);
+
+export function GardenLive() {
+  const { st, k, update } = useCourt();
+  const [seed, setSeed] = useState("");
+  const [root, setRoot] = useState("");
+  const [arm, setArm] = useState("");
+  const g = st.gd;
+  const items = g.seeds.map((sd) => ({ sd, f: seedInfo(sd, k) }));
+  const ok = items.filter((x) => x.f.mood === "ok"), th = items.filter((x) => x.f.mood === "thirsty"), wi = items.filter((x) => x.f.mood === "wilting");
+  const gw = gardenWeek(st, k);
+  const names = (a: typeof items) => a.map((x) => x.sd.name).join(", ");
+  const oth = items.filter((it) => !it.sd.q);
+
+  const water = (id: string) => update((d) => { const sd = d.gd.seeds.find((s) => s.id === id); if (sd) { sd.w = sd.w || {}; sd.w[k] = 1; } }, ["gd"]);
+  const letGo = (id: string) => {
+    if (arm !== id) { setArm(id); window.setTimeout(() => setArm((a) => (a === id ? "" : a)), 4000); return; }
+    update((d) => {
+      const sd = d.gd.seeds.find((s) => s.id === id); if (!sd) return;
+      d.gd.seeds = d.gd.seeds.filter((s) => s.id !== id);
+      d.gd.gone.push({ name: sd.name, kind: "seed", on: k }); if (d.gd.gone.length > 60) d.gd.gone.shift();
+    }, ["gd"]);
+  };
+
+  return (
+    <div id="gardenBox">
+      <div className="tcard garden">
+        <h3><Mini name="coco" />Sakura Garden <span className="cnj">灵园</span></h3>
+        <p className="gtag">Your habits are the blossoms. Tick them below and the tree blooms. Skip them and it rots.</p>
+        <div dangerouslySetInnerHTML={{ __html: bonsaiSvg(items, g.roots.length) }} />
+        <p className="gsum"><b>{ok.length}</b> blooming · <b>{th.length}</b> thirsty · <b>{wi.length}</b> rotting</p>
+        {wi.length ? <p className="gwarn">Rotting: {names(wi)}. Do them today to bring them back, or let them go.</p>
+          : th.length ? <p className="note">Thirsty: {names(th)}. One small tick today saves them.</p>
+          : items.length ? <p className="note">The whole tree is healthy. Keep going.</p> : null}
+        <p className="note">{gw.water} watering{gw.water === 1 ? "" : "s"} this week{g.gone.length ? ` · ${g.gone.length} let go` : ""}</p>
+        <div id="gQuestSlot"><QuestLive /></div>
+        {oth.length > 0 && <>
+          <div className="sec-h">Other habits</div>
+          <div className="gkgrid">
+            {oth.map(({ sd, f }) => {
+              const c = gcol(f.mood);
+              const txt = f.mood === "wilting" ? `rotting, ${f.idle} days dry` : f.mood === "thirsty" ? `thirsty, ${f.idle} days dry` : STAGES[f.stage].toLowerCase() + (f.run > 1 ? `, ${f.run}-day run` : "");
+              return (
+                <div className="gk" data-st={f.mood} key={sd.id}>
+                  <i className="gdot" style={{ background: c.p[1] }}></i>
+                  <span className="gnm"><b>{sd.name}</b><small>{txt}</small></span>
+                  {!sd.auto && <button className="btn sm ghost gx" type="button" disabled={f.wet} onClick={() => water(sd.id)}>{f.wet ? "Watered" : "Water"}</button>}
+                  <button className="btn sm ghost gx" type="button" aria-label={`Let go of ${sd.name}`} onClick={() => letGo(sd.id)}>{arm === sd.id ? "Yes, let it go" : "×"}</button>
+                </div>
+              );
+            })}
+          </div>
+        </>}
+        <form className="field" id="seedForm" onSubmit={(e) => {
+          e.preventDefault(); const n = seed.trim().slice(0, 60); if (!n || g.seeds.length >= 16) return;
+          update((d) => { d.gd.seeds.push({ id: gid(), name: n, pk: "", auto: "", at: k, w: {} }); }, ["gd"]); setSeed("");
+        }}>
+          <div className="field-row"><input id="seedIn" type="text" maxLength={60} autoComplete="off" placeholder="Plant another habit" aria-label="Plant another habit" value={seed} onChange={(e) => setSeed(e.target.value)} /><button className="btn sm" type="submit">Plant</button></div>
+        </form>
+        <div className="sec-h">Weeds to pull</div>
+        {g.roots.map((r) => (
+          <article className="gr" key={r.id}>{ROOT_SVG}<div className="gi"><b>{r.name}</b><div className="rep-act">
+            <button className="btn sm" type="button" onClick={() => update((d) => { d.gd.roots = d.gd.roots.filter((x) => x.id !== r.id); d.gd.gone.push({ name: r.name, kind: "root", on: k }); if (d.gd.gone.length > 60) d.gd.gone.shift(); }, ["gd"])}>Pull it out</button>
+          </div></div></article>
+        ))}
+        <form className="field" id="rootForm" onSubmit={(e) => {
+          e.preventDefault(); const n = root.trim().slice(0, 80); if (!n || g.roots.length >= 12) return;
+          update((d) => { d.gd.roots.push({ id: gid(), name: n, at: k }); }, ["gd"]); setRoot("");
+        }}>
+          <div className="field-row"><input id="rootIn" type="text" maxLength={80} autoComplete="off" placeholder="A habit or thought that is rotting" aria-label="Name a rotting habit or thought" value={root} onChange={(e) => setRoot(e.target.value)} /><button className="btn sm" type="submit">Add</button></div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Tonight, count your wins ---------- */
+function winLines(st: CourtState, k: string) {
+  const T = winTally(st, k), auto = dayQ(k).filter((q) => isDone(st, q.id)).map((q) => q.title), L: string[] = [];
+  const C = ["You did something real today.", "That is progress, not luck.", "Showing up counts, and you showed up.", "You are building this one day at a time.", "Proud of you. Keep going.", "You are doing better than you think."];
+  const c = C[dayIdx(k) % C.length];
+  if (T.td > 0) L.push(`Today I finished ${T.td} of ${T.tt} daily quests: ${auto.slice(0, 3).join(", ")}${auto.length > 3 ? ` and ${auto.length - 3} more` : ""}. ${c}`);
+  if (T.yd && T.yd.d > 0) L.push(`Yesterday I finished ${T.yd.d} of ${T.yd.t} daily quests.`);
+  return L;
+}
+
+export function WinsLive() {
+  const { st, k, nm, update } = useCourt();
+  const saved = st.wins[k] ?? {};
+  const [w, setW] = useState(saved.w ?? "");
+  const [g, setG] = useState(saved.g ?? "");
+  const [n, setN] = useState(saved.n ?? "");
+  const [ok, setOk] = useState(false);
+  const late = nm >= 1080, T = winTally(st, k), sug = winLines(st, k);
+  return (
+    <div id="winBox">
+      <div className="tcard" id="winCard">
+        <h3><Mini name="coco" />{late ? "Tonight, count your wins" : "Today's wins"}</h3>
+        <div className="tbl" style={{ overflowX: "auto" }}>
+          <table className="winTbl"><caption className="vh">Quests completed</caption><tbody>
+            <tr><th scope="row">Today</th><td>{T.td} of {T.tt}</td></tr>
+            <tr><th scope="row">Yesterday</th><td>{T.yd ? `${T.yd.d} of ${T.yd.t}` : "starts tomorrow"}</td></tr>
+            <tr><th scope="row">This week</th><td>{T.wsum} of {T.wtot}</td></tr>
+            <tr><th scope="row">Posts this week</th><td>{T.posts}</td></tr>
+            <tr><th scope="row">Streak</th><td>{st.streak} day{st.streak === 1 ? "" : "s"}</td></tr>
+          </tbody></table>
+        </div>
+        <form className="field wr" id="winForm" onSubmit={(e) => {
+          e.preventDefault();
+          update((d) => { d.wins[k] = { w: w.slice(0, 2000), g: g.slice(0, 2000), n: n.slice(0, 6000) }; }, ["wins"]);
+          setOk(true); window.setTimeout(() => setOk(false), 2500);
+        }}>
+          <label htmlFor="winIn">One thing that went well</label>
+          <textarea id="winIn" rows={3} maxLength={2000} placeholder={sug[0] ?? "Small counts"} value={w} onChange={(e) => setW(e.target.value)} />
+          <label htmlFor="gratIn">What you are grateful for</label>
+          <textarea id="gratIn" rows={3} maxLength={2000} placeholder="A person, a moment, a thing" value={g} onChange={(e) => setG(e.target.value)} />
+          <label htmlFor="noteIn">Write freely</label>
+          <textarea id="noteIn" rows={8} maxLength={6000} placeholder="Whatever is on your mind. Nobody is reading but you." value={n} onChange={(e) => setN(e.target.value)} />
+          <div className="rep-act"><button className="btn sm" type="submit">Save</button>{ok && <span className="note">Saved. Private to you.</span>}</div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Fox Diary and weekly recap ---------- */
+const MOODS = ["Low", "Flat", "Okay", "Good", "Bright"];
+
+function diaryDays(st: CourtState, k: string) {
+  const seen = new Set<string>();
+  return [...Object.keys(st.wins), ...Object.keys(st.mood), ...Object.keys(st.days), k]
+    .filter((d) => (seen.has(d) ? false : (seen.add(d), true))).sort().reverse();
+}
+
+function downloadDiary(st: CourtState, k: string) {
+  const lines = ["# Fox Diary", "", `Exported ${k}. Private to you.`, ""];
+  for (const d of diaryDays(st, k)) {
+    const w = st.wins[d] ?? {}, m = st.mood[d];
+    if (!w.w && !w.g && !w.n && !m) continue;
+    lines.push(`## ${prettyDay(d)} (${d})`);
+    if (m) lines.push(`Feeling: ${MOODS[(m.m || 3) - 1]}${m.n ? ", " + m.n : ""}`);
+    if (w.w) lines.push(`Win: ${w.w}`);
+    if (w.g) lines.push(`Thanks: ${w.g}`);
+    if (w.n) lines.push("", w.n);
+    lines.push("");
+  }
+  const url = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/markdown" }));
+  const a = document.createElement("a"); a.href = url; a.download = `fox-diary-${k}.md`; a.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function DiaryEdit({ day, onDone }: { day: string; onDone: () => void }) {
+  const { st, update } = useCourt();
+  const e0 = st.wins[day] ?? {};
+  const [w, setW] = useState(e0.w ?? ""), [g, setG] = useState(e0.g ?? ""), [n, setN] = useState(e0.n ?? "");
+  return (
+    <form className="field wr" onSubmit={(e) => { e.preventDefault(); update((d) => { d.wins[day] = { w: w.slice(0, 2000), g: g.slice(0, 2000), n: n.slice(0, 6000) }; }, ["wins"]); onDone(); }}>
+      <label>Win<textarea rows={2} maxLength={2000} value={w} onChange={(e) => setW(e.target.value)} /></label>
+      <label>Thanks<textarea rows={2} maxLength={2000} value={g} onChange={(e) => setG(e.target.value)} /></label>
+      <label>Notes<textarea rows={5} maxLength={6000} value={n} onChange={(e) => setN(e.target.value)} /></label>
+      <div className="rep-act"><button className="btn sm" type="submit">Save</button><button className="btn sm ghost" type="button" onClick={onDone}>Cancel</button></div>
+    </form>
+  );
+}
+
+export function DiaryLive() {
+  const { st, k } = useCourt();
+  const [joyI, setJoyI] = useState(0);
+  const [edit, setEdit] = useState("");
+  const auto = dayQ(k).filter((q) => isDone(st, q.id)).map((q) => q.title), T = winTally(st, k);
+
+  const praise: string[] = [];
+  Object.keys(st.wins).sort().reverse().forEach((d) => { const e = st.wins[d]; if (e.w) praise.push(`${prettyDay(d)}, you wrote: "${e.w}"`); if (e.g) praise.push(`${prettyDay(d)}, you were grateful for: "${e.g}"`); });
+  if (T.wsum > 0) praise.push(`This week you have finished ${T.wsum} quests. Nobody made you. You did.`);
+  if (st.streak > 1) praise.push(`${st.streak} days in a row. You keep coming back, and that is the whole secret.`);
+  praise.push("You are building a business, a brand and a mind that sees far ahead. That is not nothing.");
+
+  // This week (v52 joyWeek): the weekly recap.
+  const wk = weekKey(k);
+  let days = 0, done = 0, tot = 0, bestN = 0, bestK = "", wd = 0;
+  const ms: number[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(wk, i); if (d > k) break; days++;
+    const r = d === k ? { d: auto.length, t: dayQ(k).length } : st.days[d];
+    if (r) { done += r.d; tot += r.t; if (r.d > bestN) { bestN = r.d; bestK = d; } }
+    if (st.wins[d]?.w || st.wins[d]?.g) wd++;
+    if (st.mood[d]) ms.push(st.mood[d].m);
+  }
+  const gw = gardenWeek(st, k);
+  let wn = 0, gn = 0; Object.values(st.wins).forEach((e) => { if (e.w) wn++; if (e.g) gn++; });
+  const pc = tot ? done / tot : 0;
+  const say = pc >= 0.7 ? "A strong week. You earned the rest evening." : pc >= 0.4 ? "A solid week. Steady beats loud." : done > 0 ? "A quieter week, and you still showed up. That counts." : "The week has barely started. One small thing is enough.";
+
+  const cells = []; let best = 0, bk = "";
+  for (let i = 27; i >= 0; i--) {
+    const d = addDays(k, -i), r = d === k ? { d: auto.length, t: dayQ(k).length } : st.days[d], p = r && r.t ? Math.round((r.d / r.t) * 100) : -1;
+    if (r && r.d > best) { best = r.d; bk = d; }
+    cells.push(<span key={d} className="jc" style={{ "--p": p > 0 ? Math.round(35 + p * 0.65) : 0 } as React.CSSProperties} title={prettyDay(d) + (p < 0 ? ": no record" : `: ${r!.d} of ${r!.t}`)} data-e={p < 0 ? "1" : undefined}></span>);
+  }
+  const mk = Object.keys(st.mood).sort().slice(-14);
+  const rows = diaryDays(st, k).slice(0, 30).map((d) => ({ d, w: st.wins[d] ?? {}, m: st.mood[d], r: d === k ? { d: auto.length, t: dayQ(k).length, n: auto } : st.days[d] }))
+    .filter((x) => x.w.w || x.w.g || x.w.n || x.m || (x.r && x.r.d > 0));
+
+  return (
+    <details className="gdet" id="gdJoy"><summary>Diary and weekly recap</summary><div id="joyBox">
+      <div className="tcard joy">
+        <h3><Mini name="coco" />Fox Diary <span className="cnj">狐记</span></h3>
+        <div className="joyhero">
+          <p className="joyq" id="joyQ">{praise[joyI % praise.length]}</p>
+          <div className="rep-act">
+            <button className="btn sm" type="button" onClick={() => setJoyI(joyI + 1)}>Tell me something good</button>
+            <button className="btn sm ghost" type="button" onClick={() => { const el = document.getElementById("winIn"); el?.scrollIntoView({ block: "center" }); el?.focus(); }}>Log today</button>
+            <button className="btn sm ghost" type="button" onClick={() => downloadDiary(st, k)}>Download my diary</button>
+          </div>
+        </div>
+        <div className="sec-h">This week</div>
+        <div className="jp" id="recapWeek"><ul className="jwk">
+          <li>{done} of {tot} daily quests done over {days} day{days === 1 ? "" : "s"}</li>
+          {bestN > 0 && <li>Best day: {prettyDay(bestK)} with {bestN}</li>}
+          {wd > 0 && <li>{wd} day{wd === 1 ? "" : "s"} with a win or a thank-you written</li>}
+          {gw.water > 0 && <li>{gw.water} seed watering{gw.water === 1 ? "" : "s"} in the garden</li>}
+          {gw.rel > 0 && <li>{gw.rel} thing{gw.rel === 1 ? "" : "s"} let go. That is progress too.</li>}
+          <li>{st.streak}-day streak · {wn} wins and {gn} thank-yous logged so far</li>
+          {T.posts > 0 && <li>{T.posts} post{T.posts === 1 ? "" : "s"} counted</li>}
+          {ms.length > 0 && <li>Average mood {(ms.reduce((a, b) => a + b, 0) / ms.length).toFixed(1)} of 5</li>}
+        </ul><p><b>{say}</b></p></div>
+        <div className="sec-h">Last 28 days</div>
+        <div className="jstrip" role="img" aria-label="Quest completion over the last 28 days, darker is more">{cells}</div>
+        <p className="jleg"><span>less</span><span className="jc" style={{ "--p": 10 } as React.CSSProperties}></span><span className="jc" style={{ "--p": 50 } as React.CSSProperties}></span><span className="jc" style={{ "--p": 100 } as React.CSSProperties}></span><span>more</span>{best > 0 && <> · best day {prettyDay(bk)} ({best})</>}</p>
+        {mk.length > 0 && <>
+          <div className="sec-h">Feelings, last {mk.length} days</div>
+          <div className="jmood" role="img" aria-label="Mood per day">{mk.map((d) => <span key={d} className="jm" style={{ "--h": st.mood[d].m * 20 + "%" } as React.CSSProperties} title={`${prettyDay(d)}: ${MOODS[st.mood[d].m - 1]}`}></span>)}</div>
+        </>}
+        <div className="sec-h">Your diary</div>
+        <p className="note xd">Private to you. Never shown to friends. Included in Export my data.</p>
+        {!rows.length && <p className="note">Your first page appears when you log a win, a feeling or finish a quest.</p>}
+        {rows.map((x) => (
+          <article className="jp" key={x.d}>
+            <header><b>{prettyDay(x.d)}{x.d === k ? " (today)" : ""}</b>{x.m && <span className="pillx">{MOODS[x.m.m - 1]}</span>}{x.r && x.r.t > 0 && <span className="pillx">{x.r.d} of {x.r.t} quests</span>}</header>
+            {edit === x.d ? <DiaryEdit day={x.d} onDone={() => setEdit("")} /> : <>
+              {x.w.w && <p><span className="jl">win</span> {x.w.w}</p>}
+              {x.w.g && <p><span className="jl">thanks</span> {x.w.g}</p>}
+              {x.w.n && <p className="pre"><span className="jl">notes</span> {x.w.n}</p>}
+              {x.m?.n && <p><span className="jl">feeling</span> {x.m.n}</p>}
+              {x.r?.n && x.r.n.length > 0 && <p className="jn">{x.r.n.join(" · ")}</p>}
+              <div className="rep-act"><button className="btn sm ghost" type="button" onClick={() => setEdit(x.d)}>Edit</button></div>
+            </>}
+          </article>
+        ))}
+      </div>
+    </div></details>
+  );
+}
+
+/* ---------- You (v52 status card: "You · The Queen") ---------- */
+export function StatusLive() {
+  const { st, k, save } = useCourt();
+  const need = needFor(st.lvl), wh = weekHab(st, k);
+  return (
+    <section className="win status" aria-label="Your status">
+      <div className="lvbadge"><small>LV</small><b id="lv">{st.lvl}</b></div>
+      <div>
+        <p className="who-line"><svg className="crown" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18l1.5-10 5 4.5L12 5l2.5 7.5 5-4.5L21 18z" fill="#FFD95E" stroke="#A34876" strokeWidth="1.8" strokeLinejoin="round" /></svg>You <span>· The Queen</span></p>
+        <p className="realm" id="realm">{st.stars} stars · {st.streak} day streak</p>
+        <div className="bars">
+          <div className="bar exp"><label>EXP <em id="expTxt">{st.xp} / {need}</em></label><div className="track"><i id="expBar" style={{ width: (st.xp / need) * 100 + "%" }}></i></div></div>
+          <div className="bar mp vf"><label>Habits this week <em id="mpTxt">{wh.d} / {wh.t}</em></label><div className="track"><i id="mpBar" style={{ width: (wh.t ? (wh.d / wh.t) * 100 : 0) + "%" }}></i></div></div>
+        </div>
+        <p className="note xd">{save === "saving" ? "Saving..." : save === "saved" ? "All changes saved." : save === "offline" ? "Not saved yet. I will try again shortly." : "Your data, private to you."}</p>
+      </div>
+    </section>
+  );
+}
+
+export { QUESTS };

@@ -10,3 +10,15 @@ Updated as each build step lands. "Real" means it reads or saves her actual data
 - Real: the crew walks and hops between platforms like v52. After 2 minutes with no tap, key or scroll they walk into the palace (zz shows over it); the next interaction brings them back out one by one. Reduced motion: no wandering, moves are instant.
 - Change from v52: v52 sent each agent to rest on a random timer; now rest follows her being away, as the brief asks.
 - Sample: quiet queue, usage, showcase and calm buttons still do nothing.
+
+### Step 2: her state loads and saves
+- Real: the page reads her `user_state` document on the server. Missing keys fall back to v52 defaults. Day rollover, the morning-brief quest and garden watering run before first paint.
+- Real: changes save in the background to `/api/state` (only the keys the dashboard owns, merged by key, with the version). Keys the page does not own (kb, nb, courses, ideas, rules and so on) are never touched. RLS stays on: saves use her session.
+- Real: header streak and stars; Today (since yesterday, due soon, streak, habits this week, quote of the day, recap after a rollover, up next and Kumo's pick, rest day); Momo's day with "Ideas for your free time" (45+ minute gaps, 08:00 to 22:00); Coming up (Done today / Paid / Decided, Booked for date, 7-day bills total); Park a thought (park and mark done).
+- Real: Habit Quests (top 3, Show all with crew filter, Evening check-in), EXP, levels and level-up banner, stars and streak.
+- Real: Sakura Garden drawn like v52 (blooming / thirsty / rotting from habit watering), plant, water, let go, weeds to pull.
+- Real: "Tonight, count your wins" table (today, yesterday, this week, posts, streak) and the three text boxes, which save.
+- Real: Fox Diary with the weekly recap, 28-day strip, moods, and diary pages that are editable and downloadable (Download my diary, Markdown). Diary text lives only in her private `user_state` row and is in Export my data.
+- "You" tab: v52 has no tab with that name. The nearest thing is the status card "You · The Queen"; it is ported (level, EXP, habits this week, save status). A Settings panel holds Export my data and the life admin list (add, remove, booked date).
+- Changes from v52: wins are no longer trimmed to 60 days (that deleted diary pages); the "went well" box shows the suggestion as a hint instead of pre-filling it, so only her own words are saved.
+- Not ported yet: Luna's sky reading (Sky tab shows saved moods only), focus sprint, Discipline and Spirit bars, Poppy's content desk, drop zone, quotes library editing.
