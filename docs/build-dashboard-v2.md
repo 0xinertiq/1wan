@@ -4,7 +4,7 @@ Read CLAUDE.md and docs/build-trackers.md first. Same rules: push after each ste
 
 ## 1. Navigation: tabs, bottom bar
 Bottom navigation (pixel icons, 5 items, thumb-reachable on phone; left rail on desktop):
-1. Court (home)  2. Calendar  3. Garden  4. Diary  5. Life (sub-tabs: Money, Trade, Grid, Wins, Samsara)
+1. Court (home)  2. Calendar  3. Garden  4. Diary  5. Life (sub-tabs: Money | Trade | Grid & Wins | Samsara)
 Crew roster is reached by tapping a character on the Court, not a tab. Settings in the header menu.
 Life has four sub-tabs only: Money | Trade | Grid & Wins | Samsara (see docs/build-trackers.md).
 Remove the Ask Kumo and Ask the crew windows completely, with no replacement button (no paid AI chat in this app). Crew detail shows each character's role, latest output, last-updated time and next scheduled run, and nothing else.
@@ -48,4 +48,4 @@ Existing Fox Diary and weekly recap, private, editable, exportable. Add the Arch
 - Feed her Calendar layer with the same events.
 
 ## 7. Finish
-Update docs/status.md (real vs sample). Print what works, what is sample only, what was skipped, then the manual checklist. Do steps in order: 1, 4, 2, 3, 6, 5.
+Update docs/status.md (real vs sample). Print what works, what is sample only, what was skipped, then the manual checklist. The order of work is set ONLY by docs/BUILD-ORDER.md. Section numbers here are not steps.
