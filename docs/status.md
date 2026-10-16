@@ -58,3 +58,5 @@ Updated as each build step lands. "Real" means it reads or saves her actual data
 ### Step 8: wrap-up
 - Build passes. Manual checklist in `docs/manual-steps.md`.
 - Still sample or not ported: Ask the crew (stays on claude.ai by design), Needs you, usage panel, focus sprint bar, quiet queue, calm and showcase modes, Luna's sky reading, Discipline and Spirit bars, Poppy's content desk, drop zone, Court Chat log.
+
+_Redeploy nudge: 16 Oct 2026._
