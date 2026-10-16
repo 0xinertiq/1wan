@@ -11,6 +11,7 @@ import { ScanWin } from "@/components/court/ScanWin";
 import { loadBriefs, kindLabel, type BriefRow, type Vote } from "@/lib/briefs";
 import { AskWin, BriefWin, NeedWin, NewsWin, SprintBar, UsePanel } from "@/components/court/Windows";
 import { CourtProvider } from "@/components/court/CourtState";
+import { CalendarLoader } from "@/components/court/CalendarLoader";
 import { TodayLive } from "@/components/court/live/TodayLive";
 import { DiaryLive, GardenLive, StatusLive, WinsLive } from "@/components/court/live/GrowLive";
 import { SettingsLive } from "@/components/court/live/SettingsLive";
@@ -67,6 +68,7 @@ export default async function Dashboard() {
 
   return (
     <CourtProvider initial={boot.st} version={row?.version ?? 0} recap={boot.recap} dirty={boot.dirty} nowIso={now.toISOString()}>
+    <CalendarLoader />
     <div className="wrap">
       <PixelDefs />
       <CourtDefs />

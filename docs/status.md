@@ -29,3 +29,10 @@ Updated as each build step lands. "Real" means it reads or saves her actual data
 - Real: every brief shows a sources line and Useful / Not useful (plus an optional one-line note), saved to `feedback` under her user id.
 - Note: none of the current briefs record their sources, so the line reads "not recorded by this task" until the scheduled tasks send `meta.sources` (see `prompts/INGEST.md`).
 - Change from v52: v52's scan read TradingView live from claude.ai; that connector is not available to a website, so the scan now comes from her scheduled task.
+
+### Step 4: Google Calendar, read-only
+- Real once connected: up to 5 calendars from `GCAL_ICAL_URL_1` to `_5` (labels `GCAL_NAME_1` to `_5`) in `apps/web/.env.local` and Vercel. Fetched and parsed on the server only, cached 15 minutes; the addresses never reach the browser or the logs.
+- Handles recurring events (daily, weekly, monthly incl. "2nd Tuesday", yearly), exceptions and moved occurrences, all-day events and other time zones, shown in Singapore time. Tested on a synthetic calendar.
+- Events from all calendars are merged, tagged with label and colour, and de-duplicated; chips in "Momo, your day" filter by calendar. One calendar failing does not hide the others (it shows "not reachable").
+- Events feed Up next, Momo's day, free-time gaps, "Booked" detection in Coming up, and the calendar quests (study block, weekly review).
+- Until the addresses are added: "Calendar not connected yet", ideas assume a free day, nothing breaks.
