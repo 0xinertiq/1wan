@@ -8,6 +8,7 @@ Read CLAUDE.md first and obey it. Work in order, commit and push after each step
 - `small-wins/index.html` (Small Wins Ladder; daily log and ticks in `<script id="state">`)
 - `swing-trade-ledger/` (page + `db/` JSON for trades, gamble, settings, wallets; plans is empty)
 - `64-actionables/` (page + `db/data/users/me/mandala.json`, the ticks)
+- `samsara/index.html` (Samsara: weekly study hours, thesis log count, X posts and replies, course milestones, thesis entry template; state in `<script id="state">`)
 The artifact JavaScript is the source of truth for logic and formulas (position sizing, expectancy, freeze rate, fund status, net worth, cash-flow, weekly sleep target). Port the logic exactly; restyle with the 1(WAN) theme and pixel crew. Keep every item id (d1..d8, a3.., b.., m1.., o1.., r1, r2, c1..c9, grid ids like 1.1 to 8.8) so her history maps over.
 
 ## Principle: no fake ticks
@@ -21,7 +22,10 @@ Every tick is either AUTO (derived from a real record) or SELF-REPORT (labelled 
 5. Small Wins b3 (no late-night trades, 14 days) = ledger check c6 = daily d1. Derive b3 from trade timestamps (add an `at` timestamp to trades); derive streaks for b4 and b6 from d5 and d6 logs instead of separate manual ticks.
 6. Money Wins "Coming up" (bills, renewals, money in) = dashboard "Coming up" (nails, bills). One list, fed by the money page, merged with the 5 Google calendars.
 7. The old dashboard list "Build tomorrow in Claude Code" is superseded by grid pillars 2 and 3; remove it.
-8. Grid items already true: calendar connected, going live for her own use. Leave them for her to tick; do not auto-tick project items.
+8. Samsara's thesis entry template (narrative, thesis, trade plan, before I click, after) = the ledger's plan form and trade log. Do not build a second form: add the missing template fields (narrative, where I saw it, stage, confidence, lesson, share on X) to ledger plans. Samsara's "thesis log entries" counter is DERIVED from the count of plans (never typed). Its 4 "before I click" checks are a subset of c1..c9 (incl. the 11pm to 6am rule = c6).
+9. Samsara's weekly "study hours" = the dashboard focus-sprint quest: study hours AUTO from completed sprints tagged study (a sprint = 25 minutes), with a manual add for other study. Weekly X posts and replies = the same counters as the dashboard "Posts this week" and grid pillar 4: one counter, resets Monday.
+10. Samsara course milestones (b1, c1, e1) overlap grid pillar 6 (learning); keep one record per course and show it in both places. Monthly reviews r1..r6 map to the monthly summary; link the weekly recap to the Friday thesis entry.
+11. Grid items already true: calendar connected, going live for her own use. Leave them for her to tick; do not auto-tick project items.
 
 ## Data model (migration 0004, additive, RLS own rows on every table)
 - `trades`, `plans`, `gamble` tables (user_id, id text, fields as in the ledger, `at` timestamptz), plus `ledger_settings` (account, risk %, rules[3], wallets).
