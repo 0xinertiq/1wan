@@ -18,6 +18,7 @@ Below, compact cards in this order, each collapsible, remembered per user:
 - Daily brief (summary first: 3 things that matter, expand for full) with Useful / Not useful.
 - Watchlist scan (compact, prices live).
 - This week strip: 7 days with event dots; tap to open Calendar.
+- Week ahead (rules only, no AI): events and bills due this week in date order; deadlines not yet acted on (plan timeframes ending, the Friday thesis slot empty); wilting branches with days since activity; gaps (a bill due with no fund set aside, days with no free 45-minute slot); weekly targets with progress (study hours, X posts and replies, sleep nights). Also shown at the top of the Calendar tab.
 
 ## 3. Calendar tab (week and month, not just today)
 - Views: Agenda (next 14 days), Week, Month. Day detail on tap. Default Week.
