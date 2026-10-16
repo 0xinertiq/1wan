@@ -4,6 +4,7 @@ import { PixelDefs } from "@/components/PixelSprite";
 import { CourtDefs } from "@/components/court/CourtDefs";
 import { Header } from "@/components/court/Header";
 import { Stage } from "@/components/court/Stage";
+import { Roster } from "@/components/court/Roster";
 import { mdLite } from "@/components/court/mdLite";
 import type { BriefDoc } from "@/components/court/BriefTabs";
 import { AskWin, BriefWin, NeedWin, NewsWin, QuestWin, SprintBar, TodayWin, UsePanel } from "@/components/court/Windows";
@@ -78,6 +79,7 @@ export default async function Dashboard() {
         </div>
         <div className="col c-r">
           <NeedWin />
+          <Roster />
           <div id="growWrap" aria-label="Growth">
             <QuestWin />
           </div>
