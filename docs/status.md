@@ -22,3 +22,10 @@ Updated as each build step lands. "Real" means it reads or saves her actual data
 - "You" tab: v52 has no tab with that name. The nearest thing is the status card "You · The Queen"; it is ported (level, EXP, habits this week, save status). A Settings panel holds Export my data and the life admin list (add, remove, booked date).
 - Changes from v52: wins are no longer trimmed to 60 days (that deleted diary pages); the "went well" box shows the suggestion as a hint instead of pre-filling it, so only her own words are saved.
 - Not ported yet: Luna's sky reading (Sky tab shows saved moods only), focus sprint, Discipline and Spirit bars, Poppy's content desk, drop zone, quotes library editing.
+
+### Step 3: Watchlist Scan and brief feedback
+- Real: one kind mapping in `apps/web/src/lib/briefKinds.ts` (database weekday/daily/scan/movers and old pulse/intel/scan/movers both work).
+- Real: Watchlist scan window shows the newest `scan` brief: date, title, body, sources line, feedback.
+- Real: every brief shows a sources line and Useful / Not useful (plus an optional one-line note), saved to `feedback` under her user id.
+- Note: none of the current briefs record their sources, so the line reads "not recorded by this task" until the scheduled tasks send `meta.sources` (see `prompts/INGEST.md`).
+- Change from v52: v52's scan read TradingView live from claude.ai; that connector is not available to a website, so the scan now comes from her scheduled task.

@@ -2,9 +2,19 @@
 
 import { useState } from "react";
 
-export type BriefDoc = { key: string; label: string; title: string; when: string; html: string };
+import { BriefFeedback } from "./BriefFeedback";
 
-// Brief tabs from dashboard-v52. Only switches which brief is shown; rating buttons are display only.
+export type BriefDoc = {
+  key: string; label: string; title: string; when: string; html: string;
+  at: string; sources: string | null; vote: { vote: "up" | "down"; note: string } | null;
+};
+
+// Source-status line under each brief (Step 6). Says plainly when the task did not record its sources.
+export function SourcesLine({ s }: { s: string | null }) {
+  return <p className="note xd brsrc"><b>Sources:</b> {s ?? "not recorded by this task"}</p>;
+}
+
+// Brief tabs from dashboard-v52, with the source line and useful / not useful saved to feedback.
 export function BriefTabs({ docs, initial }: { docs: BriefDoc[]; initial: string }) {
   const [sel, setSel] = useState(initial);
   const [open, setOpen] = useState(true);
@@ -26,14 +36,8 @@ export function BriefTabs({ docs, initial }: { docs: BriefDoc[]; initial: string
       <button className="btn sm ghost inline" type="button" onClick={() => setOpen(!open)}>
         {open ? "Show less" : "Read all"}
       </button>
-      <div className="brfb">
-        <div className="brfr">
-          <span className="note">Was this useful?</span>
-          <button className="chipb" type="button">Useful</button>
-          <button className="chipb" type="button">Needs work</button>
-        </div>
-        <input className="brin" type="text" maxLength={200} placeholder="One line on what to change (optional)" aria-label="What to change" />
-      </div>
+      <SourcesLine s={d.sources} />
+      <BriefFeedback key={d.key + d.at} kind={d.key} at={d.at} initial={d.vote} />
     </>
   );
 }
