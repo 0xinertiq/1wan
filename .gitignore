@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.vercel/
+.next/
+dist/
+data-import/*.json
+!data-import/.gitkeep
