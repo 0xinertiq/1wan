@@ -54,3 +54,7 @@ Updated as each build step lands. "Real" means it reads or saves her actual data
 - Writes shared briefs (user_id NULL) with the service role key on the server only. Checked: the key and the secret names do not appear in the browser bundle.
 - If migration 0003 has not run, `meta.sources` is kept by appending a "Sources:" line to the body.
 - Documented in `prompts/INGEST.md`. No scheduled task has been pointed at it yet (build order step 6).
+
+### Step 8: wrap-up
+- Build passes. Manual checklist in `docs/manual-steps.md`.
+- Still sample or not ported: Ask the crew (stays on claude.ai by design), Needs you, usage panel, focus sprint bar, quiet queue, calm and showcase modes, Luna's sky reading, Discipline and Spirit bars, Poppy's content desk, drop zone, Court Chat log.
