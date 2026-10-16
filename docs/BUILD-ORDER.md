@@ -22,3 +22,6 @@ Start every session with: read CLAUDE.md, docs/BUILD-ORDER.md and docs/progress.
 12. Final wrap-up: docs/status.md, manual checklist.
 
 If she has already done a step, docs/progress.md says so. Never redo finished steps.
+
+## Optional step 13 (only if ANTHROPIC_API_KEY exists in apps/web/.env.local, otherwise skip it silently)
+"Ask Kumo" live chat, her account only. Server-side route; the key never reaches the browser or the logs. Cheap small model, prompt caching, short answers. Hard monthly spend cap read from env (default low); stop and show a calm message when reached. Log every call to the usage table (user, feature, tokens). Context = her own app data summaries (garden state, this week's calendar, ledger review numbers) sent per request, never her raw diary or birth details unless she opens a "include diary" toggle. Tracks and explains, never gives financial advice. Disabled for every other user (no free-form AI chat for friends).
