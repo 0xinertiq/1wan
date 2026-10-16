@@ -20,8 +20,11 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
+  // Scheduled tasks post here with their own secret (checked in the route), not a login.
+  if (path === "/api/ingest/brief") return NextResponse.next({ request });
+
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user && path !== "/login") {
     if (path.startsWith("/api/")) {

@@ -47,3 +47,10 @@ Updated as each build step lands. "Real" means it reads or saves her actual data
 - Real: `/api/news` caches each feed 15 minutes, keeps the last good copy if a feed fails, returns headline, source, topic, time and link only (newest 12 per source, last 14 days).
 - Real: Headlines window with topic tabs (All, Macro, Markets, Crypto, World, Local) and More headlines. Links open the original site.
 - Ready, needs one manual step: migration `supabase/migrations/0003_briefs_meta.sql` adds a nullable `meta` column to `briefs`. Until it runs, the sources line still works from a "Sources:" line in the brief body.
+
+### Step 7: ingest endpoint for her scheduled tasks
+- Ready: `POST /api/ingest/brief`, protected by `INGEST_SECRET` (Bearer header, compared in constant time; refuses to run if the secret is missing or under 32 characters). Strict validation (kind from the mapping, title, body, optional meta and at; unknown fields refused), 200 KB cap, light rate limit (20 per 10 minutes per address).
+- Ready: `?dryRun=1` validates and answers without writing. Tested locally: no secret 401, wrong secret 401, bad kind 400, unknown field 400, valid dry run 200.
+- Writes shared briefs (user_id NULL) with the service role key on the server only. Checked: the key and the secret names do not appear in the browser bundle.
+- If migration 0003 has not run, `meta.sources` is kept by appending a "Sources:" line to the body.
+- Documented in `prompts/INGEST.md`. No scheduled task has been pointed at it yet (build order step 6).
