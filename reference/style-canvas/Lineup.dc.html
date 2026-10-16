@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Same rank, eight different people</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.cs{fill:var(--skin)}.cs2{fill:var(--skin2)}.ch{fill:var(--hair)}.cf{fill:var(--fur)}.cr{fill:var(--robe)}.ct{fill:var(--trim)}.ci{fill:var(--item)}.cg{fill:var(--acc)}.cw{fill:var(--wing)}.cx{fill:var(--horn)}
+@keyframes bobl{0%{transform:translateY(0)}50%{transform:translateY(-0.5px)}}
+@keyframes blinkl{0%,92%{transform:scaleY(1)}94%,98%{transform:scaleY(0.15)}100%{transform:scaleY(1)}}
+@keyframes twk{0%{opacity:1}50%{opacity:0.15}}
+@keyframes wingf{0%{transform:scaleY(1)}50%{transform:scaleY(0.82)}}
+.lb{animation:bobl 1.4s steps(1,end) infinite}
+.le{animation:blinkl 4s steps(1,end) infinite;transform-box:fill-box;transform-origin:center}
+.sp{animation:twk 1.2s steps(1,end) infinite}.sp2{animation-delay:-0.4s}.sp3{animation-delay:-0.8s}
+.wf{animation:wingf 0.9s steps(1,end) infinite;transform-box:fill-box;transform-origin:center}
+@media (prefers-reduced-motion:reduce){.lb,.le,.sp,.wf{animation:none}}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Ma+Shan+Zheng&family=Nunito:wght@500;700;800&display=swap">
+</helmet>
+<div style="position:relative;width:1280px;height:1620px;box-sizing:border-box;padding:48px;background:#f5ecdf;display:flex;flex-direction:column;gap:24px;font-family:'Nunito',system-ui,sans-serif;color:#3b2430;overflow:hidden">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<filter id="lg" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="5"/><feColorMatrix values="0 0 0 0 0.45  0 0 0 0 0.33  0 0 0 0 0.2  0 0 0 0.09 0"/></filter>
+
+<g id="bodyU"><rect x="10" y="5" width="12" height="1"/><rect x="9" y="6" width="14" height="11"/><rect x="10" y="17" width="12" height="1"/><rect x="12" y="18" width="8" height="7"/><rect x="10" y="19" width="2" height="5"/><rect x="20" y="19" width="2" height="5"/><rect x="12" y="25" width="3" height="3"/><rect x="17" y="25" width="3" height="3"/></g>
+<g id="face">
+<rect class="cs2" x="21" y="12" width="2" height="5"/><rect class="cs2" x="13" y="17" width="6" height="1"/>
+<g class="le"><rect x="12" y="11" width="2" height="3" fill="#3a2030"/><rect x="18" y="11" width="2" height="3" fill="#3a2030"/><rect x="12" y="11" width="1" height="1" fill="#fff"/><rect x="18" y="11" width="1" height="1" fill="#fff"/></g>
+<rect x="10" y="14" width="2" height="1" fill="#ff9db5"/><rect x="20" y="14" width="2" height="1" fill="#ff9db5"/><rect x="15" y="15" width="2" height="1" fill="#c4566f"/>
+</g>
+
+<g id="hLongB"><rect x="8" y="8" width="3" height="13"/><rect x="21" y="8" width="3" height="13"/><rect x="9" y="4" width="14" height="5"/><rect x="10" y="3" width="12" height="1"/></g>
+<g id="hLongF"><rect class="ch" x="9" y="5" width="14" height="3"/><rect class="ch" x="9" y="8" width="3" height="4"/><rect class="ch" x="20" y="8" width="3" height="4"/><rect class="ch" x="12" y="8" width="2" height="1"/><rect class="ch" x="18" y="8" width="2" height="1"/><rect x="11" y="5" width="4" height="1" fill="#fff" opacity="0.3"/></g>
+<g id="hBunB"><rect x="5" y="3" width="5" height="5"/><rect x="22" y="3" width="5" height="5"/><rect x="9" y="4" width="14" height="5"/><rect x="8" y="6" width="2" height="5"/><rect x="22" y="6" width="2" height="5"/></g>
+<g id="hBunF"><rect class="ch" x="9" y="5" width="14" height="3"/><rect class="ch" x="9" y="8" width="2" height="3"/><rect class="ch" x="21" y="8" width="2" height="3"/><rect class="ch" x="12" y="8" width="3" height="1"/><rect class="ch" x="17" y="8" width="3" height="1"/><rect class="cg" x="8" y="5" width="2" height="1"/><rect class="cg" x="22" y="5" width="2" height="1"/><rect x="11" y="5" width="4" height="1" fill="#fff" opacity="0.3"/></g>
+<g id="hBobB"><rect x="8" y="5" width="16" height="13"/><rect x="9" y="4" width="14" height="1"/></g>
+<g id="hBobF"><rect class="ch" x="9" y="5" width="14" height="4"/><rect class="ch" x="8" y="9" width="3" height="7"/><rect class="ch" x="21" y="9" width="3" height="7"/><rect class="ch" x="12" y="9" width="3" height="1"/><rect class="ch" x="17" y="9" width="3" height="1"/><rect x="11" y="5" width="4" height="1" fill="#fff" opacity="0.3"/></g>
+<g id="hSpkB"><rect x="9" y="3" width="14" height="5"/><rect x="7" y="5" width="2" height="6"/><rect x="23" y="5" width="2" height="6"/><rect x="10" y="1" width="2" height="2"/><rect x="14" y="0" width="2" height="3"/><rect x="18" y="1" width="2" height="2"/><rect x="21" y="2" width="2" height="2"/></g>
+<g id="hSpkF"><rect class="ch" x="9" y="5" width="14" height="3"/><rect class="ch" x="9" y="8" width="2" height="3"/><rect class="ch" x="21" y="8" width="2" height="3"/><rect class="ch" x="12" y="8" width="3" height="1"/><rect class="ch" x="17" y="8" width="3" height="1"/><rect x="11" y="5" width="4" height="1" fill="#fff" opacity="0.3"/></g>
+<g id="hKnotB"><rect x="14" y="-1" width="4" height="4"/><rect x="15" y="-2" width="2" height="1"/><rect x="9" y="4" width="14" height="4"/><rect x="8" y="6" width="2" height="6"/><rect x="22" y="6" width="2" height="6"/></g>
+
+<g id="oNar">
+<rect class="cr" x="12" y="18" width="8" height="7"/><rect class="cr" x="10" y="19" width="2" height="4"/><rect class="cr" x="20" y="19" width="2" height="4"/>
+<rect class="ct" x="12" y="18" width="8" height="1"/><rect class="ct" x="12" y="24" width="8" height="1"/><rect class="cg" x="12" y="21" width="8" height="1"/>
+<rect class="cs" x="10" y="23" width="2" height="1"/><rect class="cs" x="20" y="23" width="2" height="1"/>
+<rect x="12" y="26" width="3" height="2" fill="#fff4ec"/><rect x="17" y="26" width="3" height="2" fill="#fff4ec"/>
+</g>
+<g id="oWide">
+<rect class="cr" x="12" y="18" width="8" height="9"/><rect class="cr" x="5" y="19" width="7" height="5"/><rect class="cr" x="20" y="19" width="7" height="5"/><rect class="cr" x="11" y="25" width="10" height="3"/>
+<rect class="ct" x="5" y="23" width="7" height="1"/><rect class="ct" x="20" y="23" width="7" height="1"/><rect class="ct" x="12" y="18" width="8" height="1"/><rect class="cg" x="12" y="22" width="8" height="1"/><rect class="ct" x="11" y="27" width="10" height="1"/>
+<rect x="14" y="19" width="4" height="1" fill="#fff4ec"/>
+</g>
+<g id="oArm">
+<rect class="cr" x="12" y="18" width="8" height="8"/><rect class="cr" x="10" y="19" width="2" height="4"/><rect class="cr" x="20" y="19" width="2" height="4"/>
+<rect class="ct" x="8" y="18" width="4" height="3"/><rect class="ct" x="20" y="18" width="4" height="3"/><rect class="ct" x="12" y="23" width="8" height="1"/><rect class="ct" x="15" y="20" width="2" height="2"/>
+<rect class="cs" x="10" y="23" width="2" height="1"/><rect class="cs" x="20" y="23" width="2" height="1"/>
+<rect x="12" y="26" width="3" height="2" fill="#2d1b24"/><rect x="17" y="26" width="3" height="2" fill="#2d1b24"/>
+</g>
+
+<g id="wBflyU"><rect x="-5" y="7" width="9" height="9"/><rect x="-3" y="16" width="7" height="6"/><rect x="28" y="7" width="9" height="9"/><rect x="28" y="16" width="7" height="6"/></g>
+<g id="wBfly"><use href="#wBflyU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><g class="wf"><use href="#wBflyU" class="cw"/></g><rect x="-3" y="9" width="3" height="3" fill="#fff" opacity="0.6"/><rect x="32" y="9" width="3" height="3" fill="#fff" opacity="0.6"/><rect x="-1" y="18" width="2" height="2" fill="#fff" opacity="0.6"/><rect x="31" y="18" width="2" height="2" fill="#fff" opacity="0.6"/></g>
+<g id="wAngU"><rect x="-4" y="9" width="8" height="12"/><rect x="-6" y="12" width="3" height="8"/><rect x="28" y="9" width="8" height="12"/><rect x="35" y="12" width="3" height="8"/></g>
+<g id="wAng"><use href="#wAngU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><g class="wf"><use href="#wAngU" class="cw"/></g><rect x="-2" y="12" width="1" height="6" fill="#e6dff5"/><rect x="33" y="12" width="1" height="6" fill="#e6dff5"/></g>
+<g id="wBatU"><rect x="-6" y="8" width="10" height="9"/><rect x="-4" y="17" width="4" height="4"/><rect x="28" y="8" width="10" height="9"/><rect x="32" y="17" width="4" height="4"/></g>
+<g id="wBat"><use href="#wBatU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><g class="wf"><use href="#wBatU" class="cw"/></g><rect x="-3" y="10" width="1" height="6" fill="#3a2060" opacity="0.7"/><rect x="34" y="10" width="1" height="6" fill="#3a2060" opacity="0.7"/></g>
+
+<g id="tFoxU"><rect x="24" y="19" width="4" height="7"/><rect x="27" y="15" width="3" height="7"/></g>
+<g id="tFox"><use href="#tFoxU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#tFoxU" class="cf"/><rect x="27" y="15" width="3" height="2" fill="#fff4ec"/></g>
+<g id="tCatU"><rect x="24" y="24" width="5" height="2"/><rect x="28" y="19" width="2" height="6"/></g>
+<g id="tCat"><use href="#tCatU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#tCatU" class="cf"/></g>
+
+<g id="eFoxU"><rect x="8" y="0" width="4" height="5"/><rect x="9" y="-1" width="2" height="1"/><rect x="20" y="0" width="4" height="5"/><rect x="21" y="-1" width="2" height="1"/></g>
+<g id="eFox"><use href="#eFoxU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#eFoxU" class="cf"/><rect x="9" y="1" width="2" height="3" fill="#f598b5"/><rect x="21" y="1" width="2" height="3" fill="#f598b5"/></g>
+<g id="eCatU"><rect x="8" y="1" width="4" height="4"/><rect x="9" y="0" width="2" height="1"/><rect x="20" y="1" width="4" height="4"/><rect x="21" y="0" width="2" height="1"/></g>
+<g id="eCat"><use href="#eCatU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#eCatU" class="cf"/><rect x="9" y="2" width="2" height="2" fill="#f598b5"/><rect x="21" y="2" width="2" height="2" fill="#f598b5"/></g>
+<g id="eBunU"><rect x="10" y="-5" width="3" height="9"/><rect x="19" y="-5" width="3" height="9"/></g>
+<g id="eBun"><use href="#eBunU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#eBunU" class="cf"/><rect x="11" y="-3" width="1" height="5" fill="#f598b5"/><rect x="20" y="-3" width="1" height="5" fill="#f598b5"/></g>
+
+<g id="kCrownU"><rect x="10" y="3" width="12" height="2"/><rect x="10" y="1" width="2" height="2"/><rect x="15" y="0" width="2" height="3"/><rect x="20" y="1" width="2" height="2"/></g>
+<g id="kCrown"><use href="#kCrownU" fill="#f6c453" stroke="#4a2538" stroke-width="1"/><rect class="cg" x="15" y="1" width="2" height="1"/></g>
+<g id="kFlower"><rect x="9" y="3" width="3" height="2" fill="#ff9db5"/><rect x="12" y="2" width="3" height="2" fill="#fff"/><rect x="15" y="3" width="3" height="2" fill="#ffd36b"/><rect x="18" y="2" width="3" height="2" fill="#ff9db5"/><rect x="21" y="3" width="3" height="2" fill="#fff"/><rect x="9" y="4" width="14" height="1" fill="#5ccf9b" opacity="0.7"/></g>
+<g id="kPins"><rect x="21" y="1" width="1" height="8" fill="#5ccf9b"/><rect x="20" y="9" width="3" height="2" fill="#2fae7b"/><rect x="10" y="2" width="1" height="7" fill="#5ccf9b"/><rect x="9" y="9" width="3" height="2" fill="#2fae7b"/><rect x="15" y="1" width="2" height="2" fill="#f6c453"/></g>
+<g id="kHornU"><rect x="9" y="1" width="2" height="4"/><rect x="8" y="-1" width="2" height="2"/><rect x="21" y="1" width="2" height="4"/><rect x="22" y="-1" width="2" height="2"/></g>
+<g id="kHorn"><use href="#kHornU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#kHornU" class="cx"/></g>
+<g id="kHalo"><rect x="11" y="-4" width="10" height="1" fill="#f6c453"/><rect x="11" y="-2" width="10" height="1" fill="#f6c453"/><rect x="10" y="-3" width="1" height="1" fill="#f6c453"/><rect x="21" y="-3" width="1" height="1" fill="#f6c453"/></g>
+
+<g id="iFanU"><rect x="0" y="10" width="2" height="10"/><rect x="2" y="8" width="2" height="12"/><rect x="4" y="7" width="2" height="13"/><rect x="6" y="8" width="2" height="12"/><rect x="8" y="10" width="2" height="10"/></g>
+<g id="iFan"><use href="#iFanU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><rect class="ci" x="0" y="10" width="2" height="10"/><rect class="cg" x="2" y="8" width="2" height="12"/><rect class="ci" x="4" y="7" width="2" height="13"/><rect class="cg" x="6" y="8" width="2" height="12"/><rect class="ci" x="8" y="10" width="2" height="10"/><rect x="4" y="20" width="2" height="7" fill="#8b6a3e"/></g>
+<g id="iUmbU"><rect x="3" y="6" width="6" height="1"/><rect x="1" y="7" width="10" height="1"/><rect x="0" y="8" width="12" height="2"/></g>
+<g id="iUmb"><use href="#iUmbU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#iUmbU" class="ci"/><rect class="cg" x="5" y="6" width="2" height="4"/><rect x="5" y="10" width="1" height="16" fill="#8b6a3e"/><rect x="5" y="5" width="1" height="1" fill="#8b6a3e"/></g>
+<g id="iSword"><rect x="5" y="6" width="2" height="16" fill="#e6eef7" stroke="#4a2538" stroke-width="1"/><rect x="3" y="22" width="6" height="1" fill="#f6c453"/><rect x="5" y="23" width="2" height="4" fill="#8b6a3e"/><rect x="5" y="27" width="2" height="1" fill="#f6c453"/></g>
+<g id="iLant"><rect x="5" y="12" width="1" height="6" fill="#4a2538"/><rect x="2" y="17" width="7" height="9" fill="#ffd36b" opacity="0.3"/><rect class="ci" x="3" y="18" width="5" height="7" stroke="#4a2538" stroke-width="1"/><rect x="3" y="18" width="5" height="1" fill="#f6c453"/><rect x="3" y="24" width="5" height="1" fill="#f6c453"/><rect x="5" y="25" width="1" height="3" fill="#f6c453"/></g>
+
+<g id="spark">
+<g class="sp"><rect x="-4" y="0" width="1" height="3" fill="#f6c453"/><rect x="-5" y="1" width="3" height="1" fill="#f6c453"/></g>
+<g class="sp sp2"><rect x="35" y="2" width="1" height="3" fill="#fff"/><rect x="34" y="3" width="3" height="1" fill="#fff"/></g>
+<g class="sp sp3"><rect x="33" y="27" width="1" height="3" fill="#f6c453"/><rect x="32" y="28" width="3" height="1" fill="#f6c453"/></g>
+<g class="sp sp2"><rect x="-3" y="26" width="1" height="3" fill="#fff"/><rect x="-4" y="27" width="3" height="1" fill="#fff"/></g>
+</g>
+<polygon id="ring" points="2,2 30,2 34,8 34,26 30,32 2,32 -2,26 -2,8"/>
+
+<g id="p1"><use href="#spark"/><use href="#tFox"/><use href="#hBunB" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#hBunB" class="ch"/><g class="lb"><use href="#bodyU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#bodyU" class="cs"/><use href="#face"/><use href="#oWide"/><use href="#hBunF"/><use href="#eFox"/><use href="#kPins"/><use href="#iFan"/></g></g>
+<g id="p2"><use href="#wBat"/><use href="#hSpkB" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#hSpkB" class="ch"/><g class="lb"><use href="#bodyU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#bodyU" class="cs"/><use href="#face"/><use href="#oArm"/><use href="#hSpkF"/><use href="#kHorn"/><use href="#iSword"/></g></g>
+<g id="p3"><use href="#spark"/><use href="#wAng"/><use href="#hLongB" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#hLongB" class="ch"/><g class="lb"><use href="#bodyU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#bodyU" class="cs"/><use href="#face"/><use href="#oWide"/><use href="#hLongF"/><use href="#eBun"/><use href="#kHalo"/><use href="#iLant"/></g></g>
+<g id="p4"><use href="#spark"/><use href="#tCat"/><use href="#hBobB" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#hBobB" class="ch"/><g class="lb"><use href="#bodyU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#bodyU" class="cs"/><use href="#face"/><use href="#oNar"/><use href="#hBobF"/><use href="#eCat"/><use href="#iUmb"/></g></g>
+<g id="p5"><use href="#ring" fill="#f6c453" opacity="0.22"/><use href="#hKnotB" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#hKnotB" class="ch"/><g class="lb"><use href="#bodyU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#bodyU" class="cs"/><use href="#face"/><use href="#oWide"/><use href="#hSpkF"/><rect x="12" y="2" width="8" height="1" fill="#f6c453"/><use href="#iFan"/></g></g>
+<g id="p6"><use href="#wBfly"/><use href="#tFox"/><use href="#hLongB" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#hLongB" class="ch"/><g class="lb"><use href="#bodyU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#bodyU" class="cs"/><use href="#face"/><use href="#oNar"/><use href="#hLongF"/><use href="#eFox"/><use href="#kFlower"/><use href="#iLant"/></g></g>
+<g id="p7"><use href="#wBat"/><use href="#hBobB" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#hBobB" class="ch"/><g class="lb"><use href="#bodyU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#bodyU" class="cs"/><use href="#face"/><use href="#oArm"/><use href="#hBobF"/><use href="#kHorn"/><use href="#iSword"/></g></g>
+<g id="p8"><use href="#spark"/><use href="#hBunB" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#hBunB" class="ch"/><g class="lb"><use href="#bodyU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#bodyU" class="cs"/><use href="#face"/><use href="#oWide"/><use href="#hBunF"/><use href="#kPins"/><use href="#iUmb"/></g></g>
+</defs>
+</svg>
+
+<svg width="1280" height="1620" style="position:absolute;left:0;top:0;pointer-events:none" aria-hidden="true"><rect width="1280" height="1620" filter="url(#lg)"/></svg>
+<div style="position:absolute;right:-120px;top:40px;width:700px;height:480px;border-radius:50%;background:radial-gradient(ellipse at center,rgba(240,176,70,.34) 0%,rgba(240,176,70,.12) 55%,rgba(240,176,70,0) 72%);pointer-events:none"></div>
+
+<div style="position:relative;display:flex;justify-content:space-between;align-items:flex-end;gap:24px">
+<div style="display:flex;flex-direction:column;gap:6px">
+<span style="align-self:flex-start;font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:#4a2538;color:#fff4ec;padding:4px 10px;border-radius:999px">Answer to "everyone looks the same"</span>
+<h1 style="margin:0;font-family:'DotGothic16','Nunito',sans-serif;font-size:50px;line-height:1.05;font-weight:400">Same rank, eight different people</h1>
+<p style="margin:0;font-size:17px;color:#6d4b58;max-width:760px">The last mockup changed too little: same body, same face, only colours moved. The fix is bigger levers: silhouette-changing parts, dyes, and a face-and-body choice at the start.</p>
+</div>
+<div style="width:64px;height:64px;background:#c8372d;color:#fff4ec;font-family:'Ma Shan Zheng',serif;font-size:44px;display:grid;place-items:center;border-radius:8px;transform:rotate(-6deg)" aria-hidden="true">完</div>
+</div>
+
+<div style="position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px">
+
+<div style="background:rgba(255,250,242,.85);border:3px solid #4a2538;border-radius:20px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px">
+<svg viewBox="-6 -6 44 40" width="240" height="218" shape-rendering="crispEdges" style="--skin:#ffe0c8;--skin2:#f3c3a8;--hair:#ff9db5;--fur:#ffc2d4;--robe:#e0568a;--trim:#f6c453;--item:#fff4ec;--acc:#f6c453;--wing:#b9a6ff" role="img" aria-label="Mei, fox spirit with twin buns, wide robe and fan"><use href="#p1"/></svg>
+<div style="font-family:'DotGothic16',sans-serif;font-size:20px">Mei · Queen</div>
+<div style="font-size:12px;color:#6d4b58;text-align:center;line-height:1.35">Fox ears and tail, pink twin buns, wide-sleeve robe, jade pins, folding fan</div>
+</div>
+
+<div style="background:rgba(255,250,242,.85);border:3px solid #4a2538;border-radius:20px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px">
+<svg viewBox="-6 -6 44 40" width="240" height="218" shape-rendering="crispEdges" style="--skin:#c68863;--skin2:#a96f4c;--hair:#2b3b5a;--fur:#ffc2d4;--robe:#c8372d;--trim:#f6c453;--item:#fff4ec;--acc:#f6c453;--wing:#6d3fb0;--horn:#3fd0c9" role="img" aria-label="Jun, dragon-horned warrior with bat wings and sword"><use href="#p2"/></svg>
+<div style="font-family:'DotGothic16',sans-serif;font-size:20px">Jun · King</div>
+<div style="font-size:12px;color:#6d4b58;text-align:center;line-height:1.35">Teal dragon horns, bat wings, spiky blue-black hair, crimson armour, sword</div>
+</div>
+
+<div style="background:rgba(255,250,242,.85);border:3px solid #4a2538;border-radius:20px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px">
+<svg viewBox="-6 -6 44 40" width="240" height="218" shape-rendering="crispEdges" style="--skin:#ffe6d6;--skin2:#f3cdb9;--hair:#e8e0f5;--fur:#fff4ec;--robe:#b9a6ff;--trim:#f6c453;--item:#ff6f5e;--acc:#ff9db5;--wing:#ffffff" role="img" aria-label="Lan, moon rabbit with angel wings, halo and lantern"><use href="#p3"/></svg>
+<div style="font-family:'DotGothic16',sans-serif;font-size:20px">Lan · Queen</div>
+<div style="font-size:12px;color:#6d4b58;text-align:center;line-height:1.35">Moon-rabbit ears, silver hair, feather wings, halo, red lantern</div>
+</div>
+
+<div style="background:rgba(255,250,242,.85);border:3px solid #4a2538;border-radius:20px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px">
+<svg viewBox="-6 -6 44 40" width="240" height="218" shape-rendering="crispEdges" style="--skin:#f1c27d;--skin2:#d9a85f;--hair:#4fd1c5;--fur:#4fd1c5;--robe:#ffb84a;--trim:#fff4ec;--item:#e0568a;--acc:#fff4ec;--wing:#b9a6ff" role="img" aria-label="Rui, cat-eared with teal bob and oil-paper umbrella"><use href="#p4"/></svg>
+<div style="font-family:'DotGothic16',sans-serif;font-size:20px">Rui · Queen</div>
+<div style="font-size:12px;color:#6d4b58;text-align:center;line-height:1.35">Cat ears and tail, teal bob, golden robe, paper umbrella, sparkles</div>
+</div>
+
+<div style="background:rgba(255,250,242,.85);border:3px solid #4a2538;border-radius:20px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px">
+<svg viewBox="-6 -6 44 40" width="240" height="218" shape-rendering="crispEdges" style="--skin:#8d5a3b;--skin2:#72452b;--hair:#5b3a2e;--fur:#ffc2d4;--robe:#3f4fbf;--trim:#f6c453;--item:#3fb7a0;--acc:#f6c453;--wing:#b9a6ff" role="img" aria-label="Kai, topknot with indigo robe, gold ring aura and fan"><use href="#p5"/></svg>
+<div style="font-family:'DotGothic16',sans-serif;font-size:20px">Kai · King</div>
+<div style="font-size:12px;color:#6d4b58;text-align:center;line-height:1.35">Topknot with gold pin, indigo wide robe, jade fan, gold ring aura</div>
+</div>
+
+<div style="background:rgba(255,250,242,.85);border:3px solid #4a2538;border-radius:20px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px">
+<svg viewBox="-6 -6 44 40" width="240" height="218" shape-rendering="crispEdges" style="--skin:#ffe0c8;--skin2:#f3c3a8;--hair:#c9b6ff;--fur:#fff4ec;--robe:#3fb7a0;--trim:#fff4ec;--item:#ff6f5e;--acc:#ffd36b;--wing:#7fc8ff" role="img" aria-label="Suki, white fox with butterfly wings and flower crown"><use href="#p6"/></svg>
+<div style="font-family:'DotGothic16',sans-serif;font-size:20px">Suki · Queen</div>
+<div style="font-size:12px;color:#6d4b58;text-align:center;line-height:1.35">White fox ears and tail, butterfly wings, flower crown, teal robe, lantern</div>
+</div>
+
+<div style="background:rgba(255,250,242,.85);border:3px solid #4a2538;border-radius:20px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px">
+<svg viewBox="-6 -6 44 40" width="240" height="218" shape-rendering="crispEdges" style="--skin:#f1c27d;--skin2:#d9a85f;--hair:#d0453a;--fur:#ffc2d4;--robe:#2d1b24;--trim:#f6c453;--item:#fff4ec;--acc:#f6c453;--wing:#8f5bd6;--horn:#f6c453" role="img" aria-label="Dao, red bob with golden horns, dark armour and bat wings"><use href="#p7"/></svg>
+<div style="font-family:'DotGothic16',sans-serif;font-size:20px">Dao · King</div>
+<div style="font-size:12px;color:#6d4b58;text-align:center;line-height:1.35">Red bob, golden horns, purple bat wings, black-and-gold armour, sword</div>
+</div>
+
+<div style="background:rgba(255,250,242,.85);border:3px solid #4a2538;border-radius:20px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:4px">
+<svg viewBox="-6 -6 44 40" width="240" height="218" shape-rendering="crispEdges" style="--skin:#c68863;--skin2:#a96f4c;--hair:#2d1b24;--fur:#ffc2d4;--robe:#1f9e72;--trim:#f6c453;--item:#c8372d;--acc:#f6c453;--wing:#b9a6ff" role="img" aria-label="Ying, black twin buns, emerald robe, jade pins and red umbrella"><use href="#p8"/></svg>
+<div style="font-family:'DotGothic16',sans-serif;font-size:20px">Ying · Queen</div>
+<div style="font-size:12px;color:#6d4b58;text-align:center;line-height:1.35">Black twin buns, emerald wide robe, jade pins, red umbrella, sparkles</div>
+</div>
+
+</div>
+
+<div style="position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:22px;align-items:start">
+
+<div style="background:rgba(255,250,242,.85);border:2px solid #d9c3a8;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:12px">
+<div style="font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6d4b58">Do they still pop as a profile picture?</div>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<div style="width:64px;height:64px;border-radius:50%;background:#ffd9c9;overflow:hidden;border:2px solid #4a2538"><svg viewBox="-2 -7 36 36" width="64" height="64" shape-rendering="crispEdges" style="--skin:#ffe0c8;--skin2:#f3c3a8;--hair:#ff9db5;--fur:#ffc2d4;--robe:#e0568a;--trim:#f6c453;--item:#fff4ec;--acc:#f6c453;--wing:#b9a6ff"><use href="#p1"/></svg></div>
+<div style="width:64px;height:64px;border-radius:50%;background:#d9f0ee;overflow:hidden;border:2px solid #4a2538"><svg viewBox="-2 -7 36 36" width="64" height="64" shape-rendering="crispEdges" style="--skin:#c68863;--skin2:#a96f4c;--hair:#2b3b5a;--fur:#ffc2d4;--robe:#c8372d;--trim:#f6c453;--item:#fff4ec;--acc:#f6c453;--wing:#6d3fb0;--horn:#3fd0c9"><use href="#p2"/></svg></div>
+<div style="width:64px;height:64px;border-radius:50%;background:#e6d9fb;overflow:hidden;border:2px solid #4a2538"><svg viewBox="-2 -7 36 36" width="64" height="64" shape-rendering="crispEdges" style="--skin:#ffe6d6;--skin2:#f3cdb9;--hair:#e8e0f5;--fur:#fff4ec;--robe:#b9a6ff;--trim:#f6c453;--item:#ff6f5e;--acc:#ff9db5;--wing:#ffffff"><use href="#p3"/></svg></div>
+<div style="width:64px;height:64px;border-radius:50%;background:#ffe9b8;overflow:hidden;border:2px solid #4a2538"><svg viewBox="-2 -7 36 36" width="64" height="64" shape-rendering="crispEdges" style="--skin:#f1c27d;--skin2:#d9a85f;--hair:#4fd1c5;--fur:#4fd1c5;--robe:#ffb84a;--trim:#fff4ec;--item:#e0568a;--acc:#fff4ec;--wing:#b9a6ff"><use href="#p4"/></svg></div>
+<div style="width:64px;height:64px;border-radius:50%;background:#e8e4ff;overflow:hidden;border:2px solid #4a2538"><svg viewBox="-2 -7 36 36" width="64" height="64" shape-rendering="crispEdges" style="--skin:#8d5a3b;--skin2:#72452b;--hair:#5b3a2e;--fur:#ffc2d4;--robe:#3f4fbf;--trim:#f6c453;--item:#3fb7a0;--acc:#f6c453;--wing:#b9a6ff"><use href="#p5"/></svg></div>
+<div style="width:64px;height:64px;border-radius:50%;background:#dff1ff;overflow:hidden;border:2px solid #4a2538"><svg viewBox="-2 -7 36 36" width="64" height="64" shape-rendering="crispEdges" style="--skin:#ffe0c8;--skin2:#f3c3a8;--hair:#c9b6ff;--fur:#fff4ec;--robe:#3fb7a0;--trim:#fff4ec;--item:#ff6f5e;--acc:#ffd36b;--wing:#7fc8ff"><use href="#p6"/></svg></div>
+<div style="width:64px;height:64px;border-radius:50%;background:#ffe0dc;overflow:hidden;border:2px solid #4a2538"><svg viewBox="-2 -7 36 36" width="64" height="64" shape-rendering="crispEdges" style="--skin:#f1c27d;--skin2:#d9a85f;--hair:#d0453a;--fur:#ffc2d4;--robe:#2d1b24;--trim:#f6c453;--item:#fff4ec;--acc:#f6c453;--wing:#8f5bd6;--horn:#f6c453"><use href="#p7"/></svg></div>
+<div style="width:64px;height:64px;border-radius:50%;background:#dff5e8;overflow:hidden;border:2px solid #4a2538"><svg viewBox="-2 -7 36 36" width="64" height="64" shape-rendering="crispEdges" style="--skin:#c68863;--skin2:#a96f4c;--hair:#2d1b24;--fur:#ffc2d4;--robe:#1f9e72;--trim:#f6c453;--item:#c8372d;--acc:#f6c453;--wing:#b9a6ff"><use href="#p8"/></svg></div>
+</div>
+<div style="font-size:13px;line-height:1.5;color:#6d4b58">At profile-picture size only the head and shoulders show, so the big levers sit up there: hair shape and colour, ears, horns, halos, headwear, plus a background colour and frame. Rank shows on the card as a badge and frame, so everything on the character is free to be personal.</div>
+</div>
+
+<div style="background:rgba(255,250,242,.85);border:2px solid #d9c3a8;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:10px;font-size:14px;line-height:1.5">
+<div style="font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6d4b58">The levers that make people look different</div>
+<div><b>1. Start with a face and body.</b> Five skin tones, several faces, hair shapes, body types. Everyone begins unique.</div>
+<div><b>2. Ancestry.</b> Human, fox spirit, cat, moon rabbit, dragon-kin. Ears, tails and horns change the silhouette.</div>
+<div><b>3. Big back and head pieces.</b> Wings, tails, halos, horns, crowns. These are what you see from far away.</div>
+<div><b>4. Dyes.</b> Any item can be recoloured in 2 to 3 channels. This alone multiplies the looks hugely and sells well.</div>
+<div><b>5. Held props and companions.</b> Fan, umbrella, sword, lantern, a pet.</div>
+<div><b>6. Animated effects.</b> Sparkles, auras, trails, idle emotes.</div>
+<div><b>7. Card scenery.</b> Backgrounds, frames, stickers, a title line.</div>
+<div style="background:#fff;border-radius:12px;padding:10px 12px;margin-top:4px">Rough count from this board: 5 hairstyles × 14 hair dyes × 5 skin tones × 4 species × 4 wings × 5 headwear × 4 props × 3 outfits × 12 outfit dyes ≈ <b>4 million looks</b>, before pets and auras.</div>
+</div>
+
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1620}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

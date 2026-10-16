@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Player character: Commoner to Queen or King</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+@keyframes bobp{0%{transform:translateY(0)}50%{transform:translateY(-0.5px)}}
+@keyframes blinkp{0%,92%{transform:scaleY(1)}94%,98%{transform:scaleY(0.15)}100%{transform:scaleY(1)}}
+.pb{animation:bobp 1.4s steps(1,end) infinite}
+.pe{animation:blinkp 4s steps(1,end) infinite;transform-box:fill-box;transform-origin:center}
+@media (prefers-reduced-motion:reduce){.pb,.pe{animation:none}}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Ma+Shan+Zheng&family=Nunito:wght@500;700;800&display=swap">
+</helmet>
+<div style="position:relative;width:1280px;height:1720px;box-sizing:border-box;padding:48px;background:#f5ecdf;display:flex;flex-direction:column;gap:26px;font-family:'Nunito',system-ui,sans-serif;color:#3b2430;overflow:hidden">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<filter id="pg" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 0.45  0 0 0 0 0.33  0 0 0 0 0.2  0 0 0 0.09 0"/></filter>
+
+<g id="pBodyU">
+<rect x="10" y="5" width="12" height="1"/><rect x="9" y="6" width="14" height="11"/><rect x="10" y="17" width="12" height="1"/>
+<rect x="12" y="18" width="8" height="7"/><rect x="10" y="19" width="2" height="5"/><rect x="20" y="19" width="2" height="5"/>
+<rect x="12" y="25" width="3" height="3"/><rect x="17" y="25" width="3" height="3"/>
+</g>
+<g id="pHairBF"><rect x="8" y="8" width="3" height="13"/><rect x="21" y="8" width="3" height="13"/><rect x="9" y="4" width="14" height="5"/><rect x="10" y="3" width="12" height="1"/></g>
+<g id="pHairBM"><rect x="9" y="4" width="14" height="4"/><rect x="8" y="6" width="2" height="5"/><rect x="22" y="6" width="2" height="5"/><rect x="11" y="3" width="2" height="1"/><rect x="15" y="2" width="3" height="2"/><rect x="19" y="3" width="2" height="1"/></g>
+<g id="pFace">
+<rect x="21" y="12" width="2" height="5" fill="#f3c3a8"/><rect x="13" y="17" width="6" height="1" fill="#f3c3a8"/>
+<g class="pe"><rect x="12" y="11" width="2" height="3" fill="#3a2030"/><rect x="18" y="11" width="2" height="3" fill="#3a2030"/><rect x="12" y="11" width="1" height="1" fill="#fff"/><rect x="18" y="11" width="1" height="1" fill="#fff"/></g>
+<rect x="10" y="14" width="2" height="1" fill="#ff9db5"/><rect x="20" y="14" width="2" height="1" fill="#ff9db5"/>
+<rect x="15" y="15" width="2" height="1" fill="#c4566f"/>
+</g>
+<g id="pFrontF">
+<rect x="9" y="5" width="14" height="3" fill="#5b3a4a"/><rect x="9" y="8" width="3" height="4" fill="#5b3a4a"/><rect x="20" y="8" width="3" height="4" fill="#5b3a4a"/>
+<rect x="12" y="8" width="2" height="1" fill="#5b3a4a"/><rect x="18" y="8" width="2" height="1" fill="#5b3a4a"/><rect x="11" y="5" width="4" height="1" fill="#7d5568"/>
+</g>
+<g id="pFrontM">
+<rect x="9" y="5" width="14" height="3" fill="#3b2a3a"/><rect x="9" y="8" width="2" height="3" fill="#3b2a3a"/><rect x="21" y="8" width="2" height="3" fill="#3b2a3a"/>
+<rect x="12" y="8" width="3" height="1" fill="#3b2a3a"/><rect x="17" y="8" width="3" height="1" fill="#3b2a3a"/><rect x="11" y="5" width="4" height="1" fill="#5d4560"/>
+</g>
+
+<g id="oCommoner">
+<rect x="12" y="18" width="8" height="6" fill="#d9b98f"/><rect x="10" y="19" width="2" height="3" fill="#d9b98f"/><rect x="20" y="19" width="2" height="3" fill="#d9b98f"/>
+<rect x="18" y="19" width="2" height="4" fill="#c4a279"/><rect x="12" y="22" width="8" height="1" fill="#8b6a3e"/>
+<rect x="12" y="25" width="3" height="3" fill="#8b6a3e"/><rect x="17" y="25" width="3" height="3" fill="#8b6a3e"/>
+</g>
+<g id="oPrincess">
+<rect x="12" y="18" width="8" height="7" fill="#b9a6ff"/><rect x="10" y="19" width="2" height="4" fill="#b9a6ff"/><rect x="20" y="19" width="2" height="4" fill="#b9a6ff"/>
+<rect x="18" y="19" width="2" height="5" fill="#9a86e6"/>
+<rect x="12" y="18" width="8" height="1" fill="#f6c453"/><rect x="12" y="24" width="8" height="1" fill="#f6c453"/><rect x="12" y="21" width="8" height="1" fill="#ff9db5"/>
+<rect x="10" y="23" width="2" height="1" fill="#ffe0c8"/><rect x="20" y="23" width="2" height="1" fill="#ffe0c8"/>
+<rect x="12" y="26" width="3" height="2" fill="#fff4ec"/><rect x="17" y="26" width="3" height="2" fill="#fff4ec"/>
+</g>
+<g id="oPrince">
+<rect x="12" y="18" width="8" height="7" fill="#7fa4ff"/><rect x="10" y="19" width="2" height="4" fill="#7fa4ff"/><rect x="20" y="19" width="2" height="4" fill="#7fa4ff"/>
+<rect x="18" y="19" width="2" height="5" fill="#6485db"/>
+<rect x="12" y="18" width="8" height="1" fill="#f6c453"/><rect x="12" y="24" width="8" height="1" fill="#f6c453"/><rect x="12" y="21" width="8" height="1" fill="#3fb7a0"/>
+<rect x="10" y="23" width="2" height="1" fill="#ffe0c8"/><rect x="20" y="23" width="2" height="1" fill="#ffe0c8"/>
+<rect x="12" y="26" width="3" height="2" fill="#fff4ec"/><rect x="17" y="26" width="3" height="2" fill="#fff4ec"/>
+</g>
+<g id="oQueen">
+<rect x="12" y="18" width="8" height="7" fill="#e0568a"/><rect x="10" y="19" width="2" height="4" fill="#e0568a"/><rect x="20" y="19" width="2" height="4" fill="#e0568a"/>
+<rect x="18" y="19" width="2" height="5" fill="#b83b6c"/>
+<rect x="12" y="24" width="8" height="1" fill="#f6c453"/><rect x="12" y="21" width="8" height="1" fill="#f6c453"/>
+<rect x="11" y="18" width="10" height="2" fill="#fff4ec"/><rect x="13" y="19" width="1" height="1" fill="#3a2030"/><rect x="16" y="19" width="1" height="1" fill="#3a2030"/><rect x="18" y="19" width="1" height="1" fill="#3a2030"/>
+<rect x="10" y="23" width="2" height="1" fill="#ffe0c8"/><rect x="20" y="23" width="2" height="1" fill="#ffe0c8"/>
+<rect x="12" y="26" width="3" height="2" fill="#4a2538"/><rect x="17" y="26" width="3" height="2" fill="#4a2538"/>
+</g>
+<g id="oKing">
+<rect x="12" y="18" width="8" height="7" fill="#5b6bd6"/><rect x="10" y="19" width="2" height="4" fill="#5b6bd6"/><rect x="20" y="19" width="2" height="4" fill="#5b6bd6"/>
+<rect x="18" y="19" width="2" height="5" fill="#4552ae"/>
+<rect x="12" y="24" width="8" height="1" fill="#f6c453"/><rect x="12" y="21" width="8" height="1" fill="#c8372d"/>
+<rect x="11" y="18" width="10" height="2" fill="#fff4ec"/><rect x="13" y="19" width="1" height="1" fill="#3a2030"/><rect x="16" y="19" width="1" height="1" fill="#3a2030"/><rect x="18" y="19" width="1" height="1" fill="#3a2030"/>
+<rect x="10" y="23" width="2" height="1" fill="#ffe0c8"/><rect x="20" y="23" width="2" height="1" fill="#ffe0c8"/>
+<rect x="12" y="26" width="3" height="2" fill="#4a2538"/><rect x="17" y="26" width="3" height="2" fill="#4a2538"/>
+</g>
+
+<g id="capeU"><rect x="9" y="18" width="14" height="9"/><rect x="8" y="22" width="1" height="5"/><rect x="23" y="22" width="1" height="5"/></g>
+
+<g id="hFlower"><rect x="21" y="4" width="3" height="3" fill="#ff9db5"/><rect x="22" y="5" width="1" height="1" fill="#f6c453"/></g>
+<g id="hBand"><rect x="9" y="7" width="14" height="1" fill="#e8b04a"/></g>
+<g id="hCirP"><rect x="10" y="4" width="12" height="1" fill="#f6c453"/><rect x="15" y="2" width="2" height="2" fill="#ff6f9a"/><rect x="11" y="3" width="1" height="1" fill="#fff4ec"/><rect x="20" y="3" width="1" height="1" fill="#fff4ec"/></g>
+<g id="hCirB"><rect x="10" y="4" width="12" height="1" fill="#f6c453"/><rect x="15" y="2" width="2" height="2" fill="#6ec1ff"/><rect x="11" y="3" width="1" height="1" fill="#fff4ec"/><rect x="20" y="3" width="1" height="1" fill="#fff4ec"/></g>
+<g id="crownU"><rect x="10" y="3" width="12" height="2"/><rect x="10" y="1" width="2" height="2"/><rect x="15" y="0" width="2" height="3"/><rect x="20" y="1" width="2" height="2"/></g>
+<g id="iStaff"><rect x="8" y="14" width="1" height="13" fill="#8b6a3e"/><rect x="7" y="12" width="3" height="2" fill="#a37f4c"/></g>
+<g id="iScepP"><rect x="8" y="14" width="1" height="13" fill="#f6c453"/><rect x="7" y="11" width="3" height="3" fill="#ff6f9a"/></g>
+<g id="iScepB"><rect x="8" y="14" width="1" height="13" fill="#f6c453"/><rect x="7" y="11" width="3" height="3" fill="#6ec1ff"/></g>
+<g id="iScepQ"><rect x="8" y="14" width="1" height="13" fill="#f6c453"/><rect x="7" y="10" width="3" height="4" fill="#e0568a"/><rect x="8" y="9" width="1" height="1" fill="#f6c453"/></g>
+<g id="iScepK"><rect x="8" y="14" width="1" height="13" fill="#f6c453"/><rect x="7" y="10" width="3" height="4" fill="#5b6bd6"/><rect x="8" y="9" width="1" height="1" fill="#f6c453"/></g>
+<g id="cBunU"><rect x="25" y="23" width="5" height="1"/><rect x="24" y="24" width="7" height="3"/><rect x="25" y="27" width="5" height="1"/></g>
+<g id="cBun"><use href="#cBunU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#cBunU" fill="#fff4ec"/><rect x="26" y="25" width="1" height="1" fill="#3a2030"/><rect x="28" y="25" width="1" height="1" fill="#3a2030"/><rect x="25" y="26" width="1" height="1" fill="#ff9db5"/><rect x="29" y="26" width="1" height="1" fill="#ff9db5"/></g>
+<g id="cFoxU"><rect x="24" y="22" width="2" height="2"/><rect x="29" y="22" width="2" height="2"/><rect x="24" y="24" width="7" height="4"/><rect x="31" y="26" width="1" height="3"/></g>
+<g id="cFox"><use href="#cFoxU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#cFoxU" fill="#ffc2d4"/><rect x="31" y="26" width="1" height="1" fill="#fff4ec"/><rect x="26" y="25" width="1" height="1" fill="#3a2030"/><rect x="28" y="25" width="1" height="1" fill="#3a2030"/><rect x="27" y="26" width="1" height="1" fill="#3a2030"/><rect x="24" y="26" width="1" height="1" fill="#ff8fb0"/><rect x="30" y="26" width="1" height="1" fill="#ff8fb0"/></g>
+<polygon id="pAura" points="4,0 28,0 32,6 32,26 28,32 4,32 0,26 0,6"/>
+</defs>
+</svg>
+
+<svg width="1280" height="1720" style="position:absolute;left:0;top:0;pointer-events:none" aria-hidden="true"><rect width="1280" height="1720" filter="url(#pg)"/></svg>
+<div style="position:absolute;left:-100px;top:60px;width:700px;height:500px;border-radius:50%;background:radial-gradient(ellipse at center,rgba(240,176,70,.38) 0%,rgba(240,176,70,.14) 55%,rgba(240,176,70,0) 72%);pointer-events:none"></div>
+
+<div style="position:relative;display:flex;justify-content:space-between;align-items:flex-end;gap:24px">
+<div style="display:flex;flex-direction:column;gap:6px">
+<span style="align-self:flex-start;font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:#4a2538;color:#fff4ec;padding:4px 10px;border-radius:999px">The player character · mockup</span>
+<h1 style="margin:0;font-family:'DotGothic16','Nunito',sans-serif;font-size:50px;line-height:1.05;font-weight:400">Commoner to Queen or King</h1>
+<p style="margin:0;font-size:17px;color:#6d4b58;max-width:700px">This is you in the court. Rank is earned by showing up. Style is bought. Crew characters like Kumo are your tools; this one is your identity.</p>
+</div>
+<div style="width:64px;height:64px;background:#c8372d;color:#fff4ec;font-family:'Ma Shan Zheng',serif;font-size:44px;display:grid;place-items:center;border-radius:8px;transform:rotate(-6deg)" aria-hidden="true">完</div>
+</div>
+
+<div style="position:relative;display:flex;flex-direction:column;gap:10px">
+<div style="font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6d4b58">Her path · Queen style</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px">
+
+<div style="background:rgba(255,250,242,.85);border:3px solid #4a2538;border-radius:22px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:6px">
+<svg viewBox="0 -4 32 38" width="190" height="226" shape-rendering="crispEdges" role="img" aria-label="Commoner, feminine style">
+<g class="pb"><use href="#pHairBF" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#pHairBF" fill="#5b3a4a"/>
+<use href="#pBodyU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#pBodyU" fill="#ffe0c8"/><use href="#pFace"/><use href="#oCommoner"/><use href="#pFrontF"/><use href="#hFlower"/><use href="#iStaff"/></g>
+</svg>
+<div style="font-family:'DotGothic16',sans-serif;font-size:22px">Commoner</div>
+<div style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6d4b58">Rank 1 · start here</div>
+<div style="font-size:13px;line-height:1.45;text-align:center">Plain tunic, hairpin, wooden staff. Hair and held-item slots open.</div>
+</div>
+
+<div style="background:rgba(255,250,242,.85);border:3px solid #4a2538;border-radius:22px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:6px">
+<svg viewBox="0 -4 32 38" width="190" height="226" shape-rendering="crispEdges" role="img" aria-label="Princess">
+<g class="pb"><use href="#pHairBF" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#pHairBF" fill="#5b3a4a"/>
+<use href="#pBodyU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#pBodyU" fill="#ffe0c8"/><use href="#pFace"/><use href="#oPrincess"/><use href="#pFrontF"/><use href="#hCirP"/><use href="#iScepP"/><use href="#cBun"/></g>
+</svg>
+<div style="font-family:'DotGothic16',sans-serif;font-size:22px">Princess</div>
+<div style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6d4b58">Rank 2 · example: Realm 2 + 21-day streak</div>
+<div style="font-size:13px;line-height:1.45;text-align:center">Lavender robe, circlet, scepter, a bun companion. Cape and companion slots unlock.</div>
+</div>
+
+<div style="background:rgba(255,250,242,.85);border:3px solid #4a2538;border-radius:22px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:6px">
+<svg viewBox="0 -4 32 38" width="190" height="226" shape-rendering="crispEdges" role="img" aria-label="Queen">
+<use href="#pAura" fill="#f6c453" opacity="0.22"/>
+<g class="pb"><use href="#capeU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#capeU" fill="#c8372d"/>
+<use href="#pHairBF" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#pHairBF" fill="#5b3a4a"/>
+<use href="#pBodyU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#pBodyU" fill="#ffe0c8"/><use href="#pFace"/><use href="#oQueen"/><use href="#pFrontF"/>
+<use href="#crownU" fill="#f6c453" stroke="#4a2538" stroke-width="1"/><rect x="15" y="1" width="2" height="1" fill="#ff6f9a"/><use href="#iScepQ"/><use href="#cFox"/></g>
+</svg>
+<div style="font-family:'DotGothic16',sans-serif;font-size:22px">Queen</div>
+<div style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6d4b58">Rank 3 · example: Realm 4 + 100-day streak</div>
+<div style="font-size:13px;line-height:1.45;text-align:center">Crown, ermine collar, red cape, aura and a fox companion. Aura slot unlocks.</div>
+</div>
+
+</div>
+</div>
+
+<div style="position:relative;display:flex;flex-direction:column;gap:10px">
+<div style="font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6d4b58">His path · King style</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px">
+
+<div style="background:rgba(255,250,242,.85);border:3px solid #4a2538;border-radius:22px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:6px">
+<svg viewBox="0 -4 32 38" width="190" height="226" shape-rendering="crispEdges" role="img" aria-label="Commoner, masculine style">
+<g class="pb"><use href="#pHairBM" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#pHairBM" fill="#3b2a3a"/>
+<use href="#pBodyU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#pBodyU" fill="#ffe0c8"/><use href="#pFace"/><use href="#oCommoner"/><use href="#pFrontM"/><use href="#hBand"/><use href="#iStaff"/></g>
+</svg>
+<div style="font-family:'DotGothic16',sans-serif;font-size:22px">Commoner</div>
+<div style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6d4b58">Rank 1 · start here</div>
+<div style="font-size:13px;line-height:1.45;text-align:center">Same tunic and staff, short hair, headband.</div>
+</div>
+
+<div style="background:rgba(255,250,242,.85);border:3px solid #4a2538;border-radius:22px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:6px">
+<svg viewBox="0 -4 32 38" width="190" height="226" shape-rendering="crispEdges" role="img" aria-label="Prince">
+<g class="pb"><use href="#pHairBM" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#pHairBM" fill="#3b2a3a"/>
+<use href="#pBodyU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#pBodyU" fill="#ffe0c8"/><use href="#pFace"/><use href="#oPrince"/><use href="#pFrontM"/><use href="#hCirB"/><use href="#iScepB"/><use href="#cBun"/></g>
+</svg>
+<div style="font-family:'DotGothic16',sans-serif;font-size:22px">Prince</div>
+<div style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6d4b58">Rank 2 · example: Realm 2 + 21-day streak</div>
+<div style="font-size:13px;line-height:1.45;text-align:center">Sky-blue robe, circlet, scepter and companion.</div>
+</div>
+
+<div style="background:rgba(255,250,242,.85);border:3px solid #4a2538;border-radius:22px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:6px">
+<svg viewBox="0 -4 32 38" width="190" height="226" shape-rendering="crispEdges" role="img" aria-label="King">
+<use href="#pAura" fill="#f6c453" opacity="0.22"/>
+<g class="pb"><use href="#capeU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#capeU" fill="#7a1f2e"/>
+<use href="#pHairBM" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#pHairBM" fill="#3b2a3a"/>
+<use href="#pBodyU" fill="#4a2538" stroke="#4a2538" stroke-width="2"/><use href="#pBodyU" fill="#ffe0c8"/><use href="#pFace"/><use href="#oKing"/><use href="#pFrontM"/>
+<use href="#crownU" fill="#f6c453" stroke="#4a2538" stroke-width="1"/><rect x="15" y="1" width="2" height="1" fill="#6ec1ff"/><use href="#iScepK"/><use href="#cFox"/></g>
+</svg>
+<div style="font-family:'DotGothic16',sans-serif;font-size:22px">King</div>
+<div style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6d4b58">Rank 3 · example: Realm 4 + 100-day streak</div>
+<div style="font-size:13px;line-height:1.45;text-align:center">Indigo robe, crown, crimson cape, aura and fox companion.</div>
+</div>
+
+</div>
+</div>
+
+<div style="position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:22px;align-items:start">
+
+<div style="background:rgba(255,250,242,.85);border:2px solid #d9c3a8;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:12px">
+<div style="font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6d4b58">Accessory shop: where the money is</div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;font-size:13px">
+<div style="background:#fff;border-radius:12px;padding:8px 10px"><b>Hair and face</b><br>Shop · Starter styles free</div>
+<div style="background:#fff;border-radius:12px;padding:8px 10px"><b>Headwear</b><br>Rank crown earned · extras Shop</div>
+<div style="background:#fff;border-radius:12px;padding:8px 10px"><b>Outfit sets</b><br>Shop · Seasonal (solar terms)</div>
+<div style="background:#fff;border-radius:12px;padding:8px 10px"><b>Capes and wings</b><br>Unlocks at rank 2 · Shop</div>
+<div style="background:#fff;border-radius:12px;padding:8px 10px"><b>Held items</b><br>Shop · Founder-only editions</div>
+<div style="background:#fff;border-radius:12px;padding:8px 10px"><b>Companions</b><br>Crew minis · Shop</div>
+<div style="background:#fff;border-radius:12px;padding:8px 10px"><b>Auras</b><br>Earned by streaks · Shop skins</div>
+<div style="background:#fff;border-radius:12px;padding:8px 10px"><b>Profile card frames</b><br>Seasonal · Limited</div>
+</div>
+<div style="font-size:13px;line-height:1.5;color:#6d4b58">Prices not set. Test what people want before pricing. <b>Rule:</b> the rank itself can't be bought, only earned, so the crown still means something.</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:14px">
+<div style="background:#e9f0ff;border-radius:18px;padding:16px 18px;font-size:14px;line-height:1.5"><b style="display:block;margin-bottom:6px">Crew versus player</b>
+Crew (Kumo, Coco, the FOMO Imp, and others) are the functions: some come built in, others unlock as you buy them. The player character is you, and the same crew can show up as companions.</div>
+<div style="background:#fff0f3;border-radius:18px;padding:16px 18px;font-size:14px;line-height:1.5"><b style="display:block;margin-bottom:6px">How it could fit the NFT idea (later)</b>
+1. A genesis look, one per user, created at sign-up.<br>
+2. Rank as a non-transferable credential that proves what you earned.<br>
+3. Accessories as optional tradeable items.<br>
+Court style (Queen, King or neutral) is chosen independently of anything else.</div>
+</div>
+
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1720}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

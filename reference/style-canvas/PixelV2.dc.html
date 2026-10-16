@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pixel v2: the trio</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+@keyframes swL{0%{transform:translateX(0)}50%{transform:translateX(-1px)}}
+@keyframes swR{0%{transform:translateX(0)}50%{transform:translateX(1px)}}
+@keyframes bob{0%{transform:translateY(0)}50%{transform:translateY(-0.5px)}}
+@keyframes blink{0%,92%{transform:scaleY(1)}94%,98%{transform:scaleY(0.15)}100%{transform:scaleY(1)}}
+@keyframes flap{0%{transform:scaleY(1)}50%{transform:scaleY(0.55)}}
+@keyframes pump{0%{transform:scaleY(0.35)}33%{transform:scaleY(0.65)}66%{transform:scaleY(1)}}
+@keyframes puff{0%{transform:scaleX(1)}50%{transform:scaleX(1.3)}}
+.tL{animation:swL 1.8s steps(1,end) infinite}
+.tR{animation:swR 1.8s steps(1,end) infinite}
+.d2{animation-delay:-0.6s}.d3{animation-delay:-1.2s}
+.bob{animation:bob 1.4s steps(1,end) infinite}
+.bl{animation:blink 3.6s steps(1,end) infinite;transform-box:fill-box;transform-origin:center}
+.wg{animation:flap 0.5s steps(1,end) infinite;transform-box:fill-box;transform-origin:bottom center}
+.pump{animation:pump 1.2s steps(1,end) infinite;transform-box:fill-box;transform-origin:bottom center}
+.pf{animation:puff 0.8s steps(1,end) infinite;transform-box:fill-box;transform-origin:center}
+@media (prefers-reduced-motion:reduce){.tL,.tR,.bob,.bl,.wg,.pump,.pf{animation:none}}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Ma+Shan+Zheng&family=Nunito:wght@500;700;800&display=swap">
+</helmet>
+<div style="position:relative;width:1280px;height:1560px;box-sizing:border-box;padding:48px;background:#f5ecdf;display:flex;flex-direction:column;gap:28px;font-family:'Nunito',system-ui,sans-serif;color:#3b2430;overflow:hidden">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<filter id="pp" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="7"/><feColorMatrix values="0 0 0 0 0.45  0 0 0 0 0.33  0 0 0 0 0.2  0 0 0 0.09 0"/></filter>
+
+<g id="vBodyK">
+<rect x="9" y="4" width="3" height="2"/><rect x="8" y="6" width="4" height="4"/>
+<rect x="20" y="4" width="3" height="2"/><rect x="20" y="6" width="4" height="4"/>
+<rect x="10" y="9" width="12" height="11"/><rect x="9" y="10" width="14" height="9"/><rect x="8" y="12" width="16" height="5"/>
+<rect x="7" y="15" width="2" height="2"/><rect x="23" y="15" width="2" height="2"/>
+<rect x="12" y="20" width="8" height="6"/><rect x="10" y="21" width="2" height="3"/><rect x="20" y="21" width="2" height="3"/>
+<rect x="11" y="26" width="4" height="2"/><rect x="17" y="26" width="4" height="2"/>
+</g>
+<g id="vK">
+<g class="tL"><rect x="3.5" y="17.5" width="2" height="7" fill="#f598b5" stroke="#4a2538" stroke-width="1"/><rect x="3.5" y="17.5" width="2" height="2" fill="#fff4ec"/></g>
+<g class="tL d2"><rect x="5.5" y="11.5" width="2" height="9" fill="#ffc2d4" stroke="#4a2538" stroke-width="1"/><rect x="5.5" y="11.5" width="2" height="2" fill="#fff4ec"/></g>
+<g class="tL d3"><rect x="6.5" y="7.5" width="2" height="8" fill="#f598b5" stroke="#4a2538" stroke-width="1"/><rect x="6.5" y="7.5" width="2" height="2" fill="#fff4ec"/></g>
+<g class="tR"><rect x="26.5" y="17.5" width="2" height="7" fill="#f598b5" stroke="#4a2538" stroke-width="1"/><rect x="26.5" y="17.5" width="2" height="2" fill="#fff4ec"/></g>
+<g class="tR d2"><rect x="24.5" y="11.5" width="2" height="9" fill="#ffc2d4" stroke="#4a2538" stroke-width="1"/><rect x="24.5" y="11.5" width="2" height="2" fill="#fff4ec"/></g>
+<g class="tR d3"><rect x="23.5" y="7.5" width="2" height="8" fill="#f598b5" stroke="#4a2538" stroke-width="1"/><rect x="23.5" y="7.5" width="2" height="2" fill="#fff4ec"/></g>
+<g class="bob">
+<use href="#vBodyK" fill="#4a2538" stroke="#4a2538" stroke-width="2"/>
+<use href="#vBodyK" fill="#ffc2d4"/>
+<rect x="22" y="12" width="2" height="5" fill="#f598b5"/><rect x="19" y="18" width="4" height="1" fill="#f598b5"/><rect x="19" y="21" width="1" height="5" fill="#f598b5"/><rect x="21" y="22" width="1" height="2" fill="#f598b5"/>
+<rect x="10" y="10" width="3" height="1" fill="#ffe3ec"/><rect x="9" y="11" width="1" height="2" fill="#ffe3ec"/>
+<rect x="9" y="7" width="2" height="3" fill="#f598b5"/><rect x="21" y="7" width="2" height="3" fill="#f598b5"/>
+<rect x="12" y="15" width="8" height="4" fill="#fff4ec"/><rect x="19" y="17" width="1" height="2" fill="#f2d8c8"/><rect x="14" y="21" width="4" height="4" fill="#fff4ec"/>
+<g class="bl"><rect x="11" y="13" width="2" height="3" fill="#3a2030"/><rect x="19" y="13" width="2" height="3" fill="#3a2030"/><rect x="11" y="13" width="1" height="1" fill="#fff"/><rect x="19" y="13" width="1" height="1" fill="#fff"/></g>
+<rect x="9" y="16" width="2" height="1" fill="#ff8fb0"/><rect x="21" y="16" width="2" height="1" fill="#ff8fb0"/>
+<rect x="15" y="16" width="2" height="1" fill="#3a2030"/><rect x="15" y="18" width="2" height="1" fill="#3a2030"/>
+<rect x="15" y="10" width="2" height="2" fill="#f6c453"/><rect x="15" y="10" width="1" height="1" fill="#ffe9a8"/>
+</g>
+</g>
+
+<g id="vBodyC">
+<rect x="10" y="10" width="12" height="1"/><rect x="8" y="11" width="16" height="1"/><rect x="7" y="12" width="18" height="11"/><rect x="8" y="23" width="16" height="1"/><rect x="10" y="24" width="12" height="1"/>
+<rect x="8" y="8" width="4" height="3"/><rect x="20" y="8" width="4" height="3"/>
+<rect x="10" y="25" width="4" height="2"/><rect x="18" y="25" width="4" height="2"/>
+</g>
+<g id="vC">
+<g class="bob">
+<use href="#vBodyC" fill="#4a2538" stroke="#4a2538" stroke-width="2"/>
+<use href="#vBodyC" fill="#f3c98b"/>
+<rect x="23" y="12" width="2" height="10" fill="#e2a85f"/><rect x="9" y="23" width="14" height="1" fill="#e2a85f"/><rect x="21" y="22" width="2" height="1" fill="#e2a85f"/>
+<rect x="9" y="12" width="3" height="2" fill="#ffe8c4"/><rect x="8" y="14" width="1" height="3" fill="#ffe8c4"/>
+<rect x="9" y="9" width="2" height="2" fill="#ffb8c6"/><rect x="21" y="9" width="2" height="2" fill="#ffb8c6"/>
+<rect x="11" y="19" width="10" height="4" fill="#fff1dc"/>
+<g class="bl"><rect x="11" y="15" width="2" height="2" fill="#3a2030"/><rect x="19" y="15" width="2" height="2" fill="#3a2030"/><rect x="11" y="15" width="1" height="1" fill="#fff"/><rect x="19" y="15" width="1" height="1" fill="#fff"/></g>
+<g class="pf"><rect x="8" y="18" width="3" height="2" fill="#ff9db5"/><rect x="21" y="18" width="3" height="2" fill="#ff9db5"/></g>
+<rect x="15" y="17" width="2" height="1" fill="#c4566f"/><rect x="15" y="18" width="2" height="1" fill="#3a2030"/>
+<rect x="13" y="21" width="6" height="2" fill="#8b6a3e"/><rect x="14" y="21" width="4" height="1" fill="#d9b878"/>
+<rect x="11" y="21" width="2" height="2" fill="#ffe0b0"/><rect x="19" y="21" width="2" height="2" fill="#ffe0b0"/>
+</g>
+</g>
+
+<g id="vBodyI">
+<rect x="10" y="4" width="2" height="5"/><rect x="20" y="4" width="2" height="5"/>
+<rect x="10" y="9" width="12" height="11"/><rect x="9" y="10" width="14" height="9"/><rect x="8" y="12" width="16" height="5"/>
+<rect x="12" y="20" width="8" height="6"/><rect x="10" y="21" width="2" height="3"/><rect x="20" y="21" width="2" height="3"/>
+<rect x="11" y="26" width="4" height="2"/><rect x="17" y="26" width="4" height="2"/>
+<rect x="20" y="24" width="5" height="1"/><rect x="24" y="22" width="1" height="3"/>
+</g>
+<g id="vI">
+<g class="wg"><rect x="3.5" y="7.5" width="5" height="6" fill="#8f5bd6" stroke="#4a2538" stroke-width="1"/><rect x="5" y="9" width="2" height="1" fill="#6d3fb0"/></g>
+<g class="wg"><rect x="23.5" y="7.5" width="5" height="6" fill="#8f5bd6" stroke="#4a2538" stroke-width="1"/><rect x="25" y="9" width="2" height="1" fill="#6d3fb0"/></g>
+<g class="bob">
+<use href="#vBodyI" fill="#4a2538" stroke="#4a2538" stroke-width="2"/>
+<use href="#vBodyI" fill="#ff7a8a"/>
+<rect x="10" y="4" width="2" height="5" fill="#ffe9a8"/><rect x="20" y="4" width="2" height="5" fill="#ffe9a8"/><rect x="11" y="4" width="1" height="5" fill="#e8c76a"/><rect x="21" y="4" width="1" height="5" fill="#e8c76a"/>
+<rect x="22" y="12" width="2" height="5" fill="#e0566d"/><rect x="19" y="18" width="4" height="1" fill="#e0566d"/><rect x="19" y="21" width="1" height="5" fill="#e0566d"/>
+<rect x="10" y="10" width="3" height="1" fill="#ffb3bd"/><rect x="9" y="11" width="1" height="2" fill="#ffb3bd"/>
+<rect x="11" y="13" width="3" height="3" fill="#ffe066"/><rect x="18" y="13" width="3" height="3" fill="#ffe066"/>
+<rect x="12" y="14" width="1" height="2" fill="#3a2030"/><rect x="19" y="14" width="1" height="2" fill="#3a2030"/>
+<rect x="11" y="12" width="2" height="1" fill="#3a2030"/><rect x="13" y="13" width="1" height="1" fill="#3a2030"/>
+<rect x="19" y="12" width="2" height="1" fill="#3a2030"/><rect x="18" y="13" width="1" height="1" fill="#3a2030"/>
+<rect x="11" y="17" width="10" height="2" fill="#3a2030"/>
+<rect x="12" y="17" width="1" height="1" fill="#fff"/><rect x="14" y="17" width="1" height="1" fill="#fff"/><rect x="17" y="17" width="1" height="1" fill="#fff"/><rect x="19" y="17" width="1" height="1" fill="#fff"/>
+<rect x="14" y="21" width="4" height="4" fill="#ffb3bd"/>
+<rect x="24" y="15" width="1" height="2" fill="#4a2538"/>
+<rect class="pump" x="23.5" y="16.5" width="3" height="6" fill="#3ddc97" stroke="#4a2538" stroke-width="1"/>
+</g>
+</g>
+</defs>
+</svg>
+
+<svg width="1280" height="1560" style="position:absolute;left:0;top:0;pointer-events:none" aria-hidden="true"><rect width="1280" height="1560" filter="url(#pp)"/></svg>
+<div style="position:absolute;left:-120px;top:120px;width:760px;height:560px;border-radius:50%;background:radial-gradient(ellipse at center,rgba(240,176,70,.42) 0%,rgba(240,176,70,.16) 55%,rgba(240,176,70,0) 72%);pointer-events:none"></div>
+<div style="position:absolute;right:-160px;top:760px;width:760px;height:520px;border-radius:50%;background:radial-gradient(ellipse at center,rgba(255,168,150,.32) 0%,rgba(255,168,150,.12) 55%,rgba(255,168,150,0) 72%);pointer-events:none"></div>
+
+<div style="position:relative;display:flex;justify-content:space-between;align-items:flex-end;gap:24px">
+<div style="display:flex;flex-direction:column;gap:6px">
+<span style="align-self:flex-start;font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:#4a2538;color:#fff4ec;padding:4px 10px;border-radius:999px">Style A · v2 · animated</span>
+<div style="display:flex;align-items:baseline;gap:18px;flex-wrap:wrap">
+<h1 style="margin:0;font-family:'Ma Shan Zheng','Nunito',serif;font-size:104px;line-height:1;font-weight:400;color:#2d1b24">完整</h1>
+<span style="font-size:44px;font-weight:800;letter-spacing:-.01em">1(WAN)</span>
+</div>
+<p style="margin:0;font-size:17px;color:#6d4b58;max-width:640px">Pixel nostalgia with ink-and-paper warmth. Three characters, three jobs: the hero, the relatable one, and the meme villain.</p>
+</div>
+<div style="width:72px;height:72px;background:#c8372d;color:#fff4ec;font-family:'Ma Shan Zheng',serif;font-size:50px;display:grid;place-items:center;border-radius:8px;transform:rotate(-6deg);box-shadow:0 2px 0 rgba(0,0,0,.15)" aria-hidden="true">完</div>
+</div>
+
+<div style="position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:stretch">
+
+<div style="background:rgba(255,250,242,.82);border:3px solid #4a2538;border-radius:24px;padding:20px;display:flex;flex-direction:column;align-items:center;gap:8px">
+<svg viewBox="0 0 32 30" width="300" height="281" shape-rendering="crispEdges" role="img" aria-label="Chief Kumo, the pixel fox hero"><use href="#vK"/></svg>
+<div style="font-family:'DotGothic16',sans-serif;font-size:24px">Chief Kumo</div>
+<div style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6d4b58">The hero · aspirational</div>
+<div style="background:#fff;border:2px solid #4a2538;border-radius:14px;padding:10px 14px;font-size:15px;text-align:center;line-height:1.4">"Stops kept. Tea earned."</div>
+</div>
+
+<div style="background:rgba(255,250,242,.82);border:3px solid #4a2538;border-radius:24px;padding:20px;display:flex;flex-direction:column;align-items:center;gap:8px">
+<svg viewBox="0 0 32 30" width="300" height="281" shape-rendering="crispEdges" role="img" aria-label="Coco, the pixel hamster"><use href="#vC"/></svg>
+<div style="font-family:'DotGothic16',sans-serif;font-size:24px">Coco</div>
+<div style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6d4b58">The relatable one · tiny but trying</div>
+<div style="background:#fff;border:2px solid #4a2538;border-radius:14px;padding:10px 14px;font-size:15px;text-align:center;line-height:1.4">"Squeak! Logged it anyway."</div>
+</div>
+
+<div style="background:rgba(255,250,242,.82);border:3px solid #4a2538;border-radius:24px;padding:20px;display:flex;flex-direction:column;align-items:center;gap:8px">
+<svg viewBox="0 0 32 30" width="300" height="281" shape-rendering="crispEdges" role="img" aria-label="The FOMO imp, a pixel imp holding a green candle"><use href="#vI"/></svg>
+<div style="font-family:'DotGothic16',sans-serif;font-size:24px">The FOMO Imp</div>
+<div style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6d4b58">The meme villain · self-roast bait</div>
+<div style="background:#fff;border:2px solid #4a2538;border-radius:14px;padding:10px 14px;font-size:15px;text-align:center;line-height:1.4">"It's PUMPING. Buy, buy, buy!"</div>
+</div>
+
+</div>
+
+<div style="position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:start">
+
+<div style="background:rgba(255,250,242,.82);border:2px solid #d9c3a8;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px">
+<div style="font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6d4b58">Do they still read small? Profile-picture and silhouette tests</div>
+<div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap">
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:72px;height:72px;border-radius:50%;background:#ffd9c9;overflow:hidden;border:2px solid #4a2538"><svg viewBox="6 2 20 20" width="72" height="72" shape-rendering="crispEdges"><use href="#vK"/></svg></div><span style="font-size:12px">Kumo 72</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:72px;height:72px;border-radius:50%;background:#ffe9b8;overflow:hidden;border:2px solid #4a2538"><svg viewBox="6 5 20 20" width="72" height="72" shape-rendering="crispEdges"><use href="#vC"/></svg></div><span style="font-size:12px">Coco 72</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:72px;height:72px;border-radius:50%;background:#e6d9fb;overflow:hidden;border:2px solid #4a2538"><svg viewBox="6 2 20 20" width="72" height="72" shape-rendering="crispEdges"><use href="#vI"/></svg></div><span style="font-size:12px">Imp 72</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:40px;height:40px;border-radius:50%;background:#ffd9c9;overflow:hidden;border:2px solid #4a2538"><svg viewBox="6 2 20 20" width="40" height="40" shape-rendering="crispEdges"><use href="#vK"/></svg></div><span style="font-size:12px">40</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:40px;height:40px;border-radius:50%;background:#ffe9b8;overflow:hidden;border:2px solid #4a2538"><svg viewBox="6 5 20 20" width="40" height="40" shape-rendering="crispEdges"><use href="#vC"/></svg></div><span style="font-size:12px">40</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:40px;height:40px;border-radius:50%;background:#e6d9fb;overflow:hidden;border:2px solid #4a2538"><svg viewBox="6 2 20 20" width="40" height="40" shape-rendering="crispEdges"><use href="#vI"/></svg></div><span style="font-size:12px">40</span></div>
+</div>
+<div style="display:flex;gap:22px;align-items:flex-end">
+<svg viewBox="0 0 32 30" width="104" height="98" shape-rendering="crispEdges" style="filter:brightness(0)" role="img" aria-label="Kumo silhouette"><use href="#vK"/></svg>
+<svg viewBox="0 0 32 30" width="104" height="98" shape-rendering="crispEdges" style="filter:brightness(0)" role="img" aria-label="Coco silhouette"><use href="#vC"/></svg>
+<svg viewBox="0 0 32 30" width="104" height="98" shape-rendering="crispEdges" style="filter:brightness(0)" role="img" aria-label="Imp silhouette"><use href="#vI"/></svg>
+<span style="font-size:12px;color:#6d4b58;max-width:200px;line-height:1.4">Three different outlines: pointy ears and tails, a round bun, horns and wings.</span>
+</div>
+</div>
+
+<div style="background:rgba(255,250,242,.82);border:2px solid #d9c3a8;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:10px;font-size:14px;line-height:1.5">
+<div style="font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6d4b58">What I took from your Bao reference</div>
+<div><b>Warm paper and an amber wash</b> behind the characters, with grain.</div>
+<div><b>Blush cheeks and tiny simple faces:</b> dot eyes, small mouths.</div>
+<div><b>Brush lettering and a red seal</b> for the Chinese ink feel.</div>
+<div><b>Soft, round, slightly squashed shapes</b> like Coco's bun body.</div>
+<div style="color:#6d4b58;font-size:13px">I couldn't open the cat-food mascot link from here. Send a screenshot or two and I'll fold its style in.</div>
+</div>
+
+</div>
+
+<div style="position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px">
+<div style="background:#e6f3e8;border-radius:18px;padding:16px 18px;font-size:14px;line-height:1.5"><b style="display:block;margin-bottom:6px">Visual upgrades in this version</b>
+Three-tone shading and a highlight on every character. Idle animation: bobbing, blinks, tails that sway, imp wings that flap, a green candle that "pumps," Coco's cheeks puffing. One light direction, whole-pixel movement only.</div>
+<div style="background:#fdeaea;border-radius:18px;padding:16px 18px;font-size:14px;line-height:1.5"><b style="display:block;margin-bottom:6px">Still placeholder, for the artist</b>
+Drawn at 32 px by code, so it's simpler than real sprites. A pixel artist would redraw at 48 px, add more frames (walk, happy, sad, level-up), and tune the palette and anti-aliasing. Colours and shapes here are the brief, not the final art.</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1560}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

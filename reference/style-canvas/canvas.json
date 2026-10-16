@@ -1,0 +1,90 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-11T11:55:00Z"
+  },
+  "title": "1(WAN) Style Exploration",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1040,
+      "h": 1360,
+      "title": "Pixel base: Kumo, dress-up, PFP tests"
+    },
+    "PixelV2.dc.html": {
+      "x": 1120,
+      "y": 0,
+      "w": 1280,
+      "h": 1560,
+      "title": "Pixel v2: the trio"
+    },
+    "Player.dc.html": {
+      "x": 2480,
+      "y": 0,
+      "w": 1280,
+      "h": 1720,
+      "title": "Player character: Commoner to Queen or King"
+    },
+    "Lineup.dc.html": {
+      "x": 3840,
+      "y": 0,
+      "w": 1280,
+      "h": 1620,
+      "title": "Same rank, eight different people"
+    },
+    "Roster.dc.html": {
+      "x": 5200,
+      "y": 0,
+      "w": 1280,
+      "h": 2120,
+      "title": "The full cast"
+    },
+    "Court.dc.html": {
+      "x": 6560,
+      "y": 0,
+      "w": 1280,
+      "h": 3800,
+      "title": "The court, bubbles and modes"
+    },
+    "Brand.dc.html": {
+      "x": 7920,
+      "y": 0,
+      "w": 1280,
+      "h": 5150,
+      "title": "1(WAN) brand sheet"
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "PixelV2.dc.html",
+    "Player.dc.html",
+    "Lineup.dc.html",
+    "Roster.dc.html",
+    "Court.dc.html",
+    "Brand.dc.html"
+  ],
+  "notes": {
+    "t1": {
+      "x": 0,
+      "y": -260,
+      "text": "1(WAN): characters, court and brand",
+      "kind": "title1",
+      "maxW": 9200
+    },
+    "s1": {
+      "x": 0,
+      "y": 1440,
+      "w": 520,
+      "text": "Style A (pixel) is the chosen direction. Style B is retired for cohesion. All art here is concept work, not final: it shows the rules a commissioned artist or a pixel tool must follow.",
+      "fill": "pink",
+      "size": "m"
+    }
+  },
+  "designSystems": []
+}
