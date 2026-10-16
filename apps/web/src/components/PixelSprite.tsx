@@ -1,3 +1,4 @@
+import "./pixel.css";
 import type { CSSProperties } from "react";
 import { SPRITE_DEFS } from "./spriteDefs";
 
@@ -38,7 +39,8 @@ export function PixelDefs() {
   );
 }
 
-export function PixelSprite({ name, size = 96, label }: { name: SpriteName; size?: number; label?: string }) {
+// Leave size out to let the surrounding CSS size it (as the dashboard does).
+export function PixelSprite({ name, size, label }: { name: SpriteName; size?: number; label?: string }) {
   const [c, c2, c3, b] = PALETTES[name];
   const style = { "--c": c, "--c2": c2, "--c3": c3, "--b": b } as CSSProperties;
   return (

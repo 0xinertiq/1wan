@@ -32,6 +32,7 @@ export default async function Home() {
       <header>
         <h1>{APP_NAME}</h1>
         <div className="actions">
+          <a className="button" href="/dashboard">Dashboard</a>
           <a className="button" href="/crew">Crew</a>
           <a className="button primary" href="/api/export" download>
             Export my data
