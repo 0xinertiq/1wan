@@ -1,7 +1,6 @@
-import { PixelSprite } from "@/components/PixelSprite";
-import { AGENTS, NODES } from "./agents";
+import { StageActors } from "./StageActors";
 
-// Court scene from dashboard-v52, with the pixel crew standing at their desks. Display only: no walking yet.
+// Court scene from dashboard-v52. The crew walks, hops and rests in the palace (StageActors).
 export function Stage() {
   return (
     <section className="stage" id="stage" aria-label="Court scene. Chief Kumo and nine agents move around.">
@@ -45,32 +44,7 @@ export function Stage() {
       <div className="dais" aria-hidden="true"></div>
       <div className="chip-map chip-l" aria-hidden="true">CLOUD COURT</div>
       <div className="chip-map chip-r" id="crewChip" aria-hidden="true">ALL IDLE</div>
-      <div className="actors" id="actors">
-      {AGENTS.map((d, i) => {
-        const [x, y] = d.id === "kumo" ? [50, 84] : NODES[d.work!];
-        return (
-          <button
-            key={d.id}
-            type="button"
-            className={d.id === "kumo" ? "agent boss" : "agent desk"}
-            data-id={d.id}
-            aria-label={`${d.name}, ${d.role}. Select to meet.`}
-            style={{ left: `${x}%`, top: `${y}%`, zIndex: Math.round(y * 10) }}
-          >
-            <span className="ring"></span>
-            <span className="shadow"></span>
-            <span className="flip">
-              <span className="bob" style={{ animationDelay: `${-((i * 0.37) % 3).toFixed(2)}s` }}>
-                <PixelSprite name={d.sprite} />
-              </span>
-            </span>
-            <span className="prog"><i></i></span>
-            <span className="emote"><b></b><b></b><b></b></span>
-            <span className="bubble" aria-hidden="true"></span>
-          </button>
-        );
-      })}
-    </div>
+      <StageActors />
       <div className="fx" id="fx" aria-hidden="true"></div>
       <div className="lvl" id="lvlBanner" hidden><b id="lvlTxt">LEVEL UP</b><span id="lvlSub"></span></div>
     </section>

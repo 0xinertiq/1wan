@@ -6,10 +6,15 @@ import "./dashboard.css";
 export const metadata: Metadata = { title: APP_NAME };
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover" };
 
+const THEME_BOOT =
+  "try{var t=localStorage.getItem('kumo.theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}";
+
 export default function CourtLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Day or night: her saved choice wins, otherwise the system setting (CSS media query). Runs before paint. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           rel="stylesheet"
