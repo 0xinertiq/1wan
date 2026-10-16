@@ -25,9 +25,9 @@ Owner: the Queen (beginner). Read CLAUDE.md first and obey it. Source of truth f
 - Each brief window shows date, title, body, and a source-status line (see Step 6). Add useful / not useful buttons saving to `feedback`.
 
 ## Step 4: Google Calendar, read-only
-- Env var `GCAL_ICAL_URL` (her calendar's secret iCal address, in `apps/web/.env.local` and later in Vercel). Fetch and parse it on the server only, cache 15 minutes, never expose the URL to the browser, never log it.
+- She has 5 Google calendars. Env vars `GCAL_ICAL_URL_1` to `GCAL_ICAL_URL_5` (each a secret iCal address; any may be empty), plus optional `GCAL_NAME_1` to `GCAL_NAME_5` (short labels such as Personal, Dogs). Put them in `apps/web/.env.local` and later in Vercel. Merge all events, tag each with its calendar label and a colour, de-duplicate identical events, and let her filter by calendar in the UI. One failing calendar must not break the others. Fetch and parse it on the server only, cache 15 minutes, never expose the URL to the browser, never log it.
 - Show events in Today and Coming up, and use them to find free gaps. Handle recurring events, all-day events, and the Singapore timezone (Asia/Singapore).
-- If the var is missing, show "Calendar not connected yet" and nothing breaks.
+- If no URL is set, show "Calendar not connected yet" and nothing breaks.
 
 ## Step 5: live prices
 - Server route with 60-second cache. Primary source: CoinGecko public API (no key). Fallback: Crypto.com Exchange public tickers. If both fail, show last cached values with a stale label.
@@ -47,4 +47,4 @@ Owner: the Queen (beginner). Read CLAUDE.md first and obey it. Source of truth f
 - Service role key must not appear in any client bundle. State in the manual checklist exactly which env vars Vercel needs, click by click.
 
 ## Step 8: wrap-up
-- Run `npm run build`, push, then print: (a) what works with her real data, (b) what is sample only, (c) what failed or was skipped and why, (d) ONE numbered click-by-click checklist of what she must do by hand: get the Google Calendar secret iCal address and put it in `.env.local`, generate `INGEST_SECRET` (give a safe command to generate one), add the env vars in Vercel and redeploy, anything else.
+- Run `npm run build`, push, then print: (a) what works with her real data, (b) what is sample only, (c) what failed or was skipped and why, (d) ONE numbered click-by-click checklist of what she must do by hand: get the 5 Google Calendar secret iCal addresses and put them in `.env.local` as GCAL_ICAL_URL_1 to _5 with optional GCAL_NAME_1 to _5, generate `INGEST_SECRET` (give a safe command to generate one), add the env vars in Vercel and redeploy, anything else.
