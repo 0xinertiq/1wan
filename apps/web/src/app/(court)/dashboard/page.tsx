@@ -9,7 +9,8 @@ import { mdLite } from "@/components/court/mdLite";
 import type { BriefDoc } from "@/components/court/BriefTabs";
 import { ScanWin } from "@/components/court/ScanWin";
 import { loadBriefs, kindLabel, type BriefRow, type Vote } from "@/lib/briefs";
-import { AskWin, BriefWin, NeedWin, NewsWin, SprintBar, UsePanel } from "@/components/court/Windows";
+import { AskWin, BriefWin, NeedWin, SprintBar, UsePanel } from "@/components/court/Windows";
+import { NewsLive } from "@/components/court/NewsLive";
 import { CourtProvider } from "@/components/court/CourtState";
 import { CalendarLoader } from "@/components/court/CalendarLoader";
 import { PricesLoader } from "@/components/court/Prices";
@@ -87,7 +88,7 @@ export default async function Dashboard() {
           <Stage />
           <BriefWin docs={docs} initial={initial} />
           <ScanWin doc={scanDoc} />
-          <NewsWin />
+          <NewsLive />
         </div>
         <div className="col c-r">
           <NeedWin />

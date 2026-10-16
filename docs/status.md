@@ -41,3 +41,9 @@ Updated as each build step lands. "Real" means it reads or saves her actual data
 - Real: `/api/prices`, cached 60 seconds on the server. CoinGecko first (no key), Crypto.com Exchange public tickers for anything missing, and if both fail the last good values with a "stale" label.
 - Real: symbols come from the coins named in her newest scan brief (up to 12, known coins only, so words like EMA50 or RSI are ignored); BTC, ETH, SOL when there is no scan.
 - Shown as a chip on the stage (BTC, ETH, SOL) and as a list in the Watchlist scan window. Read-only, no trading, no advice.
+
+### Step 6: news that does not depend on Bigdata
+- Real: 13 free RSS feeds in `apps/web/src/lib/newsFeeds.ts`, each checked live on 16 Oct 2026: CoinDesk, Cointelegraph, Decrypt, The Block, Bitcoin Magazine, Federal Reserve, ECB, SEC, CNBC Markets, CNA Business, BBC Business, CNA Singapore, The Business Times. None were dead.
+- Real: `/api/news` caches each feed 15 minutes, keeps the last good copy if a feed fails, returns headline, source, topic, time and link only (newest 12 per source, last 14 days).
+- Real: Headlines window with topic tabs (All, Macro, Markets, Crypto, World, Local) and More headlines. Links open the original site.
+- Ready, needs one manual step: migration `supabase/migrations/0003_briefs_meta.sql` adds a nullable `meta` column to `briefs`. Until it runs, the sources line still works from a "Sources:" line in the brief body.

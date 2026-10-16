@@ -112,37 +112,6 @@ export function BriefWin({ docs, initial }: { docs: BriefDoc[]; initial: string 
   );
 }
 
-const NEWS = [
-  ["12 min ago", "Sample headline: Exchange outflows hit a three-month high", "Crypto and regulation · Sample wire"],
-  ["1h ago", "Sample headline: Inflation print due Thursday, forecasts edge higher", "Fed and rates · Sample wire"],
-  ["3h ago", "Sample headline: Regulator publishes stablecoin consultation", "Crypto and regulation · Sample wire"],
-];
-const NEWS_TABS = [["All", 3], ["Macro", 1], ["Markets", 0], ["Crypto", 2], ["World", 0], ["Politics", 0], ["Local", 0], ["Sports", 0], ["Memes", 0]] as const;
-
-export function NewsWin() {
-  return (
-    <section className="win" id="newsWin" aria-labelledby="nwT">
-      <div className="win-title"><h2 id="nwT">Headlines</h2><span className="sub">Pip</span></div>
-      <div className="win-body">
-        <div id="newsBox">
-          <Sample />
-          <div className="ntabs" role="group" aria-label="Headline topics">
-            {NEWS_TABS.map(([g, n]) => (
-              <button key={g} className="chipb" type="button" aria-pressed={g === "All"}>{g} {n}</button>
-            ))}
-          </div>
-          <ul className="evl">
-            {NEWS.map(([t, title, src]) => (
-              <li key={title}><time>{t}</time><span className="t">{title}</span><small>{src}</small></li>
-            ))}
-          </ul>
-          <p className="note xd">Only the headlines that look important. Secondary until you open the original.</p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 export function NeedWin() {
   return (
     <section className="win" id="needWin" aria-labelledby="needT">
