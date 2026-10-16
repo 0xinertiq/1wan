@@ -653,3 +653,11 @@ html[data-show="1"] #moreDet,html[data-show="1"] #chatWin,html[data-show="1"] #b
 
 /* 1(WAN) additions */
 .caldot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle;border:1px solid var(--line)}
+.chip-px{left:50%;transform:translateX(-50%);display:flex;gap:10px;white-space:nowrap}
+.chip-px i,.pxl .up,.pxl .dn{font-style:normal}
+.chip-px .up,.pxl .up{color:var(--mint-strong)}.chip-px .dn,.pxl .dn{color:var(--rose-strong)}
+.chip-px .stale{color:var(--ink-soft)}
+@media (max-width:600px){.chip-px{top:auto;bottom:2.2cqw}}
+.pxl{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.pxl li{display:flex;gap:8px;align-items:baseline;padding:6px 10px;border:2px solid var(--line);border-radius:10px;background:var(--win-hi)}
+.pxl li span:last-child{margin-left:auto;font-weight:700}

@@ -1,4 +1,5 @@
 import { BriefFeedback } from "./BriefFeedback";
+import { ScanPrices } from "./Prices";
 import { SourcesLine, type BriefDoc } from "./BriefTabs";
 
 // Watchlist scan window (v52 scanBox). v52 read TradingView live; here it shows the newest brief of kind
@@ -9,6 +10,7 @@ export function ScanWin({ doc }: { doc: BriefDoc | null }) {
       <section className="win" id="scanBox" aria-labelledby="scT">
         <div className="win-title"><h2 id="scT">Watchlist scan</h2><span className="sub">Fenn</span></div>
         <div className="win-body">
+          <ScanPrices />
           {doc ? (
             <>
               <p className="note brh"><b>{doc.title}</b>{doc.when && ` · ${doc.when}`}</p>

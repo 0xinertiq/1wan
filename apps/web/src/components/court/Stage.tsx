@@ -1,4 +1,5 @@
 import { StageActors } from "./StageActors";
+import { StagePrices } from "./Prices";
 
 // Court scene from dashboard-v52. The crew walks, hops and rests in the palace (StageActors).
 export function Stage() {
@@ -44,6 +45,7 @@ export function Stage() {
       <div className="dais" aria-hidden="true"></div>
       <div className="chip-map chip-l" aria-hidden="true">CLOUD COURT</div>
       <div className="chip-map chip-r" id="crewChip" aria-hidden="true">ALL IDLE</div>
+      <StagePrices />
       <StageActors />
       <div className="fx" id="fx" aria-hidden="true"></div>
       <div className="lvl" id="lvlBanner" hidden><b id="lvlTxt">LEVEL UP</b><span id="lvlSub"></span></div>

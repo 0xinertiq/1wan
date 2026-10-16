@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { CalEvent, CourtState, OwnedKey, Recap } from "@/lib/court/state";
+import type { PriceResult } from "@/lib/prices";
 import { tendGarden } from "@/lib/court/state";
 import { sgt } from "@/lib/court/time";
 
@@ -23,6 +24,8 @@ type Ctx = {
   events: CalEvent[];
   cal: CalState;
   setCalendar: (events: CalEvent[], cal: CalState) => void;
+  prices: PriceResult | null;
+  setPrices: (p: PriceResult) => void;
 };
 
 const CourtCtx = createContext<Ctx | null>(null);
@@ -42,6 +45,7 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
   const [save, setSave] = useState<SaveState>("idle");
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [cal, setCal] = useState<CalState>({ state: "loading", cals: [] });
+  const [prices, setPrices] = useState<PriceResult | null>(null);
 
   const stRef = useRef(st);
   const ver = useRef(version);
@@ -121,7 +125,8 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
   const value = useMemo<Ctx>(() => ({
     st, k: now.key, nm: now.min, recap, clearRecap: () => setRecap(null), update, levelUp, save,
     events, cal, setCalendar: (e, c) => { setEvents(e); setCal(c); },
-  }), [st, now, recap, update, levelUp, save, events, cal]);
+    prices, setPrices,
+  }), [st, now, recap, update, levelUp, save, events, cal, prices]);
 
   return <CourtCtx.Provider value={value}>{children}</CourtCtx.Provider>;
 }

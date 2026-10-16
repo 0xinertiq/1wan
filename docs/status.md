@@ -36,3 +36,8 @@ Updated as each build step lands. "Real" means it reads or saves her actual data
 - Events from all calendars are merged, tagged with label and colour, and de-duplicated; chips in "Momo, your day" filter by calendar. One calendar failing does not hide the others (it shows "not reachable").
 - Events feed Up next, Momo's day, free-time gaps, "Booked" detection in Coming up, and the calendar quests (study block, weekly review).
 - Until the addresses are added: "Calendar not connected yet", ideas assume a free day, nothing breaks.
+
+### Step 5: live prices
+- Real: `/api/prices`, cached 60 seconds on the server. CoinGecko first (no key), Crypto.com Exchange public tickers for anything missing, and if both fail the last good values with a "stale" label.
+- Real: symbols come from the coins named in her newest scan brief (up to 12, known coins only, so words like EMA50 or RSI are ignored); BTC, ETH, SOL when there is no scan.
+- Shown as a chip on the stage (BTC, ETH, SOL) and as a list in the Watchlist scan window. Read-only, no trading, no advice.
