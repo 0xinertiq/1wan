@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { APP_NAME } from "@/lib/brand";
+import { CREW } from "@/lib/crew";
+import { PixelDefs, PixelSprite } from "@/components/PixelSprite";
 
 export const dynamic = "force-dynamic";
 
@@ -26,9 +28,11 @@ export default async function Home() {
 
   return (
     <main>
+      <PixelDefs />
       <header>
         <h1>{APP_NAME}</h1>
         <div className="actions">
+          <a className="button" href="/crew">Crew</a>
           <a className="button primary" href="/api/export" download>
             Export my data
           </a>
@@ -38,6 +42,16 @@ export default async function Home() {
         </div>
       </header>
 
+      <a className="crew-strip" href="/crew" aria-label="Meet the crew">
+        {CREW.filter((m) => !m.soon).map((m) => (
+          <div className="crew-mini" key={m.sprite}>
+            <PixelSprite name={m.sprite} size={56} />
+            <span>{m.name.replace("Chief ", "")}</span>
+          </div>
+        ))}
+      </a>
+
+      <h2 className="section">Briefs</h2>
       {error && <p className="error">Couldn't load briefs. Try refreshing.</p>}
       {!error && briefs.length === 0 && <p className="empty">No briefs yet.</p>}
 

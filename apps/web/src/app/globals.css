@@ -60,3 +60,46 @@ button:disabled { opacity: 0.6; cursor: default; }
 }
 .login .note { color: var(--muted); font-size: 13px; }
 .error { color: var(--error); font-size: 14px; }
+
+/* Pixel sprites (classes used inside the shared <PixelDefs /> sprite sheet) */
+.px { display: block; }
+.px-m { fill: var(--c); } .px-m2 { fill: var(--c2); } .px-m3 { fill: var(--c3); } .px-b { fill: var(--b); }
+@keyframes px-bob { 0% { transform: translateY(0); } 50% { transform: translateY(-0.5px); } }
+@keyframes px-blink { 0%, 92% { transform: scaleY(1); } 94%, 98% { transform: scaleY(0.15); } 100% { transform: scaleY(1); } }
+@keyframes px-flap { 0% { transform: scaleY(1); } 50% { transform: scaleY(0.55); } }
+@keyframes px-pump { 0% { transform: scaleY(0.35); } 33% { transform: scaleY(0.65); } 66% { transform: scaleY(1); } }
+@keyframes px-zap { 0% { opacity: 1; } 50% { opacity: 0.2; } }
+@keyframes px-swl { 0% { transform: translateX(0); } 50% { transform: translateX(-1px); } }
+@keyframes px-swr { 0% { transform: translateX(0); } 50% { transform: translateX(1px); } }
+@keyframes px-puff { 0% { transform: scaleX(1); } 50% { transform: scaleX(1.3); } }
+.px-bob { animation: px-bob 1.4s steps(1, end) infinite; }
+.px-blink { animation: px-blink 3.8s steps(1, end) infinite; transform-box: fill-box; transform-origin: center; }
+.px-flap { animation: px-flap 0.5s steps(1, end) infinite; transform-box: fill-box; transform-origin: bottom center; }
+.px-pump { animation: px-pump 1.2s steps(1, end) infinite; transform-box: fill-box; transform-origin: bottom center; }
+.px-zap { animation: px-zap 0.6s steps(1, end) infinite; }
+.px-swl { animation: px-swl 1.8s steps(1, end) infinite; }
+.px-swr { animation: px-swr 1.8s steps(1, end) infinite; }
+.px-d2 { animation-delay: -0.6s; } .px-d3 { animation-delay: -1.2s; }
+.px-puff { animation: px-puff 0.8s steps(1, end) infinite; transform-box: fill-box; transform-origin: center; }
+@media (prefers-reduced-motion: reduce) {
+  .px-bob, .px-blink, .px-flap, .px-pump, .px-zap, .px-swl, .px-swr, .px-puff { animation: none; }
+}
+
+/* Crew */
+.crew-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.crew-card {
+  background: var(--card); border: 2px solid var(--plum); border-radius: 14px;
+  padding: 10px; display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+.crew-card.soon { border-style: dashed; opacity: 0.8; }
+.crew-name { font-weight: 700; margin-top: 4px; }
+.crew-role { font-size: 13px; color: var(--muted); }
+.crew-soon { font-size: 12px; color: var(--gold); margin-top: 2px; }
+
+.crew-strip {
+  display: flex; gap: 6px; overflow-x: auto; padding: 8px; margin-bottom: 20px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  text-decoration: none; color: var(--muted);
+}
+.crew-mini { display: flex; flex-direction: column; align-items: center; font-size: 11px; flex: 0 0 auto; }
+h2.section { font-size: 15px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 10px; }
