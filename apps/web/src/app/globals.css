@@ -1,0 +1,62 @@
+:root {
+  --bg: #fbf6f1;
+  --card: #ffffff;
+  --ink: #2e1a24;
+  --muted: #7a6470;
+  --line: #ead9d6;
+  --plum: #4a2538;
+  --gold: #c99a2e;
+  --error: #b3261e;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1218;
+    --card: #271a21;
+    --ink: #f3e8ec;
+    --muted: #b49ea9;
+    --line: #3d2a34;
+    --plum: #e3b6c9;
+    --gold: #e0b54a;
+    --error: #f2b8b5;
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+h1 { margin: 0; font-size: 22px; color: var(--plum); }
+h1 .seal { color: var(--gold); }
+.actions { display: flex; gap: 8px; }
+
+button, .button {
+  font: inherit; font-size: 14px; cursor: pointer;
+  padding: 7px 14px; border-radius: 8px;
+  border: 1px solid var(--plum); background: transparent; color: var(--plum);
+  text-decoration: none;
+}
+button.primary, .button.primary { background: var(--plum); color: var(--bg); }
+button:disabled { opacity: 0.6; cursor: default; }
+
+.brief { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+.brief h2 { margin: 0 0 2px; font-size: 17px; }
+.brief .meta { color: var(--muted); font-size: 13px; margin-bottom: 10px; }
+.brief .kind { color: var(--gold); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.brief .body { white-space: pre-wrap; overflow-wrap: anywhere; }
+.empty { color: var(--muted); }
+
+.login { max-width: 360px; margin: 12vh auto 0; }
+.login form { display: grid; gap: 10px; margin-top: 18px; }
+.login label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.login input {
+  font: inherit; padding: 9px 11px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--card); color: var(--ink);
+}
+.login .note { color: var(--muted); font-size: 13px; }
+.error { color: var(--error); font-size: 14px; }
