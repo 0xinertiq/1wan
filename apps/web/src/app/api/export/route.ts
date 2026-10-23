@@ -10,7 +10,12 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
 
-  const tables = ["profiles", "user_state", "agent_memory", "feedback", "briefs", "usage"] as const;
+  const tables = [
+    "profiles", "user_state", "agent_memory", "feedback", "briefs", "usage",
+    "trades", "plans", "gamble", "ledger_settings", "spending", "watering_events",
+  ] as const;
+  // Tracker tables arrive with migration 0004; until it is run they are skipped, not a failed export.
+  const optional = new Set<string>(["trades", "plans", "gamble", "ledger_settings", "spending", "watering_events"]);
   const out: Record<string, unknown> = {
     app: "1wan",
     exportedAt: new Date().toISOString(),
@@ -19,6 +24,7 @@ export async function GET() {
 
   for (const t of tables) {
     const { data, error } = await supabase.from(t).select("*");
+    if (error && optional.has(t) && (error.code === "42P01" || error.code === "PGRST205")) { out[t] = null; continue; }
     if (error) {
       return NextResponse.json({ error: `Export failed on ${t}` }, { status: 500 });
     }

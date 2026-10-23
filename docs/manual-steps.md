@@ -85,6 +85,16 @@ Do this once per calendar (up to 5).
 29. Tap the **⋯** menu in the header and try the moon/sun button (day or night).
 30. Throwaway ingest test (nothing is saved): open `prompts/INGEST.md`, copy the PowerShell block under **Throwaway test**, replace `<INGEST_SECRET>` with your secret and `<your-vercel-address>` with your Vercel address, paste it into the terminal from step 15, press Enter. You should see `ok : True` and `dryRun : True`.
 
+## G. Add the tracker tables and bring in your four trackers (5 minutes, safe)
+
+1. Open supabase.com, click your 1wan project, then **SQL Editor** in the left bar, then **New query**.
+2. In VS Code, open `supabase/migrations/0004_trackers.sql`. Copy all of it.
+3. Paste it into the Supabase query box. Click **Run**. You should see "Success. No rows returned." It only adds new, private tables; nothing existing changes.
+4. In the VS Code terminal (View > Terminal), paste this and press Enter, using the email you log in with:
+   `python -I scripts/import_trackers.py --email YOUR-LOGIN-EMAIL`
+   This is a dry run. It only prints counts (trades, gamble, keys to add). Nothing is written.
+5. If the counts look right, press the Up arrow, add ` --apply` at the end, and press Enter. You should see "Done." Running it again later is safe; it skips what is already there.
+
 ## Later (not tonight)
 
 31. Only after step 30 passes: point the scheduled tasks at the new address (build order step 6), starting with one task and a real throwaway brief, as `prompts/INGEST.md` describes.
