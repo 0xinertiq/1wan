@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useCourt } from "./CourtState";
 
-// Header menu from dashboard-v52 (menuBtn opens hmenu). Day or night and Export my data work;
-// quiet queue, usage, showcase and calm are still display only.
+// Header menu from dashboard-v52 (menuBtn opens hmenu). Settings, day or night and Export my data work;
+// quiet queue, showcase and calm are still display only.
 
 const THEME_KEY = "kumo.theme";
 
@@ -24,6 +25,7 @@ export function HeaderMenu() {
   const [open, setOpen] = useState(false);
   const [dark, setDark] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
+  const { openSheet } = useCourt();
 
   useEffect(() => {
     setDark(effTheme() === "dark");
@@ -60,11 +62,11 @@ export function HeaderMenu() {
           <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15z" fill="#FFD3E5" stroke="#A34876" strokeWidth="2" strokeLinejoin="round" /><path d="M10 21a2 2 0 0 0 4 0" fill="none" stroke="#A34876" strokeWidth="2" strokeLinecap="round" /></svg>
           <span className="cnt" id="bellCnt" hidden>0</span>
         </button>
-        <button className="icon-btn" id="useBtn" data-lbl="Usage" type="button" aria-expanded="false" aria-label="Usage and thoughts" title="Usage and thoughts"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.4 6.2 6.6.5-5 4.3 1.6 6.5L12 16.6 6.4 20l1.6-6.5-5-4.3 6.6-.5z" fill="#FFD95E" stroke="#A34876" strokeWidth="1.8" strokeLinejoin="round" /></svg><span className="cnt" id="useCnt">0%</span></button>
         <button className="icon-btn" id="showBtn" data-lbl="Showcase mode" type="button" aria-pressed="false" aria-label="Showcase mode" title="Showcase mode: hides the extras for screen recording"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="#FFD3E5" stroke="#A34876" strokeWidth="2" /><circle cx="12" cy="12" r="3.2" fill="#fff" stroke="#A34876" strokeWidth="2" /></svg></button>
         <button className="icon-btn" id="calmBtn" data-lbl="Calm mode" type="button" aria-pressed="false" aria-label="Calm mode" title="Calm mode">
           <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14c3-5 6-5 8 0s5 5 8 0" fill="none" stroke="#A34876" strokeWidth="2.4" strokeLinecap="round" /><path d="M4 9c3-4 6-4 8 0s5 4 8 0" fill="none" stroke="#A34876" strokeWidth="2.4" strokeLinecap="round" opacity=".5" /></svg>
         </button>
+        <button className="icon-btn" id="setBtn" data-lbl="Settings" type="button" aria-label="Settings" onClick={() => { setOpen(false); openSheet({ kind: "settings" }); }}><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5" fill="#FFD95E" stroke="#A34876" strokeWidth="2" /><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="#A34876" strokeWidth="2.2" strokeLinecap="round" /></svg></button>
         <button className="icon-btn" id="themeBtn" data-lbl="Day or night" type="button" aria-label="Switch between day and night" onClick={toggleTheme}>{dark ? SUN : MOON}</button>
         <a className="icon-btn" id="expBtn" data-lbl="Export my data" href="/api/export" aria-label="Export my data" title="Export my data"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10m0 0l-4-4m4 4l4-4M5 19h14" fill="none" stroke="#A34876" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg></a>
       </div>

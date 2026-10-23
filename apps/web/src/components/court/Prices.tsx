@@ -7,16 +7,19 @@ import type { Price } from "@/lib/prices";
 // Live prices (display only). One request feeds both the stage chip and the Scan window.
 
 export function PricesLoader({ symbols }: { symbols: string[] }) {
-  const { setPrices } = useCourt();
+  const { setPrices, setPxBusy } = useCourt();
   const key = symbols.join(",");
   useEffect(() => {
     let alive = true;
     async function load() {
       if (document.visibilityState === "hidden") return;
+      setPxBusy(true);
       try {
         const r = await fetch("/api/prices?s=" + encodeURIComponent(key));
         if (r.ok && alive) setPrices(await r.json());
-      } catch { /* keep what is shown */ }
+      } catch { /* keep what is shown */ } finally {
+        if (alive) setPxBusy(false);
+      }
     }
     load();
     const t = window.setInterval(load, 60000);

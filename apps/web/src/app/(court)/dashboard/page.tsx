@@ -4,12 +4,15 @@ import { PixelDefs } from "@/components/PixelSprite";
 import { CourtDefs } from "@/components/court/CourtDefs";
 import { Header } from "@/components/court/Header";
 import { Stage } from "@/components/court/Stage";
-import { Roster } from "@/components/court/Roster";
 import { mdLite } from "@/components/court/mdLite";
 import type { BriefDoc } from "@/components/court/BriefTabs";
 import { ScanWin } from "@/components/court/ScanWin";
 import { loadBriefs, kindLabel, type BriefRow, type Vote } from "@/lib/briefs";
-import { AskWin, BriefWin, NeedWin, SprintBar, UsePanel } from "@/components/court/Windows";
+import { BriefWin, NeedWin } from "@/components/court/Windows";
+import { AppTabs } from "@/components/court/AppTabs";
+import { LifeTabs } from "@/components/court/LifeTabs";
+import { StatusLine, type Latest } from "@/components/court/StatusLine";
+import { CourtSheet } from "@/components/court/CourtSheet";
 import { NewsLive } from "@/components/court/NewsLive";
 import { CourtProvider } from "@/components/court/CourtState";
 import { CalendarLoader } from "@/components/court/CalendarLoader";
@@ -17,7 +20,6 @@ import { PricesLoader } from "@/components/court/Prices";
 import { watchlistFrom } from "@/lib/prices";
 import { TodayLive } from "@/components/court/live/TodayLive";
 import { DiaryLive, GardenLive, StatusLive, WinsLive } from "@/components/court/live/GrowLive";
-import { SettingsLive } from "@/components/court/live/SettingsLive";
 import { bootState } from "@/lib/court/actions";
 import { normalize } from "@/lib/court/state";
 
@@ -50,7 +52,7 @@ function toDoc(b: BriefRow, now: Date, vote: Vote): BriefDoc {
   };
 }
 
-// The v52 dashboard. Briefs, Today, habits, garden, wins, diary and status run on her saved state.
+// The v52 dashboard, now in five tabs. Briefs, Today, habits, garden, wins, diary and status run on her saved state.
 export default async function Dashboard() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -62,6 +64,7 @@ export default async function Dashboard() {
   const docs = rows.map((b) => toDoc(b, now, votes[b.kind] ?? null));
   const initial = freshest; // v52 opens the freshest brief.
   const scanDoc = docs.find((d) => d.key === "scan") ?? null;
+  const latest: Latest = Object.fromEntries(rows.map((r) => [r.kind, { title: r.title, at: r.at }]));
 
   // Her state document; missing keys fall back to defaults. Rollover and the morning-brief quest
   // are applied here so the first paint is already right; the client saves what changed.
@@ -77,31 +80,42 @@ export default async function Dashboard() {
       <PixelDefs />
       <CourtDefs />
       <Header />
-      <SprintBar />
-      <UsePanel />
-      <div className="layout">
-        <div className="col c-l">
-          <AskWin />
-          <TodayLive />
-        </div>
-        <div className="col c-m">
-          <Stage />
-          <BriefWin docs={docs} initial={initial} />
-          <ScanWin doc={scanDoc} />
-          <NewsLive />
-        </div>
-        <div className="col c-r">
-          <NeedWin />
-          <Roster />
-          <StatusLive />
-          <div id="growWrap" aria-label="Growth">
-            <GardenLive />
-            <WinsLive />
-            <DiaryLive />
-          </div>
-          <SettingsLive />
-        </div>
-      </div>
+      <AppTabs
+        panels={{
+          court: (
+            <div className="layout">
+              <div className="col c-l">
+                <TodayLive />
+              </div>
+              <div className="col c-m">
+                <Stage />
+                <StatusLine latest={latest} />
+                <BriefWin docs={docs} initial={initial} />
+                <ScanWin doc={scanDoc} />
+                <NewsLive />
+              </div>
+              <div className="col c-r">
+                <NeedWin />
+                <StatusLive />
+              </div>
+            </div>
+          ),
+          calendar: (
+            <div className="tabcol">
+              <section className="win" id="calWin" aria-labelledby="calT">
+                <div className="win-title"><h2 id="calT">Calendar</h2></div>
+                <div className="win-body">
+                  <p className="note">Agenda, week and month views are not built yet. They arrive in build step 10. Today&apos;s events are in the Today card on the Court.</p>
+                </div>
+              </section>
+            </div>
+          ),
+          garden: <div className="tabcol"><GardenLive /></div>,
+          diary: <div className="tabcol"><WinsLive /><DiaryLive /></div>,
+          life: <div className="tabcol"><LifeTabs /></div>,
+        }}
+      />
+      <CourtSheet latest={latest} />
     </div>
     </CourtProvider>
   );

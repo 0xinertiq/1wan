@@ -11,6 +11,7 @@ import { sgt } from "@/lib/court/time";
 
 export type SaveState = "idle" | "saving" | "saved" | "offline";
 export type CalState = { state: "off" | "loading" | "live" | "error"; cals: { name: string; color: string; ok: boolean }[] };
+export type Sheet = { kind: "crew"; id: string } | { kind: "settings" } | null;
 
 type Ctx = {
   st: CourtState;
@@ -26,6 +27,10 @@ type Ctx = {
   setCalendar: (events: CalEvent[], cal: CalState) => void;
   prices: PriceResult | null;
   setPrices: (p: PriceResult) => void;
+  pxBusy: boolean;      // true only while a real price fetch is running
+  setPxBusy: (b: boolean) => void;
+  sheet: Sheet;
+  openSheet: (s: Sheet) => void;
 };
 
 const CourtCtx = createContext<Ctx | null>(null);
@@ -46,6 +51,8 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [cal, setCal] = useState<CalState>({ state: "loading", cals: [] });
   const [prices, setPrices] = useState<PriceResult | null>(null);
+  const [pxBusy, setPxBusy] = useState(false);
+  const [sheet, openSheet] = useState<Sheet>(null);
 
   const stRef = useRef(st);
   const ver = useRef(version);
@@ -125,8 +132,8 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
   const value = useMemo<Ctx>(() => ({
     st, k: now.key, nm: now.min, recap, clearRecap: () => setRecap(null), update, levelUp, save,
     events, cal, setCalendar: (e, c) => { setEvents(e); setCal(c); },
-    prices, setPrices,
-  }), [st, now, recap, update, levelUp, save, events, cal, prices]);
+    prices, setPrices, pxBusy, setPxBusy, sheet, openSheet,
+  }), [st, now, recap, update, levelUp, save, events, cal, prices, pxBusy, sheet]);
 
   return <CourtCtx.Provider value={value}>{children}</CourtCtx.Provider>;
 }

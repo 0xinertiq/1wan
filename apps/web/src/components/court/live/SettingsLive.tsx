@@ -25,7 +25,7 @@ export function HeaderStats() {
 const WDS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 // Settings from dashboard-v52 (moreDet), life admin part: Coco's list behind Coming up.
-export function SettingsLive() {
+export function SettingsLive({ open = false }: { open?: boolean }) {
   const { st, k, update } = useCourt();
   const [f, setF] = useState({ name: "", amt: "", kind: "dom", num: "", date: "", cat: "bill", lead: "", wk: [] as number[] });
   const [msg, setMsg] = useState("");
@@ -49,7 +49,7 @@ export function SettingsLive() {
   }
 
   return (
-    <details className="win" id="moreDet">
+    <details className="win" id="moreDet" open={open}>
       <summary className="win-title"><h2>Settings</h2><span className="sub">Life admin, your data</span></summary>
       <div className="win-body">
         <div className="sec-h">Your data</div>

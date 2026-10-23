@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { PixelSprite } from "@/components/PixelSprite";
 import { AGENTS, NODES } from "./agents";
+import { useCourt } from "./CourtState";
 
 // Walking crew from dashboard-v52 (bfs over the platform graph, walk and hop segments, palace rest).
 // Change from v52: the crew rests in the palace when she has been away for a while, not on a per-agent timer,
@@ -51,6 +52,7 @@ type Actor = {
 
 export function StageActors() {
   const rootRef = useRef<HTMLDivElement>(null);
+  const { openSheet } = useCourt();
 
   useEffect(() => {
     const root = rootRef.current;
@@ -195,6 +197,7 @@ export function StageActors() {
             data-id={d.id}
             aria-label={`${d.name}, ${d.role}. Select to meet.`}
             style={{ left: `${x}%`, top: `${y}%`, zIndex: Math.round(y * 10) }}
+            onClick={() => openSheet({ kind: "crew", id: d.id })}
           >
             <span className="ring"></span>
             <span className="shadow"></span>
