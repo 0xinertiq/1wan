@@ -35,6 +35,18 @@ Rules-based: scheduled macro release in the next 2 hours, high-score cluster on 
 ## F. Market data additions (free public endpoints only, test each; some exchanges block regions)
 Funding rate, open interest, 24h volume for her watchlist from a public exchange API that works from the server (try OKX, Bybit, Deribit, then others). Show on the watchlist as read-only context with timestamp. Liquidation data is paid: skip. Equities, ETFs, REITs and SGX prices only if a free source passes testing; otherwise leave as a later item.
 
+## K. Watchlist technicals and trendlines (build after F; free data only)
+- Candles: fetch OHLCV (1h, 4h, 1d) per watchlist coin from a free public exchange API that works from the server (try OKX, Bybit, Crypto.com Exchange, CoinGecko OHLC as fallback). Cache per timeframe (1h candles 5 min, 1d 1 hour). Store only what is needed (last 300 candles per symbol and timeframe) in `candles`; show the data timestamp and source. Never invent or fill missing candles.
+- Indicators computed in our own code (pure functions, unit tested against known values): EMA 20/50/200, SMA, RSI 14, MACD, Bollinger, ATR 14, volume vs 20-day average, 7/30/90-day range, distance from recent high/low, support and resistance from swing pivots.
+- Trendlines, two kinds:
+  1. Auto lines: detect swing highs/lows (pivot window setting), fit a line through the two or three most recent swing points (least squares), keep lines with 3+ touches, mark broken lines. Label "auto-drawn from price history, a description, not a signal".
+  2. Her own lines: she draws or drags lines and horizontal levels on the chart; saved per user in `chart_lines` (user_id, symbol, timeframe, kind, p1/p2 time and price, label). Alert (in-app only) when price touches or crosses a saved line, with cooldown.
+- Chart: use the open-source lightweight-charts library (free, no key): candles, volume, EMAs, her lines, auto lines, ATR-based stop preview from Trade plans. Mobile friendly, pixel-theme colours.
+- Watchlist row shows a plain-words snapshot: trend vs EMA50/200, RSI zone, ATR %, nearest line/level, with timestamp. Words describe state ("above the 50 EMA", "RSI 71, above 70"), never "buy", "sell", targets or predictions. Footer: "Chart description of your own watchlist, not advice."
+- Link to the Trade plan form: "Start a plan from this chart" pre-fills asset, entry zone and ATR; she fills the thesis and stop herself.
+- Optional extra: her existing Claude scheduled tasks can still use TradingView in her Claude chat for deeper technicals and write the result through /api/ingest/brief. The app itself does not depend on TradingView access.
+- Tests: indicator values against fixtures, pivot detection, line fitting, break detection; mocked vs live clearly labelled.
+
 ## G. Trade checks on plans (add to Trade step)
 When a plan has entry, stop and ATR: flag (information, not blocking) a stop under 1 ATR or over 30% from entry, show risk/reward and data timestamp. State "review threshold, not a rule". ATR comes from fetched candles, never typed or invented. No auto-trading, ever.
 
