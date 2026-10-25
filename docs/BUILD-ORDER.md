@@ -13,7 +13,7 @@ Start every session with: read CLAUDE.md, docs/BUILD-ORDER.md and docs/progress.
 ## Steps in order
 1. Tabs and navigation: bottom bar (Court, Calendar, Garden, Diary, Life), Life sub-tabs shell, remove Ask windows and routing box, one real-events status line. (v2 section 1)
 2. Data layer for trackers: migration 0004 (trades, plans, gamble, ledger settings, spending, watering_events), import script with dry run, add to "Export my data". (trackers: Data model)
-3. Life > Money. 4. Life > Trade. 5. Life > Grid & Wins. 6. Life > Samsara. (trackers: Screens, with the merges in "Duplicates to merge")
+3. Life > Money. 4. Life > Trade (include the stop/ATR review flags from docs/build-intel.md section G). 5. Life > Grid & Wins. 6. Life > Samsara. (trackers: Screens, with the merges in "Duplicates to merge")
 7. Garden: new quest list from the merged items, Sakura wiring, decay rules, remove typed weeds and habits, archive. (v2 section 4, trackers: Sakura Garden wiring)
 8. Diary tab and the guided "count your wins" sheet. (v2 section 5)
 9. Court home: needs-you-now, today card with weather, brief cards, watchlist, this-week strip. (v2 section 2)
@@ -23,7 +23,7 @@ Start every session with: read CLAUDE.md, docs/BUILD-ORDER.md and docs/progress.
 
 If she has already done a step, docs/progress.md says so. Never redo finished steps.
 
-15. Telegram channels and fresher news: docs/build-telegram.md (lane A public channels first; lane B private channels only after she supplies credentials). Do it after step 12, before optional step 13.
+15. News and intelligence layer: docs/build-intel.md (more global sources, economic calendar, dedupe and clustering, source health, in-app alerts, market data context) plus Telegram: docs/build-telegram.md (lane A public channels first; lane B private channels only after she supplies credentials). Do it after step 12, before optional step 13.
 
 ## Optional step 13 (only if AI_API_KEY exists in apps/web/.env.local, otherwise skip it silently)
 Provider-agnostic: use an OpenAI-compatible chat call configured only by env vars AI_BASE_URL, AI_MODEL, AI_API_KEY, AI_MONTHLY_CAP_USD (also support the Anthropic API when AI_PROVIDER=anthropic). Never hard-code a provider. Send only short computed summaries, never the diary, birth details, names or account figures beyond what the question needs.
