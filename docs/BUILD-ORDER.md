@@ -18,7 +18,7 @@ Start every session with: read CLAUDE.md, docs/BUILD-ORDER.md and docs/progress.
 8. Diary tab and the guided "count your wins" sheet. (v2 section 5)
 9. Court home: needs-you-now, today card with weather, brief cards, watchlist, this-week strip. (v2 section 2)
 10. Calendar tab: agenda, week, month, layers. (v2 section 3)
-11. Luna's astrological weather and the sky on the Court. (v2 section 6)
+11. Luna's astrological weather and the sky on the Court, including the astro calendar and cross-check, and Kumo's nine tails on the crew sheet. (v2 sections 6 and 8)
 12. Final wrap-up: docs/status.md, manual checklist.
 
 If she has already done a step, docs/progress.md says so. Never redo finished steps.

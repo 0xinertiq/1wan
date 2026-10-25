@@ -49,3 +49,14 @@ Existing Fox Diary and weekly recap, private, editable, exportable. Add the Arch
 
 ## 7. Finish
 Update docs/status.md (real vs sample). Print what works, what is sample only, what was skipped, then the manual checklist. The order of work is set ONLY by docs/BUILD-ORDER.md. Section numbers here are not steps.
+
+## 8. Additions (25 Oct)
+### Luna reads her "astro" calendar
+- One of her 5 Google Calendar feeds is now "astro" (a purchased ICS that gives daily weather/mood and sky events). It replaced the old "work" calendar; a NEW "work" calendar exists. Match feeds by their GCAL_NAME label (case-insensitive), never by slot number. Role "astro" is excluded from normal Agenda/Week/Month load by default (own layer "Astro", off in Calendar, always on in Luna).
+- Luna's panel shows two clearly labelled parts: "From your astro calendar" (title and short text of today's and the next 7 days' astro events, verbatim, private to her, never copied into shared briefs or exports shared with others) and "Computed sky" (our own rules from section 6).
+- Cross-check: compare simple facts both sides (Moon sign, new/full moon, retrograde start/end, ingress dates). Show "agrees" or "differs: check" per fact, with both values. Never override one with the other, never guess. If no astro calendar is present, Luna uses computed sky only.
+- Sky colour and moon on the Court stay driven by computed data; the astro calendar's mood text appears as the day's one-line caption.
+### Nine tails
+Kumo's nine tails (v52: Steady Flame, Seven Moons, Rising Qi, First Win, Grateful Heart, Found Voice, Tidy Hearth, Scholar, Ascension) need a home in the new layout: show the tail row on Kumo's crew sheet and a small "tails n/9" chip on the Court header, and list each tail with how to earn it in the Garden tab. Port the unlock rules from reference/dashboard-v52.html (search TAILS); re-point them to the new data (streak from daily anchors, level from XP, wins and gratitude from the Diary, posts from the shared counter, courses from the Samsara/Grid record).
+### Calendar env fix (she does this by hand)
+Update GCAL_NAME for the replaced feed to "astro" with its new address, and add the new "work" feed, in apps/web/.env.local and Vercel (then redeploy). Claude Code should list the exact variable names in docs/manual-steps.md without printing any address.
