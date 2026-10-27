@@ -37,7 +37,7 @@ function Row({ x, withCal }: { x: Item; withCal?: boolean }) {
   );
 }
 
-export function CalendarTab() {
+export function CalendarTab({ noWeek = false }: { noWeek?: boolean }) {
   const { k, events, cal } = useCourt();
   const sky = useSky();
   const [view, setView] = useState<View>("week");
@@ -73,7 +73,7 @@ export function CalendarTab() {
 
   return (
     <div className="tabcol">
-      <WeekAhead />
+      {!noWeek && <WeekAhead />}
       <section className="win" id="calWin" aria-labelledby="calT">
         <div className="win-title"><h2 id="calT">Calendar</h2><span className="sub">{cal.state === "live" ? "live from Google Calendar" : cal.state === "loading" ? "loading" : cal.state === "off" ? "not connected" : "not reachable"}</span></div>
         <div className="win-body">

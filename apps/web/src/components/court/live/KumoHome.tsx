@@ -17,7 +17,7 @@ export type CourtSlots = {
   weather: React.ReactNode; today: React.ReactNode; todayBare: React.ReactNode; stage: React.ReactNode; statusLine: React.ReactNode;
   luna: React.ReactNode; brief: React.ReactNode; scan: React.ReactNode; tech: React.ReactNode; weekStrip: React.ReactNode;
   weekAhead: React.ReactNode; econ: React.ReactNode; news: React.ReactNode; needs: React.ReactNode; status: React.ReactNode;
-  briefCards: React.ReactNode; world: React.ReactNode; roster: React.ReactNode;
+  briefs: React.ReactNode; review: React.ReactNode; world: React.ReactNode; roster: React.ReactNode;
 };
 
 export function CourtLayout({ s }: { s: CourtSlots }) {
@@ -33,24 +33,42 @@ export function CourtLayout({ s }: { s: CourtSlots }) {
   return (
     <div className="khome">
       {s.world}
+      <QuickLine />
       <PricesStrip />
       {s.statusLine}
       <div className="kmain">
-        {s.briefCards}
+        {s.briefs}
         <div className="krail">
-          <TodayCard weather={s.weather} more={s.todayBare} />
+          <TodayCard more={s.todayBare} />
           {s.needs}
+          {s.review}
           <AstroForecast />
-          <QuickCapture />
         </div>
       </div>
       {s.roster}
-      <details className="kmore">
-        <summary>More on your court <span className="note">Technicals · This week · Week ahead · Economic calendar · News · Brief tabs · Watchlist scan with prices</span></summary>
-        <div className="kmore-grid">{s.tech}{s.weekStrip}{s.weekAhead}{s.econ}{s.news}{s.brief}{s.scan}</div>
-      </details>
       <QuickFab />
     </div>
+  );
+}
+
+// Quick capture as one line under the world (desktop and tablet); same list as Park a thought.
+function QuickLine() {
+  const { update } = useCourt();
+  const [t, setT] = useState("");
+  const [msg, setMsg] = useState("");
+  return (
+    <form className="kqline" onSubmit={(e) => {
+      e.preventDefault();
+      const v = t.trim();
+      if (!v) return;
+      update((d) => { d.dump.unshift({ id: "d" + Date.now(), t: v.slice(0, 140), done: false, ts: Date.now() }); d.dump = d.dump.slice(0, 40); }, ["dump"]);
+      setT(""); setMsg("Parked in Today, Park a thought.");
+    }}>
+      <label htmlFor="kqlIn" className="sr">Quick capture</label>
+      <input id="kqlIn" type="text" autoComplete="off" maxLength={140} placeholder="Quick capture: a task, a note, an idea" value={t} onChange={(e) => { setT(e.target.value); setMsg(""); }} />
+      <button className="btn" type="submit">Park it</button>
+      {msg && <span className="note" role="status">{msg}</span>}
+    </form>
   );
 }
 
@@ -78,7 +96,7 @@ export function Observatory({ luna }: { luna: React.ReactNode }) {
 
 // One Today card: Now / Next / Later from the calendar, the glance numbers in one row, and the rest of the
 // Today window (brief, sky, week, Kumo's pick, Momo's day, Park a thought, quote) under "More".
-function TodayCard({ weather, more }: { weather: React.ReactNode; more: React.ReactNode }) {
+function TodayCard({ more }: { more: React.ReactNode }) {
   const { k, nm, events, cal } = useCourt();
   const evs = eventsOn(events, k).filter((e) => !e.allDay);
   const now = evs.filter((e) => e.a <= nm && nm < e.b);
@@ -91,7 +109,6 @@ function TodayCard({ weather, more }: { weather: React.ReactNode; more: React.Re
     <section className="win knl" aria-labelledby="knlT">
       <div className="win-title"><h2 id="knlT">Today</h2><span className="sub">{prettyDay(k)} · <a href="#calendar">Calendar</a></span></div>
       <div className="win-body">
-        {weather}
         {cal.state === "loading" ? <p className="note">Calendar loading…</p>
           : cal.state === "error" ? <p className="note">Calendar not reachable right now.</p>
           : cal.state === "off" ? <p className="note">Calendar not connected yet.</p>
@@ -132,7 +149,7 @@ function AstroForecast() {
                 {p.dos && <p className="kdo pos"><b>DOs:</b> {p.dos}</p>}
                 {p.donts && <p className="kdo neg"><b>DON&apos;Ts:</b> {p.donts}</p>}
                 <div className="kastro-foot">
-                  <span className="kastro-src">astro calendar{p.source ? ` · © ${p.source}` : ""}</span>
+                  <span className="kastro-src">astro calendar</span>
                   {p.full && <details className="kfold"><summary>Read more</summary><blockquote className="adesc">{p.full}</blockquote></details>}
                 </div>
               </div>

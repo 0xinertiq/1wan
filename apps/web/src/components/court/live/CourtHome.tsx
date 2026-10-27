@@ -150,7 +150,7 @@ function hasFreeSlot(evs: { a: number; b: number; allDay: boolean }[]) {
   return 1260 - t >= 45;
 }
 
-export function WeekAhead() {
+export function WeekAhead({ strip = false }: { strip?: boolean }) {
   const { st, k, events } = useCourt();
   const { plans, evs } = useRecords();
   const wk = weekKey(k), end = addDays(wk, 6);
@@ -171,6 +171,14 @@ export function WeekAhead() {
   for (let i = 0; i < 7; i++) { const d = addDays(wk, i); if (d <= k && (st.swins.log[d] || []).includes("d1")) sleep++; }
   return (
     <Card id="weekAhead" title="Week ahead" sub={`${prettyDay(wk)} to ${prettyDay(end)}`}>
+      {strip && (
+        <div className="wstrip">
+          {Array.from({ length: 7 }, (_, i) => {
+            const d = addDays(wk, i), n = eventsOn(events, d).length;
+            return <a key={d} href="#calendar" className={"wday" + (d === k ? " today" : "")} aria-label={`${prettyDay(d)}: ${n} event${n === 1 ? "" : "s"}`}><span>{wdName(wdOf(d)).slice(0, 3)}</span><b>{d.slice(8)}</b><span className="dots">{"•".repeat(Math.min(n, 4))}</span></a>;
+          })}
+        </div>
+      )}
       {items.length ? items.slice(0, 14).map((x, i) => <div className="filed-row" key={i}><span className="note">{prettyDay(x.d)}</span><span>{x.t}</span></div>) : <p className="note">No events or bills left this week.</p>}
       {deadlines.length > 0 && <><div className="sec-h">Not yet acted on</div>{deadlines.map((x) => <p className="note" key={x}>{x}</p>)}</>}
       {care.length > 0 && <><div className="sec-h">Garden</div>{care.map((x) => <p className="note" key={x}>{x}</p>)}</>}

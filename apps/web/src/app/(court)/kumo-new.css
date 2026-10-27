@@ -441,6 +441,97 @@ a.pb-chip:focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:-3
   .lw-badges{flex-wrap:nowrap;gap:4px}
 }
 
+/* R3 (owner's round 3): quick line, Briefs block with Intel | Scan, rail, Trades / News / Calendar grids,
+   reading layout, New-look nav with More, Luna header fix, roster without sideways scroll. */
+:root[data-ui="new"] .kqline{display:flex;align-items:center;gap:8px;margin-top:-12px}
+:root[data-ui="new"] .kqline input{flex:1;min-width:0;min-height:44px;padding:8px 14px;border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);font:500 15px var(--kumo-font-body);color:var(--ink)}
+:root[data-ui="new"] .kqline .note{flex:none;font-size:13px}
+:root[data-ui="new"] .kqline+.kprices{margin-top:-16px}
+/* segmented control */
+:root[data-ui="new"] .kseg{display:inline-flex;gap:2px;padding:4px;border-radius:var(--kumo-radius-control);background:var(--win-dim);max-width:100%;overflow-x:auto}
+:root[data-ui="new"] .kseg button{min-height:36px;padding:6px 16px;border:0;border-radius:10px;background:transparent;font:700 14px var(--kumo-font-body);color:var(--ink-soft);cursor:pointer;white-space:nowrap}
+:root[data-ui="new"] .kseg button.on{background:var(--win);color:var(--ink);box-shadow:var(--kumo-shadow-card)}
+/* brief panes */
+:root[data-ui="new"] .bpane{display:grid;gap:12px}
+:root[data-ui="new"] .bhead{font:600 15px/1.4 var(--kumo-font-body)}
+:root[data-ui="new"] .bcall{display:grid;gap:10px;padding:16px 18px;border-radius:var(--kumo-radius-control);background:var(--kumo-lavender-soft)}
+:root[data-ui="new"] .bcall-h{font:600 18px/1.3 var(--kumo-font-display);color:var(--ink)}
+:root[data-ui="new"] .top5{margin:0;padding-left:22px;display:grid;gap:10px;font:400 15px/1.5 var(--kumo-font-body);color:var(--ink)}
+:root[data-ui="new"] .top5 b{font-weight:700}
+:root[data-ui="new"] .top5-src{display:inline-flex;flex-wrap:wrap;gap:8px;margin-left:6px;font-size:13px}
+:root[data-ui="new"] .top5-src a,:root[data-ui="new"] .blink{color:#6A4FC9;text-decoration:underline;text-decoration-color:#B9A6FF;text-underline-offset:2px}
+:root[data-ui="new"] .blink{justify-self:start;font:700 14px var(--kumo-font-body)}
+:root[data-ui="new"] .bread{font:500 15px/1.5 var(--kumo-font-body)}
+:root[data-ui="new"] .plan{width:100%;border-collapse:collapse;font:500 14px var(--kumo-font-body);font-variant-numeric:tabular-nums}
+:root[data-ui="new"] .plan th{text-align:left;font-weight:700;font-size:13px;color:var(--ink-soft);padding:6px 8px;border-bottom:1px solid rgba(74,37,56,.18)}
+:root[data-ui="new"] .plan td{padding:8px;border-bottom:1px solid rgba(74,37,56,.1)}
+:root[data-ui="new"] .plan tbody tr:nth-child(even){background:rgba(255,255,255,.5)}
+/* review, movers */
+:root[data-ui="new"] .rv-sum{font:400 15px/1.5 var(--kumo-font-body)}
+:root[data-ui="new"] .rv-sug{margin:0;padding-left:20px;display:grid;gap:4px;font-size:14px}
+:root[data-ui="new"] .kreview .btn,:root[data-ui="new"] .kmovers .btn{justify-self:start}
+/* Luna: readable header with a 1px line, no colour labels */
+:root[data-ui="new"] .kastro .win-title{background:var(--win)!important;border-bottom:1px solid var(--line)}
+:root[data-ui="new"] .kastro .win-title h2{color:var(--ink)}
+:root[data-ui="new"] .kastro .kdo.pos b,:root[data-ui="new"] .kastro .kdo.neg b{color:var(--ink);font-weight:800}
+/* roster: wraps, never scrolls sideways */
+:root[data-ui="new"] .kroster ul{flex-wrap:wrap;overflow:visible;gap:8px 20px}
+:root[data-ui="new"] .kroster li{max-width:none;flex:0 1 auto;min-width:0}
+:root[data-ui="new"] .kroster li span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px}
+/* tab grids: Trades, News, Calendar */
+:root[data-ui="new"] .tgrid{display:grid;gap:24px;grid-template-columns:minmax(0,1fr);align-items:start}
+@media (min-width:980px){
+  :root[data-ui="new"] .tgrid{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}
+  :root[data-ui="new"] .tgrid.news{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+  :root[data-ui="new"] .tgrid.cal{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+}
+:root[data-ui="new"] .tcol{display:grid;gap:24px;align-content:start;min-width:0}
+:root[data-ui="new"] .tcol>*{margin:0}
+/* reading layout for full briefs (News) */
+:root[data-ui="new"] .klib .klib-all{justify-self:end;margin-top:-4px}
+:root[data-ui="new"] .klib-item{border-top:1px solid rgba(74,37,56,.18);padding-top:8px}
+:root[data-ui="new"] .klib-item>summary{cursor:pointer;min-height:44px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font:600 16px var(--kumo-font-body)}
+:root[data-ui="new"] .read{max-width:72ch;font:400 17px/1.65 var(--kumo-font-body);color:var(--ink)}
+:root[data-ui="new"] .read h1,:root[data-ui="new"] .read h2,:root[data-ui="new"] .read h3{position:relative;margin:24px 0 8px;padding-left:12px;font:600 20px/1.35 var(--kumo-font-display)}
+:root[data-ui="new"] .read h1::before,:root[data-ui="new"] .read h2::before,:root[data-ui="new"] .read h3::before{content:"";position:absolute;left:0;top:.25em;bottom:.25em;width:3px;border-radius:2px;background:var(--kumo-pink)}
+:root[data-ui="new"] .read a{color:#6A4FC9;text-decoration:underline;text-decoration-color:#B9A6FF}
+:root[data-ui="new"] .read hr{border:0;border-top:1px solid rgba(74,37,56,.18)}
+:root[data-ui="new"] .read table{width:100%;border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}
+:root[data-ui="new"] .read th{position:sticky;top:0;background:var(--win);text-align:left;padding:6px 8px;border-bottom:1px solid rgba(74,37,56,.18)}
+:root[data-ui="new"] .read td{padding:6px 8px;border-bottom:1px solid rgba(74,37,56,.1)}
+:root[data-ui="new"] .read tbody tr:nth-child(even){background:var(--win-dim)}
+@media (max-width:767px){
+  :root[data-ui="new"] .read table,:root[data-ui="new"] .read tbody,:root[data-ui="new"] .read tr,:root[data-ui="new"] .read td{display:block;width:100%}
+  :root[data-ui="new"] .read thead{display:none}
+  :root[data-ui="new"] .read tr{margin:0 0 8px;padding:8px;border:1px solid var(--line);border-radius:var(--kumo-radius-control)}
+  :root[data-ui="new"] .read td{border:0;padding:2px 0}
+}
+@media (prefers-color-scheme:dark){:root[data-ui="new"]:not([data-theme="light"]) .read{color:#ECE8F5}:root[data-ui="new"]:not([data-theme="light"]) .read a{color:#B9A6FF}}
+:root[data-ui="new"][data-theme="dark"] .read{color:#ECE8F5}
+:root[data-ui="new"][data-theme="dark"] .read a,:root[data-ui="new"][data-theme="dark"] .blink,:root[data-ui="new"][data-theme="dark"] .top5-src a{color:#B9A6FF}
+:root[data-ui="new"] .intop5{display:inline-block;margin-left:8px;padding:0 6px;border-radius:var(--kumo-radius-chip);background:var(--kumo-lavender-soft);color:#5B44B8;font:700 12px/1.6 var(--kumo-font-body);vertical-align:middle}
+/* New-look nav: rail lists every tab; the phone bar shows Home, Calendar, Hub, Diary and More */
+.nav-more,.nav-sheet,.nl-phone{display:none}
+:root[data-ui="new"] .tabnav-new{overflow-y:auto}
+@media (min-width:980px){:root[data-ui="new"] .tabnav-new{gap:4px}}
+@media (max-width:979px){
+  :root[data-ui="new"] .tabnav-new .nav-more-item{display:none}
+  :root[data-ui="new"] .tabnav-new .nav-more{display:flex}
+  :root[data-ui="new"] .tabnav-new .nl-desk{display:none}
+  :root[data-ui="new"] .tabnav-new .nl-phone{display:inline}
+  :root[data-ui="new"] .nav-sheet{display:grid;position:fixed;right:8px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:70;min-width:200px;padding:8px;gap:4px;border:1px solid var(--line);border-radius:var(--kumo-radius-modal);background:var(--win);box-shadow:var(--kumo-shadow-floating)}
+  :root[data-ui="new"] .nav-sheet button{display:flex;flex-direction:row;justify-content:flex-start;gap:10px;min-height:44px;padding:8px 12px;font:700 15px var(--kumo-font-body)}
+  :root[data-ui="new"] .nav-sheet svg{width:22px;height:20px}
+}
+@media (max-width:767px){
+  :root[data-ui="new"] .kqline{display:none}
+  :root[data-ui="new"] .khome .kreview{order:5}
+  :root[data-ui="new"] .khome .kastro{order:6}
+  :root[data-ui="new"] .khome>.kprices{order:7}
+  :root[data-ui="new"] .khome>.kroster{order:8}
+  :root[data-ui="new"] .khome>.statusline{order:9}
+}
+
 /* Focus ring from the kit. */
 :root[data-ui="new"] :focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:2px}
 

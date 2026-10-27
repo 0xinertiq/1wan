@@ -18,7 +18,14 @@ function ago(iso: string | null) {
 
 type Tg = { items: { channel: string; title: string; at: string | null; text: string; link: string }[]; health: { handle: string; ok: boolean }[]; at: string };
 
-export function NewsLive() {
+// Stories that share most of their words with one of today's Top 5 headlines get a small tag.
+const words = (s: string) => new Set(s.toLowerCase().replace(/[^a-z0-9 ]+/g, " ").split(" ").filter((w) => w.length > 3));
+function inTop5(title: string, top5: string[]) {
+  const a = words(title);
+  return top5.some((t) => { const b = words(t); let n = 0; for (const w of b) if (a.has(w)) n++; return b.size > 0 && n >= Math.min(3, b.size); });
+}
+
+export function NewsLive({ top5 = [] }: { top5?: string[] }) {
   const [data, setData] = useState<NewsResult | null>(null);
   const [tg, setTg] = useState<Tg | null>(null);
   const [why, setWhy] = useState("");
@@ -78,7 +85,7 @@ export function NewsLive() {
                 {shown.map((c) => (
                   <li key={c.lead.link}>
                     <time>{ago(c.lead.at)}</time>
-                    <span className="t"><a href={c.lead.link} target="_blank" rel="noopener noreferrer">{c.lead.title}</a></span>
+                    <span className="t"><a href={c.lead.link} target="_blank" rel="noopener noreferrer">{c.lead.title}</a>{top5.length > 0 && inTop5(c.lead.title, top5) && <span className="intop5">In today&apos;s top 5</span>}</span>
                     <small>{c.lead.group} · {c.lead.source}{c.sources > 1 ? ` · ${c.sources} sources` : ""}{c.syndicated ? " · syndicated" : ""} · <button type="button" className="nhide" onClick={() => setWhy(why === c.lead.link ? "" : c.lead.link)}>score {c.score}</button></small>
                     {why === c.lead.link && <small className="why">{c.why.join(" · ")}{c.items.length > 1 && <> · also: {c.items.filter((x) => x !== c.lead).slice(0, 5).map((x, n) => <a key={n} href={x.link} target="_blank" rel="noopener noreferrer"> {x.source}</a>)}</>}</small>}
                   </li>
