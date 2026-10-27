@@ -111,7 +111,7 @@ export function autoLines(cs: Candle[], ps: Pivot[], tol = 0.004): TLine[] {
 
 // Plain-words snapshot of where price sits. Describes state; never buy, sell, targets or predictions.
 export type Snapshot = { last: number; at: number; ema20: number | null; ema50: number | null; ema200: number | null; rsi: number | null; atr: number | null; atrPct: number | null;
-  volVsAvg: number | null; hi30: number; lo30: number; below: Level | null; above: Level | null; lines: TLine[]; words: string[] };
+  volVsAvg: number | null; hi30: number; lo30: number; below: Level | null; above: Level | null; lv: Level[]; lineNow: { kind: string; y: number; broken: boolean }[]; lines: TLine[]; words: string[] };
 export function snapshot(cs: Candle[]): Snapshot | null {
   if (cs.length < 30) return null;
   const c = cs.map((x) => x.c), n = cs.length - 1, last = c[n];
@@ -128,6 +128,15 @@ export function snapshot(cs: Candle[]): Snapshot | null {
   if (nr.below) words.push(`nearest support ${fmt(nr.below.p)} (${(((last - nr.below.p) / last) * 100).toFixed(1)}% below)`);
   if (nr.above) words.push(`nearest resistance ${fmt(nr.above.p)} (${(((nr.above.p - last) / last) * 100).toFixed(1)}% above)`);
   for (const l of lines) words.push(`${l.kind} line ${l.broken ? "broken" : "intact"} (${l.touches} touches)`);
-  return { last, at: cs[n].t, ema20: e20, ema50: e50, ema200: e200, rsi: r, atr: a, atrPct: a != null ? a / last : null, volVsAvg: v20 ? cs[n].v / v20 : null, hi30, lo30, below: nr.below, above: nr.above, lines, words };
+  const lv = strong.length ? strong : all, lineNow = lines.map((l) => ({ kind: l.kind, y: l.at(n), broken: l.broken }));
+  return { lv, lineNow, last, at: cs[n].t, ema20: e20, ema50: e50, ema200: e200, rsi: r, atr: a, atrPct: a != null ? a / last : null, volVsAvg: v20 ? cs[n].v / v20 : null, hi30, lo30, below: nr.below, above: nr.above, lines, words };
 }
 export const fmt = (p: number) => (p >= 1000 ? p.toFixed(0) : p >= 1 ? p.toFixed(2) : p.toPrecision(4));
+
+// Where an entry sits between levels: within one ATR of support or resistance, else mid-range.
+export function contextAt(entry: number, lv: Level[], atrV: number | null) {
+  const { below, above } = nearest(lv, entry), band = atrV ?? entry * 0.01;
+  if (below && entry - below.p <= band) return "near support";
+  if (above && above.p - entry <= band) return "near resistance";
+  return "mid-range";
+}

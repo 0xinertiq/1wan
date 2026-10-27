@@ -5,13 +5,13 @@ import { useEffect, useState } from "react";
 import { useCourt } from "../CourtState";
 import { prettyDay, weekKey } from "@/lib/court/time";
 import { water } from "@/lib/court/water";
+import { contextAt, nearest, type Level } from "@/lib/ta";
 
 // Life > Trade, ported from her swing trade ledger (formulas, checklist and mistake tags exactly as there),
 // plus the stop/ATR review flags (docs/build-intel.md G). Tracks and explains only; no auto-trading, ever.
 type Row = Record<string, unknown> & { id: string; at?: string };
 type Settings = { account: number | null; risk_pct: number | null; rules: string[] };
 type Ledger = { trades: Row[]; plans: Row[]; gamble: Row[]; settings: Settings | null };
-type Atr = { atr: number | null; at?: string; reason?: string };
 
 export const CHECKS: [string, string, string][] = [
   ["c1", "Weekly bias written down", "Thesis and invalidation written before checking the current price."],
@@ -212,6 +212,15 @@ function Review({ trades, plans, account }: { trades: Row[]; plans: Row[]; accou
       <div className="sec-h">Results</div><div className="tiles">{res.map(tile)}</div>
       {late > 0 && <p className="note">{late} trade{late === 1 ? "" : "s"} placed between 11pm and 6am (from the time logged).</p>}
       <p className="note">Gamble results are kept apart and never counted here.</p>
+      {(() => {
+        const ctxOf = (t: Row) => (t.checks && typeof t.checks === "object" ? (t.checks as Record<string, unknown>).ctx : null) as string | null;
+        const groups = ["near support", "mid-range", "near resistance"].map((g) => { const xs = closed.filter((x) => ctxOf(x.t) === g); return { g, n: xs.length, w: xs.filter((x) => x.d.status === "win").length }; }).filter((x) => x.n);
+        return groups.length ? <>
+          <div className="sec-h">Where your entries sat</div>
+          {groups.map((x) => <div className="filed-row" key={x.g}><span>{x.g}</span><span>{x.n} closed · {Math.round((x.w / x.n) * 100)}% wins</span></div>)}
+          <p className="note">From daily levels at the time each trade was logged. Your own pattern, not a rule.</p>
+        </> : null;
+      })()}
       <div className="sec-h">Recurring mistakes</div>
       {counts.length ? counts.map(([g, c]) => <div className="filed-row" key={g}><span>{g}</span><span>{c}×</span></div>) : <p className="note">No mistakes tagged in this period.</p>}
     </>
@@ -228,24 +237,72 @@ function Checks({ value, onChange }: { value: Record<string, boolean>; onChange:
   );
 }
 
-// Section G: information flags only, never blocking. ATR is fetched, never typed.
+// Daily technicals for one coin from /api/ta, shared by plan cards, the checklist and trade context.
+type Ta = { ok: boolean; reason?: string; lastCandle?: string; source?: string; snap?: { last: number; atr: number | null; ema50: number | null; ema200: number | null; lv: Level[]; lineNow: { kind: string; y: number; broken: boolean }[]; words: string[] } | null };
+const taCache = new Map<string, Promise<Ta>>();
+function getTa(sym: string): Promise<Ta> {
+  if (!taCache.has(sym)) taCache.set(sym, fetch(`/api/ta?tf=1d&sym=${sym}`).then((r) => r.json()).then((j) => j.items?.[0] ?? { ok: false, reason: "not reachable" }).catch(() => ({ ok: false, reason: "not reachable" })));
+  return taCache.get(sym)!;
+}
+const symOf = (inst: unknown) => String(inst ?? "").toUpperCase().replace(/[^A-Z0-9].*$/, "");
+function useTa(inst: unknown, on = true) {
+  const sym = symOf(inst);
+  const [ta, setTa] = useState<Ta | null>(null);
+  useEffect(() => { setTa(null); if (on && sym.length >= 2) getTa(sym).then(setTa); }, [sym, on]);
+  return ta;
+}
+
+// Sections G and G2: information only, never blocking. ATR and levels come from fetched daily candles.
 function PlanFlags({ p }: { p: Row }) {
-  const [atr, setAtr] = useState<Atr | null>(null);
-  const entry = n(p.entry), stop = n(p.stop), target = n(p.target);
-  const sym = String(p.inst ?? "").toUpperCase().replace(/[^A-Z0-9].*$/, "");
-  if (entry == null || stop == null || !entry) return null;
-  const dist = Math.abs(entry - stop);
-  const rr = target != null && dist ? Math.abs(target - entry) / dist : null;
+  const [on, setOn] = useState(false);
+  const ta = useTa(p.inst, on);
+  const entry = n(p.entry), stop = n(p.stop), target = n(p.target), long = p.dir !== "short";
+  if (entry == null || !entry) return null;
+  if (!on) return <div className="note"><button className="btn sm ghost" type="button" onClick={() => setOn(true)}>Check against the chart</button></div>;
+  if (!ta) return <p className="note">Reading daily candles…</p>;
+  if (!ta.ok || !ta.snap) return <p className="note">Chart data not available for {symOf(p.inst)} ({ta.reason}).</p>;
+  const s = ta.snap, a = s.atr, { below, above } = nearest(s.lv, entry);
+  const pct = (x: number) => ((Math.abs(x - entry) / entry) * 100).toFixed(1) + "%";
+  const inAtr = (x: number) => (a ? (Math.abs(x - entry) / a).toFixed(1) + " ATR" : "");
+  const dist = stop != null ? Math.abs(entry - stop) : null;
   const flags: string[] = [];
-  if (atr?.atr != null && dist < atr.atr) flags.push(`Stop is under 1 ATR from entry (${fmt(dist)} vs ATR ${fmt(atr.atr)}).`);
-  if (dist / entry > 0.3) flags.push("Stop is more than 30% from entry.");
+  if (dist != null && a != null && dist < a) flags.push(`Stop is under 1 daily ATR from entry (${fmt(dist)} vs ATR ${fmt(a)}).`);
+  if (dist != null && dist / entry > 0.3) flags.push("Stop is more than 30% from entry.");
+  const guard = long ? below : above;
+  if (stop != null && guard && Math.abs(stop - guard.p) / guard.p <= 0.005) flags.push(`Stop sits inside the ${long ? "support" : "resistance"} zone at ${fmt(guard.p)}, not beyond it.`);
+  const wall = long ? above : below;
+  if (target != null && wall && (long ? target <= wall.p && (wall.p - target) / wall.p <= 0.01 : target >= wall.p && (target - wall.p) / wall.p <= 0.01)) flags.push(`Target is just ${long ? "below resistance" : "above support"} at ${fmt(wall.p)}.`);
+  const broken = s.lineNow.find((l) => l.broken);
+  if (broken) flags.push(`Entry is ${entry >= broken.y ? "above" : "below"} a broken ${broken.kind} line (now near ${fmt(broken.y)}).`);
+  const rrNext = dist && wall ? Math.abs(wall.p - entry) / dist : null;
+  const rr = target != null && dist ? Math.abs(target - entry) / dist : null;
+  const closestLine = [...s.lineNow].sort((x, y) => Math.abs(x.y - entry) - Math.abs(y.y - entry))[0];
   return (
     <div className="note">
+      {below && <>Support below entry {fmt(below.p)} ({pct(below.p)}{a ? ", " + inAtr(below.p) : ""}). </>}
+      {above && <>Resistance above entry {fmt(above.p)} ({pct(above.p)}{a ? ", " + inAtr(above.p) : ""}). </>}
+      {closestLine && <>Closest auto line: {closestLine.kind}, {closestLine.broken ? "broken" : "intact"}, near {fmt(closestLine.y)}. </>}
       {rr != null && <>Risk/reward {fmt(rr)} : 1. </>}
-      {atr == null ? <button className="btn sm ghost" type="button" disabled={!sym} onClick={() => fetch("/api/atr?sym=" + sym).then((r) => r.json()).then(setAtr).catch(() => setAtr({ atr: null, reason: "Candles not reachable" }))}>Check stop vs ATR</button>
-        : atr.atr == null ? <>ATR not available for {sym} ({atr.reason}). </> : <>Daily ATR(14) {fmt(atr.atr)}, Crypto.com candles, {new Date(atr.at!).toLocaleString("en-SG", { timeZone: "Asia/Singapore" })}. </>}
+      {rrNext != null && <>Risk/reward to the next {long ? "resistance" : "support"} is {fmt(rrNext)} : 1. </>}
+      {a != null && <>Daily ATR(14) {fmt(a)}. </>}
+      <>{ta.source}, last candle {ta.lastCandle ? new Date(ta.lastCandle).toLocaleString("en-SG", { timeZone: "Asia/Singapore" }) : ""}. </>
       {flags.map((f) => <span key={f} className="flag"> ⚑ {f}</span>)}
-      {flags.length > 0 && <> Review threshold, not a rule.</>}
+      <> Review prompts from the chart, not advice; thresholds, not rules.</>
+    </div>
+  );
+}
+
+// Read-only lines under the checklist that fill themselves from the chart; her own ticks stay hers.
+function ChartLines({ inst }: { inst: string }) {
+  const ta = useTa(inst);
+  if (!symOf(inst) || !ta?.snap) return null;
+  const s = ta.snap, trend = [s.ema50 != null ? `${s.last >= s.ema50 ? "above" : "below"} the 50 EMA` : "", s.ema200 != null ? `${s.last >= s.ema200 ? "above" : "below"} the 200 EMA` : ""].filter(Boolean).join(", ");
+  const nr = nearest(s.lv, s.last), lvl = [nr.below, nr.above].filter((x): x is Level => !!x).sort((x, y) => Math.abs(x.p - s.last) - Math.abs(y.p - s.last))[0];
+  return (
+    <div className="note chartlines">
+      <div>From the chart (daily, read only): trend {trend || "not enough data"}</div>
+      {lvl && <div>Level nearby: {lvl.kind} {fmt(lvl.p)} ({((Math.abs(lvl.p - s.last) / s.last) * 100).toFixed(1)}% away)</div>}
+      {s.lineNow.map((l, i) => <div key={i}>{l.kind} line {l.broken ? "broken" : "intact"}</div>)}
     </div>
   );
 }
@@ -301,6 +358,7 @@ function Plans({ plans, k, onSave, onRemove }: { plans: Row[]; k: string; onSave
           <label className="note">Timeframe ends <input type="date" value={f.until} onChange={set("until")} /></label>
           <label><input type="checkbox" checked={f.share_x} onChange={(e) => setF({ ...f, share_x: e.target.checked })} /> A thread or trend note for X in this</label>
           <Checks value={f.checks} onChange={(checks) => setF({ ...f, checks })} />
+          <ChartLines inst={f.inst} />
           <button className="btn" type="submit">Save plan</button>
         </form>
       </details>
@@ -340,7 +398,10 @@ function Trades({ trades, plans, k, onSave, onRemove }: { trades: Row[]; plans: 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!f.inst.trim() || n(f.entry) == null) return;
-    const ok = await onSave({ ...f, id: uid("t"), inst: f.inst.trim().toUpperCase(), entry: n(f.entry), stop: n(f.stop), exit: n(f.exit), size: n(f.size), lev: n(f.lev), pnl: n(f.pnl), plan_id: f.plan_id || null,
+    // Level context at entry, from daily candles, kept with the trade so review tiles can group results.
+    const ta = await getTa(symOf(f.inst)), e0 = n(f.entry);
+    const ctx = ta.snap && e0 != null ? contextAt(e0, ta.snap.lv, ta.snap.atr) : null;
+    const ok = await onSave({ ...f, checks: { ...f.checks, ...(ctx ? { ctx } : {}) }, id: uid("t"), inst: f.inst.trim().toUpperCase(), entry: n(f.entry), stop: n(f.stop), exit: n(f.exit), size: n(f.size), lev: n(f.lev), pnl: n(f.pnl), plan_id: f.plan_id || null,
       rules: CHECKS.filter(([id]) => f.checks[id]).length, at: new Date().toISOString() });
     if (ok) setF(blank);
   }
@@ -369,6 +430,7 @@ function Trades({ trades, plans, k, onSave, onRemove }: { trades: Row[]; plans: 
           <input type="text" maxLength={120} placeholder="Setup" aria-label="Setup" value={f.setup} onChange={set("setup")} />
           <textarea maxLength={400} placeholder="Lesson" aria-label="Lesson" value={f.lesson} onChange={set("lesson")} />
           <Checks value={f.checks} onChange={(checks) => setF({ ...f, checks })} />
+          <ChartLines inst={f.inst} />
           <fieldset className="checks"><legend className="note">Mistakes on this trade</legend>
             {TAGS.map((t) => <label key={t}><input type="checkbox" checked={f.tags.includes(t)} onChange={(e) => setF({ ...f, tags: e.target.checked ? [...f.tags, t] : f.tags.filter((x) => x !== t) })} /> {t}</label>)}
           </fieldset>
