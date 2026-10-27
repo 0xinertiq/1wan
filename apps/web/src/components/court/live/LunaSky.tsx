@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useCourt } from "../CourtState";
 import { eventsOn, isAstro } from "@/lib/court/state";
 import { addDays, hm, prettyDay } from "@/lib/court/time";
-import { DecorSprite } from "@/components/kumo/DecorSprite";
+import { OBS_BANNER, PaintedBanner } from "@/components/kumo/PaintedBanner";
 import { AstroText } from "./AstroText";
 import { GLYPH, SIGNS, birthMoment, fmtDeg, houses, moonPhase, positions, signOf, skyEvents, transits, lonOf, type BodyName, type SkyEvent } from "@/lib/sky";
 
@@ -76,7 +76,7 @@ export function LunaSky() {
     <section className="win" id="lunaWin" aria-labelledby="lunaT">
       <div className="win-title"><h2 id="lunaT">Luna&apos;s sky</h2><span className="sub">{phase.name} · Moon in {pos[1].sign}</span></div>
       <div className="win-body">
-        <ObsBanner />
+        <ObsBanner phase={phase.name} sign={pos[1].sign} />
         <LunaCaption />
         {!st.birth && <p className="note">Luna can read transits to your own chart. <button className="btn sm" type="button" onClick={() => openSheet({ kind: "birth" })}>Add birth details</button></p>}
         <Obs7 k={k} astro={astro} ev={ev} />
@@ -108,17 +108,14 @@ export function LunaSky() {
   );
 }
 
-// New look only (hidden in Classic): night banner. Backdrop = the asset pack's layers recoloured to moonlight
-// in CSS, under a code-drawn sky; the moon and stars are code-drawn pixel decorations (prototype art).
-const STARS = [[8, 18], [20, 40], [33, 12], [47, 30], [61, 16], [74, 38], [88, 22], [94, 50], [14, 55]];
-function ObsBanner() {
+// New look only (hidden in Classic): painted night banner (concept image 24, prototype crop). The painted
+// title and speech bubble are covered by the real title and Luna's calculated moon for today.
+function ObsBanner({ phase, sign }: { phase: string; sign: string }) {
+  const bubble = <span className="pb-bubble">☽ {phase}, Moon in {sign}</span>;
   return (
-    <div className="obanner" aria-hidden="true">
-      <div className="obanner-scene" />
-      {STARS.map(([x, y], i) => <DecorSprite key={i} id="star" className="obanner-star" style={{ left: x + "%", top: y + "%", animationDelay: (i % 4) * 0.7 + "s" }} />)}
-      <DecorSprite id="moon" className="obanner-moon" />
-      <span className="obanner-tag">Prototype art</span>
-    </div>
+    <PaintedBanner set={OBS_BANNER} label="Observatory" className="obanner"
+      fill={{ title: <div className="pb-greet"><h2>The Observatory</h2><p>Luna&apos;s sky, quoted and calculated.</p></div>, bubble }}
+      fillMobile={{ bubble }} />
   );
 }
 

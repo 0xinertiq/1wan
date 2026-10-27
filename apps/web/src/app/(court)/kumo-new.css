@@ -114,16 +114,6 @@
 /* Court home (New look only; Classic renders the v52 columns instead). 12 columns, 24px gaps:
    banner; Today / Needs you now / Kingdom progress / Quick capture (equal height); Luna's forecast; More. */
 :root[data-ui="new"] .khome{display:grid;gap:24px}
-:root[data-ui="new"] .kbanner{position:relative;height:clamp(130px,24vw,280px);border-radius:var(--kumo-radius-card);overflow:hidden;box-shadow:var(--kumo-shadow-card);border:1px solid var(--line)}
-/* Framed from the top so the whole castle skyline shows; the foreground crops first. */
-:root[data-ui="new"] .kbanner-scene{position:absolute;inset:0;background-image:url(./kumo/layers/07_lanterns.svg),url(./kumo/layers/06_foreground.svg),url(./kumo/layers/05_trees.svg),url(./kumo/layers/04_castle.svg),url(./kumo/layers/03_floating_island.svg),url(./kumo/layers/02_clouds.svg),url(./kumo/layers/01_sky.svg);background-size:cover;background-position:center 6%;background-repeat:no-repeat}
-:root[data-ui="new"] .kbanner-text{position:absolute;left:16px;top:14px;max-width:min(62%,420px);padding:10px 14px;border-radius:var(--kumo-radius-control);background:rgba(255,255,255,.86);color:var(--kumo-text);backdrop-filter:blur(4px)}
-:root[data-ui="new"] .kbanner-text h2{font:700 clamp(18px,2.6vw,26px)/1.15 var(--kumo-font-display)}
-:root[data-ui="new"] .kbanner-text p{font:600 14px var(--kumo-font-body);color:var(--kumo-text-muted);margin-top:2px}
-:root[data-ui="new"] .kbanner-fox{position:absolute;left:26%;bottom:4%;width:clamp(52px,7.5vw,88px);height:clamp(52px,7.5vw,88px);filter:drop-shadow(0 3px 0 rgba(74,37,56,.25));animation:kfloat 4s ease-in-out infinite}
-:root[data-ui="new"] .kbanner-fox svg{width:100%;height:100%;display:block}
-:root[data-ui="new"] .kbanner-tag{position:absolute;right:10px;top:8px;padding:2px 8px;border-radius:var(--kumo-radius-chip);background:rgba(255,255,255,.85);color:var(--kumo-text-muted);font:700 12px var(--kumo-font-body)}
-@keyframes kfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 :root[data-ui="new"] .khome>.statusline{margin:-12px 4px 0;font:600 14px var(--kumo-font-body);color:var(--ink-soft)}
 :root[data-ui="new"] .krow{display:grid;gap:24px;grid-template-columns:repeat(12,minmax(0,1fr));align-items:stretch}
 :root[data-ui="new"] .krow>*{grid-column:span 12;height:100%;margin:0}
@@ -169,15 +159,9 @@
 
 /* Observatory (Luna's sky), New look only: moonlit banner and the 7-day folds. Classic keeps its flat list. */
 .obanner,.obs7{display:none}
+:root[data-ui="new"] .obanner{display:block}
 :root[data-ui="new"] .obs-classic,:root[data-ui="new"] .lunaq{display:none}
 :root[data-ui="new"] .obs7{display:grid;gap:8px}
-:root[data-ui="new"] .obanner{display:block;position:relative;height:clamp(120px,18vw,170px);border-radius:var(--kumo-radius-card);overflow:hidden;background:linear-gradient(180deg,#1C1640 0%,#3B2C6B 55%,#7A5FA8 100%)}
-/* Pack layers 03-07 recoloured to moonlight (sky and clouds replaced by the gradient above). */
-:root[data-ui="new"] .obanner-scene{position:absolute;inset:0;background-image:url(./kumo/layers/07_lanterns.svg),url(./kumo/layers/06_foreground.svg),url(./kumo/layers/05_trees.svg),url(./kumo/layers/04_castle.svg),url(./kumo/layers/03_floating_island.svg);background-size:cover;background-position:center 75%;background-repeat:no-repeat;filter:brightness(.6) saturate(.7) hue-rotate(-25deg)}
-:root[data-ui="new"] .obanner-star{position:absolute;width:12px;height:12px;image-rendering:pixelated;animation:ktwinkle 3s ease-in-out infinite}
-:root[data-ui="new"] .obanner-moon{position:absolute;right:8%;top:10%;width:clamp(48px,7vw,72px);height:clamp(48px,7vw,72px);image-rendering:pixelated}
-:root[data-ui="new"] .obanner-tag{position:absolute;left:10px;bottom:8px;padding:2px 8px;border-radius:var(--kumo-radius-chip);background:rgba(28,22,64,.7);color:#F0EAFF;font:700 11px var(--kumo-font-body)}
-@keyframes ktwinkle{0%,100%{opacity:1}50%{opacity:.45}}
 :root[data-ui="new"] .obs-day{border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win)}
 :root[data-ui="new"] .obs-day>summary{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 12px;cursor:pointer;font-family:var(--kumo-font-body)}
 :root[data-ui="new"] .obs-day[open]>summary{border-bottom:1px solid var(--line);background:var(--kumo-lavender-soft);border-radius:var(--kumo-radius-control) var(--kumo-radius-control) 0 0}
@@ -232,6 +216,42 @@
 :root[data-ui="new"] .gt-wilting .gtree-art,:root[data-ui="new"] .gt-withered .gtree-art,:root[data-ui="new"] .gt-dead .gtree-art{filter:saturate(.35) brightness(.95)}
 :root[data-ui="new"] .gt-thirsty .gtree-art{filter:saturate(.7)}
 :root[data-ui="new"] .tcard{border:1px solid var(--line);border-radius:var(--kumo-radius-card);box-shadow:var(--kumo-shadow-card)}
+
+/* Painted banners (New look): prototype crops from the concept images, drawn "cover", top-anchored, with a
+   horizontal focus point (--fx). Live overlays sit in crop coordinates on top of the painted mock UI. */
+.pbanner{position:relative;overflow:hidden;border-radius:var(--kumo-radius-card);border:1px solid var(--line);box-shadow:var(--kumo-shadow-card);background:#EDE4FF}
+.pbanner.kbanner{height:clamp(220px,22vw,280px)}
+.pbanner.obanner{height:clamp(200px,20vw,240px)}
+@media (max-width:759px){.pbanner.kbanner{height:clamp(130px,44vw,180px)}.pbanner.obanner{height:clamp(130px,42vw,170px)}}
+.pb{position:absolute;inset:0;container-type:size}
+.pb-m{display:none}
+@media (max-width:759px){.pb-d{display:none}.pb-m{display:block}}
+.pb-art{position:absolute;top:0;width:max(100cqw,calc(100cqh * var(--r)));aspect-ratio:var(--r);left:calc((100cqw - max(100cqw,calc(100cqh * var(--r)))) * var(--fx));container-type:inline-size}
+.pb-art img{display:block;width:100%;height:100%}
+.pb-box{position:absolute;display:flex;overflow:hidden}
+.pb-d .pb-box{font-size:max(11px,.95cqw)}
+.pb-m .pb-box{font-size:max(10px,2.5cqw)}
+.pb-chip{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;border-radius:8px;background:#fff;color:#4a2538;font:700 1em/1.2 var(--kumo-font-body);text-decoration:none;box-shadow:0 2px 8px rgba(42,35,64,.12);text-align:center;padding:0 4px}
+a.pb-chip:hover{color:var(--kumo-pink)}
+a.pb-chip:focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:-3px}
+.pb-greet{flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 4%;border-radius:12px;background:rgba(255,255,255,.96);color:var(--kumo-text);box-shadow:0 2px 10px rgba(42,35,64,.12)}
+.pb-d .pb-greet h2{font:700 max(18px,2.2cqw)/1.15 var(--kumo-font-display);color:var(--kumo-text)}
+.pb-d .pb-greet p{font:600 max(13px,1.15cqw)/1.3 var(--kumo-font-body);color:var(--kumo-text-muted);margin-top:2px}
+.pb-m .pb-greet h2{font:700 max(14px,4cqw)/1.15 var(--kumo-font-display);color:var(--kumo-text)}
+.pb-bubble{flex:1;display:flex;align-items:center;justify-content:center;padding:0 6px;border-radius:12px;background:#fff;color:#4A3A78;font:700 1em/1.25 var(--kumo-font-body);text-align:center;box-shadow:0 2px 8px rgba(42,35,64,.15)}
+.pb-tag{position:absolute;right:10px;bottom:8px;padding:2px 8px;border-radius:var(--kumo-radius-chip);background:rgba(255,255,255,.88);color:var(--kumo-text-muted);font:700 12px var(--kumo-font-body)}
+/* Gentle motion: two slow cloud wisps and a few falling petals. Off under reduced motion (rule below). */
+.pb-fx{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.pb-cloud{position:absolute;top:4%;left:-30%;width:26%;height:34%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.55),rgba(255,255,255,0));animation:pbdrift 90s linear infinite}
+.pb-cloud.c2{top:14%;width:18%;height:24%;animation-duration:120s;animation-delay:-60s}
+@keyframes pbdrift{to{transform:translateX(560%)}}
+.obanner .pb-cloud{display:none}
+.pb-petal{position:absolute;top:-8%;width:8px;height:6px;border-radius:70% 0 70% 0;background:#FFB3D1;opacity:.9;animation:pbfall 12s linear infinite}
+.pb-petal.p0{left:8%;animation-delay:-1s}.pb-petal.p1{left:22%;animation-delay:-7s;animation-duration:14s}.pb-petal.p2{left:37%;animation-delay:-4s}
+.pb-petal.p3{left:53%;animation-delay:-10s;animation-duration:15s}.pb-petal.p4{left:66%;animation-delay:-2s;animation-duration:13s}
+.pb-petal.p5{left:79%;animation-delay:-8s}.pb-petal.p6{left:92%;animation-delay:-5s;animation-duration:16s}
+@keyframes pbfall{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(18px,120px) rotate(160deg)}100%{transform:translate(-6px,260px) rotate(320deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){.pb-fx{display:none}}
 
 /* Focus ring from the kit. */
 :root[data-ui="new"] :focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:2px}

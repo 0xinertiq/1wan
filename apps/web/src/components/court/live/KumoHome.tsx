@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PixelSprite } from "@/components/PixelSprite";
+import { COURT_BANNER, PaintedBanner } from "@/components/kumo/PaintedBanner";
 import { useUi } from "@/components/kumo/useUi";
 import { useCourt } from "../CourtState";
 import { eventsOn, isAstro, type DayEvent } from "@/lib/court/state";
@@ -60,18 +60,23 @@ export function Observatory({ luna }: { luna: React.ReactNode }) {
   );
 }
 
+// Painted Court banner (concept image 33). Each painted chip is covered by a real one: links to the rooms,
+// her live level and today's date. The fox asleep on the wall is painted in, so the pixel fox sits this one out.
 function KingdomBanner() {
-  const { k, nm } = useCourt();
+  const { st, k, nm } = useCourt();
+  const greet = <div className="pb-greet"><h2>{greetWord(nm)}, Queen</h2><p>A calmer day, a richer life.</p></div>;
+  const chips = {
+    garden: <a className="pb-chip" href="#garden">Sakura Garden</a>,
+    clock: <a className="pb-chip" href="#calendar">Clock Tower</a>,
+    castle: <span className="pb-chip pb-two"><span>The Castle</span><span>Lv {st.lvl}</span></span>,
+    obs: <a className="pb-chip" href="#observatory">Observatory</a>,
+    date: <span className="pb-chip">{prettyDay(k)}</span>,
+    life: <span className="pb-chip" />,
+  };
   return (
-    <section className="kbanner" aria-label="Kingdom">
-      <div className="kbanner-scene" aria-hidden="true" />
-      <div className="kbanner-text">
-        <h2>{greetWord(nm)}, Queen</h2>
-        <p>{prettyDay(k)} · a calmer day, a richer life</p>
-      </div>
-      <span className="kbanner-fox"><PixelSprite name="kumo" size={88} label="Chief Kumo" /></span>
-      <span className="kbanner-tag">Prototype art</span>
-    </section>
+    <PaintedBanner set={COURT_BANNER} label="Kingdom" className="kbanner"
+      fill={{ greet, ...chips }}
+      fillMobile={{ greet: <div className="pb-greet"><h2>{greetWord(nm)}, Queen</h2></div>, clock: chips.clock, castle: chips.castle, obs: <span className="pb-chip" /> }} />
   );
 }
 
