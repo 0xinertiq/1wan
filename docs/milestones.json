@@ -103,9 +103,9 @@
    "group": "Build",
    "title": "10. Calendar tab",
    "status": "done",
-   "expect": "Agenda, week and month views, colours per calendar, layers, free gaps.",
-   "you_do": "Update the astro and new work calendar addresses (manual steps, section I).",
-   "note": "Agenda, Week and Month views, chips per calendar, money, plan and thesis layers, free 45-minute gaps, 90 days ahead. Grid dates layer shows grid items whose text holds a real date."
+   "expect": "Agenda, week and month views, one chip per Google calendar plus Luna's sky, free gaps.",
+   "you_do": "",
+   "note": "Agenda, Week and Month views, free 45-minute gaps, 90 days ahead. 27 Oct: only the six Google calendars (astro included) and Luna's sky remain; Money, Plan timeframes, Friday thesis slot, Macro releases and Grid dates came off the calendar (their features and data are unchanged). Astro entries show the calendar's full description under the title, links clickable, long ones folded with Read more."
   },
   {
    "id": "s11",
@@ -114,7 +114,7 @@
    "status": "done",
    "expect": "Astro weather on the Court, cross-check with your astro calendar, Kumo's tails.",
    "you_do": "Optional: enter birth date, time and city in Settings (private).",
-   "note": "Luna's computed sky (positions, retrogrades, moon, 14-day stations, ingresses, eclipses), your astro calendar's own words with a cross-check, transits to your chart once birth details are in, Kumo's nine tails. The Court sky now follows the real sun and moon over Singapore."
+   "note": "27 Oct: Luna's card leads with your astro calendar's title and full description, quoted as written; her computed sky (positions, retrogrades, moon, 14-day stations, ingresses, eclipses) sits beneath, labelled as a cross-check only, with the fact check, transits to your chart once birth details are in, Kumo's nine tails. The Court sky now follows the real sun and moon over Singapore."
   },
   {
    "id": "s12",

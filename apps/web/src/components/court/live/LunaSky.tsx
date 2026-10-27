@@ -4,10 +4,12 @@ import { useMemo, useState } from "react";
 import { useCourt } from "../CourtState";
 import { eventsOn, isAstro } from "@/lib/court/state";
 import { addDays, prettyDay } from "@/lib/court/time";
+import { AstroText } from "./AstroText";
 import { GLYPH, SIGNS, birthMoment, fmtDeg, houses, moonPhase, positions, signOf, skyEvents, transits, lonOf, type BodyName, type SkyEvent } from "@/lib/sky";
 
-// Luna's sky: "From your astro calendar" (verbatim, private) and "Computed sky" (our rules), plus a
-// cross-check of simple facts. Never overrides one with the other, never predicts outcomes.
+// Luna's sky: "From your astro calendar" first (the astrologer's title and description, quoted as written,
+// private), then Luna's own calculated sky beneath it, labelled as a cross-check only. Never overrides one
+// with the other, never predicts outcomes.
 const sgtKey = (d: Date) => new Date(d.getTime() + 8 * 3600000).toISOString().slice(0, 10);
 const noon = (k: string) => new Date(k + "T04:00:00Z");   // 12:00 SGT
 
@@ -56,8 +58,8 @@ export function LunaSky() {
   const { pos, phase, ev } = useSky();
   const [open, setOpen] = useState(false);
   const astro = useMemo(() => {
-    const out: { d: string; t: string }[] = [];
-    for (let i = 0; i < 8; i++) { const d = addDays(k, i); for (const e of eventsOn(events, d, true)) if (isAstro(e)) out.push({ d, t: e.t }); }
+    const out: { d: string; t: string; desc?: string }[] = [];
+    for (let i = 0; i < 8; i++) { const d = addDays(k, i); for (const e of eventsOn(events, d, true)) if (isAstro(e)) out.push({ d, t: e.t, desc: e.desc }); }
     return out;
   }, [events, k]);
   const checks = useMemo(() => crossCheck(astro, ev), [astro, ev]);
@@ -75,15 +77,15 @@ export function LunaSky() {
       <div className="win-body">
         <LunaCaption />
         {!st.birth && <p className="note">Luna can read transits to your own chart. <button className="btn sm" type="button" onClick={() => openSheet({ kind: "birth" })}>Add birth details</button></p>}
-        <button className="btn sm ghost" type="button" onClick={() => setOpen(!open)}>{open ? "Hide the full reading" : "Full reading"}</button>
+        <div className="sec-h">From your astro calendar</div>
+        {astro.length ? <div className="lunaq">
+          {astro.map((x, i) => <div className={"filed-row" + (x.desc ? " hasd" : "")} key={i}><span className="note">{x.d === k ? "Today" : prettyDay(x.d)}</span><div className="ftx"><span>{x.t}</span><AstroText text={x.desc} /></div></div>)}
+          <p className="note">The astrologer&apos;s own words, as written. Private to you.</p>
+        </div> : <p className="note">No astro calendar entries in the next 8 days.</p>}
+        <button className="btn sm ghost" type="button" onClick={() => setOpen(!open)}>{open ? "Hide Luna's cross-check" : "Luna's calculated sky (cross-check)"}</button>
         {open && <>
-          {astro.length > 0 && <>
-            <div className="sec-h">From your astro calendar</div>
-            <p className="note xd">Its own words, private to you.</p>
-            {astro.map((x, i) => <div className="filed-row" key={i}><span className="note">{x.d === k ? "Today" : prettyDay(x.d)}</span><span>{x.t}</span></div>)}
-          </>}
-          <div className="sec-h">Computed sky</div>
-          <p className="note xd">Tropical zodiac, computed here from planetary positions.</p>
+          <div className="sec-h">Luna&apos;s calculated sky · cross-check only</div>
+          <p className="note">Tropical zodiac, computed here from planetary positions. It checks dates and signs; it does not replace the astrologer&apos;s reading above.</p>
           {pos.map((p) => <div className="filed-row" key={p.b}><span>{GLYPH[p.b]} {p.b}</span><span>{fmtDeg(p.lon)} {p.sign}{p.retro ? " ℞" : ""}</span></div>)}
           <p className="note">Moon {Math.round(phase.ill * 100)}% lit.</p>
           <div className="sec-h">Next 14 days</div>

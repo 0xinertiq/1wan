@@ -250,8 +250,8 @@ export function gardenWeek(st: CourtState, k: string) {
 
 /* ---------- Calendar events (filled by /api/calendar in Step 4) ---------- */
 // sk/ek are SGT day keys, sm/em minutes from midnight. All-day events end on ek (exclusive).
-export type CalEvent = { id: string; title: string; cal: string; color: string; allDay: boolean; sk: string; ek: string; sm: number; em: number; loc?: string };
-export type DayEvent = { t: string; cal: string; color: string; loc?: string; allDay: boolean; a: number; b: number };
+export type CalEvent = { id: string; title: string; cal: string; color: string; allDay: boolean; sk: string; ek: string; sm: number; em: number; loc?: string; desc?: string };
+export type DayEvent = { t: string; cal: string; color: string; loc?: string; desc?: string; allDay: boolean; a: number; b: number };
 
 // The purchased "astro" feed (matched by its GCAL_NAME label) is Luna's layer, kept out of normal views.
 export const isAstro = (e: { cal: string }) => /astro/i.test(e.cal);
@@ -260,7 +260,7 @@ export function eventsOn(evs: CalEvent[], k: string, withAstro = false): DayEven
     .filter((e) => withAstro || !isAstro(e))
     .filter((e) => (e.allDay ? e.sk <= k && k < e.ek : e.sk === k || (e.sk < k && (e.ek > k || (e.ek === k && e.em > 0)))))
     .map((e) => ({
-      t: e.title, cal: e.cal, color: e.color, loc: e.loc, allDay: e.allDay,
+      t: e.title, cal: e.cal, color: e.color, loc: e.loc, desc: e.desc, allDay: e.allDay,
       a: e.allDay ? 0 : e.sk < k ? 0 : e.sm,
       b: e.allDay ? 1440 : e.ek > k ? 1440 : e.em,
     }))

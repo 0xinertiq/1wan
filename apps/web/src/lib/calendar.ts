@@ -40,11 +40,13 @@ const daysInMonth = (y: number, m: number) => new Date(Date.UTC(y, m, 0)).getUTC
 /* ---------- ICS parsing ---------- */
 type Prop = { name: string; params: Record<string, string>; value: string };
 type Stamp = { allDay: boolean; wall: Wall; tz: string; utc: number };
-type VEvent = { uid: string; summary: string; location: string; start: Stamp; end: Stamp | null; durMs: number | null; rrule: string | null; exdates: number[]; recurId: number | null; cancelled: boolean };
+type VEvent = { uid: string; summary: string; location: string; desc: string; start: Stamp; end: Stamp | null; durMs: number | null; rrule: string | null; exdates: number[]; recurId: number | null; cancelled: boolean };
 
 function unfold(text: string) { return text.replace(/\r\n/g, "\n").replace(/\n[ \t]/g, "").split("\n"); }
 function parseLine(line: string): Prop | null {
-  const colon = line.search(/:(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+  // First colon unless a quoted parameter comes before it (a description may hold any number of quotes).
+  const first = line.indexOf(":");
+  const colon = first >= 0 && !line.slice(0, first).includes('"') ? first : line.search(/:(?=(?:[^"]*"[^"]*")*[^"]*$)/);
   if (colon < 0) return null;
   const head = line.slice(0, colon).split(";");
   const params: Record<string, string> = {};
@@ -52,6 +54,22 @@ function parseLine(line: string): Prop | null {
   return { name: head[0].toUpperCase(), params, value: line.slice(colon + 1) };
 }
 const unescapeText = (s: string) => s.replace(/\\n/gi, " ").replace(/\\([,;\\])/g, "$1").trim();
+
+// DESCRIPTION as readable plain text: keeps line breaks, turns Google's HTML into text, keeps every link.
+const ENT: Record<string, string> = { nbsp: " ", lt: "<", gt: ">", quot: '"', apos: "'", amp: "&" };
+export function descText(raw: string): string {
+  let s = raw.replace(/\\([nN,;\\])/g, (_, c: string) => (c === "n" || c === "N" ? "\n" : c));
+  if (/<[a-z][^>]*>/i.test(s)) {
+    s = s
+      .replace(/<a\b[^>]*?href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, (_, href: string, inner: string) => {
+        const t = inner.replace(/<[^>]+>/g, "").trim();
+        return !t || t === href ? href : `${t} (${href})`;
+      })
+      .replace(/<br\s*\/?>/gi, "\n").replace(/<\/(p|div|li|h[1-6])>|<\/?(ul|ol)\b[^>]*>/gi, "\n").replace(/<li[^>]*>/gi, "• ").replace(/<[^>]+>/g, "");
+  }
+  s = s.replace(/&(#\d+|nbsp|lt|gt|quot|apos|amp);/gi, (m, e: string) => (e[0] === "#" ? String.fromCodePoint(+e.slice(1)) : ENT[e.toLowerCase()] ?? m));
+  return s.replace(/\r\n?/g, "\n").replace(/[ \t ]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim().slice(0, 6000);
+}
 
 function parseStamp(p: Prop, value = p.value): Stamp {
   const v = value.trim();
@@ -96,6 +114,7 @@ function toEvent(props: Prop[]): VEvent | null {
     uid: get("UID")?.value ?? Math.random().toString(36),
     summary: unescapeText(get("SUMMARY")?.value ?? "(no title)"),
     location: unescapeText(get("LOCATION")?.value ?? ""),
+    desc: descText(get("DESCRIPTION")?.value ?? ""),
     start, end: de ? parseStamp(de) : null, durMs: du ? parseDuration(du.value) : null,
     rrule: get("RRULE")?.value ?? null, exdates,
     recurId: rid ? parseStamp(rid).utc : null,
@@ -174,6 +193,7 @@ function occurrences(evs: VEvent[], cal: string, color: string, winStart: number
   const out: CalEvent[] = [];
   const overrides = new Map<string, VEvent[]>();
   for (const e of evs) if (e.recurId != null) overrides.set(e.uid, [...(overrides.get(e.uid) ?? []), e]);
+  const withDesc = /astro/i.test(cal); // descriptions are sent for the astro feed only (Luna quotes them)
   const emit = (e: VEvent, startUtc: number) => {
     if (e.cancelled) return;
     const len = e.end ? e.end.utc - e.start.utc : e.durMs ?? (e.start.allDay ? 86400000 : 0);
@@ -181,10 +201,10 @@ function occurrences(evs: VEvent[], cal: string, color: string, winStart: number
     if (endUtc < winStart || startUtc > winEnd) return;
     if (e.start.allDay) {
       const sk = new Date(startUtc).toISOString().slice(0, 10), ek = new Date(Math.max(endUtc, startUtc + 86400000)).toISOString().slice(0, 10);
-      out.push({ id: `${e.uid}@${sk}`, title: e.summary, cal, color, allDay: true, sk, ek, sm: 0, em: 0, loc: e.location || undefined });
+      out.push({ id: `${e.uid}@${sk}`, title: e.summary, cal, color, allDay: true, sk, ek, sm: 0, em: 0, loc: e.location || undefined, desc: withDesc && e.desc ? e.desc : undefined });
     } else {
       const a = sgt(new Date(startUtc)), b = sgt(new Date(endUtc));
-      out.push({ id: `${e.uid}@${startUtc}`, title: e.summary, cal, color, allDay: false, sk: a.key, ek: b.key, sm: a.min, em: b.min, loc: e.location || undefined });
+      out.push({ id: `${e.uid}@${startUtc}`, title: e.summary, cal, color, allDay: false, sk: a.key, ek: b.key, sm: a.min, em: b.min, loc: e.location || undefined, desc: withDesc && e.desc ? e.desc : undefined });
     }
   };
   for (const e of evs) {
