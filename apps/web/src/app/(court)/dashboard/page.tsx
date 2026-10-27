@@ -25,6 +25,7 @@ import { CalendarLoader } from "@/components/court/CalendarLoader";
 import { PricesLoader } from "@/components/court/Prices";
 import { watchlistFrom } from "@/lib/prices";
 import { TodayLive } from "@/components/court/live/TodayLive";
+import { KumoHome } from "@/components/court/live/KumoHome";
 import { DiaryLive, GardenLive, StatusLive, WinsButton } from "@/components/court/live/GrowLive";
 import { bootState } from "@/lib/court/actions";
 import { normalize } from "@/lib/court/state";
@@ -90,6 +91,8 @@ export default async function Dashboard() {
       <AppTabs
         panels={{
           court: (
+            <>
+            <KumoHome />
             <div className="layout">
               <div className="col c-l">
                 <WeatherLine />
@@ -112,6 +115,7 @@ export default async function Dashboard() {
                 <StatusLive />
               </div>
             </div>
+            </>
           ),
           calendar: <CalendarTab />,
           garden: <div className="tabcol"><GardenLive /></div>,

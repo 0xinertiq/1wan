@@ -111,6 +111,29 @@
   :root[data-ui="new"] .icon-btn{min-width:44px}
 }
 
+/* Court home (New look only): kingdom banner, then Today / Luna's astro weather / Quick capture. */
+.khome{display:none}
+:root[data-ui="new"] .khome{display:grid;gap:16px;margin-bottom:16px}
+:root[data-ui="new"] .kbanner{position:relative;height:clamp(140px,22vw,210px);border-radius:var(--kumo-radius-card);overflow:hidden;box-shadow:var(--kumo-shadow-card);border:1px solid var(--line)}
+:root[data-ui="new"] .kbanner-scene{position:absolute;inset:0;background-image:url(./kumo/layers/07_lanterns.svg),url(./kumo/layers/06_foreground.svg),url(./kumo/layers/05_trees.svg),url(./kumo/layers/04_castle.svg),url(./kumo/layers/03_floating_island.svg),url(./kumo/layers/02_clouds.svg),url(./kumo/layers/01_sky.svg);background-size:cover;background-position:center 70%;background-repeat:no-repeat}
+:root[data-ui="new"] .kbanner-text{position:absolute;left:16px;top:14px;max-width:min(70%,420px);padding:10px 14px;border-radius:var(--kumo-radius-control);background:rgba(255,255,255,.82);color:var(--kumo-text);backdrop-filter:blur(4px)}
+:root[data-ui="new"] .kbanner-text h2{font:700 clamp(18px,2.6vw,26px)/1.15 var(--kumo-font-display)}
+:root[data-ui="new"] .kbanner-text p{font:600 13px var(--kumo-font-body);color:var(--kumo-text-muted);margin-top:2px}
+:root[data-ui="new"] .kbanner-fox{position:absolute;right:clamp(16px,8%,96px);bottom:8px;width:clamp(56px,8vw,84px);height:clamp(56px,8vw,84px);animation:kfloat 4s ease-in-out infinite}
+:root[data-ui="new"] .kbanner-fox svg{width:100%;height:100%;display:block}
+@keyframes kfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+:root[data-ui="new"] .khome-grid{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:760px){:root[data-ui="new"] .khome-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:1180px){:root[data-ui="new"] .khome-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,1fr)}}
+:root[data-ui="new"] .khome .win-title a.sub{font:700 13px var(--kumo-font-body);color:var(--lav-strong);text-decoration:none}
+:root[data-ui="new"] .knl .win-body{gap:6px}
+:root[data-ui="new"] .knl-row{display:flex;align-items:center;gap:10px;min-height:32px}
+:root[data-ui="new"] .knl-t{font:700 13px var(--kumo-font-body);color:var(--ink-soft);font-variant-numeric:tabular-nums;width:44px;flex:none}
+:root[data-ui="new"] .knl-dot{width:8px;height:8px;border-radius:50%;flex:none}
+:root[data-ui="new"] .kastro .win-title{background:linear-gradient(90deg,var(--kumo-lavender-soft),var(--win))}
+:root[data-ui="new"] .kastro-h{font:600 16px var(--kumo-font-display);color:var(--ink)}
+:root[data-ui="new"] .kastro-ev{display:grid;gap:4px;padding-top:8px;border-top:1px solid var(--line)}
+
 /* Focus ring from the kit. */
 :root[data-ui="new"] :focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:2px}
 
