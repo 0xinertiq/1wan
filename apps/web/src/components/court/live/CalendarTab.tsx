@@ -7,14 +7,15 @@ import { addDays, hm, prettyDay, wdName, wdOf, weekKey } from "@/lib/court/time"
 import { getOnce } from "@/lib/court/once";
 import { WeekAhead } from "./CourtHome";
 import { useSky } from "./LunaSky";
+import { useEcon } from "./EconLive";
 
 // Calendar tab (docs/build-dashboard-v2.md section 3): Agenda (14 days), Week (default), Month, day detail
 // with free 45-minute gaps. Calendar chips per feed; extra layers from her own records, off by default.
 type View = "agenda" | "week" | "month";
-type Layer = "money" | "plans" | "thesis" | "sky";
+type Layer = "money" | "plans" | "thesis" | "sky" | "macro";
 type Item = { t: string; color: string; a: number; b: number; allDay: boolean; layer?: Layer; cal?: string };
-const LAYERS: [Layer, string][] = [["money", "Money"], ["plans", "Plan timeframes"], ["thesis", "Friday thesis slot"], ["sky", "Luna's sky"]];
-const LCOL: Record<Layer, string> = { money: "#9fd8b8", plans: "#ffd95e", thesis: "#ffb3d1", sky: "#c9b6ff" };
+const LAYERS: [Layer, string][] = [["money", "Money"], ["plans", "Plan timeframes"], ["thesis", "Friday thesis slot"], ["sky", "Luna's sky"], ["macro", "Macro releases"]];
+const LCOL: Record<Layer, string> = { money: "#9fd8b8", plans: "#ffd95e", thesis: "#ffb3d1", sky: "#c9b6ff", macro: "#9cc7f0" };
 
 function gaps(items: Item[]) {
   const busy = items.filter((e) => !e.allDay && !e.layer).map((e) => [Math.max(540, e.a), Math.min(1260, e.b)]).filter(([a, b]) => b > a).sort((x, y) => x[0] - y[0]);
@@ -28,6 +29,7 @@ function gaps(items: Item[]) {
 export function CalendarTab() {
   const { st, k, events, cal } = useCourt();
   const sky = useSky();
+  const econ = useEcon();
   const [view, setView] = useState<View>("week");
   const [off, setOff] = useState<string[]>([]);
   const [layers, setLayers] = useState<Layer[]>([]);
@@ -46,6 +48,7 @@ export function CalendarTab() {
       for (const [dt, l] of st.defs.money?.up ?? []) if (dt === d) out.push({ t: l, color: LCOL.money, a: 0, b: 0, allDay: true, layer: "money" });
     }
     if (layers.includes("plans")) for (const p of plans) if (p.until === d && p.outcome === "open") out.push({ t: `${String(p.inst)} plan timeframe ends`, color: LCOL.plans, a: 0, b: 0, allDay: true, layer: "plans" });
+    if (layers.includes("macro")) for (const e of econ?.items ?? []) if ((e.top || e.impact === "High") && new Date(Date.parse(e.at) + 8 * 3600000).toISOString().slice(0, 10) === d) { const m = new Date(Date.parse(e.at) + 8 * 3600000); out.push({ t: `${e.country} ${e.title}`, color: LCOL.macro, a: m.getUTCHours() * 60 + m.getUTCMinutes(), b: m.getUTCHours() * 60 + m.getUTCMinutes() + 15, allDay: false, layer: "macro" }); }
     if (layers.includes("sky")) for (const e of sky.ev) if (new Date(e.at.getTime() + 8 * 3600000).toISOString().slice(0, 10) === d) out.push({ t: e.t, color: LCOL.sky, a: 0, b: 0, allDay: true, layer: "sky" });
     if (layers.includes("thesis") && wdOf(d) === 5) out.push({ t: "Thesis log entry", color: LCOL.thesis, a: 0, b: 0, allDay: true, layer: "thesis" });
     return out.sort((x, y) => Number(y.allDay) - Number(x.allDay) || x.a - y.a);

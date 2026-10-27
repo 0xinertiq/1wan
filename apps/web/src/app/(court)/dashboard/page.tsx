@@ -13,6 +13,7 @@ import { NeedsNow, WeatherLine, WeekAhead, WeekStrip } from "@/components/court/
 import { CalendarTab } from "@/components/court/live/CalendarTab";
 import { LunaSky } from "@/components/court/live/LunaSky";
 import { TechLive } from "@/components/court/live/TechLive";
+import { EconLive } from "@/components/court/live/EconLive";
 import { AppTabs } from "@/components/court/AppTabs";
 import { LifeTabs } from "@/components/court/LifeTabs";
 import { StatusLine, type Latest } from "@/components/court/StatusLine";
@@ -101,6 +102,7 @@ export default async function Dashboard() {
                 <TechLive />
                 <WeekStrip />
                 <WeekAhead />
+                <EconLive />
                 <NewsLive />
               </div>
               <div className="col c-r">
