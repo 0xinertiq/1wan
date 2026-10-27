@@ -1,9 +1,18 @@
 # Scheduled task prompts
-Export each cloud task's prompt into its own file here (name = task, plus trigger id on line 1).
+Export each cloud task's prompt into its own file here (name = task).
 
-- daily-crypto-watchlist-scan.md      trig_01DaXj25swGeVk3v8BvMCw1z  03:50 SGT
-- midday-crypto-movers-alert.md       trig_01BmVEnina2zyYi7Bsiy7JXJ  14:30 SGT
-- daily-intelligence-brief.md         trig_01TaCSZks455EAMsBLgJ8mbG  07:52 SGT
-- pulse-morning-brief.md              trig_01A49jN4uP7MPoEsnfpg3ELF  07:27 SGT weekdays
-- pulse-weekend-pulse.md              trig_014WphxJs5eHbtCPwZQ7AtKP  07:27 SGT weekends
-- chief-kumo-weekly-review.md         trig_014sCjXw9v8JcdProDbFgWyZ  Sun 08:50 SGT
+All four are routines and post to `/api/ingest/brief` with the `INGEST_SECRET` environment variable of
+the Default environment (see `INGEST.md`). The secret never goes in a prompt or in this folder.
+
+| Task | Type | Runs | Sends `kind` |
+|---|---|---|---|
+| daily-crypto-watchlist-scan | routine | 03:50 SGT daily | `scan` |
+| midday-crypto-movers | routine | 14:30 SGT | `movers` |
+| daily-intel-brief | routine | 07:42 SGT daily. One brief, identical every day; replaces the Intelligence Brief and both Pulse briefs. | `intel` |
+| chief-kumo-weekly-review | routine | Sun 08:50 SGT. Reviews Intel and Scan only. | `review` |
+
+Scan rule: minimum stop 1 ATR, only setups with R:R of at least 1:2.
+
+The six old triggers (Daily Crypto Watchlist Scan, Midday Crypto Movers Alert, Daily Intelligence Brief,
+Pulse Morning Brief, Pulse Weekend, Chief Kumo weekly review) are disabled. Their trigger ids are no
+longer used.

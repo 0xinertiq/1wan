@@ -168,7 +168,7 @@
    "status": "done",
    "expect": "Briefs from the cloud tasks appear in 1(WAN).",
    "you_do": "",
-   "note": "New cloud tasks: Daily Intel Brief 07:42, Watchlist Scan 03:50, Midday Movers 14:30, Chief Kumo Sun 08:50, each posting to /api/ingest/brief (200). Old tasks switched off. Checked 27 Oct: intel, scan and review briefs filed today with usage rows; the first movers brief lands at its next 14:30 run."
+   "note": "New cloud tasks: Daily Intel Brief 07:42, Watchlist Scan 03:50, Midday Movers 14:30, Chief Kumo Sun 08:50, each posting to /api/ingest/brief (200). Old tasks switched off. Checked 27 Oct: intel, scan and review briefs filed today with usage rows; the first movers brief lands at its next 14:30 run. prompts/README.md and prompts/INGEST.md now list the four routines; the old triggers are disabled."
   },
   {
    "id": "l1",

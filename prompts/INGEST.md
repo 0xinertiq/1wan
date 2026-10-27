@@ -47,12 +47,16 @@ Any other field is refused. Briefs are written once as shared briefs (no user id
 
 | Task | Send `kind` |
 |---|---|
-| Daily Crypto Watchlist Scan 03:50 | `scan` |
-| Midday Crypto Movers 14:30 | `movers` |
-| Daily Intelligence Brief 07:52 | `intel` (or `daily`) |
-| Pulse Morning Brief 07:27 weekdays | `pulse` (or `weekday`) |
-| Pulse Weekend 07:27 | `pulse` (or `weekend`) |
-| Chief Kumo weekly review Sun 08:50 | `review` |
+| daily-crypto-watchlist-scan, 03:50 SGT daily | `scan` |
+| midday-crypto-movers, 14:30 SGT | `movers` |
+| daily-intel-brief, 07:42 SGT daily | `intel` |
+| chief-kumo-weekly-review, Sun 08:50 SGT | `review` |
+
+All four post with the `INGEST_SECRET` environment variable of the Default environment.
+
+Scan rule: minimum stop 1 ATR, only setups with R:R of at least 1:2.
+
+The daily intel brief replaced both Pulse briefs. `pulse` is still accepted so old briefs keep showing.
 
 The full list of accepted names lives in `apps/web/src/lib/briefKinds.ts`.
 
