@@ -84,15 +84,16 @@
    "id": "s8",
    "group": "Build",
    "title": "8. Diary tab and 'count your wins' sheet",
-   "status": "next",
+   "status": "done",
    "expect": "Private diary, archive of old habits, evening wins sheet.",
-   "you_do": ""
+   "you_do": "",
+   "note": "Diary opens straight away, with an archive of old habits. The wins sheet opens at 21:30 or on demand and counts the same real events as the garden."
   },
   {
    "id": "s9",
    "group": "Build",
    "title": "9. Court home",
-   "status": "todo",
+   "status": "next",
    "expect": "Needs you now, today card with weather, brief, watchlist, week strip, week ahead.",
    "you_do": ""
   },

@@ -5,6 +5,7 @@ import { PixelSprite } from "@/components/PixelSprite";
 import { useCourt } from "./CourtState";
 import { AGENTS } from "./agents";
 import { SettingsLive } from "./live/SettingsLive";
+import { WinsLive } from "./live/GrowLive";
 import type { Latest } from "./StatusLine";
 import { kindLabel } from "@/lib/briefs";
 import { kindsOf, nextRun } from "@/lib/schedule";
@@ -43,8 +44,16 @@ function CrewDetail({ id, latest }: { id: string; latest: Latest }) {
 }
 
 export function CourtSheet({ latest }: { latest: Latest }) {
-  const { sheet, openSheet } = useCourt();
+  const { st, k, nm, sheet, openSheet } = useCourt();
   const closeRef = useRef<HTMLButtonElement>(null);
+
+  // "Tonight, count your wins" opens once at 21:30 SGT if nothing is saved for today yet.
+  useEffect(() => {
+    if (nm < 1290 || st.wins[k] || sheet) return;
+    const key = "1wan-wins-asked";
+    try { if (localStorage.getItem(key) === k) return; localStorage.setItem(key, k); } catch { return; }
+    openSheet({ kind: "wins" });
+  }, [nm, k, st.wins, sheet, openSheet]);
 
   useEffect(() => {
     if (!sheet) return;
@@ -57,9 +66,9 @@ export function CourtSheet({ latest }: { latest: Latest }) {
   if (!sheet) return null;
   return (
     <div className="sheet-bg" onPointerDown={(e) => { if (e.target === e.currentTarget) openSheet(null); }}>
-      <div className="sheet" role="dialog" aria-modal="true" aria-labelledby={sheet.kind === "crew" ? "sheetT" : undefined} aria-label={sheet.kind === "settings" ? "Settings" : undefined}>
+      <div className="sheet" role="dialog" aria-modal="true" aria-labelledby={sheet.kind === "crew" ? "sheetT" : undefined} aria-label={sheet.kind === "settings" ? "Settings" : sheet.kind === "wins" ? "Count your wins" : undefined}>
         <button ref={closeRef} className="btn sm ghost sheet-x" type="button" onClick={() => openSheet(null)}>Close</button>
-        {sheet.kind === "crew" ? <CrewDetail id={sheet.id} latest={latest} /> : <SettingsLive open />}
+        {sheet.kind === "crew" ? <CrewDetail id={sheet.id} latest={latest} /> : sheet.kind === "wins" ? <WinsLive onDone={() => openSheet(null)} /> : <SettingsLive open />}
       </div>
     </div>
   );

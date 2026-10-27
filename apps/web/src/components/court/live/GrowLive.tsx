@@ -228,41 +228,69 @@ function winLines(st: CourtState, k: string) {
   return L;
 }
 
-export function WinsLive() {
+// Guided "Tonight, count your wins" sheet (v2 section 5): opens at 21:30 or on demand. Step 1 counts the
+// same real events that water the garden; steps 2 and 3 are her own words, private, saved under wins.
+export function WinsLive({ onDone }: { onDone?: () => void }) {
   const { st, k, nm, update } = useCourt();
   const saved = st.wins[k] ?? {};
   const [w, setW] = useState(saved.w ?? "");
   const [g, setG] = useState(saved.g ?? "");
   const [n, setN] = useState(saved.n ?? "");
-  const [ok, setOk] = useState(false);
+  const [step, setStep] = useState(0);
+  const [evs, setEvs] = useState<WaterEvt[] | null>(null);
+  useEffect(() => { fetch("/api/water?days=1").then((r) => r.json()).then((j) => setEvs(Array.isArray(j.events) ? j.events : [])).catch(() => setEvs([])); }, []);
   const late = nm >= 1080, T = winTally(st, k), sug = winLines(st, k);
+  const today = (evs ?? []).filter((e) => new Date(Date.parse(e.at) + 8 * 3600000).toISOString().slice(0, 10) === k);
+  const cnt = (src: string) => today.filter((e) => e.source === src).length;
+  const rows: [string, string][] = [
+    ["Daily quests", `${T.td} of ${T.tt}`],
+    ["Daily anchors", `${(st.swins.log[k] || []).length} of 8`],
+    ["Grid actions ticked", String(cnt("grid"))],
+    ["Milestones", String(cnt("milestone"))],
+    ["Plans and trades logged", String(cnt("plan") + cnt("trade"))],
+    ["Spending lines", String(cnt("spending"))],
+    ["Posts this week", String(T.posts)],
+    ["Streak", `${st.streak} day${st.streak === 1 ? "" : "s"}`],
+  ];
+  const save = () => { update((d) => { d.wins[k] = { w: w.slice(0, 2000), g: g.slice(0, 2000), n: n.slice(0, 6000) }; }, ["wins"]); };
   return (
     <div id="winBox">
       <div className="tcard" id="winCard">
-        <h3><Mini name="coco" />{late ? "Tonight, count your wins" : "Today's wins"}</h3>
-        <div className="tbl" style={{ overflowX: "auto" }}>
-          <table className="winTbl"><caption className="vh">Quests completed</caption><tbody>
-            <tr><th scope="row">Today</th><td>{T.td} of {T.tt}</td></tr>
-            <tr><th scope="row">Yesterday</th><td>{T.yd ? `${T.yd.d} of ${T.yd.t}` : "starts tomorrow"}</td></tr>
-            <tr><th scope="row">This week</th><td>{T.wsum} of {T.wtot}</td></tr>
-            <tr><th scope="row">Posts this week</th><td>{T.posts}</td></tr>
-            <tr><th scope="row">Streak</th><td>{st.streak} day{st.streak === 1 ? "" : "s"}</td></tr>
-          </tbody></table>
-        </div>
-        <form className="field wr" id="winForm" onSubmit={(e) => {
-          e.preventDefault();
-          update((d) => { d.wins[k] = { w: w.slice(0, 2000), g: g.slice(0, 2000), n: n.slice(0, 6000) }; }, ["wins"]);
-          setOk(true); window.setTimeout(() => setOk(false), 2500);
-        }}>
+        <h3><Mini name="coco" />{late ? "Tonight, count your wins" : "Today's wins"} <span className="note">step {step + 1} of 3</span></h3>
+        {step === 0 && <>
+          <p className="note">Here is what you really did today, counted from your own records.</p>
+          {evs == null ? <p className="note">Counting…</p> : rows.map(([a, b]) => <div className="filed-row" key={a}><span>{a}</span><b>{b}</b></div>)}
+          <div className="rep-act"><button className="btn sm" type="button" onClick={() => setStep(1)}>Next</button></div>
+        </>}
+        {step === 1 && <div className="field wr">
           <label htmlFor="winIn">One thing that went well</label>
           <textarea id="winIn" rows={3} maxLength={2000} placeholder={sug[0] ?? "Small counts"} value={w} onChange={(e) => setW(e.target.value)} />
           <label htmlFor="gratIn">What you are grateful for</label>
           <textarea id="gratIn" rows={3} maxLength={2000} placeholder="A person, a moment, a thing" value={g} onChange={(e) => setG(e.target.value)} />
-          <label htmlFor="noteIn">Write freely</label>
+          <div className="rep-act"><button className="btn sm ghost" type="button" onClick={() => setStep(0)}>Back</button><button className="btn sm" type="button" onClick={() => setStep(2)}>Next</button></div>
+        </div>}
+        {step === 2 && <div className="field wr">
+          <label htmlFor="noteIn">Write freely (optional)</label>
           <textarea id="noteIn" rows={8} maxLength={6000} placeholder="Whatever is on your mind. Nobody is reading but you." value={n} onChange={(e) => setN(e.target.value)} />
-          <div className="rep-act"><button className="btn sm" type="submit">Save</button>{ok && <span className="note">Saved. Private to you.</span>}</div>
-        </form>
+          <div className="rep-act"><button className="btn sm ghost" type="button" onClick={() => setStep(1)}>Back</button><button className="btn sm" type="button" onClick={() => { save(); setStep(3); }}>Save to my diary</button></div>
+        </div>}
+        {step === 3 && <>
+          <p className="note">Saved. Private to you, in your diary.</p>
+          <div className="rep-act">{onDone && <button className="btn sm" type="button" onClick={onDone}>Close</button>}<button className="btn sm ghost" type="button" onClick={() => setStep(0)}>Look again</button></div>
+        </>}
       </div>
+    </div>
+  );
+}
+
+// Diary tab: the sheet on demand, instead of a permanent block.
+export function WinsButton() {
+  const { st, k, openSheet } = useCourt();
+  return (
+    <div className="tcard">
+      <h3><Mini name="coco" />Tonight, count your wins</h3>
+      <p className="note">{st.wins[k] ? "Saved for today. You can look again or add more." : "Opens by itself at 21:30, or any time now."}</p>
+      <div className="rep-act"><button className="btn sm" type="button" onClick={() => openSheet({ kind: "wins" })}>Count your wins</button></div>
     </div>
   );
 }
@@ -307,7 +335,7 @@ function DiaryEdit({ day, onDone }: { day: string; onDone: () => void }) {
   );
 }
 
-export function DiaryLive() {
+export function DiaryLive({ open }: { open?: boolean }) {
   const { st, k } = useCourt();
   const [joyI, setJoyI] = useState(0);
   const [edit, setEdit] = useState("");
@@ -346,7 +374,7 @@ export function DiaryLive() {
     .filter((x) => x.w.w || x.w.g || x.w.n || x.m || (x.r && x.r.d > 0));
 
   return (
-    <details className="gdet" id="gdJoy"><summary>Diary and weekly recap</summary><div id="joyBox">
+    <details className="gdet" id="gdJoy" open={open}><summary>Diary and weekly recap</summary><div id="joyBox">
       <div className="tcard joy">
         <h3><Mini name="coco" />Fox Diary <span className="cnj">狐记</span></h3>
         <div className="joyhero">

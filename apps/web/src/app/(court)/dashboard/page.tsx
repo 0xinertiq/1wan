@@ -19,7 +19,7 @@ import { CalendarLoader } from "@/components/court/CalendarLoader";
 import { PricesLoader } from "@/components/court/Prices";
 import { watchlistFrom } from "@/lib/prices";
 import { TodayLive } from "@/components/court/live/TodayLive";
-import { DiaryLive, GardenLive, StatusLive, WinsLive } from "@/components/court/live/GrowLive";
+import { DiaryLive, GardenLive, StatusLive, WinsButton } from "@/components/court/live/GrowLive";
 import { bootState } from "@/lib/court/actions";
 import { normalize } from "@/lib/court/state";
 
@@ -111,7 +111,7 @@ export default async function Dashboard() {
             </div>
           ),
           garden: <div className="tabcol"><GardenLive /></div>,
-          diary: <div className="tabcol"><WinsLive /><DiaryLive /></div>,
+          diary: <div className="tabcol"><WinsButton /><DiaryLive open /></div>,
           life: <div className="tabcol"><LifeTabs /></div>,
         }}
       />
