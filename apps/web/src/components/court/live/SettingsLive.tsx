@@ -72,7 +72,7 @@ export function SettingsLive({ open = false }: { open?: boolean }) {
             <div className="filed-row" key={it.id}>
               <span>{it.name}{it.amt != null && <> <span className="note">{money(it.amt)}</span></>} <span className="note">{LCATS[it.cat] ?? it.cat} · {ruleText(it.rule)}{it.lead ? ` · remind ${it.lead}d ahead` : ""}{it.sched && it.sched >= k ? ` · booked ${prettyDay(it.sched)}` : ""}</span></span>
               <span className="rep-act">
-                <input type="date" className="lsd" value={it.sched ?? ""} aria-label={`Booked for ${it.name}`} onChange={(e) => update((d) => { const x = d.life.find((i) => i.id === it.id); if (x) x.sched = e.target.value; }, ["life"])} />
+                {(it.cat === "care" || it.cat === "pet") && <input type="date" className="lsd" value={it.sched ?? ""} aria-label={`Booked for ${it.name}`} onChange={(e) => update((d) => { const x = d.life.find((i) => i.id === it.id); if (x) x.sched = e.target.value; }, ["life"])} />}
                 <button className="btn sm ghost" type="button" onClick={() => update((d) => { d.life = d.life.filter((i) => i.id !== it.id); }, ["life"])}>Remove</button>
               </span>
             </div>
