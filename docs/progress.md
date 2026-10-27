@@ -39,7 +39,5 @@ Next: lane B Telegram (private channels) once she supplies credentials; repoint 
 - 2026-10-27 Vercel variables: not added. The Vercel CLI is not installed and `npx vercel whoami` reports no credentials, and apps/web is not linked to the project. Variable names she must add are listed in docs/manual-steps.md section K (READ_SECRET; work calendar slot 1; astro feed once it is in .env.local). No redeploy triggered from here; every push today still deployed the code.
 
 ## Blocked
-- Step 3: porting the Money Wins artifact's own formulas and figures (key money: done, t, f, nw). Reading data-import/trackers/trackers-pack/money-wins/index.html was refused by the privacy guard. Money uses plain sums meanwhile and leaves the imported money key untouched. To unblock: she allows Claude to read that file's code in a session, then map money into mny.
-- Steps 5 to 7: need the item wording (grid 1.1 to 8.8 and pillar names, Small Wins d1..d8, a.., b.., m.., o.., Money Wins Q4 milestones, Samsara b1, c1, e1, r1..r6). It exists only in data-import/trackers/trackers-pack/*/index.html, which the privacy guard blocked. Not invented. To unblock: she allows reading those files (code and labels only, never printed) at the start of the next session.
 - Vercel CLI not signed in (27 Oct): could not add READ_SECRET or the calendar variables or trigger a redeploy. She adds them by hand (manual steps K) or runs `npx vercel login` once.
 - Astro calendar feed is not in apps/web/.env.local yet (no GCAL_NAME contains "astro"), so it cannot be copied to Vercel. Manual steps I first.
