@@ -1,6 +1,6 @@
 # Progress (Claude Code updates this after every step)
 Done before this file existed: login, briefs, Export my data, crew page, dashboard shell, state load/save, calendar (5 feeds), prices, RSS news, ingest endpoint (dry run passed), theme toggle, Sakura Garden v1, Tonight count your wins, Coming up, diary v1.
-Next: step 3 in docs/BUILD-ORDER.md.
+Next: step 5 in docs/BUILD-ORDER.md (Grid & Wins), once Claude may read the tracker page code (see Blocked).
 
 ## Log
 - 2026-10-23 Step 1: five tabs (Court, Calendar, Garden, Diary, Life) as bottom bar on phone, left rail on desktop; Life sub-tab shell; crew detail opens by tapping a character (role, latest output, last updated, next run); Settings in header menu; Ask windows, routing box, sample usage panel and sample sprint bar removed; status line from real events. Sample/placeholder: Calendar tab and the four Life screens, Needs you window.
@@ -11,3 +11,5 @@ Next: step 3 in docs/BUILD-ORDER.md.
 ## Blocked
 - Step 4: freeze rate and "stop kept" not built: their definitions live in the ledger artifact code, which the privacy guard would not let Claude read. Check wording c1..c9 uses defaults (c6 = 11pm to 6am); she can rename them in Trade.
 - Step 3: porting the Money Wins artifact's own formulas and figures (key money: done, t, f, nw). Reading data-import/trackers/trackers-pack/money-wins/index.html was refused by the privacy guard. Money uses plain sums meanwhile and leaves the imported money key untouched. To unblock: she allows Claude to read that file's code in a session, then map money into mny.
+- Steps 5 to 7: need the item wording (grid 1.1 to 8.8 and pillar names, Small Wins d1..d8, a.., b.., m.., o.., Money Wins Q4 milestones, Samsara b1, c1, e1, r1..r6). It exists only in data-import/trackers/trackers-pack/*/index.html, which the privacy guard blocked. Not invented. To unblock: she allows reading those files (code and labels only, never printed) at the start of the next session.
+
