@@ -134,6 +134,27 @@
 :root[data-ui="new"] .kastro-h{font:600 16px var(--kumo-font-display);color:var(--ink)}
 :root[data-ui="new"] .kastro-ev{display:grid;gap:4px;padding-top:8px;border-top:1px solid var(--line)}
 
+/* Observatory (Luna's sky), New look only: moonlit banner and the 7-day folds. Classic keeps its flat list. */
+.obanner,.obs7{display:none}
+:root[data-ui="new"] .obs-classic,:root[data-ui="new"] .lunaq{display:none}
+:root[data-ui="new"] .obs7{display:grid;gap:8px}
+:root[data-ui="new"] .obanner{display:block;position:relative;height:clamp(120px,18vw,170px);border-radius:var(--kumo-radius-card);overflow:hidden;background:linear-gradient(180deg,#1C1640 0%,#3B2C6B 55%,#7A5FA8 100%)}
+/* Pack layers 03-07 recoloured to moonlight (sky and clouds replaced by the gradient above). */
+:root[data-ui="new"] .obanner-scene{position:absolute;inset:0;background-image:url(./kumo/layers/07_lanterns.svg),url(./kumo/layers/06_foreground.svg),url(./kumo/layers/05_trees.svg),url(./kumo/layers/04_castle.svg),url(./kumo/layers/03_floating_island.svg);background-size:cover;background-position:center 75%;background-repeat:no-repeat;filter:brightness(.6) saturate(.7) hue-rotate(-25deg)}
+:root[data-ui="new"] .obanner-star{position:absolute;width:12px;height:12px;image-rendering:pixelated;animation:ktwinkle 3s ease-in-out infinite}
+:root[data-ui="new"] .obanner-moon{position:absolute;right:8%;top:10%;width:clamp(48px,7vw,72px);height:clamp(48px,7vw,72px);image-rendering:pixelated}
+:root[data-ui="new"] .obanner-tag{position:absolute;left:10px;bottom:8px;padding:2px 8px;border-radius:var(--kumo-radius-chip);background:rgba(28,22,64,.7);color:#F0EAFF;font:700 11px var(--kumo-font-body)}
+@keyframes ktwinkle{0%,100%{opacity:1}50%{opacity:.45}}
+:root[data-ui="new"] .obs-day{border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win)}
+:root[data-ui="new"] .obs-day>summary{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 12px;cursor:pointer;font-family:var(--kumo-font-body)}
+:root[data-ui="new"] .obs-day[open]>summary{border-bottom:1px solid var(--line);background:var(--kumo-lavender-soft);border-radius:var(--kumo-radius-control) var(--kumo-radius-control) 0 0}
+:root[data-ui="new"] .obs-n{margin-left:auto;min-width:24px;padding:0 8px;border-radius:999px;background:var(--chip-lav);font:700 12px/22px var(--kumo-font-body);text-align:center;color:var(--ink)}
+:root[data-ui="new"] .obs-day>.obs-ev,:root[data-ui="new"] .obs-day>p{margin:0;padding:10px 12px}
+:root[data-ui="new"] .obs-ev{display:grid;gap:4px}
+:root[data-ui="new"] .obs-ev+.obs-ev{border-top:1px solid var(--line)}
+:root[data-ui="new"] .obs-calc{background:var(--win-dim)}
+:root[data-ui="new"] .obs-src{font-size:12px}
+
 /* Focus ring from the kit. */
 :root[data-ui="new"] :focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:2px}
 
