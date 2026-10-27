@@ -117,3 +117,25 @@ The world and the tab header scenes must feel rich and cosy, not sparse. All cod
 - Budget: still 60fps on a mid laptop and a phone, pause off-screen and in hidden tabs, still image under reduced motion, total scene code and assets small. If the full scene is too heavy, pre-render static layers to canvas once and animate only the small moving parts.
 - Review loop: build the scene in layers, screenshot at desktop and mobile after each layer, compare with the old Cloud Court and concept image 26 (composition only), and keep adding detail until the scene is clearly richer than the old Cloud Court. Be honest in the report about what is still plainer than the concept art.
 - Tab header strips (Calendar, Garden, Diary, Observatory, Life Hub) get the same care at smaller size: 3 to 4 layers, 5 to 10 small details, one or two moving things.
+
+## Part 5: No single-column pages (applies to every tab)
+The owner dislikes tabs that are one narrow centred column ("one profile") where she has to keep scrolling (example: the Sakura Garden tab, with one tree, eight full-width habit rows and then eight full-width branch rows). Rule for every tab on desktop and tablet:
+- Use the full content width (max 1440) with a real grid: 12 columns, two or three columns at 1200px and up, two at tablet. A page must show its main content, its key lists and its summary above the fold without long scrolling.
+- Split content with side-by-side cards, a sticky side panel, and segmented controls or tabs inside the page (for example Habits | Branches | History) instead of stacking everything.
+- Long lists become compact: two-column checklists, rows 40-48px high, details on tap or hover, "show 5 more" instead of rendering everything, collapse sections that are done.
+- Summary first: a slim stat strip at the top (for example blossoms 1 of 64, golden petals, streak) so she sees the state at a glance.
+- Mobile may stay one column, but with tabs or accordions so one screen is one idea and scrolling stays short.
+
+Sakura Garden layout as the worked example (desktop): LEFT column (about 5/12, sticky): the pixel garden scene with the tree, the stat strip beneath it. RIGHT (7/12): a segmented control Daily anchors | Branches | Activity. Daily anchors as a compact two-column checklist (eight items, checkbox, title, one-line hint on hover or expand); Branches as a grid of eight small cards (name, stage, blossoms x/8, last watered, Weed it out as a small secondary button); Activity as a short recent list. No page needs more than about one screen of scroll.
+
+Apply the same thinking to Clock Tower (timeline left, month/tasks/focus right), Fox Diary (calendar and entries left, prompts and writing centre, mood and recap right), Observatory (briefs, watchlist, Luna, macro in a grid), and Life Hub (goals, projects, life admin, finance in a 2x2 grid with tabs for details).
+
+## Part 6: Fonts (as amended by the owner on 27 Oct; overrides every earlier font line, including DECISIONS.md section 4)
+The spec text proposed Inter for body; the owner overrode it:
+- Headings (H1-H3, card titles): Playfair Display.
+- Body, interface, tables and numbers: NUNITO, with tabular numbers for prices and times.
+- Silkscreen: only for tiny labels (level numbers, the clock chip, small world badges). Never for sentences.
+- INTER: only for journal entries and the diary writing area (textarea, entry text).
+- The v52 Quicksand !important override on inputs, textarea and select is replaced in the New look only; Classic keeps its fonts.
+- Keep the CJK fallback fonts and test Chinese labels (for example the garden's Chinese names).
+- Re-check the type scale: body 16/24 (15/22 inside dense cards), compact 14/20, minimum label 13/18; fix any overflow (long tickers, brief titles, Chinese text).

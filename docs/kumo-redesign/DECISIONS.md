@@ -21,6 +21,7 @@ Single source of truth for the redesign. If an earlier message conflicts with th
 Auth, RLS, `OWNED_KEYS`, `normalize()`, middleware, `/api/ingest` and `/api/export` routes, calendar fetching and env vars, scheduled-task URLs and config, XP / stars / streak / nine-tail logic, user data, Vercel env vars, migrations. `PixelSprite.tsx` and `spriteDefs.ts` stay the production sprites. Display name only in `apps/web/src/lib/brand.ts`. The app tracks, never advises.
 
 ## 4. Look (approved)
+- **Fonts and the full design system now follow `COURT_SPEC.md` (Part 2 and Part 6 as amended: Nunito body, Inter only for diary writing). `COURT_SPEC.md` is the single source of truth for the redesign.**
 Cream canvas, sakura pink actions, lavender and sky accents, plum text, Playfair Display headings, Nunito body, Silkscreen only for tiny labels, CJK fallbacks kept. Cards 16px radius, soft shadows, 8pt spacing, min 14px interactive text, 44px tap targets, visible focus ring, reduced motion respected, night mode keeps its colours until a contrast check is done. Pixel foxes and crew are the characters; painterly art is backdrop only. Art lives in banners, welcome and empty states and reward moments, not in every card.
 
 ## 5. Art plan (decided)
