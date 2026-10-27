@@ -232,8 +232,11 @@ export function gardenWeek(st: CourtState, k: string) {
 export type CalEvent = { id: string; title: string; cal: string; color: string; allDay: boolean; sk: string; ek: string; sm: number; em: number; loc?: string };
 export type DayEvent = { t: string; cal: string; color: string; loc?: string; allDay: boolean; a: number; b: number };
 
-export function eventsOn(evs: CalEvent[], k: string): DayEvent[] {
+// The purchased "astro" feed (matched by its GCAL_NAME label) is Luna's layer, kept out of normal views.
+export const isAstro = (e: { cal: string }) => /astro/i.test(e.cal);
+export function eventsOn(evs: CalEvent[], k: string, withAstro = false): DayEvent[] {
   return evs
+    .filter((e) => withAstro || !isAstro(e))
     .filter((e) => (e.allDay ? e.sk <= k && k < e.ek : e.sk === k || (e.sk < k && (e.ek > k || (e.ek === k && e.em > 0)))))
     .map((e) => ({
       t: e.title, cal: e.cal, color: e.color, loc: e.loc, allDay: e.allDay,

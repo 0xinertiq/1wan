@@ -238,7 +238,7 @@ export async function loadCalendars(): Promise<CalResult> {
   const cals = configured();
   if (!cals.length) return { state: "off", cals: [], events: [] };
   const today = sgt(new Date()).key;
-  const winStart = Date.parse(addDays(today, -2) + "T00:00:00+08:00"), winEnd = Date.parse(addDays(today, 31) + "T00:00:00+08:00");
+  const winStart = Date.parse(addDays(today, -2) + "T00:00:00+08:00"), winEnd = Date.parse(addDays(today, 90) + "T00:00:00+08:00");
   const results = await Promise.allSettled(cals.map((c) => fetchCal(c.url)));
   const status: CalStatus[] = [];
   const seen = new Set<string>();

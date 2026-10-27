@@ -711,3 +711,18 @@ body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .wday.today{background:var(--chip-mint)}
 .wday .dots{min-height:1em;letter-spacing:1px}
 .wx{margin:0 0 8px}
+/* Calendar tab */
+.cdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;border:1px solid var(--line)}
+.cweek{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-top:8px}
+@media (max-width:640px){.cweek{grid-template-columns:1fr}}
+.cmonth{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin-top:8px}
+.cm-h{text-align:center}
+.cmonth .faded{opacity:.45}
+.cday{display:flex;flex-direction:column;align-items:stretch;gap:2px;width:100%;min-height:64px;padding:4px;border:2px solid var(--line);border-radius:8px;background:var(--tint);color:inherit;font:inherit;font-size:12px;text-align:left;cursor:pointer}
+.cmonth .cday{min-height:44px;align-items:center}
+.cday.today{background:var(--chip-mint)}
+.cday.sel{outline:3px solid #ffd95e}
+.cd-h{font-weight:700}
+.cev{border-left:4px solid;padding-left:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cday .dots{display:flex;gap:2px}.cday .dots i{width:6px;height:6px;border-radius:50%}
+.cdetail{margin-top:10px}

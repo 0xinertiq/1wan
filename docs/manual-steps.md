@@ -101,6 +101,14 @@ Do this once per calendar (up to 5).
 2. In VS Code, open `supabase/migrations/0005_plan_stop.sql`. Copy all of it.
 3. Paste it into the query box. Click **Run**. You should see "Success. No rows returned." It only adds two empty columns (stop, target) to plans.
 
+## I. Your astro and new work calendars (5 minutes)
+
+1. In Google Calendar, copy the **Secret address in iCal format** of your astro calendar, and of your new work calendar (steps 7 to 10 above).
+2. In VS Code, open `apps/web/.env.local`. Find the pair that was your old work calendar (for example `GCAL_ICAL_URL_4` and `GCAL_NAME_4`). Paste the astro address after `GCAL_ICAL_URL_4=` and change the name line to `GCAL_NAME_4=astro`.
+3. Use a free slot for the new work calendar, for example `GCAL_ICAL_URL_5=` (paste its address) and `GCAL_NAME_5=Work`. If all five are taken, tell Claude Code which one to drop.
+4. Save (Ctrl+S). In Vercel, Settings, Environment Variables: update the same names with the same values (tick Sensitive for the addresses), then Deployments, ⋯, Redeploy.
+The app finds the astro feed by its name "astro", so the slot number does not matter.
+
 ## Later (not tonight)
 
 31. Only after step 30 passes: point the scheduled tasks at the new address (build order step 6), starting with one task and a real throwaway brief, as `prompts/INGEST.md` describes.

@@ -102,15 +102,16 @@
    "id": "s10",
    "group": "Build",
    "title": "10. Calendar tab",
-   "status": "next",
+   "status": "done",
    "expect": "Agenda, week and month views, colours per calendar, layers, free gaps.",
-   "you_do": "Update the astro and new work calendar addresses in .env.local and Vercel."
+   "you_do": "Update the astro and new work calendar addresses (manual steps, section I).",
+   "note": "Agenda, Week and Month views, chips per calendar, money, plan and thesis layers, free 45-minute gaps, 90 days ahead."
   },
   {
    "id": "s11",
    "group": "Build",
    "title": "11. Luna's sky, astro calendar, nine tails",
-   "status": "todo",
+   "status": "next",
    "expect": "Astro weather on the Court, cross-check with your astro calendar, Kumo's tails.",
    "you_do": "Enter birth details privately in Settings."
   },

@@ -10,6 +10,7 @@ import { ScanWin } from "@/components/court/ScanWin";
 import { loadBriefs, kindLabel, type BriefRow, type Vote } from "@/lib/briefs";
 import { BriefWin } from "@/components/court/Windows";
 import { NeedsNow, WeatherLine, WeekAhead, WeekStrip } from "@/components/court/live/CourtHome";
+import { CalendarTab } from "@/components/court/live/CalendarTab";
 import { AppTabs } from "@/components/court/AppTabs";
 import { LifeTabs } from "@/components/court/LifeTabs";
 import { StatusLine, type Latest } from "@/components/court/StatusLine";
@@ -104,16 +105,7 @@ export default async function Dashboard() {
               </div>
             </div>
           ),
-          calendar: (
-            <div className="tabcol">
-              <section className="win" id="calWin" aria-labelledby="calT">
-                <div className="win-title"><h2 id="calT">Calendar</h2></div>
-                <div className="win-body">
-                  <p className="note">Agenda, week and month views are not built yet. They arrive in build step 10. Today&apos;s events are in the Today card on the Court.</p>
-                </div>
-              </section>
-            </div>
-          ),
+          calendar: <CalendarTab />,
           garden: <div className="tabcol"><GardenLive /></div>,
           diary: <div className="tabcol"><WinsButton /><DiaryLive open /></div>,
           life: <div className="tabcol"><LifeTabs /></div>,
