@@ -12,6 +12,7 @@ import { BriefWin } from "@/components/court/Windows";
 import { NeedsNow, WeatherLine, WeekAhead, WeekStrip } from "@/components/court/live/CourtHome";
 import { CalendarTab } from "@/components/court/live/CalendarTab";
 import { LunaSky } from "@/components/court/live/LunaSky";
+import { TechLive } from "@/components/court/live/TechLive";
 import { AppTabs } from "@/components/court/AppTabs";
 import { LifeTabs } from "@/components/court/LifeTabs";
 import { StatusLine, type Latest } from "@/components/court/StatusLine";
@@ -97,6 +98,7 @@ export default async function Dashboard() {
                 <LunaSky />
                 <BriefWin docs={docs} initial={initial} />
                 <ScanWin doc={scanDoc} />
+                <TechLive />
                 <WeekStrip />
                 <WeekAhead />
                 <NewsLive />

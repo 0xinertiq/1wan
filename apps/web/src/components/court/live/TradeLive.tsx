@@ -255,7 +255,12 @@ function Plans({ plans, k, onSave, onRemove }: { plans: Row[]; k: string; onSave
   const [f, setF] = useState(blank);
   const [open, setOpen] = useState(false);
   useEffect(() => {
-    const go = () => { setOpen(true); setTimeout(() => document.getElementById("planForm")?.scrollIntoView({ block: "start" }), 50); };
+    const go = (e: Event) => {
+      // From a chart: pre-fill asset and entry zone; she writes the thesis and stop herself.
+      const d = (e as CustomEvent<{ inst?: string; entry?: number }>).detail;
+      if (d?.inst) setF((f) => ({ ...f, inst: d.inst!, entry: d.entry != null ? String(+d.entry.toPrecision(6)) : f.entry }));
+      setOpen(true); setTimeout(() => document.getElementById("planForm")?.scrollIntoView({ block: "start" }), 80);
+    };
     window.addEventListener("1wan:write-thesis", go); return () => window.removeEventListener("1wan:write-thesis", go);
   }, []);
   async function submit(e: React.FormEvent) {

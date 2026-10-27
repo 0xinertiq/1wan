@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MoneyLive } from "./live/MoneyLive";
 import { TradeLive } from "./live/TradeLive";
 import { GridWins } from "./live/GridWins";
@@ -17,7 +17,9 @@ const SUBS = [
 export function LifeTabs() {
   const [sub, setSub] = useState<(typeof SUBS)[number]["id"]>("money");
   // Samsara's "Write a thesis" opens the one plan form in Trade (no second form).
-  const writeThesis = () => { setSub("trade"); window.dispatchEvent(new Event("1wan:write-thesis")); };
+  const writeThesis = () => window.dispatchEvent(new Event("1wan:write-thesis"));
+  // Any "write a thesis" (Samsara, a chart) opens Trade; the plan form itself listens for the same event.
+  useEffect(() => { const go = () => setSub("trade"); window.addEventListener("1wan:write-thesis", go); return () => window.removeEventListener("1wan:write-thesis", go); }, []);
   return (
     <section className="win" id="lifeWin" aria-labelledby="lifeT">
       <div className="win-title"><h2 id="lifeT">Life</h2></div>

@@ -730,3 +730,6 @@ body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .lunacap{margin:0 0 6px}
 .chip-rx{display:inline-block;margin-left:4px;padding:0 5px;border:2px solid var(--line);border-radius:6px;background:#efe7ff;font-size:12px}
 .tailrow{text-align:center}
+/* Technicals */
+.techchart{margin-top:6px}
+.tc-box{width:100%;height:300px;border:2px solid var(--line);border-radius:10px;overflow:hidden;background:var(--win-hi)}

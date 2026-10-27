@@ -5,12 +5,14 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test": "node --test tests/"
   },
   "dependencies": {
     "@supabase/ssr": "0.6.1",
     "@supabase/supabase-js": "2.50.0",
     "astronomy-engine": "2.1.19",
+    "lightweight-charts": "4.2.3",
     "next": "15.5.28",
     "react": "19.1.0",
     "react-dom": "19.1.0"

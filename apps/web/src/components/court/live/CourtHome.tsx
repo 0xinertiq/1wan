@@ -50,10 +50,29 @@ function needs(st: CourtState, k: string, nm: number, events: CalEvent[], plans:
   return out.sort((a, b) => a.rank - b.rank);
 }
 
+// Her own chart lines: price within 0.5% of a saved level, or of a saved line extended to now (in-app only).
+function useLineTouches() {
+  const { st } = useCourt();
+  const [last, setLast] = useState<Record<string, number>>({});
+  const syms = [...new Set(st.lines.map((l) => l.sym))].slice(0, 12).join(",");
+  useEffect(() => {
+    if (!syms) return;
+    getOnce<{ items?: { sym: string; snap?: { last: number } | null }[] }>(`/api/ta?tf=1h&syms=${syms}`).then((j) => { const m: Record<string, number> = {}; for (const x of j.items ?? []) if (x.snap) m[x.sym] = x.snap.last; setLast(m); });
+  }, [syms]);
+  const now = Date.now(), out: Need[] = [];
+  for (const l of st.lines) {
+    const px = last[l.sym]; if (px == null) continue;
+    const at = l.kind === "level" || !l.p2 ? l.p1.p : l.p1.p + ((l.p2.p - l.p1.p) * (now - l.p1.t)) / ((l.p2.t - l.p1.t) || 1);
+    if (at > 0 && Math.abs(px - at) / at <= 0.005) out.push({ rank: 2, crew: "fenn", t: `${l.sym} is at your ${l.kind === "level" ? "level" : "line"} near ${at.toPrecision(5)} (${l.tf}).`, go: "court" });
+  }
+  return out;
+}
+
 export function NeedsNow() {
   const { st, k, nm, events } = useCourt();
   const { plans, evs } = useRecords();
-  const list = needs(st, k, nm, events, plans, evs);
+  const touches = useLineTouches();
+  const list = [...needs(st, k, nm, events, plans, evs), ...touches].sort((a, b) => a.rank - b.rank);
   return (
     <Card id="needWin" title="Needs you now" sub={list.length ? `${Math.min(list.length, 3)} waiting` : "all clear"}>
       {list.length ? list.slice(0, 3).map((x, i) => (

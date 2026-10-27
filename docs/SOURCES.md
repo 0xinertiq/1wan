@@ -6,3 +6,4 @@ Every source is checked with a real fetch before it is used. Unverified sources 
 |---|---|---|---|---|---|
 | Telegram public preview (lane A) | https://t.me/s/<handle> | yes (tested @durov, 20 posts, 2026-10-27) | about 1 to 4 s | as posted; app caches 5 min | public web preview; excerpt and link only |
 | Crypto.com Exchange candles | https://api.crypto.com/exchange/v1/public/get-candlestick | yes (daily ATR, step 4) | under 1 s | per candle | public market data |
+| Crypto.com Exchange candles 1h, 4h, 1D | same endpoint, timeframe=1h/4h/1D, count=300 | yes (300 candles each, 2026-10-27) | about 0.2 s | per candle; app caches 5 / 15 / 60 min | public market data; unknown coins return no candles |
