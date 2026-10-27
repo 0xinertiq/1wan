@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { PixelSprite, type SpriteName } from "@/components/PixelSprite";
 import { CREW_AT, stageFor } from "@/components/kumo/kingdom";
 import { geometry, makeWorld, phaseAt, weatherFrom } from "@/components/kumo/world/draw";
@@ -19,7 +19,7 @@ import { useCourt } from "../CourtState";
 // The animation pauses off-screen and in hidden tabs, and shows a still scene under reduced motion.
 
 const PLACE_DESC: Record<string, string> = {
-  castle: "The Castle: your kingdom progress", clock: "Clock Tower: calendar", obs: "Observatory: Luna's sky and research",
+  castle: "The Castle: home, your Court", clock: "Clock Tower: calendar", obs: "Observatory: Luna's sky and research",
   garden: "Sakura Garden: habits and growth", life: "Life Hub: life admin and money", diary: "Fox Diary: reflection",
 };
 const CREW = ["olli", "pip", "fenn", "tilly", "luna", "momo", "coco", "poppy", "dundun"];
@@ -85,9 +85,6 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
         {g && size && (
           <>
             <span className="lw-crew lw-kumo" style={{ left: (g.cx - 44) * size.s, top: (g.gy + 24) * size.s, width: size.px, height: size.px }} title="Chief Kumo"><PixelSprite name="kumo" /></span>
-            <button type="button" className={"lw-say" + (qOpen ? " open" : "")} style={{ left: (g.cx - 44) * size.s, top: (g.gy + 24) * size.s + 8 }} aria-expanded={qOpen} onClick={() => setQOpen(!qOpen)} title="Quote of the day">
-              <span className="lw-say-k">Kumo</span> {quote}
-            </button>
             {CREW.map((id) => {
               const p = spot(id);
               return <span key={id} className={"lw-crew" + (p.on ? " on" : " in")} style={{ left: p.x, top: p.y, width: size.px, height: size.px }} title={`${id[0].toUpperCase() + id.slice(1)}: ${duty[id]?.why ?? ""}`} aria-hidden={!p.on}><PixelSprite name={id as SpriteName} /></span>;
@@ -104,6 +101,7 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
         </div>
         <div className="lvl" id="lvlBanner" hidden><b id="lvlTxt">LEVEL UP</b><span id="lvlSub"></span></div>
       </div>
+      {g && size && <CloudSay text={quote} open={qOpen} onToggle={() => setQOpen(!qOpen)} night={phase === "night"} style={{ left: (g.cx - 44) * size.s, top: (g.gy + 24) * size.s + 6 }} />}
     </section>
   );
 }
@@ -145,5 +143,36 @@ export function CrewRoster({ filed }: { filed: Partial<Record<BriefKind, string>
         ))}
       </ul>
     </section>
+  );
+}
+
+// Kumo's quote of the day in a cloud-shaped speech bubble: a scalloped outline drawn in SVG to fit the text
+// (puffs along the edge, plum outline, cream fill), small puffs as the tail up to Kumo, two gold sparkles.
+// Only the quote text; tap or focus to read a long one in full. Lavender cloud with light text at night.
+function CloudSay({ text, open, onToggle, night, style }: { text: string; open: boolean; onToggle: () => void; night: boolean; style: React.CSSProperties }) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const [wh, setWh] = useState<[number, number]>([0, 0]);
+  useLayoutEffect(() => {
+    const el = ref.current; if (!el) return;
+    const ro = new ResizeObserver(() => setWh([el.offsetWidth, el.offsetHeight]));
+    ro.observe(el); return () => ro.disconnect();
+  }, []);
+  const [w, h] = wh, b = 9, puffs: [number, number, number][] = [];
+  if (w > 2 * b && h > 2 * b) {
+    const along = (x0: number, y0: number, x1: number, y1: number) => { const n = Math.max(1, Math.round(Math.hypot(x1 - x0, y1 - y0) / (b * 1.35))); for (let i = 0; i < n; i++) puffs.push([x0 + ((x1 - x0) * i) / n, y0 + ((y1 - y0) * i) / n, b]); };
+    along(b, b, w - b, b); along(w - b, b, w - b, h - b); along(w - b, h - b, b, h - b); along(b, h - b, b, b);
+  }
+  const tail: [number, number, number][] = [[Math.min(w * 0.18, 40) + 6, -6, 5], [Math.min(w * 0.18, 40) - 2, -15, 3]];
+  const fill = night ? "#4B3F86" : "#FFF8EE";
+  return (
+    <button ref={ref} type="button" className={"lw-say" + (open ? " open" : "") + (night ? " night" : "")} style={style} aria-expanded={open} onClick={onToggle} title="Quote of the day">
+      <svg className="lw-cloud" width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden="true">
+        {[...puffs, ...tail].map(([x, y, r], i) => <circle key={"o" + i} cx={x} cy={y} r={r + 1.5} fill="#4a2538" />)}
+        {[...puffs, ...tail].map(([x, y, r], i) => <circle key={"f" + i} cx={x} cy={y} r={r} fill={fill} />)}
+        {w > 0 && <rect x={b} y={b} width={Math.max(0, w - 2 * b)} height={Math.max(0, h - 2 * b)} fill={fill} />}
+        {[[w - 4, 4], [10, h - 2]].map(([x, y], i) => <path key={i} d={`M${x} ${y - 4}L${x + 1} ${y - 1}L${x + 4} ${y}L${x + 1} ${y + 1}L${x} ${y + 4}L${x - 1} ${y + 1}L${x - 4} ${y}L${x - 1} ${y - 1}Z`} fill="#FFD95E" stroke="#4a2538" strokeWidth=".6" />)}
+      </svg>
+      <span className="lw-say-t">{text}</span>
+    </button>
   );
 }

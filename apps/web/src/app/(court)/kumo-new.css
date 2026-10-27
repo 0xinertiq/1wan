@@ -532,6 +532,20 @@ a.pb-chip:focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:-3
   :root[data-ui="new"] .khome>.statusline{order:9}
 }
 
+/* Kumo's cloud speech bubble (SVG outline; only the quote text). */
+.lw-say{background:none!important;border:0!important;box-shadow:none!important;padding:14px 18px!important;max-width:min(300px,46%)!important;max-height:none!important;display:block!important;overflow:visible!important;-webkit-line-clamp:unset!important;transform:translate(-44px,0);animation:lwfloat 5s ease-in-out infinite!important;color:#4a2538;font:500 15px/1.4 var(--kumo-font-body);text-align:left}
+.lw-say::after{content:none!important}
+.lw-cloud{position:absolute;inset:0;overflow:visible;pointer-events:none}
+.lw-say-t{position:relative;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.lw-say.open .lw-say-t{-webkit-line-clamp:unset;display:block}
+.lw-say.open{max-width:min(380px,80%)!important;z-index:7}
+.lw-say.night{color:#F6F2FF}
+.lw-say:focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:4px;border-radius:16px}
+@keyframes lwfloat{0%,100%{transform:translate(-44px,0)}50%{transform:translate(-44px,-3px)}}
+@media (prefers-reduced-motion:reduce){.lw-say{animation:none!important}}
+.lw{position:relative}
+@media (max-width:767px){.lw-say{position:relative!important;display:block!important;font-size:14px;padding:10px 16px!important;max-width:calc(100% - 24px)!important;top:auto!important;left:auto!important;margin:14px 0 0 12px;transform:none;animation:none!important}.lw-say-t{-webkit-line-clamp:2}}
+
 /* Focus ring from the kit. */
 :root[data-ui="new"] :focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:2px}
 

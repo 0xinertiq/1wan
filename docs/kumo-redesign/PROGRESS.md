@@ -37,3 +37,22 @@ Weather line, Today (all of it, under its More), Needs you now, Kingdom progress
 
 ## R2b (owner's preview feedback, on preview)
 Crew sprites 8.5% of the world height (15% on the phone strip), off-duty crew stay inside the castle; glass place labels (60%, blur, solid on hover/focus, 44px hit area); quote of the day as Kumo's speech bubble (tap to expand), below him over the clouds; prices strip is one line that scrolls sideways; desktop under the strip: Briefs and scans 2/3 left, rail 1/3 right (Today, Needs you now, Luna, Quick capture), old row 2 and the progress card removed; crew roster as one line; level, EXP bar, habits this week and save state in the header after the clock (New look only; Classic keeps its status card); Luna card shows the transit lines small, then DOs and DON'Ts exactly as the astro calendar writes them ("✅ DO:" / "🚫 DON'T:" lines; UTC times shown in SGT), a small "astro calendar" tag and Read more; the "Applies all day, wherever you are" line is dropped. Kumo's pick moved back inside the Today card's More.
+
+## R3 (owner's round 3, on preview)
+Done: enchanted pixel restyle of the world (no grey; see COURT_SPEC Part 7), cloud speech bubble with the quote only (below the strip on the phone), one-line Quick capture under the world, one-line prices, Briefs block (Intel | Scan) with Top 5 and Today's plan, rail (Today, Needs you now, Kumo's weekly review, Luna), roster wraps without sideways scroll, Luna card fixes, Bigdata wording removed from Sources lines, new Trades and News tabs, merged Week ahead, phone bar with More.
+
+Where each "More on your court" widget went:
+- Technicals: Trades (left).
+- Watchlist scan with prices: Trades (left).
+- Midday movers: Trades (left), as its own card (latest alert or "No movers today (checked HH:MM)" and the age of the last real alert).
+- Brief tabs: replaced by News, Briefs and scans (full text of every brief, newest first, history by desk and date).
+- Headlines (news feed): News (right), with "In today's top 5" tags.
+- This week + Week ahead: merged into one Week ahead card on Calendar (left).
+- Economic calendar: Calendar (left).
+- Trade log and trade tools: Trades (right); the Life tab no longer shows Trade in the New look ("write a thesis" opens Trades). Classic unchanged.
+- Weather line: removed from the Today card; the world's weather badge shows it.
+- Kumo's pick: inside the Today card's "More".
+
+Open questions (NEEDS OWNER INPUT):
+- Brief formats: I could not read the real briefs (reading production data was blocked), so Top 5, Today's plan, the no-movers note and the review summary are read by tolerant rules and tested on made-up text. If a card looks wrong on the preview, send me the headings of that brief, or allow a read-only check of the briefs table.
+- Observatory is now thin (only Luna's 7-day sky). Proposal: keep it as "Sky" inside News, or as a tab inside Calendar. Nothing deleted until you choose.

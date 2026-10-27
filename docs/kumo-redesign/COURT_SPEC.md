@@ -139,3 +139,11 @@ The spec text proposed Inter for body; the owner overrode it:
 - The v52 Quicksand !important override on inputs, textarea and select is replaced in the New look only; Classic keeps its fonts.
 - Keep the CJK fallback fonts and test Chinese labels (for example the garden's Chinese names).
 - Re-check the type scale: body 16/24 (15/22 inside dense cards), compact 14/20, minimum label 13/18; fix any overflow (long tickers, brief titles, Chinese text).
+
+## Part 7: Owner feedback round 3 (overrides earlier parts where they differ)
+- Global rule: never repeat the same information in two places; one canonical home per item, other places show a summary and link to it.
+- World: whimsical, mystical storybook kingdom, no neutral grey (cream and blush walls; lavender, sakura, teal and gold roofs; plum and indigo shadows); crooked spires, onion domes, crescent finials, round windows, mushroom-cap roof, wisteria and ivy, floating crystal, rune ring round the observatory, constellation lines, floating lanterns, drifting books, crescent bridge, glowing koi, roof sparkles. Crew 7-9% of the scene height (larger on the phone strip); glass place labels.
+- Court (desktop): header has the Queen's progress after the clock; under the world a one-line Quick capture, then a one-line prices strip; quote of the day in Kumo's cloud speech bubble (quote only); left 2/3 Briefs with tabs Intel | Scan (Intel opens with Top 5 headlines from "## Top 5 headlines", Scan with Today's plan); right 1/3 rail: Today (no weather line), Needs you now, Kumo's weekly review (compact), Luna's forecast; crew roster as one wrapping line; no "More on your court".
+- Luna card: transit line small, bold "DOs:" and "DON'Ts:" only from the calendar text, no colours, readable header with a 1px line, no "Applies all day", no "astronomical", no copyright line on the card (it stays inside Read more and on the Observatory).
+- No Bigdata wording in the UI.
+- New tabs (rail on desktop; phone bar Home, Calendar, Hub, Diary, More with the rest under More): Trades (scan in full with prices, technicals, Midday Movers card left; trade log and tools right), News (headlines feed with "In today's top 5" tags; full text of every brief with history, reading layout), Calendar gets one merged Week ahead and the Economic calendar on the left, Observatory keeps Luna's 7-day sky.
