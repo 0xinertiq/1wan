@@ -10,6 +10,10 @@ Start every session with: read CLAUDE.md, docs/BUILD-ORDER.md and docs/progress.
 - Stop after the last step and print: what works, what is sample only, what is blocked, and one click-by-click checklist for the user (docs/manual-steps.md). She is a beginner.
 - Her data is private: finances, trades, habits, birth details. Nothing personal in git, logs or commit messages.
 
+## Progress page (do this FIRST in the next session, small slice)
+Build a "Progress" page inside the app (route /progress, signed-in users only, link in the header menu next to Settings). It reads docs/milestones.json at build time (import the JSON, no database), and shows: an overall percent bar (done = 1, partial = 0.5), the next step highlighted, a list grouped by Foundation, Build, Intelligence, Optional, Later with a status chip each (done, partial, next, todo, blocked), a plain-words "what to expect" line, and a "what you do" line only when not empty. Calm theme, mobile first, no personal data. Show the `updated` date.
+Rule from now on: after EVERY step, update docs/milestones.json (status, note, updated) in the same commit as docs/progress.md, so the page refreshes itself when Vercel redeploys. Never ask her to edit it.
+
 ## Steps in order
 1. Tabs and navigation: bottom bar (Court, Calendar, Garden, Diary, Life), Life sub-tabs shell, remove Ask windows and routing box, one real-events status line. (v2 section 1)
 2. Data layer for trackers: migration 0004 (trades, plans, gamble, ledger settings, spending, watering_events), import script with dry run, add to "Export my data". (trackers: Data model)
