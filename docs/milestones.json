@@ -13,7 +13,7 @@
   {
    "id": "live",
    "group": "Foundation",
-   "title": "5 calendars, live prices, 13 news feeds, ingest endpoint",
+   "title": "Up to 8 calendars, live prices, 13 news feeds, ingest endpoint",
    "status": "done",
    "expect": "Already live.",
    "you_do": ""
@@ -156,10 +156,10 @@
    "id": "env",
    "group": "Foundation",
    "title": "Vercel settings for today's features",
-   "status": "blocked",
-   "note": "Claude could not sign in to Vercel from this computer.",
-   "expect": "Weekly packet read, work and astro calendars live on the website.",
-   "you_do": "Add the variables listed in manual steps, section K, then Redeploy."
+   "status": "done",
+   "note": "27 Oct: six calendars synced to Vercel (Production and Preview, Sensitive) and redeployed; all six load. READ_SECRET, INGEST_SECRET and Supabase variables are present.",
+   "expect": "Work and astro calendars live on the website.",
+   "you_do": ""
   },
   {
    "id": "l1",

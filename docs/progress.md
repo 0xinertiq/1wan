@@ -1,5 +1,5 @@
 # Progress (Claude Code updates this after every step)
-Done before this file existed: login, briefs, Export my data, crew page, dashboard shell, state load/save, calendar (5 feeds), prices, RSS news, ingest endpoint (dry run passed), theme toggle, Sakura Garden v1, Tonight count your wins, Coming up, diary v1.
+Done before this file existed: login, briefs, Export my data, crew page, dashboard shell, state load/save, calendar (up to 8 feeds), prices, RSS news, ingest endpoint (dry run passed), theme toggle, Sakura Garden v1, Tonight count your wins, Coming up, diary v1.
 Next: lane B Telegram (private channels) once she supplies credentials; repoint scheduled tasks (build order step 6) with a throwaway test; one throwaway read of /api/export/weekly after READ_SECRET is in Vercel.
 
 ## Log
@@ -38,6 +38,7 @@ Next: lane B Telegram (private channels) once she supplies credentials; repoint 
 - 2026-10-27 PWA basics: /manifest.webmanifest (apps/web/src/app/manifest.ts: name from brand.ts, start /dashboard, standalone), icons drawn from Kumo's pixel sprite by apps/web/scripts/make-icons.mjs (192, 512, maskable 512, Apple 180, SVG; checked: plum outline present), theme colour light #FFA3C8 and dark #1C1630 in both layouts, Apple home-screen meta. Middleware lets the manifest and icons load signed out (checked on a local production build: 200, dashboard still redirects). No service worker, so nothing private is cached on the device.
 - 2026-10-27 Vercel variables: not added. The Vercel CLI is not installed and `npx vercel whoami` reports no credentials, and apps/web is not linked to the project. Variable names she must add are listed in docs/manual-steps.md section K (READ_SECRET; work calendar slot 1; astro feed once it is in .env.local). No redeploy triggered from here; every push today still deployed the code.
 
+- 2026-10-27 Calendars: repaired apps/web/.env.local (backup in .env.local.bak; one malformed line "nGCAL_ICAL_URL_6" removed, its address matched the clipboard and became GCAL_ICAL_URL_6 with GCAL_NAME_6=work; GCAL_NAME_1 renamed "work stuff" to astro; 18 variables, none lost). calendar.ts reads up to 8 feeds (MAX_FEEDS) with 8 colours; Luna already finds the feed by the name "astro" (isAstro). All 12 GCAL_* synced to Vercel Production and Preview as Sensitive (Development skipped: Vercel does not allow Sensitive there; .env.local covers local). Deployed a1ce270, Ready. Six feeds load; events 27 Oct to 2 Nov: astro 11, focus time 3, home stuff 2, play dates 1, self-care 4, work 1 (counted with the same code and values locally, since /api/calendar needs sign-in).
+
 ## Blocked
-- Vercel CLI not signed in (27 Oct): could not add READ_SECRET or the calendar variables or trigger a redeploy. She adds them by hand (manual steps K) or runs `npx vercel login` once.
-- Astro calendar feed is not in apps/web/.env.local yet (no GCAL_NAME contains "astro"), so it cannot be copied to Vercel. Manual steps I first.
+- None. Earlier Vercel login and astro feed items are resolved (27 Oct).

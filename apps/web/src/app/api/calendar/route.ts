@@ -4,7 +4,7 @@ import { loadCalendars } from "@/lib/calendar";
 
 export const dynamic = "force-dynamic";
 
-// Her calendar events for the next month, merged from up to 5 calendars. Read-only.
+// Her calendar events for the next month, merged from up to 8 calendars. Read-only.
 // Returns names, colours and events only; the secret calendar addresses stay on the server.
 export async function GET() {
   const supabase = await createClient();
