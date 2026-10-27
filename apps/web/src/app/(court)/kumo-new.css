@@ -303,6 +303,13 @@ a.pb-chip:focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:-3
 @media (min-width:760px){:root[data-ui="new"] .krow>*{grid-column:span 6}}
 @media (min-width:1180px){:root[data-ui="new"] .krow>*{grid-column:span 4}}
 
+/* Fonts (COURT_SPEC Part 6 as amended by the owner): Nunito for body, interface and numbers, tabular figures;
+   Inter only for the diary writing area and journal entries. Replaces the v52 Quicksand override (New look only). */
+:root[data-ui="new"] body{font-variant-numeric:tabular-nums}
+:root[data-ui="new"] input:not([type=checkbox]):not([type=file]):not([type=range]),:root[data-ui="new"] textarea,:root[data-ui="new"] select{font-family:var(--kumo-font-body)!important;font-weight:inherit}
+:root[data-ui="new"] .tp-diary textarea,:root[data-ui="new"] .tp-diary .pre,:root[data-ui="new"] .tp-diary .jn{font-family:var(--nf-inter),system-ui,var(--nf-noto),sans-serif!important;font-size:16px;line-height:1.5}
+:root[data-ui="new"] .cnj{font-family:var(--nf-noto),var(--nf-mashan),serif}
+
 /* Focus ring from the kit. */
 :root[data-ui="new"] :focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:2px}
 
