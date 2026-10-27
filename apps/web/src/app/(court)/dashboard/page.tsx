@@ -26,7 +26,7 @@ import { PricesLoader } from "@/components/court/Prices";
 import { watchlistFrom } from "@/lib/prices";
 import { TodayLive } from "@/components/court/live/TodayLive";
 import { CourtLayout, Observatory } from "@/components/court/live/KumoHome";
-import { LivingKingdom } from "@/components/court/live/LivingKingdom";
+import { CrewRoster, LivingWorld } from "@/components/court/live/LivingWorld";
 import { BriefCards } from "@/components/court/BriefCards";
 import { DiaryLive, GardenLive, StatusLive, WinsButton } from "@/components/court/live/GrowLive";
 import { bootState } from "@/lib/court/actions";
@@ -74,6 +74,7 @@ export default async function Dashboard() {
   const docs = rows.map((b) => toDoc(b, now, votes[b.kind] ?? null));
   const initial = freshest; // v52 opens the freshest brief.
   const scanDoc = docs.find((d) => d.key === "scan") ?? null;
+  const filed = Object.fromEntries(rows.map((r) => [r.kind, r.at]));
   const latest: Latest = Object.fromEntries(rows.map((r) => [r.kind, { title: r.title, at: r.at }]));
 
   // Her state document; missing keys fall back to defaults. Rollover and the morning-brief quest
@@ -112,7 +113,8 @@ export default async function Dashboard() {
                 needs: <NeedsNow />,
                 status: <StatusLive />,
                 briefCards: <BriefCards docs={docs} />,
-                kingdom: <LivingKingdom filed={Object.fromEntries(rows.map((r) => [r.kind, r.at]))} />,
+                world: <LivingWorld filed={filed} />,
+                roster: <CrewRoster filed={filed} />,
               }}
             />
           ),

@@ -46,10 +46,10 @@ export function TodayLive({ bare = false }: { bare?: boolean }) {
         ))}
       </div>
       <div className="panel" id="tp-brief" role="tabpanel" aria-labelledby="tt-brief" hidden={tab !== "brief"}>
-        <Strip quoteOnly={bare} />
+        {!bare && <Strip />}
         <RecapBox />
         <div id="dayCard" className="daycard">
-          <NowCard />
+          <NowCard noPick={bare} />
           <MomoCard />
           <LifeCard />
         </div>
@@ -81,16 +81,16 @@ export function TodayChips() {
   );
 }
 
-function Strip({ quoteOnly = false }: { quoteOnly?: boolean }) {
+function Strip() {
   const { st, k, events } = useCourt();
   const wh = weekHab(st, k), due = dueList(st, k, events).filter((x) => x.dd <= 3).length;
   return (
     <div id="stripBox">
-      {!quoteOnly && <div className="strip" role="group" aria-label="Today at a glance">
+      <div className="strip" role="group" aria-label="Today at a glance">
         <span className="sc"><i>Due soon</i><b>{due}</b></span>
         <span className="sc"><i>Streak</i><b>{st.streak}</b></span>
         <span className="sc"><i>Habits this week</i><b>{wh.d}/{wh.t}</b></span>
-      </div>}
+      </div>
       <figure className="qod">
         <figcaption>Quote of the day</figcaption>
         <blockquote>{quoteOfDay(k, st.uq)}</blockquote>
@@ -114,12 +114,11 @@ function RecapBox() {
   );
 }
 
-function NowCard() {
-  const { st, k, nm, events, cal, update, levelUp } = useCourt();
-  const [pickI, setPickI] = useState(0);
+// noPick: the New look shows Kumo's pick as its own card on the Court (KumoPick below).
+function NowCard({ noPick = false }: { noPick?: boolean }) {
+  const { st, k, nm, events, cal } = useCourt();
   const evs = eventsOn(events, k).filter((e) => !e.allDay);
   const cur = evs.find((e) => e.a <= nm && nm < e.b), nxt = evs.find((e) => e.a > nm);
-  const canRest = st.restDay !== k && st.restWeek !== weekKey(k);
 
   if (st.restDay === k)
     return (
@@ -130,9 +129,6 @@ function NowCard() {
   if (cur) { lab = "Right now"; title = cur.t; sub = `Ends in ${dur(Math.max(1, cur.b - nm))} · until ${hm(cur.b)}`; }
   else if (nxt) { lab = "Up next"; title = nxt.t; sub = `Starts in ${dur(Math.max(1, nxt.a - nm))} · at ${hm(nxt.a)}`; soon = nxt.a - nm <= 15; }
 
-  // Kumo's pick (v52 pickList, without sprint and reports): the next open quest she can tick herself.
-  const picks = openQuests(st, k, nm).filter((q) => qScore(q, k, nm) < 60 && !q.auto).slice(0, 3);
-  const pick = picks.length ? picks[pickI % picks.length] : null;
   const pct = Math.max(0, Math.min(100, ((nm - 480) / (1320 - 480)) * 100));
 
   return (
@@ -143,21 +139,44 @@ function NowCard() {
         {sub && <span>{sub}</span>}
         {soon && <span className="soonmsg">Start wrapping up. Save your place.</span>}
         <div className="dayprog" role="img" aria-label={`Day progress, ${Math.round(pct)} percent of 08:00 to 22:00`}><i style={{ width: pct + "%" }}></i></div>
-        <div className="pick">
-          <small>Kumo&apos;s pick</small>
-          <span>{pick ? pick.title : "All clear. Rest is a valid move."}</span>
-          <div className="rep-act">
-            {pick && (
-              <button className="btn sm" type="button" onClick={() => update((d) => { const r = logQuest(d, pick.id); if (r.leveled) levelUp(r.leveled); }, ["q", "stars", "streak", "xp", "lvl"])}>I did it</button>
-            )}
-            {picks.length > 1 && <button className="btn sm ghost" type="button" onClick={() => setPickI(pickI + 1)}>Not now</button>}
-            {canRest && (
-              <button className="btn sm ghost" type="button" onClick={() => update((d) => { d.restDay = k; d.restWeek = weekKey(k); }, ["restDay", "restWeek"])}>Take a rest day</button>
-            )}
-          </div>
-        </div>
+        {!noPick && <KumoPick />}
       </div>
     </div>
+  );
+}
+
+// Kumo's pick (v52 pickList, without sprint and reports): the next open quest she can tick herself.
+export function KumoPick() {
+  const { st, k, nm, update, levelUp } = useCourt();
+  const [pickI, setPickI] = useState(0);
+  const canRest = st.restDay !== k && st.restWeek !== weekKey(k);
+  const picks = openQuests(st, k, nm).filter((q) => qScore(q, k, nm) < 60 && !q.auto).slice(0, 3);
+  const pick = picks.length ? picks[pickI % picks.length] : null;
+  return (
+    <div className="pick">
+      <small>Kumo&apos;s pick</small>
+      <span>{pick ? pick.title : "All clear. Rest is a valid move."}</span>
+      <div className="rep-act">
+        {pick && (
+          <button className="btn sm" type="button" onClick={() => update((d) => { const r = logQuest(d, pick.id); if (r.leveled) levelUp(r.leveled); }, ["q", "stars", "streak", "xp", "lvl"])}>I did it</button>
+        )}
+        {picks.length > 1 && <button className="btn sm ghost" type="button" onClick={() => setPickI(pickI + 1)}>Not now</button>}
+        {canRest && (
+          <button className="btn sm ghost" type="button" onClick={() => update((d) => { d.restDay = k; d.restWeek = weekKey(k); }, ["restDay", "restWeek"])}>Take a rest day</button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Quote of the day on its own (New look's quiet third row).
+export function QuoteOfDay() {
+  const { st, k } = useCourt();
+  return (
+    <figure className="qod">
+      <figcaption>Quote of the day</figcaption>
+      <blockquote>{quoteOfDay(k, st.uq)}</blockquote>
+    </figure>
   );
 }
 

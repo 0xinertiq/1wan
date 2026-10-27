@@ -1,24 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { COURT_BANNER, PaintedBanner } from "@/components/kumo/PaintedBanner";
 import { useUi } from "@/components/kumo/useUi";
 import { useCourt } from "../CourtState";
 import { eventsOn, isAstro, type DayEvent } from "@/lib/court/state";
-import { greetWord, hm, prettyDay } from "@/lib/court/time";
+import { hm, prettyDay } from "@/lib/court/time";
 import { AstroText } from "./AstroText";
 import { useSky } from "./LunaSky";
-import { TodayChips } from "./TodayLive";
+import { KumoPick, QuoteOfDay, TodayChips } from "./TodayLive";
+import { KingdomStage, PricesStrip } from "./LivingWorld";
 
 // The Court tab. Classic: the v52 three columns, exactly as before. New look (moodboard 01, "a summary, never
 // a second calendar or hub"): banner; Today / Needs you now / Kingdom progress / Quick capture; Luna's
 // forecast; every other window folded under "More on your court". Nothing is removed, only arranged.
-// The Living Kingdom card sits under Kingdom progress in place of the Cloud Court (it also shows level-ups).
+// The pixel Living World replaces the Cloud Court and carries the level-up banner (COURT_SPEC Part 1).
 export type CourtSlots = {
   weather: React.ReactNode; today: React.ReactNode; todayBare: React.ReactNode; stage: React.ReactNode; statusLine: React.ReactNode;
   luna: React.ReactNode; brief: React.ReactNode; scan: React.ReactNode; tech: React.ReactNode; weekStrip: React.ReactNode;
-  weekAhead: React.ReactNode; econ: React.ReactNode; news: React.ReactNode; needs: React.ReactNode; status: React.ReactNode; kingdom: React.ReactNode;
-  briefCards: React.ReactNode;
+  weekAhead: React.ReactNode; econ: React.ReactNode; news: React.ReactNode; needs: React.ReactNode; status: React.ReactNode;
+  briefCards: React.ReactNode; world: React.ReactNode; roster: React.ReactNode;
 };
 
 export function CourtLayout({ s }: { s: CourtSlots }) {
@@ -33,7 +33,8 @@ export function CourtLayout({ s }: { s: CourtSlots }) {
     );
   return (
     <div className="khome">
-      <KingdomBanner />
+      {s.world}
+      <PricesStrip />
       {s.statusLine}
       <div className="krow1">
         <div className="kcol"><TodayCard weather={s.weather} more={s.todayBare} />{s.needs}</div>
@@ -41,13 +42,30 @@ export function CourtLayout({ s }: { s: CourtSlots }) {
       </div>
       <div className="krow">
         <AstroForecast />
-        <div className="kprog">{s.status}{s.kingdom}</div>
+        <div className="kprog" id="kprog">{s.status}<KingdomStage /></div>
         <QuickCapture />
+      </div>
+      <div className="krow3">
+        {s.roster}
+        <section className="win kpick" aria-label="Chief Kumo's pick"><div className="win-body"><KumoPick /></div></section>
+        <section className="win kquote" aria-label="Quote of the day"><div className="win-body"><QuoteOfDay /></div></section>
       </div>
       <details className="kmore">
         <summary>More on your court <span className="note">Technicals · This week · Week ahead · Economic calendar · News · Brief tabs · Watchlist scan with prices</span></summary>
         <div className="kmore-grid">{s.tech}{s.weekStrip}{s.weekAhead}{s.econ}{s.news}{s.brief}{s.scan}</div>
       </details>
+      <QuickFab />
+    </div>
+  );
+}
+
+// Phone: Quick capture is a floating button that opens the same form.
+function QuickFab() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={"kfab" + (open ? " open" : "")}>
+      {open && <div className="kfab-sheet"><QuickCapture sfx="Fab" /></div>}
+      <button className="btn kfab-btn" type="button" aria-expanded={open} aria-label={open ? "Close quick capture" : "Quick capture"} onClick={() => setOpen(!open)}>{open ? "×" : "+"}</button>
     </div>
   );
 }
@@ -60,26 +78,6 @@ export function Observatory({ luna }: { luna: React.ReactNode }) {
       <a className="btn sm ghost obs-back" href="#court">← Back to Court</a>
       {ui === "new" ? luna : <p className="note">In the Classic look, Luna&apos;s sky is on the Court.</p>}
     </div>
-  );
-}
-
-// Painted Court banner (concept image 33). Each painted chip is covered by a real one: links to the rooms,
-// her live level and today's date. The fox asleep on the wall is painted in, so the pixel fox sits this one out.
-function KingdomBanner() {
-  const { st, k, nm } = useCourt();
-  const greet = <div className="pb-greet"><h2>{greetWord(nm)}, Queen</h2><p>A calmer day, a richer life.</p></div>;
-  const chips = {
-    garden: <a className="pb-chip" href="#garden">Sakura Garden</a>,
-    clock: <a className="pb-chip" href="#calendar">Clock Tower</a>,
-    castle: <span className="pb-chip pb-two"><span>The Castle</span><span>Lv {st.lvl}</span></span>,
-    obs: <a className="pb-chip" href="#observatory">Observatory</a>,
-    date: <span className="pb-chip">{prettyDay(k)}</span>,
-    life: <span className="pb-chip" />,
-  };
-  return (
-    <PaintedBanner set={COURT_BANNER} label="Kingdom" className="kbanner"
-      fill={{ greet, ...chips }}
-      fillMobile={{ greet: <div className="pb-greet"><h2>{greetWord(nm)}, Queen</h2></div>, clock: chips.clock, castle: chips.castle, obs: <span className="pb-chip" /> }} />
   );
 }
 
@@ -164,14 +162,14 @@ function AstroForecast() {
   );
 }
 
-function QuickCapture() {
+function QuickCapture({ sfx = "" }: { sfx?: string }) {
   const { st, update } = useCourt();
   const [t, setT] = useState("");
   const [msg, setMsg] = useState("");
   const open = st.dump.filter((d) => !d.done).length;
   return (
-    <section className="win kqc" aria-labelledby="kqcT">
-      <div className="win-title"><h2 id="kqcT">Quick capture</h2><span className="sub">{open} parked</span></div>
+    <section className="win kqc" aria-labelledby={"kqcT" + sfx}>
+      <div className="win-title"><h2 id={"kqcT" + sfx}>Quick capture</h2><span className="sub">{open} parked</span></div>
       <div className="win-body">
         <form className="field" onSubmit={(e) => {
           e.preventDefault();
@@ -180,9 +178,9 @@ function QuickCapture() {
           update((d) => { d.dump.unshift({ id: "d" + Date.now(), t: v.slice(0, 140), done: false, ts: Date.now() }); d.dump = d.dump.slice(0, 40); }, ["dump"]);
           setT(""); setMsg("Parked. It is in Today, Park a thought.");
         }}>
-          <label htmlFor="kqcIn">What&apos;s on your mind?</label>
+          <label htmlFor={"kqcIn" + sfx}>What&apos;s on your mind?</label>
           <div className="field-row">
-            <input id="kqcIn" type="text" autoComplete="off" maxLength={140} placeholder="A task, a note, an idea" value={t} onChange={(e) => { setT(e.target.value); setMsg(""); }} />
+            <input id={"kqcIn" + sfx} type="text" autoComplete="off" maxLength={140} placeholder="A task, a note, an idea" value={t} onChange={(e) => { setT(e.target.value); setMsg(""); }} />
             <button className="btn" type="submit">Park it</button>
           </div>
         </form>

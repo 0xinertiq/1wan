@@ -220,9 +220,7 @@
 /* Painted banners (New look): prototype crops from the concept images, drawn "cover", top-anchored, with a
    horizontal focus point (--fx). Live overlays sit in crop coordinates on top of the painted mock UI. */
 .pbanner{position:relative;overflow:hidden;border-radius:var(--kumo-radius-card);border:1px solid var(--line);box-shadow:var(--kumo-shadow-card);background:#EDE4FF}
-.pbanner.kbanner{height:clamp(220px,22vw,280px)}
 .pbanner.obanner{height:clamp(200px,20vw,240px)}
-@media (max-width:759px){.pbanner.kbanner{height:clamp(130px,44vw,180px)}.pbanner.obanner{height:clamp(130px,42vw,170px)}}
 .pb{position:absolute;inset:0;container-type:size}
 .pb-m{display:none}
 @media (max-width:759px){.pb-d{display:none}.pb-m{display:block}}
@@ -253,37 +251,6 @@ a.pb-chip:focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:-3
 @keyframes pbfall{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(18px,120px) rotate(160deg)}100%{transform:translate(-6px,260px) rotate(320deg);opacity:0}}
 @media (prefers-reduced-motion:reduce){.pb-fx{display:none}}
 
-/* Living Kingdom card (New look): painted scene at its own aspect ratio, place chips over the painted ones
-   (they may grow past the painted chip to stay readable, always centred on it), crew sprites under a place. */
-.lk .pbanner.lkscene{height:auto;aspect-ratio:760/528;border:0;border-radius:0 0 var(--kumo-radius-card) var(--kumo-radius-card);box-shadow:none}
-.lk .pbanner.lk-growing{aspect-ratio:772/528}
-@media (max-width:759px){.lk .pbanner.lkscene{aspect-ratio:680/500}.lk .pbanner.lk-growing{aspect-ratio:700/500}}
-.lkscene .pb-box{overflow:visible;align-items:center;justify-content:center}
-.lkscene .pb-box{font-size:max(10px,1.5cqw)}
-.lkscene .lk-chip{flex:none;min-width:100%;min-height:100%;white-space:nowrap;padding:2px 6px;font-weight:800}
-.lkscene .pb-castle .lk-chip{gap:0}
-.lkscene .lk-title{padding:2px 6%}
-.lkscene .lk-title h2{font:700 max(12px,2.6cqw)/1.1 var(--kumo-font-display)!important;color:var(--kumo-text)}
-.lkscene .lk-title p{font:700 max(10px,1.6cqw)/1.2 var(--kumo-font-body)!important;color:var(--kumo-text-muted);margin-top:1px}
-.lkscene .lk-bubble{flex-direction:column;gap:1px;font-size:max(10px,1.6cqw)}
-.lkscene .lk-bubble i{font-style:normal}
-.lkscene .lk-bubble .up{color:var(--kumo-success)}.lkscene .lk-bubble .dn{color:var(--kumo-danger)}
-.lkscene .lk-crew{position:absolute;top:100%;left:50%;transform:translateX(-50%);display:flex;gap:1px;margin-top:2px}
-.lkscene .lk-crew span{display:block;width:max(16px,3.2cqw);height:max(16px,3.2cqw);filter:drop-shadow(0 1px 0 rgba(74,37,56,.3))}
-.lkscene .lk-crew svg{width:100%;height:100%}
-.lkscene .lk-add{position:absolute;height:auto;image-rendering:pixelated}
-.lkscene .pb-tag{font-size:11px;padding:1px 6px}
-/* Night after 19:00 SGT: moonlit recolour, a soft gradient, twinkling stars and warm lantern glow. */
-.lk-night .pb-art img{filter:brightness(.72) saturate(.85) hue-rotate(-18deg)}
-.lk-night.lk-growing .pb-art img{filter:brightness(.85) saturate(.95)}
-.lk-night .pb-fx{background:linear-gradient(180deg,rgba(28,22,64,.35),rgba(28,22,64,0) 55%)}
-.lk-night .pb-fx::after{content:"";position:absolute;inset:auto 0 0 0;height:45%;background:radial-gradient(18% 30% at 18% 70%,rgba(255,206,120,.35),transparent),radial-gradient(14% 26% at 82% 68%,rgba(255,206,120,.32),transparent);animation:lkglow 4s ease-in-out infinite}
-@keyframes lkglow{50%{opacity:.6}}
-.lkscene .lk-star{position:absolute;width:2.2%;height:auto;image-rendering:pixelated;animation:lktw 3s ease-in-out infinite}
-@keyframes lktw{50%{opacity:.4}}
-.lk .lvl{position:absolute;left:50%;top:40%;z-index:5;transform:translate(-50%,-50%);padding:8px 16px;border-radius:var(--kumo-radius-control);background:linear-gradient(var(--chip-butter),var(--chip-pink));border:1px solid var(--line);box-shadow:var(--kumo-shadow-floating);text-align:center;display:grid;font-family:var(--kumo-font-body)}
-.lk .lvl[hidden]{display:none}
-.lk>.win-title{border-bottom:0}
 
 /* R1 (COURT_SPEC): row 1 = Today + Needs you now | Briefs and scans, equal height; row 2 = Luna, progress, capture. */
 :root[data-ui="new"] .krow1{display:grid;gap:24px;grid-template-columns:minmax(0,1fr);align-items:stretch}
@@ -309,6 +276,82 @@ a.pb-chip:focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:-3
 :root[data-ui="new"] input:not([type=checkbox]):not([type=file]):not([type=range]),:root[data-ui="new"] textarea,:root[data-ui="new"] select{font-family:var(--kumo-font-body)!important;font-weight:inherit}
 :root[data-ui="new"] .tp-diary textarea,:root[data-ui="new"] .tp-diary .pre,:root[data-ui="new"] .tp-diary .jn{font-family:var(--nf-inter),system-ui,var(--nf-noto),sans-serif!important;font-size:16px;line-height:1.5}
 :root[data-ui="new"] .cnj{font-family:var(--nf-noto),var(--nf-mashan),serif}
+
+/* R2 Living World and Court layout (COURT_SPEC). The world: full width, about half the viewport, max 520px;
+   a short strip on the phone. Place labels are small; their hit area is 44px. */
+:root[data-ui="new"] .lw{margin:0}
+:root[data-ui="new"] .lw-box{position:relative;height:clamp(320px,50vh,520px);border-radius:var(--kumo-radius-card);overflow:hidden;border:1px solid var(--line);box-shadow:var(--kumo-shadow-card);background:#EDE4FF}
+.lw-cv{position:absolute;left:50%;top:0;transform:translateX(-50%);image-rendering:pixelated;display:block}
+.lw-place{position:absolute;transform:translate(-50%,-100%);display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:3px 10px;border-radius:var(--kumo-radius-chip);background:rgba(255,255,255,.92);border:1px solid var(--line);color:var(--kumo-text);font:700 14px/1.2 var(--kumo-font-body);text-decoration:none;white-space:nowrap;box-shadow:0 2px 8px rgba(42,35,64,.1);z-index:3}
+.lw-place::before{content:"";position:absolute;inset:-8px -4px}
+.lw-place:hover{color:var(--kumo-pink);border-color:var(--kumo-pink)}
+.lw-place:focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:2px}
+.lw-crew{position:absolute;width:32px;height:32px;transform:translate(-50%,-100%);transition:left 4s linear,top 4s linear;z-index:2;image-rendering:pixelated}
+.lw-crew svg{width:100%;height:100%;display:block}
+.lw-crew.on{animation:lwwork 1.2s steps(2,end) infinite}
+.lw-kumo{animation:lwbob 2.4s ease-in-out infinite}
+@keyframes lwwork{50%{transform:translate(-50%,calc(-100% - 2px))}}
+@keyframes lwbob{50%{transform:translate(-50%,calc(-100% - 3px))}}
+.lw-top{position:absolute;left:12px;top:10px;right:12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;z-index:4;pointer-events:none}
+.lw-greet{padding:4px 10px;border-radius:var(--kumo-radius-chip);background:rgba(255,255,255,.88);font:600 16px/1.5 var(--kumo-font-display);color:var(--kumo-text)}
+.lw-badges{display:flex;flex-wrap:wrap;gap:6px}
+.lw-badge{padding:2px 8px;border-radius:var(--kumo-radius-chip);background:rgba(255,255,255,.88);font:700 13px/1.6 var(--kumo-font-body);color:var(--kumo-text-muted);font-variant-numeric:tabular-nums}
+.lw .lvl{position:absolute;left:50%;top:40%;z-index:6;transform:translate(-50%,-50%);display:grid;padding:10px 18px;border-radius:var(--kumo-radius-control);background:linear-gradient(var(--chip-butter),var(--chip-pink));border:1px solid var(--line);box-shadow:var(--kumo-shadow-floating);text-align:center;font-family:var(--kumo-font-body)}
+.lw .lvl[hidden]{display:none}
+@media (max-width:767px){
+  :root[data-ui="new"] .lw-box{height:168px}
+  .lw-place{min-height:0;padding:0;width:44px;height:44px;background:transparent;border:0;box-shadow:none;transform:translate(-50%,-60%)}
+  .lw-place span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .lw-crew{width:20px;height:20px}
+  .lw-greet{font-size:14px}.lw-badge{font-size:13px}
+}
+@media (prefers-reduced-motion:reduce){.lw-crew,.lw-kumo{animation:none;transition:none}}
+
+/* Prices strip under the world */
+:root[data-ui="new"] .kprices{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 16px;margin-top:-12px;padding:10px 16px;border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);box-shadow:var(--kumo-shadow-card)}
+:root[data-ui="new"] .kprices ul{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0;padding:0;list-style:none;font:600 14px var(--kumo-font-body);font-variant-numeric:tabular-nums}
+:root[data-ui="new"] .kprices b{font-weight:800}
+:root[data-ui="new"] .kprices i{font-style:normal}
+:root[data-ui="new"] .kprices .up{color:var(--kumo-success)}:root[data-ui="new"] .kprices .dn{color:var(--kumo-danger)}
+
+/* Row 3: crew roster, Kumo's pick, quote (quiet) */
+:root[data-ui="new"] .krow3{display:grid;gap:24px;grid-template-columns:minmax(0,1fr);align-items:stretch}
+@media (min-width:980px){:root[data-ui="new"] .krow3{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr)}}
+:root[data-ui="new"] .krow3>*{margin:0;height:100%}
+:root[data-ui="new"] .kroster-list{list-style:none;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+:root[data-ui="new"] .kroster-list li{display:grid;grid-template-columns:32px minmax(0,1fr);grid-template-rows:auto auto;column-gap:10px;align-items:center;min-height:44px;opacity:.72}
+:root[data-ui="new"] .kroster-list li.on{opacity:1}
+:root[data-ui="new"] .kroster-px{grid-row:span 2;width:32px;height:32px}
+:root[data-ui="new"] .kroster-px svg{width:100%;height:100%}
+:root[data-ui="new"] .kroster-list b{font:700 14px var(--kumo-font-body)}
+:root[data-ui="new"] .kroster-list .note{font-size:13px;line-height:1.3}
+:root[data-ui="new"] .kpick .pick{display:grid;gap:8px}
+:root[data-ui="new"] .kpick .pick small{font:700 13px var(--kumo-font-body);text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft)}
+:root[data-ui="new"] .kpick .pick>span{font:600 18px/1.35 var(--kumo-font-display)}
+:root[data-ui="new"] .kquote .qod{margin:0;border:0;padding:0;background:none}
+:root[data-ui="new"] .kstage{margin:0 4px}
+
+/* Phone: Quick capture as a floating button; information first in the spec's order */
+.kfab{display:none}
+@media (max-width:767px){
+  :root[data-ui="new"] .kfab{display:block;position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:60}
+  :root[data-ui="new"] .kfab-btn{width:56px;height:56px;border-radius:50%;font-size:28px;line-height:1;box-shadow:var(--kumo-shadow-floating)}
+  :root[data-ui="new"] .kfab-sheet{position:fixed;left:16px;right:16px;bottom:calc(152px + env(safe-area-inset-bottom,0px))}
+  :root[data-ui="new"] .kfab-sheet .kqc{box-shadow:var(--kumo-shadow-floating)}
+  :root[data-ui="new"] .khome{gap:16px}
+  :root[data-ui="new"] .krow1,:root[data-ui="new"] .kcol,:root[data-ui="new"] .krow{display:contents}
+  :root[data-ui="new"] .khome>.lw{order:1}
+  :root[data-ui="new"] .khome #needWin{order:2}
+  :root[data-ui="new"] .khome .knl{order:3}
+  :root[data-ui="new"] .khome .kbriefs{order:4}
+  :root[data-ui="new"] .khome>.kprices{order:5;margin-top:0}
+  :root[data-ui="new"] .khome .kastro{order:6}
+  :root[data-ui="new"] .khome .kprog{order:7}
+  :root[data-ui="new"] .khome>.statusline{order:8;margin:0}
+  :root[data-ui="new"] .khome>.krow3{order:9}
+  :root[data-ui="new"] .khome>.kmore{order:10}
+  :root[data-ui="new"] .krow>.kqc{display:none}
+}
 
 /* Focus ring from the kit. */
 :root[data-ui="new"] :focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:2px}
