@@ -155,6 +155,29 @@
 :root[data-ui="new"] .obs-calc{background:var(--win-dim)}
 :root[data-ui="new"] .obs-src{font-size:12px}
 
+/* Shared rows (filed briefs, list items, calendar rows): white, hairline, rounded. */
+:root[data-ui="new"] .filed-row{border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);padding:8px 12px}
+:root[data-ui="new"] .filed-row .vt{border:0;border-radius:var(--kumo-radius-chip);font-family:var(--kumo-font-body)}
+:root[data-ui="new"] .adesc{border-left-color:var(--kumo-lavender)}
+
+/* Calendar (Clock Tower): soft day cells, pink ring on today, gold on the picked day, event pills. */
+:root[data-ui="new"] #calWin .ntabs:first-of-type{display:inline-flex;gap:0;padding:4px;border-radius:var(--kumo-radius-control);background:var(--win-dim);width:max-content;max-width:100%}
+:root[data-ui="new"] #calWin .ntabs:first-of-type .chipb{border:0;background:transparent;min-width:72px}
+:root[data-ui="new"] #calWin .ntabs:first-of-type .chipb[aria-pressed="true"]{background:var(--win);box-shadow:var(--kumo-shadow-card);color:var(--lav-strong)}
+:root[data-ui="new"] .cdot{border:0}
+:root[data-ui="new"] .cweek{gap:8px}
+:root[data-ui="new"] .cmonth{gap:6px}
+:root[data-ui="new"] .cday{border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);padding:6px;font-family:var(--kumo-font-body);transition:box-shadow .15s}
+:root[data-ui="new"] .cday:hover{box-shadow:var(--kumo-shadow-card)}
+:root[data-ui="new"] .cday .cd-h{font-weight:700;color:var(--ink-soft)}
+:root[data-ui="new"] .cday.today{background:var(--chip-pink);border-color:var(--lav-strong)}
+:root[data-ui="new"] .cday.today .cd-h{color:var(--lav-strong)}
+:root[data-ui="new"] .cday.sel{outline:2px solid #FBBF24;outline-offset:1px}
+:root[data-ui="new"] .cev{border-left-width:3px;border-radius:4px;padding:1px 4px;background:var(--win-dim)}
+:root[data-ui="new"] .cm-h{font-weight:700}
+:root[data-ui="new"] .agday{display:grid;gap:6px}
+:root[data-ui="new"] #calWin .filed-row{border-left-width:4px!important}
+
 /* Focus ring from the kit. */
 :root[data-ui="new"] :focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:2px}
 
