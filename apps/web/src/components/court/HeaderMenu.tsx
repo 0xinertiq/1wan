@@ -68,6 +68,7 @@ export function HeaderMenu() {
         </button>
         <button className="icon-btn" id="setBtn" data-lbl="Settings" type="button" aria-label="Settings" onClick={() => { setOpen(false); openSheet({ kind: "settings" }); }}><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5" fill="#FFD95E" stroke="#A34876" strokeWidth="2" /><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="#A34876" strokeWidth="2.2" strokeLinecap="round" /></svg></button>
         <button className="icon-btn" id="themeBtn" data-lbl="Day or night" type="button" aria-label="Switch between day and night" onClick={toggleTheme}>{dark ? SUN : MOON}</button>
+        <a className="icon-btn" id="progBtn" data-lbl="Progress" href="/progress" aria-label="Progress" title="Build progress"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V13M10 19V8M16 19v-4M22 19H2" fill="none" stroke="#A34876" strokeWidth="2.4" strokeLinecap="round" /></svg></a>
         <a className="icon-btn" id="expBtn" data-lbl="Export my data" href="/api/export" aria-label="Export my data" title="Export my data"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10m0 0l-4-4m4 4l4-4M5 19h14" fill="none" stroke="#A34876" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg></a>
       </div>
     </div>

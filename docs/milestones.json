@@ -30,8 +30,8 @@
    "id": "s2",
    "group": "Build",
    "title": "2. Tracker tables and import",
-   "status": "partial",
-   "note": "Tables created in Supabase. Import of your old trackers being run by Claude Code.",
+   "status": "done",
+   "note": "Your old trades, gamble log, ladders and grid ticks are imported.",
    "expect": "Your old trades and ladders appear in the app.",
    "you_do": ""
   },
@@ -39,8 +39,8 @@
    "id": "s3",
    "group": "Build",
    "title": "3. Life > Money",
-   "status": "partial",
-   "note": "Works for spends, funds, goals. Your own Money Wins formulas to be ported.",
+   "status": "done",
+   "note": "Uses your own Money Wins formulas and lines, plus a quick spending log.",
    "expect": "Cash flow, coming up, funds, net worth, goals.",
    "you_do": ""
   },
@@ -49,23 +49,24 @@
    "group": "Build",
    "title": "4. Life > Trade",
    "status": "partial",
-   "note": "Sizer, plans, log with stop/ATR review flags. Some wording is default until checked.",
+   "note": "Ledger, sizer, review tiles, freeze rate and stop/ATR flags work. Saving a stop on a plan needs one small setup step.",
    "expect": "Plans, trade log, review tiles, gamble log kept separate.",
-   "you_do": ""
+   "you_do": "Run migration 0005 in Supabase (manual steps, section H)."
   },
   {
    "id": "s5",
    "group": "Build",
    "title": "5. Life > Grid & Wins",
-   "status": "next",
+   "status": "done",
    "expect": "The 64 grid, Small Wins ladder and Money Wins milestones.",
-   "you_do": "Approve Claude Code reading the tracker files."
+   "you_do": "",
+   "note": "64 grid, Small Wins ladder and Money Wins Q4 ladder, on your real ticks."
   },
   {
    "id": "s6",
    "group": "Build",
    "title": "6. Life > Samsara",
-   "status": "todo",
+   "status": "next",
    "expect": "Weekly study hours, thesis count, posts, course milestones.",
    "you_do": ""
   },
