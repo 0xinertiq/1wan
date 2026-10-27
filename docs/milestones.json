@@ -120,15 +120,16 @@
    "id": "s12",
    "group": "Build",
    "title": "12. Wrap-up and status",
-   "status": "next",
+   "status": "done",
    "expect": "One honest list of what is real and what is sample.",
-   "you_do": ""
+   "you_do": "",
+   "note": "docs/status.md lists what is real and what is sample."
   },
   {
    "id": "s15",
    "group": "Intelligence",
    "title": "15. Global news, Telegram, technicals (support/resistance, trendlines) used in Trade analysis, alerts",
-   "status": "todo",
+   "status": "next",
    "expect": "More sources, public Telegram channels, charts with auto and your own trendlines, in-app alerts.",
    "you_do": "Public channels: list them. Private channels: one-time Telegram API setup."
   },

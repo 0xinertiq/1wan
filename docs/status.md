@@ -2,6 +2,25 @@
 
 Updated as each build step lands. "Real" means it reads or saves her actual data or a live source.
 
+## Where things stand (27 Oct 2026, after build steps 1 to 12)
+
+Real, on her own data:
+- Life > Money: her Money Wins formulas and lines (fund pace by pay day, net worth hidden by default, monthly cash flow with coming changes, coming up, goals, open items), quick spending log, routines r1 and r2 counted from records.
+- Life > Trade: her ledger's checklist, mistake tags and maths (R expectancy, win rate, freeze rate, thesis hit rate, liquidation-aware sizer), plans with the thesis fields, gamble log kept out of stats, stop vs daily ATR flags from Crypto.com candles.
+- Life > Grid & Wins: the 64 actionables, Small Wins and Money Wins Q4 ladders with her ticks. Life > Samsara: weekly study, thesis count from plans, X posts and replies, milestones.
+- Garden: eight branches from the grid pillars, trunk from daily anchors, decay from real activity only, gentle nudges, weed out. Old typed habits and weeds kept read-only in the Diary archive.
+- Diary and the guided "count your wins" sheet (opens at 21:30). Court: needs you now, Singapore weather, week strip, week ahead. Calendar: week, agenda, month, layers, free gaps, 90 days.
+- Luna: computed sky, 14-day events, astro calendar's own words with a cross-check; natal transits once she enters birth details. Kumo's nine tails.
+- Progress page at /progress, fed by docs/milestones.json.
+
+Sample or not yet built:
+- Plans cannot store a stop until migration 0005 runs (manual steps H).
+- Court stage sky colour follows the clock only; crew do not yet stand where their work is; brief card has no "3 things" summary.
+- Study hours from tagged focus sprints (sprints carry no tag yet); grid dates layer in Calendar (grid timings are free text).
+- Steps 13 (Ask Kumo, needs an API key), 14 (weekly packet) and 15 (news and intelligence) are not started.
+
+Private data rules kept: her item wording and money lines live in her user_state key defs (imported by scripts/extract_defs.js), never in git; birth details only in her own state.
+
 ## Changelog
 
 ### Step 1: theme and idle crew
