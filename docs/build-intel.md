@@ -50,6 +50,14 @@ Funding rate, open interest, 24h volume for her watchlist from a public exchange
 ## G. Trade checks on plans (add to Trade step)
 When a plan has entry, stop and ATR: flag (information, not blocking) a stop under 1 ATR or over 30% from entry, show risk/reward and data timestamp. State "review threshold, not a rule". ATR comes from fetched candles, never typed or invented. No auto-trading, ever.
 
+### G2. Support, resistance and trendlines inside the trading analysis (added 27 Oct)
+Once section K exists, the same levels feed the Trade logic everywhere, as descriptions only:
+- Plan form and plan card: show the nearest support and resistance below and above entry, the distance to each in % and in ATR, and which auto or saved trendline is closest. Add review flags beside the existing stop/ATR flags: "stop sits inside a support zone, not beyond it", "target is just below resistance", "entry is above/below a broken trendline", "risk/reward to the next resistance is X". Label them "review prompts from the chart, not advice".
+- Pre-entry checklist (c1..c9): add optional read-only lines that fill themselves from the chart (trend vs EMA50/200, level nearby, line broken or intact); her own ticks stay hers.
+- Review tiles: on closed trades, record the level context at entry (near support, mid-range, near resistance) so she can see patterns in her own results.
+- Watchlist row and Court scan: nearest level and line status with timestamp.
+- The "Fenn / Trading Analyst" and Chief Kumo scheduled-task prompts (do not change them without her approval): add a follow-up note in docs/progress.md proposing a technicals block that reads from the app (EMA state, RSI, ATR, levels, lines) so those briefs use the same numbers instead of recomputing them.
+
 ## H. Cost and usage
 Everything above is deterministic and costs nothing. Log every ingest run and any AI call to `usage` (user, feature, tokens, cost). Optional later: a cheap-model one-line summary per top cluster, behind the same capped AI_* env vars as step 13, cached per cluster. Not part of this step.
 

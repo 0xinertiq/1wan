@@ -1,27 +1,177 @@
 {
-  "updated": "2026-10-27",
-  "note": "Claude Code updates this file after EVERY step (status, note, updated). The in-app Progress page reads it. Keep wording plain and calm. Never put personal figures here.",
-  "milestones": [
-    {"id":"base","group":"Foundation","title":"Login, crew page, state saving, light theme","status":"done","expect":"Already live.","you_do":""},
-    {"id":"live","group":"Foundation","title":"5 calendars, live prices, 13 news feeds, ingest endpoint","status":"done","expect":"Already live.","you_do":""},
-    {"id":"s1","group":"Build","title":"1. Bottom tabs and status line","status":"done","expect":"Court, Calendar, Garden, Diary, Life tabs.","you_do":""},
-    {"id":"s2","group":"Build","title":"2. Tracker tables and import","status":"partial","note":"Tables created in Supabase. Import of your old trackers being run by Claude Code.","expect":"Your old trades and ladders appear in the app.","you_do":""},
-    {"id":"s3","group":"Build","title":"3. Life > Money","status":"partial","note":"Works for spends, funds, goals. Your own Money Wins formulas to be ported.","expect":"Cash flow, coming up, funds, net worth, goals.","you_do":""},
-    {"id":"s4","group":"Build","title":"4. Life > Trade","status":"partial","note":"Sizer, plans, log with stop/ATR review flags. Some wording is default until checked.","expect":"Plans, trade log, review tiles, gamble log kept separate.","you_do":""},
-    {"id":"s5","group":"Build","title":"5. Life > Grid & Wins","status":"next","expect":"The 64 grid, Small Wins ladder and Money Wins milestones.","you_do":"Approve Claude Code reading the tracker files."},
-    {"id":"s6","group":"Build","title":"6. Life > Samsara","status":"todo","expect":"Weekly study hours, thesis count, posts, course milestones.","you_do":""},
-    {"id":"s7","group":"Build","title":"7. Garden decay and new quests","status":"todo","expect":"Branches wilt when neglected, die at 8 days, weed out and regrow.","you_do":""},
-    {"id":"s8","group":"Build","title":"8. Diary tab and 'count your wins' sheet","status":"todo","expect":"Private diary, archive of old habits, evening wins sheet.","you_do":""},
-    {"id":"s9","group":"Build","title":"9. Court home","status":"todo","expect":"Needs you now, today card with weather, brief, watchlist, week strip, week ahead.","you_do":""},
-    {"id":"s10","group":"Build","title":"10. Calendar tab","status":"todo","expect":"Agenda, week and month views, colours per calendar, layers, free gaps.","you_do":"Update the astro and new work calendar addresses in .env.local and Vercel."},
-    {"id":"s11","group":"Build","title":"11. Luna's sky, astro calendar, nine tails","status":"todo","expect":"Astro weather on the Court, cross-check with your astro calendar, Kumo's tails.","you_do":"Enter birth details privately in Settings."},
-    {"id":"s12","group":"Build","title":"12. Wrap-up and status","status":"todo","expect":"One honest list of what is real and what is sample.","you_do":""},
-    {"id":"s15","group":"Intelligence","title":"15. Global news, Telegram, technicals and trendlines, alerts","status":"todo","expect":"More sources, public Telegram channels, charts with auto and your own trendlines, in-app alerts.","you_do":"Public channels: list them. Private channels: one-time Telegram API setup."},
-    {"id":"s13","group":"Optional","title":"13. Ask Kumo live chat (capped API key)","status":"todo","expect":"Only if you add a key. Hard monthly cap.","you_do":"Create a key and put it in .env.local and Vercel."},
-    {"id":"s14","group":"Optional","title":"14. Kumo weekly review packet","status":"todo","expect":"Copy-for-Claude button and a Sunday review.","you_do":""},
-    {"id":"l1","group":"Later","title":"Repoint the 6 scheduled tasks to the new site","status":"todo","expect":"Briefs write to 1(WAN) instead of the old artifact.","you_do":"Approve a throwaway test first."},
-    {"id":"l2","group":"Later","title":"Polish pass: fonts, spacing, colours, sprites","status":"todo","expect":"After about a week of real use.","you_do":"Tell me what you ignore and what you love."},
-    {"id":"l3","group":"Later","title":"Friends: invites, own calendars, empty templates","status":"todo","expect":"Invite-only, private by default.","you_do":""},
-    {"id":"l4","group":"Later","title":"Name check: handle, domain, trademark","status":"todo","expect":"","you_do":"Check availability."}
-  ]
+ "updated": "2026-10-27",
+ "note": "Claude Code updates this file after EVERY step (status, note, updated). The in-app Progress page reads it. Keep wording plain and calm. Never put personal figures here.",
+ "milestones": [
+  {
+   "id": "base",
+   "group": "Foundation",
+   "title": "Login, crew page, state saving, light theme",
+   "status": "done",
+   "expect": "Already live.",
+   "you_do": ""
+  },
+  {
+   "id": "live",
+   "group": "Foundation",
+   "title": "5 calendars, live prices, 13 news feeds, ingest endpoint",
+   "status": "done",
+   "expect": "Already live.",
+   "you_do": ""
+  },
+  {
+   "id": "s1",
+   "group": "Build",
+   "title": "1. Bottom tabs and status line",
+   "status": "done",
+   "expect": "Court, Calendar, Garden, Diary, Life tabs.",
+   "you_do": ""
+  },
+  {
+   "id": "s2",
+   "group": "Build",
+   "title": "2. Tracker tables and import",
+   "status": "partial",
+   "note": "Tables created in Supabase. Import of your old trackers being run by Claude Code.",
+   "expect": "Your old trades and ladders appear in the app.",
+   "you_do": ""
+  },
+  {
+   "id": "s3",
+   "group": "Build",
+   "title": "3. Life > Money",
+   "status": "partial",
+   "note": "Works for spends, funds, goals. Your own Money Wins formulas to be ported.",
+   "expect": "Cash flow, coming up, funds, net worth, goals.",
+   "you_do": ""
+  },
+  {
+   "id": "s4",
+   "group": "Build",
+   "title": "4. Life > Trade",
+   "status": "partial",
+   "note": "Sizer, plans, log with stop/ATR review flags. Some wording is default until checked.",
+   "expect": "Plans, trade log, review tiles, gamble log kept separate.",
+   "you_do": ""
+  },
+  {
+   "id": "s5",
+   "group": "Build",
+   "title": "5. Life > Grid & Wins",
+   "status": "next",
+   "expect": "The 64 grid, Small Wins ladder and Money Wins milestones.",
+   "you_do": "Approve Claude Code reading the tracker files."
+  },
+  {
+   "id": "s6",
+   "group": "Build",
+   "title": "6. Life > Samsara",
+   "status": "todo",
+   "expect": "Weekly study hours, thesis count, posts, course milestones.",
+   "you_do": ""
+  },
+  {
+   "id": "s7",
+   "group": "Build",
+   "title": "7. Garden decay and new quests",
+   "status": "todo",
+   "expect": "Branches wilt when neglected, die at 8 days, weed out and regrow.",
+   "you_do": ""
+  },
+  {
+   "id": "s8",
+   "group": "Build",
+   "title": "8. Diary tab and 'count your wins' sheet",
+   "status": "todo",
+   "expect": "Private diary, archive of old habits, evening wins sheet.",
+   "you_do": ""
+  },
+  {
+   "id": "s9",
+   "group": "Build",
+   "title": "9. Court home",
+   "status": "todo",
+   "expect": "Needs you now, today card with weather, brief, watchlist, week strip, week ahead.",
+   "you_do": ""
+  },
+  {
+   "id": "s10",
+   "group": "Build",
+   "title": "10. Calendar tab",
+   "status": "todo",
+   "expect": "Agenda, week and month views, colours per calendar, layers, free gaps.",
+   "you_do": "Update the astro and new work calendar addresses in .env.local and Vercel."
+  },
+  {
+   "id": "s11",
+   "group": "Build",
+   "title": "11. Luna's sky, astro calendar, nine tails",
+   "status": "todo",
+   "expect": "Astro weather on the Court, cross-check with your astro calendar, Kumo's tails.",
+   "you_do": "Enter birth details privately in Settings."
+  },
+  {
+   "id": "s12",
+   "group": "Build",
+   "title": "12. Wrap-up and status",
+   "status": "todo",
+   "expect": "One honest list of what is real and what is sample.",
+   "you_do": ""
+  },
+  {
+   "id": "s15",
+   "group": "Intelligence",
+   "title": "15. Global news, Telegram, technicals (support/resistance, trendlines) used in Trade analysis, alerts",
+   "status": "todo",
+   "expect": "More sources, public Telegram channels, charts with auto and your own trendlines, in-app alerts.",
+   "you_do": "Public channels: list them. Private channels: one-time Telegram API setup."
+  },
+  {
+   "id": "s13",
+   "group": "Optional",
+   "title": "13. Ask Kumo live chat (capped API key)",
+   "status": "todo",
+   "expect": "Only if you add a key. Hard monthly cap.",
+   "you_do": "Create a key and put it in .env.local and Vercel."
+  },
+  {
+   "id": "s14",
+   "group": "Optional",
+   "title": "14. Kumo weekly review packet",
+   "status": "todo",
+   "expect": "Copy-for-Claude button and a Sunday review.",
+   "you_do": ""
+  },
+  {
+   "id": "l1",
+   "group": "Later",
+   "title": "Repoint the 6 scheduled tasks to the new site",
+   "status": "todo",
+   "expect": "Briefs write to 1(WAN) instead of the old artifact.",
+   "you_do": "Approve a throwaway test first."
+  },
+  {
+   "id": "l2",
+   "group": "Later",
+   "title": "Polish pass: fonts, spacing, colours, sprites",
+   "status": "todo",
+   "expect": "After about a week of real use.",
+   "you_do": "Tell me what you ignore and what you love."
+  },
+  {
+   "id": "l3",
+   "group": "Later",
+   "title": "Friends: invites, own calendars, empty templates",
+   "status": "todo",
+   "expect": "Invite-only, private by default.",
+   "you_do": ""
+  },
+  {
+   "id": "l4",
+   "group": "Later",
+   "title": "Name check: handle, domain, trademark",
+   "status": "todo",
+   "expect": "",
+   "you_do": "Check availability."
+  }
+ ]
 }
