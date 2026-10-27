@@ -1,5 +1,6 @@
 "use client";
 
+import { getOnce } from "@/lib/court/once";
 import { useEffect, useState } from "react";
 import { useCourt } from "../CourtState";
 import { prettyDay, weekKey } from "@/lib/court/time";
@@ -63,7 +64,7 @@ export function TradeLive() {
   const [period, setPeriod] = useState<"all" | "month" | "week">("all");
 
   useEffect(() => {
-    fetch("/api/ledger").then((r) => r.json()).then((j) => {
+    getOnce<any>("/api/ledger").then((j) => {
       if (j.setup) { setSetup(true); return; }
       if (j.trades) setL(j);
       else setMsg("Could not load the ledger. Try again later.");
@@ -254,8 +255,8 @@ function Plans({ plans, k, onSave, onRemove }: { plans: Row[]; k: string; onSave
   const [f, setF] = useState(blank);
   const [open, setOpen] = useState(false);
   useEffect(() => {
-    const go = () => { if (location.hash === "#write-thesis") { setOpen(true); document.getElementById("planForm")?.scrollIntoView({ block: "start" }); } };
-    go(); window.addEventListener("hashchange", go); return () => window.removeEventListener("hashchange", go);
+    const go = () => { setOpen(true); setTimeout(() => document.getElementById("planForm")?.scrollIntoView({ block: "start" }), 50); };
+    window.addEventListener("1wan:write-thesis", go); return () => window.removeEventListener("1wan:write-thesis", go);
   }, []);
   async function submit(e: React.FormEvent) {
     e.preventDefault();

@@ -1,5 +1,6 @@
 "use client";
 
+import { getOnce } from "@/lib/court/once";
 import { useEffect, useState } from "react";
 import { useCourt } from "../CourtState";
 import type { CourtState, Phase } from "@/lib/court/state";
@@ -15,7 +16,7 @@ export function GridWins() {
   const { st, k, update } = useCourt();
   const g = st.defs.grid, sw = st.defs.swins, mw = st.defs.money;
   const [trades, setTrades] = useState<{ at?: string }[] | null>(null);
-  useEffect(() => { fetch("/api/ledger").then((r) => r.json()).then((j) => setTrades(Array.isArray(j.trades) ? j.trades : [])).catch(() => setTrades([])); }, []);
+  useEffect(() => { getOnce<any>("/api/ledger").then((j) => setTrades(Array.isArray(j.trades) ? j.trades : [])).catch(() => setTrades([])); }, []);
 
   if (!g && !sw && !mw) return <p className="note">Your grid and ladders arrive with the tracker import. Nothing to show yet.</p>;
 

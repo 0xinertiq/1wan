@@ -17,7 +17,7 @@ const SUBS = [
 export function LifeTabs() {
   const [sub, setSub] = useState<(typeof SUBS)[number]["id"]>("money");
   // Samsara's "Write a thesis" opens the one plan form in Trade (no second form).
-  const writeThesis = () => { setSub("trade"); history.replaceState(null, "", location.pathname + location.search); setTimeout(() => { location.hash = "write-thesis"; }, 0); };
+  const writeThesis = () => { setSub("trade"); window.dispatchEvent(new Event("1wan:write-thesis")); };
   return (
     <section className="win" id="lifeWin" aria-labelledby="lifeT">
       <div className="win-title"><h2 id="lifeT">Life</h2></div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { getOnce } from "@/lib/court/once";
 import { useEffect, useState } from "react";
 import { PixelSprite, type SpriteName } from "@/components/PixelSprite";
 import { useCourt } from "../CourtState";
@@ -140,8 +141,8 @@ export function GardenLive() {
   const [ledger, setLedger] = useState<{ trades: Record<string, unknown>[]; plans: Record<string, unknown>[] } | null>(null);
   const [arm, setArm] = useState("");
   useEffect(() => {
-    fetch("/api/water?days=30").then((r) => r.json()).then((j) => setEvs(Array.isArray(j.events) ? j.events : [])).catch(() => setEvs([]));
-    fetch("/api/ledger").then((r) => r.json()).then((j) => j.trades && setLedger(j)).catch(() => {});
+    getOnce<any>("/api/water?days=30").then((j) => setEvs(Array.isArray(j.events) ? j.events : [])).catch(() => setEvs([]));
+    getOnce<any>("/api/ledger").then((j) => j.trades && setLedger(j)).catch(() => {});
   }, []);
 
   const { trunk, list } = branches(st, k, evs ?? []);

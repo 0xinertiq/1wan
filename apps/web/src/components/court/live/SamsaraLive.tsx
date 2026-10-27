@@ -1,5 +1,6 @@
 "use client";
 
+import { getOnce } from "@/lib/court/once";
 import { useEffect, useState } from "react";
 import { useCourt } from "../CourtState";
 import { weekKey } from "@/lib/court/time";
@@ -15,7 +16,7 @@ export function SamsaraLive({ onWriteThesis }: { onWriteThesis: () => void }) {
   const sm = st.defs.samsara;
   const wk = weekKey(k);
   const [plans, setPlans] = useState<{ date?: string }[] | null>(null);
-  useEffect(() => { fetch("/api/ledger").then((r) => r.json()).then((j) => setPlans(Array.isArray(j.plans) ? j.plans : [])).catch(() => setPlans([])); }, []);
+  useEffect(() => { getOnce<any>("/api/ledger").then((j) => setPlans(Array.isArray(j.plans) ? j.plans : [])).catch(() => setPlans([])); }, []);
 
   const t = st.samsara.t.wk === wk ? st.samsara.t : { ...st.samsara.t, hours: 0, posts: 0, replies: 0, wk };
   const posts = st.cad?.wk === wk ? st.cad.x || 0 : 0;

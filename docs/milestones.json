@@ -93,15 +93,16 @@
    "id": "s9",
    "group": "Build",
    "title": "9. Court home",
-   "status": "next",
+   "status": "done",
    "expect": "Needs you now, today card with weather, brief, watchlist, week strip, week ahead.",
-   "you_do": ""
+   "you_do": "",
+   "note": "Needs you now from real records, Singapore weather, This week strip and Week ahead. Brief and watchlist cards as before."
   },
   {
    "id": "s10",
    "group": "Build",
    "title": "10. Calendar tab",
-   "status": "todo",
+   "status": "next",
    "expect": "Agenda, week and month views, colours per calendar, layers, free gaps.",
    "you_do": "Update the astro and new work calendar addresses in .env.local and Vercel."
   },

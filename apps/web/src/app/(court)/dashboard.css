@@ -705,3 +705,9 @@ body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .pillar>summary .mbar{flex-basis:100%}
 .mfld input{width:110px;margin-left:6px}
 .st-bad,.flag-bad{font-weight:700}
+/* Court home */
+.wstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.wday{display:flex;flex-direction:column;align-items:center;padding:4px 0;border:2px solid var(--line);border-radius:8px;background:var(--tint);color:inherit;text-decoration:none;font-size:12px}
+.wday.today{background:var(--chip-mint)}
+.wday .dots{min-height:1em;letter-spacing:1px}
+.wx{margin:0 0 8px}

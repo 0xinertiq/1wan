@@ -8,7 +8,8 @@ import { mdLite } from "@/components/court/mdLite";
 import type { BriefDoc } from "@/components/court/BriefTabs";
 import { ScanWin } from "@/components/court/ScanWin";
 import { loadBriefs, kindLabel, type BriefRow, type Vote } from "@/lib/briefs";
-import { BriefWin, NeedWin } from "@/components/court/Windows";
+import { BriefWin } from "@/components/court/Windows";
+import { NeedsNow, WeatherLine, WeekAhead, WeekStrip } from "@/components/court/live/CourtHome";
 import { AppTabs } from "@/components/court/AppTabs";
 import { LifeTabs } from "@/components/court/LifeTabs";
 import { StatusLine, type Latest } from "@/components/court/StatusLine";
@@ -85,6 +86,7 @@ export default async function Dashboard() {
           court: (
             <div className="layout">
               <div className="col c-l">
+                <WeatherLine />
                 <TodayLive />
               </div>
               <div className="col c-m">
@@ -92,10 +94,12 @@ export default async function Dashboard() {
                 <StatusLine latest={latest} />
                 <BriefWin docs={docs} initial={initial} />
                 <ScanWin doc={scanDoc} />
+                <WeekStrip />
+                <WeekAhead />
                 <NewsLive />
               </div>
               <div className="col c-r">
-                <NeedWin />
+                <NeedsNow />
                 <StatusLive />
               </div>
             </div>
