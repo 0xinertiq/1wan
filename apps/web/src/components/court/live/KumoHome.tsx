@@ -5,15 +5,14 @@ import { useUi } from "@/components/kumo/useUi";
 import { useCourt } from "../CourtState";
 import { eventsOn, isAstro, type DayEvent } from "@/lib/court/state";
 import { hm, prettyDay } from "@/lib/court/time";
-import { AstroText } from "./AstroText";
-import { useSky } from "./LunaSky";
-import { KumoPick, QuoteOfDay, TodayChips } from "./TodayLive";
-import { KingdomStage, PricesStrip } from "./LivingWorld";
+import { TodayChips } from "./TodayLive";
+import { PricesStrip } from "./LivingWorld";
+import { astroParts } from "@/components/kumo/astroParts";
 
 // The Court tab. Classic: the v52 three columns, exactly as before. New look (moodboard 01, "a summary, never
 // a second calendar or hub"): banner; Today / Needs you now / Kingdom progress / Quick capture; Luna's
 // forecast; every other window folded under "More on your court". Nothing is removed, only arranged.
-// The pixel Living World replaces the Cloud Court and carries the level-up banner (COURT_SPEC Part 1).
+// The pixel Living World replaces the Cloud Court and carries the level-up banner; level and EXP live in the header.
 export type CourtSlots = {
   weather: React.ReactNode; today: React.ReactNode; todayBare: React.ReactNode; stage: React.ReactNode; statusLine: React.ReactNode;
   luna: React.ReactNode; brief: React.ReactNode; scan: React.ReactNode; tech: React.ReactNode; weekStrip: React.ReactNode;
@@ -36,20 +35,16 @@ export function CourtLayout({ s }: { s: CourtSlots }) {
       {s.world}
       <PricesStrip />
       {s.statusLine}
-      <div className="krow1">
-        <div className="kcol"><TodayCard weather={s.weather} more={s.todayBare} />{s.needs}</div>
+      <div className="kmain">
         {s.briefCards}
+        <div className="krail">
+          <TodayCard weather={s.weather} more={s.todayBare} />
+          {s.needs}
+          <AstroForecast />
+          <QuickCapture />
+        </div>
       </div>
-      <div className="krow">
-        <AstroForecast />
-        <div className="kprog" id="kprog">{s.status}<KingdomStage /></div>
-        <QuickCapture />
-      </div>
-      <div className="krow3">
-        {s.roster}
-        <section className="win kpick" aria-label="Chief Kumo's pick"><div className="win-body"><KumoPick /></div></section>
-        <section className="win kquote" aria-label="Quote of the day"><div className="win-body"><QuoteOfDay /></div></section>
-      </div>
+      {s.roster}
       <details className="kmore">
         <summary>More on your court <span className="note">Technicals · This week · Week ahead · Economic calendar · News · Brief tabs · Watchlist scan with prices</span></summary>
         <div className="kmore-grid">{s.tech}{s.weekStrip}{s.weekAhead}{s.econ}{s.news}{s.brief}{s.scan}</div>
@@ -117,46 +112,32 @@ function TodayCard({ weather, more }: { weather: React.ReactNode; more: React.Re
   );
 }
 
-// "Do" / "Don't" lines only when the astro calendar's own text has them; never written here.
-const DO_RE = /^\s*(?:[-*•]\s*)?(do|don['’]?t|avoid)\b\s*[:\-–]\s*(.+)$/i;
-function doLines(desc?: string) {
-  if (!desc) return [];
-  return desc.split(/\r?\n/).map((l) => l.match(DO_RE)).filter((m): m is RegExpMatchArray => !!m)
-    .map((m) => ({ neg: !/^do$/i.test(m[1]), t: m[2].trim() })).slice(0, 4);
-}
-
-// Luna's forecast: Luna's own calculation for the headline, and up to three of today's astro calendar
-// entries, quoted as written with their source. Full sky lives on the Observatory page.
+// Luna's forecast (owner's brief): for each of today's astro calendar entries, the transit lines in small
+// type, then "DOs:" and "DON'Ts:" exactly as the calendar text has them (a line it lacks is left out), a small
+// source tag and Read more for the full original text. Nothing here is written by the app.
 function AstroForecast() {
   const { k, events, cal } = useCourt();
-  const { pos, phase } = useSky();
   const today = eventsOn(events, k, true).filter((e) => isAstro(e));
-  const src = today[0]?.cal;
-  const retro = pos.filter((p) => p.retro).map((p) => p.b);
   return (
     <section className="win kastro" aria-labelledby="kastroT">
       <div className="win-title"><h2 id="kastroT">Luna&apos;s forecast</h2><a className="sub" href="#observatory">Full sky →</a></div>
       <div className="win-body">
-        <p className="kastro-h">☽ {phase.name} · Moon in {pos[1].sign}{retro.length ? ` · ${retro.join(", ")} retrograde` : ""}</p>
-        <p className="note">Calculated by Luna.</p>
         {cal.state === "loading" ? <p className="note">Astro calendar loading…</p>
-          : cal.state !== "live" ? <p className="note">Astro calendar not reachable, so only Luna&apos;s calculation shows.</p>
-          : today.length ? <>
-            <div className="kastro-evs">
-              {today.slice(0, 3).map((e, i) => {
-                const dos = doLines(e.desc);
-                return (
-                  <div className="kastro-ev" key={i}>
-                    <b>{e.t}</b>{!e.allDay && <span className="note"> · {hm(e.a)}–{hm(e.b)} SGT</span>}
-                    {dos.length > 0 && <ul className="kdo">{dos.map((d, j) => <li key={j} className={d.neg ? "neg" : "pos"}><b>{d.neg ? "Don’t" : "Do"}</b> {d.t}</li>)}</ul>}
-                    {e.desc && <details className="kfold"><summary>Read more</summary><AstroText text={e.desc} /></details>}
-                  </div>
-                );
-              })}
-            </div>
-            {today.length > 3 && <a className="note" href="#observatory">{today.length - 3} more on the Observatory</a>}
-            <p className="note">From your astro calendar{src ? ` (${src})` : ""}, quoted as written. Timing context only, never trade calls.</p>
-          </> : <p className="note">No astro calendar entries today.</p>}
+          : cal.state !== "live" ? <p className="note">Astro calendar not reachable right now.</p>
+          : today.length ? today.slice(0, 2).map((e, i) => {
+            const p = astroParts(e.desc);
+            return (
+              <div className="kastro-ev" key={i}>
+                {p.transits.length > 0 && <p className="kastro-tr">{p.transits.join(" · ")}</p>}
+                {p.dos && <p className="kdo pos"><b>DOs:</b> {p.dos}</p>}
+                {p.donts && <p className="kdo neg"><b>DON&apos;Ts:</b> {p.donts}</p>}
+                <div className="kastro-foot">
+                  <span className="kastro-src">astro calendar{p.source ? ` · © ${p.source}` : ""}</span>
+                  {p.full && <details className="kfold"><summary>Read more</summary><blockquote className="adesc">{p.full}</blockquote></details>}
+                </div>
+              </div>
+            );
+          }) : <p className="note">No astro calendar entries today.</p>}
       </div>
     </section>
   );

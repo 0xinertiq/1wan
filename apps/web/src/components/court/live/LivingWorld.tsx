@@ -9,6 +9,7 @@ import { crewDuty } from "@/lib/court/duty";
 import type { WaterEvt } from "@/lib/court/garden";
 import { getOnce } from "@/lib/court/once";
 import { greetWord, prettyDay } from "@/lib/court/time";
+import { quoteOfDay } from "@/lib/court/quotes";
 import { useCourt } from "../CourtState";
 
 // The Living World (COURT_SPEC Part 1 and 4): the code-drawn pixel kingdom at the top of the New-look Court.
@@ -26,7 +27,8 @@ const CREW = ["olli", "pip", "fenn", "tilly", "luna", "momo", "coco", "poppy", "
 export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string>> }) {
   const { st, k, nm } = useCourt();
   const box = useRef<HTMLDivElement>(null), cvRef = useRef<HTMLCanvasElement>(null);
-  const [size, setSize] = useState<{ W: number; H: number; s: number } | null>(null);
+  const [size, setSize] = useState<{ W: number; H: number; s: number; px: number } | null>(null);
+  const [qOpen, setQOpen] = useState(false);
   const [wx, setWx] = useState<{ now: number | null; sky?: string } | null>(null);
   const [water, setWater] = useState<WaterEvt[]>([]);
   useEffect(() => { fetch("/api/weather").then((r) => r.json()).then(setWx).catch(() => setWx({ now: null })); }, []);
@@ -35,7 +37,7 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
   // Integer pixel scale: 2 on desktop and tablet, 1 on the phone strip.
   useEffect(() => {
     const el = box.current; if (!el) return;
-    const ro = new ResizeObserver(() => { const w = el.clientWidth, h = el.clientHeight, s = h >= 280 ? 2 : 1; setSize({ W: Math.ceil(w / s), H: Math.floor(h / s), s }); });
+    const ro = new ResizeObserver(() => { const w = el.clientWidth, h = el.clientHeight, s = h >= 280 ? 2 : 1; setSize({ W: Math.ceil(w / s), H: Math.floor(h / s), s, px: Math.round(h * (s === 2 ? 0.085 : 0.15)) }); });
     ro.observe(el); return () => ro.disconnect();
   }, []);
 
@@ -60,14 +62,16 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
   const duty = crewDuty({ k, filed, water, st, sky: true });
   const at = CREW.filter((id) => duty[id]?.on).length;
   const g = size ? geometry(size.W, size.H) : null;
-  // Crew spots: at their place when working, otherwise in a row at the castle gate.
-  const spot = (id: string, i: number): [number, number] => {
-    if (!g) return [0, 0];
+  // Crew spots in CSS pixels: at their place when their desk has run today (side by side, a sprite apart),
+  // otherwise inside the castle (hidden at the gate), as in the Cloud Court. Kumo waits at the gate.
+  const spot = (id: string): { x: number; y: number; on: boolean } => {
+    if (!g || !size) return { x: 0, y: 0, on: false };
     const place = Object.entries(CREW_AT).find(([, ids]) => ids.includes(id))?.[0];
     const p = g.places.find((x) => x.id === place);
-    if (duty[id]?.on && p) { const j = CREW_AT[place!].filter((x) => duty[x]?.on).indexOf(id); return [p.desk[0] + j * 9, p.desk[1]]; }
-    return [g.cx - 36 + i * 9, g.gy + 26];
+    if (duty[id]?.on && p) { const mates = CREW_AT[place!].filter((x) => duty[x]?.on), j = mates.indexOf(id); return { x: p.desk[0] * size.s + (j - (mates.length - 1) / 2) * size.px * 0.9, y: p.desk[1] * size.s, on: true }; }
+    return { x: g.cx * size.s, y: (g.gy - 6) * size.s, on: false };
   };
+  const quote = quoteOfDay(k, st.uq);
 
   return (
     <section className="lw" aria-label="Your kingdom">
@@ -80,10 +84,13 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
         ))}
         {g && size && (
           <>
-            <span className="lw-crew lw-kumo" style={{ left: (g.cx + 4) * size.s, top: (g.gy + 26) * size.s }} title="Chief Kumo"><PixelSprite name="kumo" /></span>
-            {CREW.map((id, i) => {
-              const [x, y] = spot(id, i);
-              return <span key={id} className={"lw-crew" + (duty[id]?.on ? " on" : "")} style={{ left: x * size.s, top: y * size.s }} title={`${id[0].toUpperCase() + id.slice(1)}: ${duty[id]?.why ?? ""}`}><PixelSprite name={id as SpriteName} /></span>;
+            <span className="lw-crew lw-kumo" style={{ left: (g.cx - 44) * size.s, top: (g.gy + 24) * size.s, width: size.px, height: size.px }} title="Chief Kumo"><PixelSprite name="kumo" /></span>
+            <button type="button" className={"lw-say" + (qOpen ? " open" : "")} style={{ left: (g.cx - 44) * size.s, top: (g.gy + 24) * size.s + 8 }} aria-expanded={qOpen} onClick={() => setQOpen(!qOpen)} title="Quote of the day">
+              <span className="lw-say-k">Kumo</span> {quote}
+            </button>
+            {CREW.map((id) => {
+              const p = spot(id);
+              return <span key={id} className={"lw-crew" + (p.on ? " on" : " in")} style={{ left: p.x, top: p.y, width: size.px, height: size.px }} title={`${id[0].toUpperCase() + id.slice(1)}: ${duty[id]?.why ?? ""}`} aria-hidden={!p.on}><PixelSprite name={id as SpriteName} /></span>;
             })}
           </>
         )}
@@ -101,8 +108,8 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
   );
 }
 
-// Slim live prices bar under the world: BTC, SOL, then the scan's tickers, with the data time. Existing
-// price data only (the same feed as the scan window).
+// Slim live prices bar under the world: one line (BTC, SOL, then the scan's tickers) with the data time.
+// It never wraps; extra tickers scroll sideways. Existing price data only.
 export function PricesStrip() {
   const { prices } = useCourt();
   const fmt = (n: number) => (n >= 1000 ? n.toLocaleString("en-US", { maximumFractionDigits: 0 }) : n >= 1 ? n.toFixed(2) : n.toPrecision(3));
@@ -113,38 +120,30 @@ export function PricesStrip() {
   const asOf = new Date(Date.parse(prices.at) + 8 * 3600000).toISOString().slice(11, 16);
   return (
     <div className="kprices" aria-label="Live prices">
-      <ul>{list.map((p) => <li key={p.sym}><b>{p.sym}</b> {fmt(p.usd)} <i className={p.ch24 != null && p.ch24 < 0 ? "dn" : "up"}>{pct(p.ch24)}</i></li>)}</ul>
-      <span className="note">as of {asOf}{prices.stale ? " · stale" : ""}</span>
+      <ul tabIndex={0}>{list.map((p) => <li key={p.sym}><b>{p.sym}</b> {fmt(p.usd)} <i className={p.ch24 != null && p.ch24 < 0 ? "dn" : "up"}>{pct(p.ch24)}</i></li>)}</ul>
+      <span className="kprices-at">as of {asOf}{prices.stale ? " · stale" : ""}</span>
     </div>
   );
 }
 
-// Crew roster (quiet third row): who is on duty and what each desk has done today, from the same duty rules.
+// Crew roster: one quiet line under the two columns (sprite, name, what the desk has done today), from the
+// same duty rules as the world. Scrolls sideways on the phone.
 export function CrewRoster({ filed }: { filed: Partial<Record<BriefKind, string>> }) {
   const { st, k } = useCourt();
   const [water, setWater] = useState<WaterEvt[]>([]);
   useEffect(() => { getOnce<{ events?: WaterEvt[] }>("/api/water?days=1").then((j) => setWater(Array.isArray(j.events) ? j.events : [])).catch(() => {}); }, []);
   const duty = crewDuty({ k, filed, water, st, sky: true });
   return (
-    <section className="win kroster" aria-labelledby="krT">
-      <div className="win-title"><h2 id="krT">Crew roster</h2><span className="sub">{CREW.filter((id) => duty[id]?.on).length} of {CREW.length} on duty</span></div>
-      <ul className="win-body kroster-list">
+    <section className="kroster" aria-label="Crew roster">
+      <ul tabIndex={0}>
         {CREW.map((id) => (
           <li key={id} className={duty[id]?.on ? "on" : ""}>
             <span className="kroster-px"><PixelSprite name={id as SpriteName} /></span>
             <b>{id[0].toUpperCase() + id.slice(1)}</b>
-            <span className="note">{duty[id]?.why}</span>
+            <span>{duty[id]?.why}</span>
           </li>
         ))}
       </ul>
     </section>
   );
-}
-
-// Kingdom growth line under the status (read-only, cosmetic): current stage and the next one.
-export function KingdomStage() {
-  const { st } = useCourt();
-  const s = stageFor(st.lvl);
-  const next = [2, 5, 7, 10].find((l) => l > st.lvl);
-  return <p className="note kstage">{s.name}{next ? ` · the kingdom grows again at level ${next}` : " · fully grown"}. Cosmetic only; nothing is ever locked.</p>;
 }

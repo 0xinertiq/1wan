@@ -5,6 +5,10 @@ import { earned } from "@/lib/court/tails";
 import { useCourt } from "../CourtState";
 import { LCATS, LEADS, money, ruleText, type LifeRule } from "@/lib/court/state";
 import { prettyDay } from "@/lib/court/time";
+import { needFor } from "@/lib/court/quests";
+import { weekHab } from "@/lib/court/state";
+import { stageFor } from "@/components/kumo/kingdom";
+import { useUi } from "@/components/kumo/useUi";
 
 // Header numbers (streak, stars) from her state.
 export function HeaderStats() {
@@ -48,6 +52,24 @@ function LookSwitch() {
         <button type="button" className="chipb" aria-pressed={ui === "classic"} onClick={() => pick("classic")}>Classic</button>
       </div>
     </>
+  );
+}
+
+// The Queen's progress in the header (New look only): level, EXP, habits this week, and the save state the
+// old status card showed. Read-only. Classic keeps its status card.
+export function HeaderProgress() {
+  const ui = useUi();
+  const { st, k, save } = useCourt();
+  if (ui !== "new") return null;
+  const need = needFor(st.lvl), wh = weekHab(st, k), stage = stageFor(st.lvl);
+  const saveTxt = save === "saving" ? "Saving…" : save === "offline" ? "Not saved yet, retrying" : "All changes saved";
+  return (
+    <div className="hprog" title={`${stage.name}. Cosmetic only; nothing is ever locked.`}>
+      <span className="hprog-lv">LV <b>{st.lvl}</b></span>
+      <span className="hprog-bar" role="img" aria-label={`EXP ${st.xp} of ${need}`}><i style={{ width: Math.min(100, (st.xp / need) * 100) + "%" }} /></span>
+      <span className="hprog-hab" aria-label={`Habits this week ${wh.d} of ${wh.t}`}>habits {wh.d}/{wh.t}</span>
+      <span className={"hprog-save" + (save === "offline" ? " warn" : "")} role="status">{save === "offline" || save === "saving" ? saveTxt : <span className="sr">{saveTxt}</span>}</span>
+    </div>
   );
 }
 

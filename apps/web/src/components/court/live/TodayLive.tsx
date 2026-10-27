@@ -49,7 +49,7 @@ export function TodayLive({ bare = false }: { bare?: boolean }) {
         {!bare && <Strip />}
         <RecapBox />
         <div id="dayCard" className="daycard">
-          <NowCard noPick={bare} />
+          <NowCard />
           <MomoCard />
           <LifeCard />
         </div>
