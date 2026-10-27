@@ -11,6 +11,7 @@ import { loadBriefs, kindLabel, type BriefRow, type Vote } from "@/lib/briefs";
 import { BriefWin } from "@/components/court/Windows";
 import { NeedsNow, WeatherLine, WeekAhead, WeekStrip } from "@/components/court/live/CourtHome";
 import { CalendarTab } from "@/components/court/live/CalendarTab";
+import { LunaSky } from "@/components/court/live/LunaSky";
 import { AppTabs } from "@/components/court/AppTabs";
 import { LifeTabs } from "@/components/court/LifeTabs";
 import { StatusLine, type Latest } from "@/components/court/StatusLine";
@@ -93,6 +94,7 @@ export default async function Dashboard() {
               <div className="col c-m">
                 <Stage />
                 <StatusLine latest={latest} />
+                <LunaSky />
                 <BriefWin docs={docs} initial={initial} />
                 <ScanWin doc={scanDoc} />
                 <WeekStrip />

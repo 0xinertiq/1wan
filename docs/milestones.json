@@ -111,15 +111,16 @@
    "id": "s11",
    "group": "Build",
    "title": "11. Luna's sky, astro calendar, nine tails",
-   "status": "next",
+   "status": "done",
    "expect": "Astro weather on the Court, cross-check with your astro calendar, Kumo's tails.",
-   "you_do": "Enter birth details privately in Settings."
+   "you_do": "Optional: enter birth date, time and city in Settings (private).",
+   "note": "Luna's computed sky (positions, retrogrades, moon, 14-day stations, ingresses, eclipses), your astro calendar's own words with a cross-check, transits to your chart once birth details are in, Kumo's nine tails."
   },
   {
    "id": "s12",
    "group": "Build",
    "title": "12. Wrap-up and status",
-   "status": "todo",
+   "status": "next",
    "expect": "One honest list of what is real and what is sample.",
    "you_do": ""
   },

@@ -11,6 +11,7 @@ import { kindLabel } from "@/lib/briefs";
 import { kindsOf, nextRun } from "@/lib/schedule";
 import { hm, prettyDay, sgt } from "@/lib/court/time";
 import { TAILS, earned, tailSvg } from "@/lib/court/tails";
+import { LunaSky } from "./live/LunaSky";
 
 // One overlay for the crew detail (tap a character on the Court) and Settings (header menu).
 // Crew detail shows role, latest output, last-updated time and next scheduled run, and nothing else.
@@ -40,6 +41,7 @@ function CrewDetail({ id, latest }: { id: string; latest: Latest }) {
         <dt>Next scheduled run</dt>
         <dd>{nx ? `${kindLabel(nx.run.kind)}, ${nx.label}` : "No scheduled task"}</dd>
       </dl>
+      {id === "luna" && <LunaSky />}
       {id === "kumo" && (() => {
         const on = earned(st, k), n = on.filter(Boolean).length, nx = TAILS.find((_, i) => !on[i]);
         return <div className="tailrow"><div dangerouslySetInnerHTML={{ __html: tailSvg(on) }} /><p className="note">Nine tails: {n} of 9.{nx ? ` Next, ${nx.n}: ${nx.h}.` : " All nine. Ascended."}</p></div>;

@@ -726,3 +726,7 @@ body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .cev{border-left:4px solid;padding-left:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cday .dots{display:flex;gap:2px}.cday .dots i{width:6px;height:6px;border-radius:50%}
 .cdetail{margin-top:10px}
+/* Luna */
+.lunacap{margin:0 0 6px}
+.chip-rx{display:inline-block;margin-left:4px;padding:0 5px;border:2px solid var(--line);border-radius:6px;background:#efe7ff;font-size:12px}
+.tailrow{text-align:center}

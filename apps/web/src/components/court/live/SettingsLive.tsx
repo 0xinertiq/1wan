@@ -64,6 +64,7 @@ export function SettingsLive({ open = false }: { open?: boolean }) {
         <div className="sec-h">Your data</div>
         <p className="note xd">Everything here is private to you. Download a full copy any time.</p>
         <div className="rep-act"><a className="btn sm ghost" href="/api/export">Export my data</a></div>
+        <BirthForm />
         <div className="sec-h">Life admin</div>
         <p className="note xd">Coco keeps bills, care and renewals. Momo slots them into free time.</p>
         <div id="lifeList">
@@ -108,5 +109,42 @@ export function SettingsLive({ open = false }: { open?: boolean }) {
         </form>
       </div>
     </details>
+  );
+}
+
+// Birth details for Luna's natal chart. Private: stored only in her own state, never in shared tables,
+// briefs, git or logs. Only the place name is sent to the place search.
+function BirthForm() {
+  const { st, update } = useCourt();
+  const b = st.birth;
+  const [f, setF] = useState({ date: b?.date ?? "", time: b?.time ?? "", q: b?.place ?? "" });
+  const [hits, setHits] = useState<{ label: string; lat: number; lon: number; tz: string }[]>([]);
+  const [msg, setMsg] = useState("");
+  const find = async () => {
+    const r = await fetch("/api/geocode?q=" + encodeURIComponent(f.q)).then((x) => x.json()).catch(() => ({ results: [] }));
+    setHits(r.results ?? []); if (!r.results?.length) setMsg("No place found. Try the city name only.");
+  };
+  const save = (h: { label: string; lat: number; lon: number; tz: string }) => {
+    if (!f.date) return setMsg("Add the birth date first.");
+    update((d) => { d.birth = { date: f.date, time: f.time, place: h.label, lat: h.lat, lon: h.lon, tz: h.tz }; }, ["birth"]);
+    setHits([]); setF({ ...f, q: h.label }); setMsg("Saved privately. Luna now reads transits to your chart.");
+  };
+  return (
+    <>
+      <div className="sec-h">Birth details (private)</div>
+      <p className="note xd">For Luna&apos;s natal chart only. Kept in your own data; never shown to friends or put in shared briefs.</p>
+      <div className="field-row">
+        <input type="date" aria-label="Birth date" value={f.date} onChange={(e) => setF({ ...f, date: e.target.value })} />
+        <input type="time" aria-label="Birth time" value={f.time} onChange={(e) => setF({ ...f, time: e.target.value })} />
+      </div>
+      <div className="field-row">
+        <input type="text" maxLength={60} placeholder="Birth city" aria-label="Birth city" value={f.q} onChange={(e) => setF({ ...f, q: e.target.value })} />
+        <button className="btn sm" type="button" onClick={find}>Find</button>
+        {b && <button className="btn sm ghost" type="button" onClick={() => { update((d) => { d.birth = null; }, ["birth"]); setMsg("Removed."); }}>Remove</button>}
+      </div>
+      {hits.map((h) => <div className="filed-row" key={h.label + h.lat}><span>{h.label}</span><button className="btn sm" type="button" onClick={() => save(h)}>Use this</button></div>)}
+      {b && !hits.length && <p className="note">Saved: {b.date}{b.time ? " " + b.time : " (no time: houses use noon)"}, {b.place}.</p>}
+      {msg && <p className="note" role="status">{msg}</p>}
+    </>
   );
 }
