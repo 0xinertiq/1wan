@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { OWNED_KEYS } from "@/lib/court/state";
+import { mergePatch } from "@/lib/court/merge";
 
 export const dynamic = "force-dynamic";
 
@@ -20,9 +21,8 @@ export async function POST(req: Request) {
   let body: { version?: unknown; patch?: unknown };
   try { body = JSON.parse(raw); } catch { return NextResponse.json({ error: "Bad JSON" }, { status: 400 }); }
   const patch = body.patch;
-  if (!patch || typeof patch !== "object" || Array.isArray(patch)) return NextResponse.json({ error: "Missing patch" }, { status: 400 });
-  const bad = Object.keys(patch).filter((k) => !OWNED.has(k));
-  if (bad.length) return NextResponse.json({ error: "Keys not owned by this page: " + bad.join(", ") }, { status: 400 });
+  const check = mergePatch({}, patch, OWNED);
+  if (!check.ok) return NextResponse.json({ error: check.error }, { status: 400 });
 
   // Two tries: if another tab saved in between, merge onto the newer document and try again.
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -35,7 +35,9 @@ export async function POST(req: Request) {
       continue;
     }
 
-    const merged = { ...(row.data as Record<string, unknown>), ...(patch as Record<string, unknown>) };
+    const m = mergePatch(row.data, patch, OWNED);
+    if (!m.ok) return NextResponse.json({ error: m.error }, { status: 400 });
+    const merged = m.merged;
     const next = row.version + 1;
     const { data: upd, error: upErr } = await supabase
       .from("user_state")

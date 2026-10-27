@@ -8,3 +8,7 @@ dist/
 data-import/**
 !data-import/.gitkeep
 *.tsbuildinfo
+
+# Python bytecode
+__pycache__/
+*.pyc

@@ -2,22 +2,27 @@
 
 Updated as each build step lands. "Real" means it reads or saves her actual data or a live source.
 
-## Where things stand (27 Oct 2026, after build steps 1 to 12)
+## Where things stand (27 Oct 2026, after steps 1 to 12, 14, 15 and today's finishing slices)
 
-Real, on her own data:
-- Life > Money: her Money Wins formulas and lines (fund pace by pay day, net worth hidden by default, monthly cash flow with coming changes, coming up, goals, open items), quick spending log, routines r1 and r2 counted from records.
-- Life > Trade: her ledger's checklist, mistake tags and maths (R expectancy, win rate, freeze rate, thesis hit rate, liquidation-aware sizer), plans with the thesis fields, gamble log kept out of stats, stop vs daily ATR flags from Crypto.com candles.
-- Life > Grid & Wins: the 64 actionables, Small Wins and Money Wins Q4 ladders with her ticks. Life > Samsara: weekly study, thesis count from plans, X posts and replies, milestones.
-- Garden: eight branches from the grid pillars, trunk from daily anchors, decay from real activity only, gentle nudges, weed out. Old typed habits and weeds kept read-only in the Diary archive.
-- Diary and the guided "count your wins" sheet (opens at 21:30). Court: needs you now, Singapore weather, week strip, week ahead. Calendar: week, agenda, month, layers, free gaps, 90 days.
-- Luna: computed sky, 14-day events, astro calendar's own words with a cross-check; natal transits once she enters birth details. Kumo's nine tails.
-- Progress page at /progress, fed by docs/milestones.json.
+Real, on her own data or a live source:
+- Life > Trade: her ledger's checklist (the nine "Before you enter" checks in its exact wording), mistake tags and maths (R expectancy, win rate, freeze rate by month, stop kept, thesis hit rate, liquidation-aware sizer), plans with the thesis fields, gamble log kept out of stats, chart checks and stop vs ATR flags.
+- Life > Money, Grid & Wins, Samsara (study hours = study-tagged focus sprints plus hours added by hand).
+- Garden with decay from real watering events; Diary and the guided "count your wins" sheet.
+- Court: needs you now, weather, week strip, week ahead, brief cards with a rules-only "3 things that matter" on top, technicals, economic calendar, clustered headlines, Telegram public channels, in-app alerts, focus sprint card.
+- Court stage: sky colour from the real sun height over Singapore, moon with its true phase and position; crew stand at their desks only after their real work for today exists.
+- Calendar: week, agenda, month, free gaps, layers (money, plan timeframes, thesis slot, Luna's sky, macro releases, grid dates from real dates in the item text only).
+- Luna's sky and astro calendar cross-check; Kumo's nine tails; weekly review packet with Copy for Claude and the protected read endpoint.
+- Usage table: one row per filed brief, weekly packet read and Copy for Claude (tokens estimated from text length; no AI runs in the app).
+- Progress page at /progress, fed by docs/milestones.json. Tests: npm test in apps/web (25 pass), including a check that every user table has row-level security and an own-rows policy.
 
-Sample or not yet built:
+Sample, waiting or not built:
 - Plans cannot store a stop until migration 0005 runs (manual steps H).
-- Court stage sky colour follows the clock only; crew do not yet stand where their work is; brief card has no "3 things" summary.
-- Study hours from tagged focus sprints (sprints carry no tag yet); grid dates layer in Calendar (grid timings are free text).
-- Steps 13 (Ask Kumo, needs an API key), 14 (weekly packet) and 15 (news and intelligence) are not started.
+- /api/export/weekly answers only once READ_SECRET is in Vercel (manual steps J).
+- Scheduled tasks still write to the old dashboard (docs/build-repoint.md); briefs in the app are the imported ones until they are repointed.
+- Tilly stays in the palace: no research feed exists yet.
+- Telegram private channels (lane B) wait for her credentials. Live chat (step 13) was removed by her on 27 Oct.
+
+Safety review (27 Oct): every dangerouslySetInnerHTML checked. Brief text goes through mdLite, which escapes all text before adding its own tags and only links http(s) addresses; the summary is plain text. The two SVG builders (bonsai, tails) only insert numbers and fixed strings; the theme script and sprite defs are constants. Feed links are limited to http(s) before rendering.
 
 Private data rules kept: her item wording and money lines live in her user_state key defs (imported by scripts/extract_defs.js), never in git; birth details only in her own state.
 
