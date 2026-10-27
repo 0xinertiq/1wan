@@ -3,7 +3,7 @@
 Read CLAUDE.md first and obey it. Work in order, commit and push after each step (`npm run build` first), no screenshots, no questions between steps unless something is irreversible. Collect everything she must do by hand into ONE click-by-click checklist at the end (`docs/manual-steps.md`).
 
 ## Source files (private, git-ignored, never commit, never print contents)
-`data-import/trackers/` holds her four existing claude.ai artifacts, as page source plus saved data:
+`data-import/trackers/` (files are inside `trackers-pack/`) holds her four existing claude.ai artifacts, as page source plus saved data:
 - `money-wins/index.html` (Money Wins Ladder; state is the JSON in `<script id="state">`)
 - `small-wins/index.html` (Small Wins Ladder; daily log and ticks in `<script id="state">`)
 - `swing-trade-ledger/` (page + `db/` JSON for trades, gamble, settings, wallets; plans is empty)

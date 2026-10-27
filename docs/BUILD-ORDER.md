@@ -4,7 +4,7 @@ Start every session with: read CLAUDE.md, docs/BUILD-ORDER.md and docs/progress.
 
 ## Rules for saving credits and keeping things safe
 - One step at a time: build, `npm run build`, commit, push, tick it in docs/progress.md with one line (date, step, what works, what is sample), then go straight to the next step. Do not ask between steps unless something is irreversible.
-- Do not read data-import files in full; search with grep or load only the keys you need. Never print their contents.
+- Tracker files: the owner explicitly allows you to READ the files in data-import/trackers/ (they sit inside data-import/trackers/trackers-pack/) for their JavaScript logic, item ids and item wording only. Use that to port formulas and the 64 grid cells, the Small Wins ladder, Money Wins Q4 milestones and Samsara milestones exactly. Never print or paste her figures, balances, trades, diary text or birth details into chat, logs, commits or git; item labels and formulas go into code, her numbers do not. If a permission guard still blocks a read, stop and tell her the exact one-line permission to type.
 - Never run broad process-kill commands (no taskkill by image name, no killall). Stop only the dev server you started.
 - No screenshots, no long retry loops. If something fails twice, note it in docs/progress.md under "Blocked" and move on.
 - Stop after the last step and print: what works, what is sample only, what is blocked, and one click-by-click checklist for the user (docs/manual-steps.md). She is a beginner.
