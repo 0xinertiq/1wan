@@ -4,8 +4,9 @@ import { useState } from "react";
 import { MoneyLive } from "./live/MoneyLive";
 import { TradeLive } from "./live/TradeLive";
 import { GridWins } from "./live/GridWins";
+import { SamsaraLive } from "./live/SamsaraLive";
 
-// Life area: four sub-tabs only (docs/build-trackers.md). Each screen arrives in its own build step.
+// Life area: four sub-tabs only (docs/build-trackers.md).
 const SUBS = [
   { id: "money", label: "Money", step: 3 },
   { id: "trade", label: "Trade", step: 4 },
@@ -15,6 +16,8 @@ const SUBS = [
 
 export function LifeTabs() {
   const [sub, setSub] = useState<(typeof SUBS)[number]["id"]>("money");
+  // Samsara's "Write a thesis" opens the one plan form in Trade (no second form).
+  const writeThesis = () => { setSub("trade"); history.replaceState(null, "", location.pathname + location.search); setTimeout(() => { location.hash = "write-thesis"; }, 0); };
   return (
     <section className="win" id="lifeWin" aria-labelledby="lifeT">
       <div className="win-title"><h2 id="lifeT">Life</h2></div>
@@ -28,7 +31,7 @@ export function LifeTabs() {
         </div>
         {SUBS.map((s) => (
           <div key={s.id} className="panel" id={`lp-${s.id}`} role="tabpanel" aria-labelledby={`lt-${s.id}`} hidden={sub !== s.id}>
-            {s.id === "money" ? <MoneyLive /> : s.id === "trade" ? <TradeLive /> : s.id === "grid" ? <GridWins /> : <p className="note">{s.label} is not built yet. It arrives in build step {s.step}.</p>}
+            {s.id === "money" ? <MoneyLive /> : s.id === "trade" ? <TradeLive /> : s.id === "grid" ? <GridWins /> : <SamsaraLive onWriteThesis={writeThesis} />}
           </div>
         ))}
       </div>

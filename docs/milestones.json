@@ -66,15 +66,16 @@
    "id": "s6",
    "group": "Build",
    "title": "6. Life > Samsara",
-   "status": "next",
+   "status": "done",
    "expect": "Weekly study hours, thesis count, posts, course milestones.",
-   "you_do": ""
+   "you_do": "",
+   "note": "Weekly study, thesis count from your Trade plans, X posts and replies, course milestones and monthly reviews."
   },
   {
    "id": "s7",
    "group": "Build",
    "title": "7. Garden decay and new quests",
-   "status": "todo",
+   "status": "next",
    "expect": "Branches wilt when neglected, die at 8 days, weed out and regrow.",
    "you_do": ""
   },
