@@ -3,7 +3,7 @@ import { DECOR_PAL } from "./decor/types";
 
 // Draws one decoration from its def: a commissioned file if set, otherwise the code-drawn pixel rows
 // (runs of one colour merged into a single rect, crisp edges, so it scales nearest-neighbour).
-export function Decor({ id, className, label, style }: { id: string; className?: string; label?: string; style?: React.CSSProperties }) {
+export function DecorSprite({ id, className, label, style }: { id: string; className?: string; label?: string; style?: React.CSSProperties }) {
   const d = DECOR[id];
   if (!d) return null;
   const aria = label ? { role: "img", "aria-label": label } : { "aria-hidden": true as const };

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useCourt } from "../CourtState";
 import { eventsOn, isAstro } from "@/lib/court/state";
 import { addDays, hm, prettyDay } from "@/lib/court/time";
-import { Decor } from "@/components/kumo/DecorSprite";
+import { DecorSprite } from "@/components/kumo/DecorSprite";
 import { AstroText } from "./AstroText";
 import { GLYPH, SIGNS, birthMoment, fmtDeg, houses, moonPhase, positions, signOf, skyEvents, transits, lonOf, type BodyName, type SkyEvent } from "@/lib/sky";
 
@@ -115,8 +115,8 @@ function ObsBanner() {
   return (
     <div className="obanner" aria-hidden="true">
       <div className="obanner-scene" />
-      {STARS.map(([x, y], i) => <Decor key={i} id="star" className="obanner-star" style={{ left: x + "%", top: y + "%", animationDelay: (i % 4) * 0.7 + "s" }} />)}
-      <Decor id="moon" className="obanner-moon" />
+      {STARS.map(([x, y], i) => <DecorSprite key={i} id="star" className="obanner-star" style={{ left: x + "%", top: y + "%", animationDelay: (i % 4) * 0.7 + "s" }} />)}
+      <DecorSprite id="moon" className="obanner-moon" />
       <span className="obanner-tag">Prototype art</span>
     </div>
   );

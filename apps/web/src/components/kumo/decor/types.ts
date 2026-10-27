@@ -12,8 +12,8 @@ export type DecorDef = {
 };
 
 // Pixel row letters: X plum outline, o cream fill, s soft shade, c blush cheek, g gold accent,
-// p sakura pink, l leaf, b bark, w water. "." is empty.
+// p sakura pink, q deeper pink, l leaf, b bark, d soil, r stone, w water. "." is empty.
 export const DECOR_PAL: Record<string, string> = {
   X: "#4a2538", o: "#FFF6E3", s: "#F3E2C4", c: "#FF9DBF", g: "#FFD95E",
-  p: "#FFB3D1", l: "#9BD8AE", b: "#A9776B", w: "#AFCBFF",
+  p: "#FFB3D1", q: "#F48FB8", l: "#9BD8AE", b: "#A9776B", d: "#D9B59C", r: "#D8CFE0", w: "#AFCBFF",
 };

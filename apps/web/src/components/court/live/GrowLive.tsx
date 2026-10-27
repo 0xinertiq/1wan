@@ -12,7 +12,8 @@ import {
   type CourtState, type SeedInfo,
 } from "@/lib/court/state";
 import { addDays, prettyDay, weekKey, dayIdx } from "@/lib/court/time";
-import { branches, needsCare, type WaterEvt } from "@/lib/court/garden";
+import { branches, needsCare, type Branch, type WaterEvt } from "@/lib/court/garden";
+import { DecorSprite } from "@/components/kumo/DecorSprite";
 import { NUDGE } from "@/lib/gardenMap";
 import { water } from "@/lib/court/water";
 import { TAILS, earned } from "@/lib/court/tails";
@@ -190,6 +191,7 @@ export function GardenLive() {
 
   return (
     <div id="gardenBox">
+      <GardenScene list={list} />
       <div className="tcard garden">
         <h3><Mini name="coco" />Sakura Garden <span className="cnj">灵园</span></h3>
         <p className="gtag">Eight branches, one per grid pillar. Real activity waters them; each ticked actionable opens a blossom that stays.</p>
@@ -465,3 +467,34 @@ export function StatusLive() {
 }
 
 export { QUESTS };
+
+// New look only (hidden in Classic): the garden as a scene. Backdrop = asset pack layers; the decorations and
+// the eight branch trees are code-drawn pixel art (prototype). Each tree's stage uses the same blossom count
+// as the bonsai above (0 to 4); nothing here writes anything.
+function GardenScene({ list }: { list: Branch[] }) {
+  return (
+    <section className="gscene" aria-label="Garden scene">
+      <div className="gscene-view" aria-hidden="true">
+        <div className="gscene-bg" />
+        <DecorSprite id="lantern" className="gdec gdec-l" />
+        <DecorSprite id="flowers" className="gdec gdec-f1" />
+        <DecorSprite id="mushroom" className="gdec gdec-m" />
+        <DecorSprite id="flowers" className="gdec gdec-f2" />
+        <DecorSprite id="lantern" className="gdec gdec-r" />
+        <span className="gscene-tag">Prototype art</span>
+      </div>
+      <ol className="gtrees">
+        {list.map((b) => {
+          const stage = Math.min(4, Math.ceil(b.blossoms / 2));
+          return (
+            <li key={b.n} className={"gtree gt-" + b.stage}>
+              <DecorSprite id={"sakura_" + stage} className="gtree-art" />
+              <b>{b.name}</b>
+              <span className="note">{b.blossoms}/8 · {b.stage}</span>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  );
+}

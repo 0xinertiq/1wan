@@ -9,7 +9,8 @@ Branch: `kumo/aesthetic-overhaul`. Design package lives in `docs/` (not `docs/ku
 | B. Primitives + nav | done, live | 40e3127 | Nav bar and rail restyled (still 5 tabs), empty states, 44px touch targets. Docs task (prompts) shipped with this deploy. |
 | C. Court home | done, live | 98b4557 | New look only: kingdom banner (asset-pack layers 01-07, Kumo sprite), Today Now/Next/Later from the calendar, Luna's astro weather card (existing feed + Luna's calculation, quoted, no invented guidance), Quick capture (same list as Park a thought). All older windows remain below. |
 | D. Luna Astro Weather | done, live | e307f85 | Already existed (astro feed + Luna's calculation): restyled only. New look: moonlit banner (pack layers recoloured, code-drawn moon and stars, labelled prototype), 7 day folds in SGT with quoted text, source line, and Luna's calculated events kept apart. Decoration system started (decor/, one file per item). |
-| E1. Calendar | done | (this commit) | CSS only: segmented view switch, soft day cells, pink today, gold picked day, event pills, rounded rows. |
-| E. Pages (rest) | todo | | Garden, Diary, Life Hub, Notifications, Settings, Onboarding |
+| E1. Calendar | done, live | 5999543 | CSS only: segmented view switch, soft day cells, pink today, gold picked day, event pills, rounded rows. |
+| E2. Sakura Garden | done | (this commit) | New look: garden scene (pack backdrop + pixel lantern, flowers, mushroom), eight branch trees at stage 0-4 from the same blossom count as the bonsai (read-only). Garden logic untouched. |
+| E. Pages (rest) | todo | | Diary, Life Hub, Notifications, Settings, Onboarding |
 | F. Kingdom preview | todo | | |
 | G. Mobile + a11y | todo | | |
