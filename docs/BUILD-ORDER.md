@@ -29,9 +29,8 @@ If she has already done a step, docs/progress.md says so. Never redo finished st
 
 15. News and intelligence layer: docs/build-intel.md (more global sources, economic calendar, dedupe and clustering, source health, in-app alerts, market data context) plus Telegram: docs/build-telegram.md (lane A public channels first; lane B private channels only after she supplies credentials). Do it after step 12, before optional step 13.
 
-## Optional step 13 (only if AI_API_KEY exists in apps/web/.env.local, otherwise skip it silently)
-Provider-agnostic: use an OpenAI-compatible chat call configured only by env vars AI_BASE_URL, AI_MODEL, AI_API_KEY, AI_MONTHLY_CAP_USD (also support the Anthropic API when AI_PROVIDER=anthropic). Never hard-code a provider. Send only short computed summaries, never the diary, birth details, names or account figures beyond what the question needs.
-"Ask Kumo" live chat, her account only. Server-side route; the key never reaches the browser or the logs. Cheap small model, prompt caching, short answers. Hard monthly spend cap read from env (default low); stop and show a calm message when reached. Log every call to the usage table (user, feature, tokens). Context = her own app data summaries (garden state, this week's calendar, ledger review numbers) sent per request, never her raw diary or birth details unless she opens a "include diary" toggle. Tracks and explains, never gives financial advice. Disabled for every other user (no free-form AI chat for friends).
+## Step 13 (live chat): REMOVED by the owner on 27 Oct 2026
+No live chat or AI key in the app. She talks to Claude directly. Do not build it. Do not add AI_API_KEY handling.
 
 ## Step 14: Kumo weekly review packet (no API cost, uses her Claude subscription)
 Build in two parts, nothing here needs a paid key.

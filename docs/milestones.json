@@ -135,15 +135,6 @@
    "note": "26 tested news sources with regions, clusters with scores, economic calendar (jobs, CPI, FOMC first), source health, in-app alerts, funding and open interest, Telegram public channels, technicals and trendlines. Private Telegram channels wait for your setup."
   },
   {
-   "id": "s13",
-   "group": "Optional",
-   "title": "13. Ask Kumo live chat (capped API key)",
-   "status": "todo",
-   "expect": "Only if you add a key. Hard monthly cap.",
-   "you_do": "Create a key and put it in .env.local and Vercel.",
-   "note": "Skipped for now: no AI_API_KEY in apps/web/.env.local."
-  },
-  {
    "id": "s14",
    "group": "Optional",
    "title": "14. Kumo weekly review packet",
@@ -155,10 +146,10 @@
   {
    "id": "l1",
    "group": "Later",
-   "title": "Repoint the 6 scheduled tasks to the new site",
-   "status": "todo",
-   "expect": "Briefs write to 1(WAN) instead of the old artifact.",
-   "you_do": "Approve a throwaway test first."
+   "title": "Repoint the 6 scheduled tasks to the new site (phase 1: extra post; phase 2: learning loop)",
+   "status": "next",
+   "expect": "Briefs also appear in 1(WAN); your ratings reach the desks.",
+   "you_do": "Add one network secret in your cloud environment (guide given), then approve the throwaway test."
   },
   {
    "id": "l2",
