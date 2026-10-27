@@ -68,15 +68,43 @@ function useLineTouches() {
   return out;
 }
 
+// Alerts from section E: macro release in the next 2 hours, sources failing, a price move above her
+// threshold, fresh headlines on her watchlist. Quiet hours hold them; "Seen" hides one for the day.
+function useAlerts(): Need[] {
+  const { st, nm, prices } = useCourt();
+  const [econ, setEcon] = useState<{ at: string; title: string; country: string; top: boolean; impact: string }[]>([]);
+  const [news, setNews] = useState<{ title: string; link: string; at: string | null }[]>([]);
+  const [fails, setFails] = useState(0);
+  useEffect(() => {
+    getOnce<{ items?: typeof econ }>("/api/econ?days=30").then((j) => setEcon(j.items ?? []));
+    getOnce<{ items?: typeof news; feeds?: { ok: boolean }[] }>("/api/news").then((j) => { setNews(j.items ?? []); setFails((j.feeds ?? []).filter((f) => !f.ok).length); });
+  }, []);
+  const n = st.news, h = Math.floor(nm / 60);
+  const quiet = n.quietFrom != null && n.quietTo != null && (n.quietFrom <= n.quietTo ? h >= n.quietFrom && h < n.quietTo : h >= n.quietFrom || h < n.quietTo);
+  if (quiet) return [];
+  const out: Need[] = [];
+  for (const e of econ) { const m = (Date.parse(e.at) - Date.now()) / 60000; if (m > 0 && m <= 120 && (e.top || e.impact === "High")) out.push({ rank: 1, crew: "olli", t: `${e.country} ${e.title} in ${Math.round(m)} minutes.` }); }
+  if (n.movePct) for (const p of prices?.prices ?? []) if (p.ch24 != null && Math.abs(p.ch24) >= n.movePct) out.push({ rank: 2, crew: "dundun", t: `${p.sym} moved ${p.ch24 > 0 ? "+" : ""}${p.ch24.toFixed(1)}% in 24h (your alert is ${n.movePct}%).` });
+  const syms = (prices?.prices ?? []).map((p) => p.sym);
+  const hot = news.filter((x) => x.at && Date.now() - Date.parse(x.at) < 3 * 3600e3 && syms.some((s) => new RegExp("\\b" + s + "\\b").test(x.title)));
+  if (hot.length >= 2) out.push({ rank: 3, crew: "pip", t: `${hot.length} fresh headlines mention your watchlist, for example: ${hot[0].title.slice(0, 90)}`, go: "court" });
+  if (fails >= 4) out.push({ rank: 4, crew: "pip", t: `${fails} news sources are not reachable right now. See Settings, Source health.` });
+  return out;
+}
+
 export function NeedsNow() {
   const { st, k, nm, events } = useCourt();
   const { plans, evs } = useRecords();
   const touches = useLineTouches();
-  const list = [...needs(st, k, nm, events, plans, evs), ...touches].sort((a, b) => a.rank - b.rank);
+  const alerts = useAlerts();
+  const [seen, setSeen] = useState<string[]>([]);
+  useEffect(() => { try { setSeen(JSON.parse(localStorage.getItem("1wan-seen-" + k) ?? "[]")); } catch {} }, [k]);
+  const hide = (t: string) => { const x = [...seen, t]; setSeen(x); try { localStorage.setItem("1wan-seen-" + k, JSON.stringify(x)); } catch {} };
+  const list = [...needs(st, k, nm, events, plans, evs), ...touches, ...alerts].filter((x) => !seen.includes(x.t)).sort((a, b) => a.rank - b.rank);
   return (
     <Card id="needWin" title="Needs you now" sub={list.length ? `${Math.min(list.length, 3)} waiting` : "all clear"}>
       {list.length ? list.slice(0, 3).map((x, i) => (
-        <div className="filed-row" key={i}><Mini name={x.crew} /><span>{x.t}</span>{x.go && <a className="btn sm ghost" href={"#" + x.go}>Open</a>}</div>
+        <div className="filed-row" key={i}><Mini name={x.crew} /><span>{x.t}</span>{x.go && <a className="btn sm ghost" href={"#" + x.go}>Open</a>}<button className="btn sm ghost" type="button" onClick={() => hide(x.t)}>Seen</button></div>
       )) : <p className="note">Nothing needs you right now. Lovely.</p>}
     </Card>
   );

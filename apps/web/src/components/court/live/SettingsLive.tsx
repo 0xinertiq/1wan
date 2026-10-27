@@ -66,6 +66,8 @@ export function SettingsLive({ open = false }: { open?: boolean }) {
         <div className="rep-act"><a className="btn sm ghost" href="/api/export">Export my data</a></div>
         <BirthForm />
         <NewsSettings />
+        <NewsLens />
+        <SourceHealth />
         <div className="sec-h">Life admin</div>
         <p className="note xd">Coco keeps bills, care and renewals. Momo slots them into free time.</p>
         <div id="lifeList">
@@ -197,5 +199,45 @@ function NewsSettings() {
         {msg && <p className="note" role="status">{msg}</p>}
       </form>
     </>
+  );
+}
+
+// Region lens for Headlines and the in-app alert settings (price move threshold, quiet hours).
+const REGION_LIST = ["Global", "US", "Asia", "Singapore", "Crypto"];
+function NewsLens() {
+  const { st, update } = useCourt();
+  const n = st.news, on = n.regions.length ? n.regions : REGION_LIST;
+  const set = (patch: Partial<typeof n>) => update((d) => { d.news = { ...d.news, ...patch }; }, ["news"]);
+  return (
+    <>
+      <div className="sec-h">News: regions and alerts</div>
+      <div className="ntabs" role="group" aria-label="Regions">
+        {REGION_LIST.map((r) => <button key={r} type="button" className="chipb" aria-pressed={on.includes(r)} onClick={() => { const x = on.includes(r) ? on.filter((y) => y !== r) : [...on, r]; set({ regions: x.length === REGION_LIST.length ? [] : x }); }}>{r}</button>)}
+      </div>
+      <div className="field-row">
+        <label className="note">Alert when a watchlist coin moves more than <input type="number" min="1" max="50" step="0.5" style={{ width: 70 }} value={n.movePct ?? ""} placeholder="off" onChange={(e) => set({ movePct: e.target.value ? Math.max(1, +e.target.value) : null })} /> % in 24h</label>
+      </div>
+      <div className="field-row">
+        <label className="note">Quiet hours from <input type="number" min="0" max="23" style={{ width: 60 }} value={n.quietFrom ?? ""} placeholder="-" onChange={(e) => set({ quietFrom: e.target.value === "" ? null : +e.target.value })} /> to <input type="number" min="0" max="23" style={{ width: 60 }} value={n.quietTo ?? ""} placeholder="-" onChange={(e) => set({ quietTo: e.target.value === "" ? null : +e.target.value })} /> (hour, Singapore)</label>
+      </div>
+      <p className="note">Alerts appear only in Needs you now: releases in the next 2 hours, big stories on your watchlist, sources failing, and the price move above. No push, email or Telegram messages.</p>
+    </>
+  );
+}
+
+// Source health (docs/build-intel.md D): status per source and its last success.
+function SourceHealth() {
+  const [rows, setRows] = useState<{ group: string; name: string; status: string; lastOk: string | null; note: string }[] | null>(null);
+  const [open, setOpen] = useState(false);
+  useEffect(() => { if (open && !rows) fetch("/api/health").then((r) => r.json()).then((j) => setRows(j.rows ?? [])).catch(() => setRows([])); }, [open, rows]);
+  const bad = rows?.filter((r) => r.status !== "ok").length ?? 0;
+  const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString("en-SG", { timeZone: "Asia/Singapore", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "never");
+  return (
+    <details className="pillar" onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
+      <summary><b>Source health</b> <span className="note">{rows ? `${rows.length - bad} of ${rows.length} ok` : "tap to check"}</span></summary>
+      {!rows ? <p className="note">Checking...</p> : rows.map((r, i) => (
+        <div className="filed-row" key={i}><span>{r.name} <span className="note">{r.group} · last success {when(r.lastOk)}{r.note ? " · " + r.note : ""}</span></span><span className={"note st-" + (r.status === "ok" ? "ok" : "bad")}>{r.status.replace("_", " ")}</span></div>
+      ))}
+    </details>
   );
 }

@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { NEWS_GROUPS } from "@/lib/newsFeeds";
+import { COINGECKO_IDS } from "@/lib/prices";
+import { NEWS_GROUPS, REGIONS } from "@/lib/newsFeeds";
+import { cluster } from "@/lib/cluster";
+import { useCourt } from "./CourtState";
+import { useEcon } from "./live/EconLive";
 import type { NewsResult } from "@/lib/news";
 
 // Headlines window (v52 newsWin) from free RSS feeds. Works without Bigdata.
@@ -12,13 +16,14 @@ function ago(iso: string | null) {
   return m < 1 ? "just now" : m < 60 ? m + " min ago" : m < 1440 ? Math.round(m / 60) + "h ago" : Math.round(m / 1440) + "d ago";
 }
 
-// Rough story key for "also seen in N sources": first eight words, letters and digits only.
-const keyOf = (t: string) => t.toLowerCase().replace(/[^a-z0-9 ]+/g, " ").split(/\s+/).filter((w) => w.length > 2).slice(0, 8).join(" ");
 type Tg = { items: { channel: string; title: string; at: string | null; text: string; link: string }[]; health: { handle: string; ok: boolean }[]; at: string };
 
 export function NewsLive() {
   const [data, setData] = useState<NewsResult | null>(null);
   const [tg, setTg] = useState<Tg | null>(null);
+  const [why, setWhy] = useState("");
+  const { st, prices } = useCourt();
+  const econ = useEcon();
   const [failed, setFailed] = useState(false);
   const [tab, setTab] = useState("All");
   const [more, setMore] = useState(false);
@@ -43,13 +48,13 @@ export function NewsLive() {
     return () => { alive = false; window.clearInterval(t); document.removeEventListener("visibilitychange", focus); };
   }, []);
 
-  const tgItems = (tg?.items ?? []).map((m) => ({ title: m.text.split(String.fromCharCode(10))[0].slice(0, 220), source: m.title + " (Telegram)", group: "Telegram", at: m.at, link: m.link }));
-  const seen: Record<string, number> = {};
-  for (const h of [...(data?.items ?? []), ...tgItems]) { const k = keyOf(h.title); if (k) seen[k] = (seen[k] ?? 0) + 1; }
-  const all = [...(data?.items ?? []), ...tgItems].sort((a, b) => (b.at ?? "").localeCompare(a.at ?? ""));
-  const firstOf = new Set<string>();
-  const items = all.filter((h) => { const k = keyOf(h.title); if (!k) return true; if (firstOf.has(k)) return false; firstOf.add(k); return true; });
-  const list = tab === "All" ? items : items.filter((h) => h.group === tab);
+  const tgItems = (tg?.items ?? []).map((m) => ({ title: m.text.split(String.fromCharCode(10))[0].slice(0, 220), source: m.title + " (Telegram)", group: "Telegram", region: "Global", tier: "social" as const, at: m.at, link: m.link }));
+  const regions = st.news.regions.length ? st.news.regions : REGIONS;
+  const rss = (data?.items ?? []).filter((h) => regions.includes(h.region));
+  const watch = (prices?.prices ?? []).flatMap((p) => [p.sym, (COINGECKO_IDS[p.sym] ?? "").split("-")[0]]).filter(Boolean);
+  const clusters = cluster([...rss, ...tgItems], { watch, releases: (econ?.items ?? []).filter((e) => e.top).map((e) => e.title) });
+  const items = clusters;
+  const list = tab === "All" ? items : items.filter((c) => c.lead.group === tab);
   const shown = list.slice(0, more ? 40 : 8);
   const down = data?.feeds.filter((f) => !f.ok).map((f) => f.name) ?? [];
 
@@ -64,17 +69,18 @@ export function NewsLive() {
             <div className="ntabs" role="group" aria-label="Headline topics">
               {["All", ...NEWS_GROUPS, ...(tgItems.length ? ["Telegram"] : [])].map((g) => (
                 <button key={g} className="chipb" type="button" aria-pressed={tab === g} onClick={() => { setTab(g); setMore(false); }}>
-                  {g} {g === "All" ? items.length : items.filter((h) => h.group === g).length}
+                  {g} {g === "All" ? items.length : items.filter((c) => c.lead.group === g).length}
                 </button>
               ))}
             </div>
             {shown.length ? (
               <ul className="evl">
-                {shown.map((h) => (
-                  <li key={h.link}>
-                    <time>{ago(h.at)}</time>
-                    <span className="t"><a href={h.link} target="_blank" rel="noopener noreferrer">{h.title}</a></span>
-                    <small>{h.group} · {h.source}{(seen[keyOf(h.title)] ?? 0) > 1 ? ` · also seen in ${seen[keyOf(h.title)] - 1} more` : ""}</small>
+                {shown.map((c) => (
+                  <li key={c.lead.link}>
+                    <time>{ago(c.lead.at)}</time>
+                    <span className="t"><a href={c.lead.link} target="_blank" rel="noopener noreferrer">{c.lead.title}</a></span>
+                    <small>{c.lead.group} · {c.lead.source}{c.sources > 1 ? ` · ${c.sources} sources` : ""}{c.syndicated ? " · syndicated" : ""} · <button type="button" className="nhide" onClick={() => setWhy(why === c.lead.link ? "" : c.lead.link)}>score {c.score}</button></small>
+                    {why === c.lead.link && <small className="why">{c.why.join(" · ")}{c.items.length > 1 && <> · also: {c.items.filter((x) => x !== c.lead).slice(0, 5).map((x, n) => <a key={n} href={x.link} target="_blank" rel="noopener noreferrer"> {x.source}</a>)}</>}</small>}
                   </li>
                 ))}
               </ul>

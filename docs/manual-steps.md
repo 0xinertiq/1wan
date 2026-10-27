@@ -112,8 +112,7 @@ The app finds the astro feed by its name "astro", so the slot number does not ma
 ## J. Let the Sunday Kumo task read your weekly packet (optional, 5 minutes)
 
 The "Copy for Claude" button already works without this. Do it only if you want the scheduled task to fetch the packet by itself.
-1. In the VS Code terminal, run the same command as step 16 to make a new long random secret. Copy it.
-2. In `apps/web/.env.local`, add a line `READ_SECRET=` and paste after the `=`. Save.
+1. Already done for you: `apps/web/.env.local` now has a `READ_SECRET=` line. Open the file and copy the long value after the `=`.
 3. In Vercel, Settings, Environment Variables: add `READ_SECRET` with the same value, tick Sensitive, Production and Preview. Then Deployments, ⋯, Redeploy.
 4. Tell Claude Code it is done; it will run one throwaway read before the Sunday task uses it.
 

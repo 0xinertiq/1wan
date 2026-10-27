@@ -17,6 +17,10 @@ export function TechLive() {
   const [tf, setTf] = useState<(typeof TFS)[number]>("4h");
   const [items, setItems] = useState<Item[] | null>(null);
   const [open, setOpen] = useState<string | null>(null);
+  const [der, setDer] = useState<Record<string, { ok: boolean; source?: string; funding?: number; oiUsd?: number; vol24hUsd?: number }>>({});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { fetch(`/api/derivs?syms=${syms.join(",")}`).then((r) => r.json()).then((j) => { const m: typeof der = {}; for (const x of j.items ?? []) m[x.sym] = x; setDer(m); }).catch(() => {}); }, [syms.join(",")]);
+  const big = (x?: number) => (x == null ? "-" : x >= 1e9 ? "$" + (x / 1e9).toFixed(2) + "B" : "$" + (x / 1e6).toFixed(0) + "M");
   useEffect(() => {
     setItems(null);
     fetch(`/api/ta?tf=${tf}&syms=${syms.join(",")}`).then((r) => r.json()).then((j) => setItems(j.items ?? [])).catch(() => setItems([]));
@@ -32,6 +36,7 @@ export function TechLive() {
           <div className="filed-row col" key={it.sym}>
             <span><b>{it.sym}</b> {it.snap ? <span className="note">{fmt(it.snap.last)} · last candle {sgt(it.lastCandle)}</span> : <span className="note">{it.reason ?? "not enough candles"}</span>}</span>
             {it.snap && <span className="note">{it.snap.words.join(" · ")}</span>}
+            {der[it.sym]?.ok && <span className="note">Perpetual: funding {(der[it.sym].funding! * 100).toFixed(4)}% per 8h · open interest {big(der[it.sym].oiUsd)} · 24h volume {big(der[it.sym].vol24hUsd)} · {der[it.sym].source}</span>}
             {it.snap && <button className="btn sm ghost" type="button" onClick={() => setOpen(open === it.sym ? null : it.sym)}>{open === it.sym ? "Hide chart" : "Chart"}</button>}
             {open === it.sym && <Chart sym={it.sym} tf={tf} />}
           </div>
