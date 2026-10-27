@@ -18,6 +18,7 @@ export type CourtSlots = {
   weather: React.ReactNode; today: React.ReactNode; todayBare: React.ReactNode; stage: React.ReactNode; statusLine: React.ReactNode;
   luna: React.ReactNode; brief: React.ReactNode; scan: React.ReactNode; tech: React.ReactNode; weekStrip: React.ReactNode;
   weekAhead: React.ReactNode; econ: React.ReactNode; news: React.ReactNode; needs: React.ReactNode; status: React.ReactNode; kingdom: React.ReactNode;
+  briefCards: React.ReactNode;
 };
 
 export function CourtLayout({ s }: { s: CourtSlots }) {
@@ -34,16 +35,18 @@ export function CourtLayout({ s }: { s: CourtSlots }) {
     <div className="khome">
       <KingdomBanner />
       {s.statusLine}
+      <div className="krow1">
+        <div className="kcol"><TodayCard weather={s.weather} more={s.todayBare} />{s.needs}</div>
+        {s.briefCards}
+      </div>
       <div className="krow">
-        <TodayCard weather={s.weather} more={s.todayBare} />
-        {s.needs}
+        <AstroForecast />
         <div className="kprog">{s.status}{s.kingdom}</div>
         <QuickCapture />
       </div>
-      <AstroForecast />
       <details className="kmore">
-        <summary>More on your court <span className="note">briefs, scan, technicals, week, economy, news</span></summary>
-        <div className="kmore-grid">{s.brief}{s.scan}{s.tech}{s.weekStrip}{s.weekAhead}{s.econ}{s.news}</div>
+        <summary>More on your court <span className="note">Technicals · This week · Week ahead · Economic calendar · News · Brief tabs · Watchlist scan with prices</span></summary>
+        <div className="kmore-grid">{s.tech}{s.weekStrip}{s.weekAhead}{s.econ}{s.news}{s.brief}{s.scan}</div>
       </details>
     </div>
   );
@@ -136,8 +139,8 @@ function AstroForecast() {
     <section className="win kastro" aria-labelledby="kastroT">
       <div className="win-title"><h2 id="kastroT">Luna&apos;s forecast</h2><a className="sub" href="#observatory">Full sky →</a></div>
       <div className="win-body">
-        <p className="kastro-h">{today[0]?.t ?? "A quiet sky on the calendar today"}</p>
-        <p className="note">☽ {phase.name} · Moon in {pos[1].sign}{retro.length ? ` · ${retro.join(", ")} retrograde` : ""} · calculated by Luna</p>
+        <p className="kastro-h">☽ {phase.name} · Moon in {pos[1].sign}{retro.length ? ` · ${retro.join(", ")} retrograde` : ""}</p>
+        <p className="note">Calculated by Luna.</p>
         {cal.state === "loading" ? <p className="note">Astro calendar loading…</p>
           : cal.state !== "live" ? <p className="note">Astro calendar not reachable, so only Luna&apos;s calculation shows.</p>
           : today.length ? <>

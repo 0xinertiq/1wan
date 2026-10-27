@@ -27,6 +27,7 @@ import { watchlistFrom } from "@/lib/prices";
 import { TodayLive } from "@/components/court/live/TodayLive";
 import { CourtLayout, Observatory } from "@/components/court/live/KumoHome";
 import { LivingKingdom } from "@/components/court/live/LivingKingdom";
+import { BriefCards } from "@/components/court/BriefCards";
 import { DiaryLive, GardenLive, StatusLive, WinsButton } from "@/components/court/live/GrowLive";
 import { bootState } from "@/lib/court/actions";
 import { normalize } from "@/lib/court/state";
@@ -110,6 +111,7 @@ export default async function Dashboard() {
                 news: <NewsLive />,
                 needs: <NeedsNow />,
                 status: <StatusLive />,
+                briefCards: <BriefCards docs={docs} />,
                 kingdom: <LivingKingdom filed={Object.fromEntries(rows.map((r) => [r.kind, r.at]))} />,
               }}
             />

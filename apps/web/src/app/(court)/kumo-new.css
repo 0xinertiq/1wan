@@ -285,6 +285,24 @@ a.pb-chip:focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:-3
 .lk .lvl[hidden]{display:none}
 .lk>.win-title{border-bottom:0}
 
+/* R1 (COURT_SPEC): row 1 = Today + Needs you now | Briefs and scans, equal height; row 2 = Luna, progress, capture. */
+:root[data-ui="new"] .krow1{display:grid;gap:24px;grid-template-columns:minmax(0,1fr);align-items:stretch}
+@media (min-width:980px){:root[data-ui="new"] .krow1{grid-template-columns:repeat(2,minmax(0,1fr))}}
+:root[data-ui="new"] .kcol{display:grid;gap:24px;align-content:start}
+:root[data-ui="new"] .kcol>*{margin:0}
+:root[data-ui="new"] .kbriefs{height:100%;margin:0}
+:root[data-ui="new"] .bcards{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:1280px){:root[data-ui="new"] .bcards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+:root[data-ui="new"] .bcard{display:grid;gap:8px;align-content:start;padding:16px;border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);min-width:0}
+:root[data-ui="new"] .bcard-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 8px}
+:root[data-ui="new"] .bcard-k{font:700 13px var(--kumo-font-body);letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}
+:root[data-ui="new"] .bcard h3{font:600 17px/1.35 var(--kumo-font-display);color:var(--ink);overflow-wrap:anywhere}
+:root[data-ui="new"] .bcard .brtop ol{margin:4px 0 0;padding-left:20px;font-size:14px}
+:root[data-ui="new"] .bcard .btn{justify-self:start}
+:root[data-ui="new"] .krow>*{grid-column:span 12}
+@media (min-width:760px){:root[data-ui="new"] .krow>*{grid-column:span 6}}
+@media (min-width:1180px){:root[data-ui="new"] .krow>*{grid-column:span 4}}
+
 /* Focus ring from the kit. */
 :root[data-ui="new"] :focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:2px}
 

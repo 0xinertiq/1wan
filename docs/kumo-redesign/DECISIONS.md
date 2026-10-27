@@ -24,6 +24,7 @@ Auth, RLS, `OWNED_KEYS`, `normalize()`, middleware, `/api/ingest` and `/api/expo
 Cream canvas, sakura pink actions, lavender and sky accents, plum text, Playfair Display headings, Nunito body, Silkscreen only for tiny labels, CJK fallbacks kept. Cards 16px radius, soft shadows, 8pt spacing, min 14px interactive text, 44px tap targets, visible focus ring, reduced motion respected, night mode keeps its colours until a contrast check is done. Pixel foxes and crew are the characters; painterly art is backdrop only. Art lives in banners, welcome and empty states and reward moments, not in every card.
 
 ## 5. Art plan (decided)
+- **Court and all tabs now follow `COURT_SPEC.md` (final brief, owner-agreed). Where this section conflicts with it, COURT_SPEC.md wins: no concept-image crops or fake overlays on the Court; the Court world is code-drawn pixel art.**
 - Now: code-drawn pixel decor (SVG, plum outline, one gold accent) plus recoloured asset pack for night / Moonlit.
 - Painted look comes from the original concept images, kept OUTSIDE the repo at `C:\Users\tmin0\Documents\kumo-art-source\original_concept_references`. Crop only what is used, compress to WebP into `apps/web/public/kumo/`, never copy the 72 MB folder. The asset pack in `existing_asset_pack_v1` is flat vector and is only a fallback.
 - Concept images have mock UI baked in. Never show it: crop around it, or cover it with the real overlay (real chips, title card, speech bubble), or patch with sampled sky. If it cannot be made clean, keep the previous banner and report.
@@ -31,6 +32,7 @@ Cream canvas, sakura pink actions, lavender and sky accents, plum text, Playfair
 - Commissioned or regenerated art comes LAST. Cheapest next improvement: ask GPT to redraw the scenes with no text on them, wide 3:1 for banners.
 
 ## 6. Court and Kingdom (decided)
+- **Superseded for the Court by `COURT_SPEC.md` (single source for the Court, the shared design system and all tab layouts).**
 - The Court is a summary. ONE Today card (Now / Next / Later), ONE compact Luna forecast card, Needs-you-now, kingdom progress, Quick capture, then a collapsed "More on your court". No duplicated calendar, ticker or habit panels.
 - Cloud Court becomes the Living Kingdom: a painted floating island with tappable places (The Castle, Clock Tower, Sakura Garden, Observatory, Fox Diary, Life Hub) that navigate to tabs. It keeps the live data (BTC/SOL, who is at work) as small badges. Stages Starter, Growing (then code-drawn growth for later levels), cosmetic only, never locks a feature, missed days remove nothing. Source: concept image 26, top row (Starter 0-762px, Growing 764-1536px).
 - Kingdom Mode page: large scene with the same hotspots and a read-only preview of Structures / Nature / Furniture / Companions / Themes with states LOCKED / UNLOCKED_UNOWNED / OWNED_UNPLACED / PLACED. Preview only: no purchases, star deductions, ownership writes, migrations without her later approval.
