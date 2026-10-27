@@ -109,6 +109,14 @@ Do this once per calendar (up to 5).
 4. Save (Ctrl+S). In Vercel, Settings, Environment Variables: update the same names with the same values (tick Sensitive for the addresses), then Deployments, ⋯, Redeploy.
 The app finds the astro feed by its name "astro", so the slot number does not matter.
 
+## J. Let the Sunday Kumo task read your weekly packet (optional, 5 minutes)
+
+The "Copy for Claude" button already works without this. Do it only if you want the scheduled task to fetch the packet by itself.
+1. In the VS Code terminal, run the same command as step 16 to make a new long random secret. Copy it.
+2. In `apps/web/.env.local`, add a line `READ_SECRET=` and paste after the `=`. Save.
+3. In Vercel, Settings, Environment Variables: add `READ_SECRET` with the same value, tick Sensitive, Production and Preview. Then Deployments, ⋯, Redeploy.
+4. Tell Claude Code it is done; it will run one throwaway read before the Sunday task uses it.
+
 ## Later (not tonight)
 
 31. Only after step 30 passes: point the scheduled tasks at the new address (build order step 6), starting with one task and a real throwaway brief, as `prompts/INGEST.md` describes.

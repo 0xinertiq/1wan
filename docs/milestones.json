@@ -140,15 +140,17 @@
    "title": "13. Ask Kumo live chat (capped API key)",
    "status": "todo",
    "expect": "Only if you add a key. Hard monthly cap.",
-   "you_do": "Create a key and put it in .env.local and Vercel."
+   "you_do": "Create a key and put it in .env.local and Vercel.",
+   "note": "Skipped for now: no AI_API_KEY in apps/web/.env.local."
   },
   {
    "id": "s14",
    "group": "Optional",
    "title": "14. Kumo weekly review packet",
-   "status": "todo",
+   "status": "partial",
    "expect": "Copy-for-Claude button and a Sunday review.",
-   "you_do": ""
+   "you_do": "Optional: add READ_SECRET (manual steps, section J).",
+   "note": "Weekly packet with a preview of exactly what is sent, sensitive sections off by default, Copy for Claude, and Kumo's spec crew/kumo.md. The read endpoint for the Sunday task is built and waits for a secret."
   },
   {
    "id": "l1",

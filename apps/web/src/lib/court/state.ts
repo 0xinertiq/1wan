@@ -52,6 +52,7 @@ export type CourtState = {
   mny: Money;
   tails: number[];
   lines: ChartLine[];
+  packet: Partial<Record<"diary" | "birth" | "sensitive" | "networth" | "notes", boolean>>;   // weekly packet sections she chose
   tg: { channels: { handle: string; enabled: boolean; title?: string }[] };   // public Telegram channels she follows
   birth: { date: string; time: string; place: string; lat: number; lon: number; tz: string } | null;   // private, never shared
   grid: Ticks; swins: Ticks & { log: Record<string, string[]> }; money: MoneyW; samsara: Samsara; defs: Defs;
@@ -59,7 +60,7 @@ export type CourtState = {
 };
 
 // Keys this UI owns. Saves send only these; the server refuses anything else.
-export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "tg", "birth", "grid", "swins", "money", "samsara", "last", "prev"] as const;
+export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "tg", "birth", "grid", "swins", "money", "samsara", "last", "prev"] as const;
 export type OwnedKey = (typeof OWNED_KEYS)[number];
 
 export type Recap = { old: string; done: number; total: number; newWeek: boolean; lost: boolean; restY: boolean };
@@ -98,6 +99,7 @@ export function normalize(raw: unknown, today: string): CourtState {
     birth: (() => { const b = obj<Record<string, unknown>>(r.birth, {}); return typeof b.date === "string" && typeof b.lat === "number" && typeof b.lon === "number"
       ? { date: b.date, time: str(b.time, ""), place: str(b.place, ""), lat: b.lat, lon: b.lon, tz: str(b.tz, "UTC") } : null; })(),
     tg: { channels: arr<{ handle: string; enabled: boolean; title?: string }>(obj<Record<string, unknown>>(r.tg, {}).channels).filter((c) => c && typeof c.handle === "string").slice(0, 20) },
+    packet: obj(r.packet, {}),
     lines: arr<ChartLine>(r.lines).filter((l) => l && typeof l.sym === "string" && l.p1 && typeof l.p1.p === "number").slice(-200),
     tails: arr<number>(r.tails).filter((n) => Number.isInteger(n) && n >= 0 && n < 9),
     grid: { done: obj(obj<Ticks>(r.grid, { done: {} }).done, {}) },
