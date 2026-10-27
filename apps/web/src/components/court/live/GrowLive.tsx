@@ -15,6 +15,7 @@ import { addDays, prettyDay, weekKey, dayIdx } from "@/lib/court/time";
 import { branches, needsCare, type WaterEvt } from "@/lib/court/garden";
 import { NUDGE } from "@/lib/gardenMap";
 import { water } from "@/lib/court/water";
+import { TAILS, earned } from "@/lib/court/tails";
 
 // Growth column from dashboard-v52: Sakura Garden (with Habit Quests inside), Tonight count your wins,
 // Fox Diary with the weekly recap, and the "You" status card. Everything saves to her state.
@@ -215,6 +216,9 @@ export function GardenLive() {
           <p className="note">Any real activity revives a branch at once. Weeding a bare branch regrows a sprout; blossoms and history are never lost.</p>
         </>}
         <div id="gQuestSlot"><QuestLive /></div>
+        <details className="pillar"><summary><b>Kumo&apos;s nine tails</b> <span className="note">{earned(st, k).filter(Boolean).length}/9</span></summary>
+          {TAILS.map((t, i) => <div className="filed-row" key={t.n}><span>{earned(st, k)[i] ? "✓ " : ""}<b>{t.n}</b> <span className="note">{t.h}</span></span></div>)}
+        </details>
       </div>
     </div>
   );

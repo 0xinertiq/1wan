@@ -48,12 +48,13 @@ export type CourtState = {
   dump: Dump[]; life: LifeItem[]; gd: Garden; cad: { wk: string; ig: number; x: number };
   mood: Record<string, Mood>; restDay: string | null; restWeek: string | null; uq: string[];
   mny: Money;
+  tails: number[];
   grid: Ticks; swins: Ticks & { log: Record<string, string[]> }; money: MoneyW; samsara: Samsara; defs: Defs;
   last: Record<string, unknown>; prev: Record<string, unknown> | null;
 };
 
 // Keys this UI owns. Saves send only these; the server refuses anything else.
-export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "grid", "swins", "money", "samsara", "last", "prev"] as const;
+export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "grid", "swins", "money", "samsara", "last", "prev"] as const;
 export type OwnedKey = (typeof OWNED_KEYS)[number];
 
 export type Recap = { old: string; done: number; total: number; newWeek: boolean; lost: boolean; restY: boolean };
@@ -89,6 +90,7 @@ export function normalize(raw: unknown, today: string): CourtState {
     restWeek: typeof r.restWeek === "string" ? r.restWeek : null,
     uq: arr<string>(r.uq).filter((s) => typeof s === "string"),
     mny: normMoney(r.mny),
+    tails: arr<number>(r.tails).filter((n) => Number.isInteger(n) && n >= 0 && n < 9),
     grid: { done: obj(obj<Ticks>(r.grid, { done: {} }).done, {}) },
     swins: (() => { const w = obj<Record<string, unknown>>(r.swins, {}); return { done: obj(w.done, {}), log: obj(w.log, {}) }; })(),
     money: (() => { const w = obj<Record<string, unknown>>(r.money, {}); return { done: obj(w.done, {}), t: obj(w.t, {}), f: obj(w.f, {}), nw: obj(w.nw, {}), ...(typeof w.upd === "string" ? { upd: w.upd } : {}) }; })(),

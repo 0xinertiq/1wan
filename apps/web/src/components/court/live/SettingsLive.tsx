@@ -1,13 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { earned } from "@/lib/court/tails";
 import { useCourt } from "../CourtState";
 import { LCATS, LEADS, money, ruleText, type LifeRule } from "@/lib/court/state";
 import { prettyDay } from "@/lib/court/time";
 
 // Header numbers (streak, stars) from her state.
 export function HeaderStats() {
-  const { st } = useCourt();
+  const { st, k, update } = useCourt();
+  const on = earned(st, k), n = on.filter(Boolean).length;
+  // Keep newly earned tails for good, as v52 did.
+  useEffect(() => {
+    const add = on.map((x, i) => (x && !st.tails.includes(i) ? i : -1)).filter((i) => i >= 0);
+    if (add.length) update((d) => { d.tails = [...new Set([...d.tails, ...add])].sort(); }, ["tails"]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [n]);
   return (
     <>
       <div className="pill" title="Daily check-in streak">
@@ -18,6 +26,7 @@ export function HeaderStats() {
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z" fill="#FFD95E" stroke="#A34876" strokeWidth="1.8" strokeLinejoin="round" /></svg>
         <b id="stars">{st.stars}</b> stars
       </div>
+      <div className="pill" title="Kumo's nine tails">tails <b>{n}/9</b></div>
     </>
   );
 }

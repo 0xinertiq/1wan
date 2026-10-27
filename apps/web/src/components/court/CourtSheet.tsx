@@ -10,12 +10,13 @@ import type { Latest } from "./StatusLine";
 import { kindLabel } from "@/lib/briefs";
 import { kindsOf, nextRun } from "@/lib/schedule";
 import { hm, prettyDay, sgt } from "@/lib/court/time";
+import { TAILS, earned, tailSvg } from "@/lib/court/tails";
 
 // One overlay for the crew detail (tap a character on the Court) and Settings (header menu).
 // Crew detail shows role, latest output, last-updated time and next scheduled run, and nothing else.
 
 function CrewDetail({ id, latest }: { id: string; latest: Latest }) {
-  const { k, nm } = useCourt();
+  const { st, k, nm } = useCourt();
   const d = AGENTS.find((a) => a.id === id);
   if (!d) return null;
   const mine = kindsOf(id).map((kind) => ({ kind, b: latest[kind] })).filter((x) => x.b).sort((a, b) => b.b!.at.localeCompare(a.b!.at))[0];
@@ -39,6 +40,10 @@ function CrewDetail({ id, latest }: { id: string; latest: Latest }) {
         <dt>Next scheduled run</dt>
         <dd>{nx ? `${kindLabel(nx.run.kind)}, ${nx.label}` : "No scheduled task"}</dd>
       </dl>
+      {id === "kumo" && (() => {
+        const on = earned(st, k), n = on.filter(Boolean).length, nx = TAILS.find((_, i) => !on[i]);
+        return <div className="tailrow"><div dangerouslySetInnerHTML={{ __html: tailSvg(on) }} /><p className="note">Nine tails: {n} of 9.{nx ? ` Next, ${nx.n}: ${nx.h}.` : " All nine. Ascended."}</p></div>;
+      })()}
     </div>
   );
 }
