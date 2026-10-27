@@ -1,7 +1,7 @@
 /* Design tokens (aesthetic overhaul, step A). Nothing reads these yet, so the dashboard looks exactly as before.
    Colours point at the v52 variables in dashboard.css, so day and night (system setting, data-theme="dark" or
    "light") follow automatically. Spacing, radii, shadows and type sizes are the values dashboard.css uses most.
-   Redesigned tabs read tokens only, and only under :root[data-ui="new"] (set before paint; default "classic"). */
+   The New look (default; Classic is one click away in Settings) lives in kumo-new.css. */
 :root{
   /* type */
   --t-font-display:var(--font-display);
@@ -35,5 +35,3 @@
   /* borders */
   --b-thin:1px; --b-std:2px; --b-thick:3px;
 }
-/* New-design overrides go here, tab by tab (step B onwards). Empty on purpose. */
-:root[data-ui="new"]{}

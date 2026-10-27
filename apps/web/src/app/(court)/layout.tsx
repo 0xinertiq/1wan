@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible, Baloo_2, Ma_Shan_Zheng, Noto_Serif_SC, Quicksand, Silkscreen } from "next/font/google";
+import { Atkinson_Hyperlegible, Baloo_2, Ma_Shan_Zheng, Noto_Serif_SC, Nunito, Playfair_Display, Quicksand, Silkscreen } from "next/font/google";
 import { APP_NAME } from "@/lib/brand";
 import "./tokens.css";
 import "./dashboard.css";
+import "./kumo-new.css";
 
 // Separate root layout so the v52 dashboard CSS never mixes with the rest of the app.
 export const metadata: Metadata = { title: APP_NAME, icons: { icon: [{ url: "/icons/icon-192.png", sizes: "192x192" }, { url: "/icons/icon.svg", type: "image/svg+xml" }], apple: "/icons/apple-touch-icon.png" }, appleWebApp: { capable: true, title: APP_NAME, statusBarStyle: "default" } };
@@ -17,18 +18,21 @@ const silkscreen = Silkscreen({ subsets: ["latin"], weight: ["400", "700"], disp
 const quicksand = Quicksand({ subsets: ["latin"], weight: ["500", "600"], display: "swap", variable: "--nf-quicksand" });
 const maShan = Ma_Shan_Zheng({ weight: "400", display: "swap", preload: false, variable: "--nf-mashan" });
 const notoSerif = Noto_Serif_SC({ weight: ["600", "700"], display: "swap", preload: false, variable: "--nf-noto" });
-const FONT_VARS = [baloo, atkinson, silkscreen, quicksand, maShan, notoSerif].map((f) => f.variable).join(" ");
+// The New look: Playfair Display for headings, Nunito for body and UI.
+const playfair = Playfair_Display({ subsets: ["latin"], weight: ["600", "700"], display: "swap", variable: "--nf-playfair" });
+const nunito = Nunito({ subsets: ["latin"], weight: ["400", "600", "700"], display: "swap", variable: "--nf-nunito" });
+const FONT_VARS = [baloo, atkinson, silkscreen, quicksand, maShan, notoSerif, playfair, nunito].map((f) => f.variable).join(" ");
 
 // Before paint: day or night (her saved choice wins, otherwise the system setting), and the design
-// version, "classic" by default. "?ui=new" or "?ui=classic" in the address switches and remembers it.
+// version, "new" by default ("classic" only if she switched back in Settings). "?ui=new" or "?ui=classic" in the address switches and remembers it.
 const BOOT =
   "try{var d=document.documentElement,t=localStorage.getItem('kumo.theme');if(t==='dark'||t==='light')d.setAttribute('data-theme',t);" +
   "var q=new URLSearchParams(location.search).get('ui');if(q==='new'||q==='classic')localStorage.setItem('kumo.ui',q);" +
-  "d.setAttribute('data-ui',localStorage.getItem('kumo.ui')==='new'?'new':'classic');}catch(e){}";
+  "d.setAttribute('data-ui',localStorage.getItem('kumo.ui')==='classic'?'classic':'new');}catch(e){}";
 
 export default function CourtLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={FONT_VARS} data-ui="classic" suppressHydrationWarning>
+    <html lang="en" className={FONT_VARS} data-ui="new" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: BOOT }} />
       </head>

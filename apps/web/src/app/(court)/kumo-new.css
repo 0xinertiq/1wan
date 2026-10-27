@@ -1,0 +1,99 @@
+/* The New look (Kumo aesthetic overhaul). Loaded after dashboard.css and only active under :root[data-ui="new"],
+   so Classic (data-ui="classic", one click in Settings) is the untouched v52 dashboard.
+   Values come from docs/design_implementation_kit_v1/tokens/kumo-tokens.css and the approved styleboard.
+   Day mode remaps the v52 colour variables to the cream / sakura / lavender / plum palette. Night mode keeps the
+   v52 night palette (the kit asks for a separate contrast pass) and takes only the new shapes and type. */
+
+:root{
+  --kumo-pink:#F65A9B; --kumo-pink-hover:#E6498A; --kumo-pink-soft:#FCE8F1; --kumo-pink-pale:#FFF0F6;
+  --kumo-lavender:#A78BFA; --kumo-lavender-soft:#F0EAFF;
+  --kumo-sky:#7DA7FF; --kumo-sky-soft:#EAF2FF;
+  --kumo-canvas:#FFF8FB; --kumo-surface:#FFFFFF; --kumo-surface-muted:#F8F5FC;
+  --kumo-text:#2A2340; --kumo-text-muted:#655B78; --kumo-line:#E9DCE8; --kumo-plum:#4A2538;
+  --kumo-success:#21866F; --kumo-warning:#9B6300; --kumo-danger:#B83858;
+  --kumo-font-display:var(--nf-playfair),Georgia,var(--nf-noto),serif;
+  --kumo-font-body:var(--nf-nunito),system-ui,var(--nf-noto),sans-serif;
+  --kumo-space-1:4px; --kumo-space-2:8px; --kumo-space-3:12px; --kumo-space-4:16px; --kumo-space-6:24px; --kumo-space-8:32px; --kumo-space-12:48px;
+  --kumo-radius-chip:8px; --kumo-radius-control:12px; --kumo-radius-card:16px; --kumo-radius-modal:24px;
+  --kumo-shadow-card:0 4px 20px rgba(42,35,64,.06);
+  --kumo-shadow-floating:0 12px 32px rgba(42,35,64,.12);
+}
+
+/* Day palette. Written twice (system day, and her saved "day" choice) so night always wins when chosen. */
+@media (prefers-color-scheme: light){
+  :root[data-ui="new"]:not([data-theme="dark"]){
+    --bg:var(--kumo-canvas); --bg2:#FDF1F7; --grid:transparent; --hard:rgba(42,35,64,.08);
+    --ink:var(--kumo-text); --ink-soft:var(--kumo-text-muted); --line:var(--kumo-line); --edge:rgba(42,35,64,.06); --fx-line:var(--kumo-plum);
+    --win:var(--kumo-surface); --win-hi:var(--kumo-surface); --tint:var(--kumo-pink-pale); --win-dim:var(--kumo-surface-muted);
+    --title-a:var(--kumo-surface); --title-b:var(--kumo-surface);
+    --lav:#E9DCF5; --lav-strong:var(--kumo-pink);
+    --btn-bg:var(--kumo-pink); --btn-ink:#FFFFFF; --btn-alt:#FBBF24;
+    --chip-mint:#DDF5EC; --chip-lav:var(--kumo-lavender-soft); --chip-peach:#FFEBDD; --chip-butter:#FFF4CF; --chip-pink:var(--kumo-pink-soft); --chip-sky:var(--kumo-sky-soft);
+    --track:#F6EAF1;
+  }
+}
+:root[data-ui="new"][data-theme="light"]{
+  --bg:var(--kumo-canvas); --bg2:#FDF1F7; --grid:transparent; --hard:rgba(42,35,64,.08);
+  --ink:var(--kumo-text); --ink-soft:var(--kumo-text-muted); --line:var(--kumo-line); --edge:rgba(42,35,64,.06); --fx-line:var(--kumo-plum);
+  --win:var(--kumo-surface); --win-hi:var(--kumo-surface); --tint:var(--kumo-pink-pale); --win-dim:var(--kumo-surface-muted);
+  --title-a:var(--kumo-surface); --title-b:var(--kumo-surface);
+  --lav:#E9DCF5; --lav-strong:var(--kumo-pink);
+  --btn-bg:var(--kumo-pink); --btn-ink:#FFFFFF; --btn-alt:#FBBF24;
+  --chip-mint:#DDF5EC; --chip-lav:var(--kumo-lavender-soft); --chip-peach:#FFEBDD; --chip-butter:#FFF4CF; --chip-pink:var(--kumo-pink-soft); --chip-sky:var(--kumo-sky-soft);
+  --track:#F6EAF1;
+}
+
+/* Type, both modes. CJK seals keep their own fonts (they set font-family directly). */
+:root[data-ui="new"]{
+  --font-display:var(--kumo-font-display);
+  --font-body:var(--kumo-font-body);
+  --font-pixel:var(--kumo-font-body);
+}
+:root[data-ui="new"] body{background:var(--bg);font-family:var(--kumo-font-body)}
+:root[data-ui="new"] h1{font-weight:700;letter-spacing:0}
+
+/* Cards and windows: 16px corners, one soft shadow, hairline border, plain white title bar. */
+:root[data-ui="new"] .win,
+:root[data-ui="new"] .card{border:1px solid var(--line);border-radius:var(--kumo-radius-card);box-shadow:var(--kumo-shadow-card)}
+:root[data-ui="new"] .win-title{background:var(--win);border-bottom:1px solid var(--line);padding:12px 16px}
+:root[data-ui="new"] .win-title h2{font:600 18px var(--kumo-font-display);letter-spacing:0}
+:root[data-ui="new"] .win-body{padding:16px}
+:root[data-ui="new"] .sec-h{font:700 12px var(--kumo-font-body);letter-spacing:.06em}
+
+/* Buttons: filled pink primary, white secondary, no hard drop. */
+:root[data-ui="new"] .btn{font:700 14px var(--kumo-font-body);letter-spacing:0;padding:10px 16px;min-height:40px;border:1px solid transparent;border-radius:var(--kumo-radius-control);background:var(--btn-bg);color:var(--btn-ink);box-shadow:none;transition:background-color .15s,box-shadow .15s}
+:root[data-ui="new"] .btn:hover:not(:disabled){box-shadow:var(--kumo-shadow-card)}
+:root[data-ui="new"] .btn:active:not(:disabled){transform:translateY(1px);box-shadow:none}
+:root[data-ui="new"] .btn.sm{padding:6px 12px;min-height:32px;font-size:13px}
+:root[data-ui="new"] .btn.ghost{background:var(--win);color:var(--ink);border-color:var(--line);box-shadow:none}
+:root[data-ui="new"] .btn:disabled{opacity:.5}
+
+/* Header pills and round icon buttons. */
+:root[data-ui="new"] .pill{border:1px solid var(--line);box-shadow:var(--kumo-shadow-card);font:700 14px var(--kumo-font-body)}
+:root[data-ui="new"] .pill b{font-family:var(--kumo-font-body)}
+:root[data-ui="new"] .icon-btn{border:1px solid var(--line);box-shadow:var(--kumo-shadow-card)}
+:root[data-ui="new"] .icon-btn:active{transform:translateY(1px);box-shadow:none}
+
+/* Chips and badges. */
+:root[data-ui="new"] .chipb{border:1px solid var(--line);border-radius:var(--kumo-radius-chip);font:700 13px var(--kumo-font-body);background:var(--win)}
+:root[data-ui="new"] .chipb[aria-pressed="true"]{background:var(--chip-pink);border-color:var(--lav-strong);color:var(--ink)}
+:root[data-ui="new"] .pillx{border:0;border-radius:var(--kumo-radius-chip);font:700 12px var(--kumo-font-body)}
+
+/* Tabs: soft segmented look instead of folder tabs. */
+:root[data-ui="new"] .tabs{background:var(--win);border-bottom:1px solid var(--line)}
+:root[data-ui="new"] .tab{top:0;border:0;border-radius:var(--kumo-radius-control) var(--kumo-radius-control) 0 0;background:transparent;font:700 14px var(--kumo-font-body);border-bottom:3px solid transparent}
+:root[data-ui="new"] .tab[aria-selected="true"]{background:transparent;color:var(--lav-strong);border-bottom-color:var(--lav-strong)}
+
+/* Inputs, selects, text areas. */
+:root[data-ui="new"] .field-row input,
+:root[data-ui="new"] select,
+:root[data-ui="new"] .trade input,:root[data-ui="new"] .trade select,:root[data-ui="new"] .trade textarea,
+:root[data-ui="new"] #kbText,:root[data-ui="new"] .field textarea{border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win-hi);font-family:var(--kumo-font-body)}
+:root[data-ui="new"] .field-row input:focus,:root[data-ui="new"] select:focus,:root[data-ui="new"] textarea:focus{border-color:var(--kumo-lavender);outline:none;box-shadow:0 0 0 3px var(--kumo-lavender-soft)}
+
+/* Focus ring from the kit. */
+:root[data-ui="new"] :focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:2px}
+
+@media (prefers-reduced-motion: reduce){
+  :root[data-ui="new"] *,:root[data-ui="new"] *::before,:root[data-ui="new"] *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}

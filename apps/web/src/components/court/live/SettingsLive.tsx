@@ -31,6 +31,26 @@ export function HeaderStats() {
   );
 }
 
+// Design version: New is the default; Classic brings back the v52 look in one click. Saved on this device only.
+function LookSwitch() {
+  const [ui, setUi] = useState<"new" | "classic">("new");
+  useEffect(() => { setUi(document.documentElement.getAttribute("data-ui") === "classic" ? "classic" : "new"); }, []);
+  function pick(v: "new" | "classic") {
+    try { localStorage.setItem("kumo.ui", v); } catch {}
+    document.documentElement.setAttribute("data-ui", v);
+    setUi(v);
+  }
+  return (
+    <>
+      <div className="sec-h">Look</div>
+      <div className="chips" role="group" aria-label="Design version">
+        <button type="button" className="chipb" aria-pressed={ui === "new"} onClick={() => pick("new")}>New</button>
+        <button type="button" className="chipb" aria-pressed={ui === "classic"} onClick={() => pick("classic")}>Classic</button>
+      </div>
+    </>
+  );
+}
+
 const WDS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 // Settings from dashboard-v52 (moreDet), life admin part: Coco's list behind Coming up.
@@ -61,6 +81,7 @@ export function SettingsLive({ open = false }: { open?: boolean }) {
     <details className="win" id="moreDet" open={open}>
       <summary className="win-title"><h2>Settings</h2><span className="sub">Life admin, your data</span></summary>
       <div className="win-body">
+        <LookSwitch />
         <div className="sec-h">Your data</div>
         <p className="note xd">Everything here is private to you. Download a full copy any time.</p>
         <div className="rep-act"><a className="btn sm ghost" href="/api/export">Export my data</a></div>
