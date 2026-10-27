@@ -1,6 +1,6 @@
 # Progress (Claude Code updates this after every step)
 Done before this file existed: login, briefs, Export my data, crew page, dashboard shell, state load/save, calendar (5 feeds), prices, RSS news, ingest endpoint (dry run passed), theme toggle, Sakura Garden v1, Tonight count your wins, Coming up, diary v1.
-Next: step 7 in docs/BUILD-ORDER.md (Garden).
+Next: step 8 in docs/BUILD-ORDER.md (Diary tab and count your wins).
 
 ## Log
 - 2026-10-23 Step 1: five tabs (Court, Calendar, Garden, Diary, Life) as bottom bar on phone, left rail on desktop; Life sub-tab shell; crew detail opens by tapping a character (role, latest output, last updated, next run); Settings in header menu; Ask windows, routing box, sample usage panel and sample sprint bar removed; status line from real events. Sample/placeholder: Calendar tab and the four Life screens, Needs you window.
@@ -11,6 +11,7 @@ Next: step 7 in docs/BUILD-ORDER.md (Garden).
 - 2026-10-27 Step 5: Life > Grid & Wins: 64 actionables by pillar (ticks in grid), Small Wins ladder (b3 and b6 shown as auto from trades and d6 log, others self-report), Money Wins Q4 ladder; every tick writes or removes a watering event (/api/water). Three rules filled ticks a3 and grid 1.2. All on her real data.
 - 2026-10-27 Progress page: /progress (signed in, header menu), reads docs/milestones.json at build time; overall bar, next step, groups with status chips. milestones.json now updated with every step.
 - 2026-10-27 Step 6: Life > Samsara: weekly study hours (half-hour buttons, Monday reset), thesis count derived from Trade plans with 8/16/24 steps, X posts shared with the Court's weekly counter (cad.x) plus replies, weekly rhythm w1/w2/w4 shown auto, milestones and monthly reviews from her defs (b2, c2 show auto plan counts), "Write a thesis" opens the Trade plan form. Study hours from tagged focus sprints not wired (sprints carry no tag yet).
+- 2026-10-27 Step 7: Garden: eight branches = grid pillars, trunk = daily anchors d1..d8 (ticked in the Garden, n/8 feeds quest k1); decay from watering_events (blooming 1 day, thirsty 2, wilting 3-4, withered 5-7, dead 8+), rest days pause it, "Weed it out" regrows a sprout, one gentle crew nudge per wilting branch; mapping in apps/web/src/lib/gardenMap.ts. Merged quests now AUTO from records: c1 (spending today), c2 (r2 ticked and figures updated today), f1 (trade or plan today at 9/9), o2 (plan with thesis this week). Typed habits and weeds removed from the Garden, kept read-only in the Diary archive.
 
 ## Blocked
 - Step 4: freeze rate and "stop kept" not built: their definitions live in the ledger artifact code, which the privacy guard would not let Claude read. Check wording c1..c9 uses defaults (c6 = 11pm to 6am); she can rename them in Trade.

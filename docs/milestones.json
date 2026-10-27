@@ -75,15 +75,16 @@
    "id": "s7",
    "group": "Build",
    "title": "7. Garden decay and new quests",
-   "status": "next",
+   "status": "done",
    "expect": "Branches wilt when neglected, die at 8 days, weed out and regrow.",
-   "you_do": ""
+   "you_do": "",
+   "note": "Eight branches from your grid pillars, trunk from daily anchors. Decay from real activity only; old typed habits moved to the Diary archive."
   },
   {
    "id": "s8",
    "group": "Build",
    "title": "8. Diary tab and 'count your wins' sheet",
-   "status": "todo",
+   "status": "next",
    "expect": "Private diary, archive of old habits, evening wins sheet.",
    "you_do": ""
   },

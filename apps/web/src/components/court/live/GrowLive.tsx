@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PixelSprite, type SpriteName } from "@/components/PixelSprite";
 import { useCourt } from "../CourtState";
 import { AGENTS } from "../agents";
@@ -11,6 +11,9 @@ import {
   type CourtState, type SeedInfo,
 } from "@/lib/court/state";
 import { addDays, prettyDay, weekKey, dayIdx } from "@/lib/court/time";
+import { branches, needsCare, type WaterEvt } from "@/lib/court/garden";
+import { NUDGE } from "@/lib/gardenMap";
+import { water } from "@/lib/court/water";
 
 // Growth column from dashboard-v52: Sakura Garden (with Habit Quests inside), Tonight count your wins,
 // Fox Diary with the weekly recap, and the "You" status card. Everything saves to her state.
@@ -126,85 +129,96 @@ function bonsaiSvg(items: { f: SeedInfo }[], nroots: number) {
     `<ellipse cx="160" cy="193" rx="52" ry="5" fill="#8B6B5A"/><path d="M114 196 H206 L198 234 Q197 238 192 238 H128 Q123 238 122 234 Z" fill="#F4A6C6" stroke="#A34876" stroke-width="2.5" stroke-linejoin="round"/><rect x="108" y="190" width="104" height="12" rx="5" fill="#F8BDD6" stroke="#A34876" stroke-width="2.5"/>${face}${fl}</svg>`;
 }
 
-const ROOT_SVG = (
-  <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true"><path d="M32 6 V30 M32 30 Q20 36 14 52 M32 30 Q32 44 28 58 M32 30 Q46 38 52 54 M32 30 Q40 34 44 46" stroke="#9A6B55" strokeWidth="3.5" fill="none" strokeLinecap="round" /><path d="M32 6 q-8 4 -10 12 q8 -1 10 -6 q2 5 10 6 q-2 -8 -10 -12z" fill="#C49A6C" /></svg>
-);
+// Garden (docs/build-dashboard-v2.md section 4): eight branches = the eight grid pillars, trunk = daily
+// anchors. Decay is computed from real watering events only; typed weeds and habits now live in the
+// Diary archive. Tone is gentle: the tree reflects habits, never her worth.
+const STAGE_TXT: Record<string, string> = { sprout: "sprout, waiting for its first activity", blooming: "blooming", thirsty: "thirsty", wilting: "wilting", withered: "withered", dead: "bare, ready to weed out" };
 
 export function GardenLive() {
-  const { st, k, update } = useCourt();
-  const [seed, setSeed] = useState("");
-  const [root, setRoot] = useState("");
+  const { st, k, update, levelUp } = useCourt();
+  const [evs, setEvs] = useState<WaterEvt[] | null>(null);
+  const [ledger, setLedger] = useState<{ trades: Record<string, unknown>[]; plans: Record<string, unknown>[] } | null>(null);
   const [arm, setArm] = useState("");
-  const g = st.gd;
-  const items = g.seeds.map((sd) => ({ sd, f: seedInfo(sd, k) }));
-  const ok = items.filter((x) => x.f.mood === "ok"), th = items.filter((x) => x.f.mood === "thirsty"), wi = items.filter((x) => x.f.mood === "wilting");
-  const gw = gardenWeek(st, k);
-  const names = (a: typeof items) => a.map((x) => x.sd.name).join(", ");
-  const oth = items.filter((it) => !it.sd.q);
+  useEffect(() => {
+    fetch("/api/water?days=30").then((r) => r.json()).then((j) => setEvs(Array.isArray(j.events) ? j.events : [])).catch(() => setEvs([]));
+    fetch("/api/ledger").then((r) => r.json()).then((j) => j.trades && setLedger(j)).catch(() => {});
+  }, []);
 
-  const water = (id: string) => update((d) => { const sd = d.gd.seeds.find((s) => s.id === id); if (sd) { sd.w = sd.w || {}; sd.w[k] = 1; } }, ["gd"]);
-  const letGo = (id: string) => {
-    if (arm !== id) { setArm(id); window.setTimeout(() => setArm((a) => (a === id ? "" : a)), 4000); return; }
+  const { trunk, list } = branches(st, k, evs ?? []);
+  const anchors = st.defs.swins?.phases.find((p) => p.daily)?.items ?? [];
+  const todayA = st.swins.log[k] || [];
+
+  // Merged quests, AUTO from real records (docs/build-trackers.md, duplicates 1 to 3).
+  useEffect(() => {
+    if (!evs) return;
+    const today = (src: string) => evs.some((e) => e.source === src && new Date(Date.parse(e.at) + 8 * 3600000).toISOString().slice(0, 10) === k);
+    const wk = weekKey(k);
+    const want: string[] = [];
+    if (today("spending") && !isDone(st, "c1")) want.push("c1");
+    if (st.money.done.r2 && st.money.upd === k && !isDone(st, "c2")) want.push("c2");
+    if (ledger) {
+      const nine = [...ledger.trades, ...ledger.plans].some((r) => r.date === k && (r.rules === 9 || (r.checks && typeof r.checks === "object" && Object.values(r.checks as object).filter(Boolean).length >= 9)));
+      if (nine && !isDone(st, "f1")) want.push("f1");
+      if (ledger.plans.some((p) => String(p.date ?? "") >= wk && p.thesis) && !isDone(st, "o2")) want.push("o2");
+    }
+    if (want.length) update((d) => { for (const id of want) { const r = logQuest(d, id); if (r.leveled) levelUp(r.leveled); } }, [...QKEYS]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [evs, ledger, k]);
+
+  const tickAnchor = (id: string, on: boolean) => {
     update((d) => {
-      const sd = d.gd.seeds.find((s) => s.id === id); if (!sd) return;
-      d.gd.seeds = d.gd.seeds.filter((s) => s.id !== id);
-      d.gd.gone.push({ name: sd.name, kind: "seed", on: k }); if (d.gd.gone.length > 60) d.gd.gone.shift();
-    }, ["gd"]);
+      const cur = new Set(d.swins.log[k] || []);
+      if (on) cur.add(id); else cur.delete(id);
+      d.swins.log = { ...d.swins.log, [k]: [...cur] };
+      if (!isDone(d, "k1")) { d.q.k1 = [0, Math.max(0, cur.size - 1)]; if (cur.size > 0) { const r = logQuest(d, "k1"); if (r.leveled) levelUp(r.leveled); } else delete d.q.k1; }
+    }, ["swins", ...QKEYS]);
+    water("anchor", `anchor:${id}:${k}`, on);
+    setEvs((e) => on ? [{ at: new Date().toISOString(), source: "anchor", ref: `anchor:${id}:${k}`, weight: 1 }, ...(e ?? [])] : (e ?? []).filter((x) => x.ref !== `anchor:${id}:${k}`));
   };
+  const weedOut = (n: number) => {
+    if (arm !== String(n)) { setArm(String(n)); window.setTimeout(() => setArm((a) => (a === String(n) ? "" : a)), 4000); return; }
+    update((d) => { d.gd.weed = { ...(d.gd.weed ?? {}), [String(n)]: k }; }, ["gd"]);
+  };
+
+  // Reuse the v52 bonsai drawing: one cluster per branch, size from blossoms, colour from decay.
+  const items = list.map((b) => ({ f: { n: 0, run: 0, pts: 0, wet: false, idle: b.idle, stage: Math.min(4, Math.ceil(b.blossoms / 2)), mood: (b.stage === "blooming" || b.stage === "sprout" ? "ok" : b.stage === "thirsty" ? "thirsty" : "wilting") as SeedInfo["mood"] } }));
+  const care = [trunk, ...list].filter(needsCare);
+  const blossoms = list.reduce((a, b) => a + b.blossoms, 0);
+  const petals = ["swins", "money", "samsara"].reduce((a, key) => a + Object.values((st[key as "swins"]).done).filter(Boolean).length, 0);
 
   return (
     <div id="gardenBox">
       <div className="tcard garden">
         <h3><Mini name="coco" />Sakura Garden <span className="cnj">灵园</span></h3>
-        <p className="gtag">Your habits are the blossoms. Tick them below and the tree blooms. Skip them and it rots.</p>
-        <div dangerouslySetInnerHTML={{ __html: bonsaiSvg(items, g.roots.length) }} />
-        <p className="gsum"><b>{ok.length}</b> blooming · <b>{th.length}</b> thirsty · <b>{wi.length}</b> rotting</p>
-        {wi.length ? <p className="gwarn">Rotting: {names(wi)}. Do them today to bring them back, or let them go.</p>
-          : th.length ? <p className="note">Thirsty: {names(th)}. One small tick today saves them.</p>
-          : items.length ? <p className="note">The whole tree is healthy. Keep going.</p> : null}
-        <p className="note">{gw.water} watering{gw.water === 1 ? "" : "s"} this week{g.gone.length ? ` · ${g.gone.length} let go` : ""}</p>
-        <div id="gQuestSlot"><QuestLive /></div>
-        {oth.length > 0 && <>
-          <div className="sec-h">Other habits</div>
-          <div className="gkgrid">
-            {oth.map(({ sd, f }) => {
-              const c = gcol(f.mood);
-              const txt = f.mood === "wilting" ? `rotting, ${f.idle} days dry` : f.mood === "thirsty" ? `thirsty, ${f.idle} days dry` : STAGES[f.stage].toLowerCase() + (f.run > 1 ? `, ${f.run}-day run` : "");
-              return (
-                <div className="gk" data-st={f.mood} key={sd.id}>
-                  <i className="gdot" style={{ background: c.p[1] }}></i>
-                  <span className="gnm"><b>{sd.name}</b><small>{txt}</small></span>
-                  {!sd.auto && <button className="btn sm ghost gx" type="button" disabled={f.wet} onClick={() => water(sd.id)}>{f.wet ? "Watered" : "Water"}</button>}
-                  <button className="btn sm ghost gx" type="button" aria-label={`Let go of ${sd.name}`} onClick={() => letGo(sd.id)}>{arm === sd.id ? "Yes, let it go" : "×"}</button>
-                </div>
-              );
-            })}
+        <p className="gtag">Eight branches, one per grid pillar. Real activity waters them; each ticked actionable opens a blossom that stays.</p>
+        <div dangerouslySetInnerHTML={{ __html: bonsaiSvg(items, 0) }} />
+        <p className="gsum"><b>{blossoms}</b> of 64 blossoms · <b>{petals}</b> golden petals from ladder milestones{trunk.resting ? " · resting today, decay paused" : ""}</p>
+        {evs == null && <p className="note">Reading your activity…</p>}
+
+        <div className="sec-h">Daily anchors <span className="note">{todayA.length}/{anchors.length || 8} today · waters the trunk</span></div>
+        {anchors.length ? anchors.map(([id, t, d]) => (
+          <label className="filed-row" key={id}><input type="checkbox" checked={todayA.includes(id)} onChange={(e) => tickAnchor(id, e.target.checked)} /><span>{t} <span className="note">{d}</span></span></label>
+        )) : <p className="note">Your daily anchors arrive with the tracker import.</p>}
+        <p className="note">Trunk: {STAGE_TXT[trunk.stage]}{trunk.last ? `, last watered ${prettyDay(trunk.last)}` : ""}.</p>
+
+        <div className="sec-h">Branches</div>
+        {list.map((b) => (
+          <div className="gk" data-st={b.stage === "blooming" || b.stage === "sprout" ? "ok" : b.stage === "thirsty" ? "thirsty" : "wilting"} key={b.n}>
+            <span className="gnm"><b>{b.n}. {b.name}</b><small>{STAGE_TXT[b.stage]} · {b.blossoms}/8 blossoms{b.last ? ` · last ${prettyDay(b.last)}` : ""}</small></span>
+            {b.stage === "dead" && <button className="btn sm ghost gx" type="button" onClick={() => weedOut(b.n)}>{arm === String(b.n) ? "Yes, weed it out" : "Weed it out"}</button>}
           </div>
-        </>}
-        <form className="field" id="seedForm" onSubmit={(e) => {
-          e.preventDefault(); const n = seed.trim().slice(0, 60); if (!n || g.seeds.length >= 16) return;
-          update((d) => { d.gd.seeds.push({ id: gid(), name: n, pk: "", auto: "", at: k, w: {} }); }, ["gd"]); setSeed("");
-        }}>
-          <div className="field-row"><input id="seedIn" type="text" maxLength={60} autoComplete="off" placeholder="Plant another habit" aria-label="Plant another habit" value={seed} onChange={(e) => setSeed(e.target.value)} /><button className="btn sm" type="submit">Plant</button></div>
-        </form>
-        <div className="sec-h">Weeds to pull</div>
-        {g.roots.map((r) => (
-          <article className="gr" key={r.id}>{ROOT_SVG}<div className="gi"><b>{r.name}</b><div className="rep-act">
-            <button className="btn sm" type="button" onClick={() => update((d) => { d.gd.roots = d.gd.roots.filter((x) => x.id !== r.id); d.gd.gone.push({ name: r.name, kind: "root", on: k }); if (d.gd.gone.length > 60) d.gd.gone.shift(); }, ["gd"])}>Pull it out</button>
-          </div></div></article>
         ))}
-        <form className="field" id="rootForm" onSubmit={(e) => {
-          e.preventDefault(); const n = root.trim().slice(0, 80); if (!n || g.roots.length >= 12) return;
-          update((d) => { d.gd.roots.push({ id: gid(), name: n, at: k }); }, ["gd"]); setRoot("");
-        }}>
-          <div className="field-row"><input id="rootIn" type="text" maxLength={80} autoComplete="off" placeholder="A habit or thought that is rotting" aria-label="Name a rotting habit or thought" value={root} onChange={(e) => setRoot(e.target.value)} /><button className="btn sm" type="submit">Add</button></div>
-        </form>
+        {care.length > 0 && <>
+          <div className="sec-h">A gentle nudge</div>
+          {care.slice(0, 3).map((b) => <p className="note" key={b.n}><Mini name={NUDGE[b.n].crew} sm /> {b.n ? b.name : "Trunk"}: {NUDGE[b.n].t}</p>)}
+          <p className="note">Any real activity revives a branch at once. Weeding a bare branch regrows a sprout; blossoms and history are never lost.</p>
+        </>}
+        <div id="gQuestSlot"><QuestLive /></div>
       </div>
     </div>
   );
 }
 
-/* ---------- Tonight, count your wins ---------- */
 function winLines(st: CourtState, k: string) {
   const T = winTally(st, k), auto = dayQ(k).filter((q) => isDone(st, q.id)).map((q) => q.title), L: string[] = [];
   const C = ["You did something real today.", "That is progress, not luck.", "Showing up counts, and you showed up.", "You are building this one day at a time.", "Proud of you. Keep going.", "You are doing better than you think."];
@@ -377,8 +391,23 @@ export function DiaryLive() {
             </>}
           </article>
         ))}
+        <Archive />
       </div>
     </div></details>
+  );
+}
+
+// Read-only archive of the old typed habits and weeds (removed from the Garden; nothing deleted).
+function Archive() {
+  const { st } = useCourt();
+  const g = st.gd, habits = g.seeds.filter((s) => !s.q);
+  if (!habits.length && !g.roots.length && !g.gone.length) return null;
+  return (
+    <details className="pillar"><summary><b>Archive</b> <span className="note">old habits and weeds, read only</span></summary>
+      {habits.length > 0 && <><p className="note">Habits you planted</p>{habits.map((h) => <div className="filed-row" key={h.id}><span>{h.name} <span className="note">since {prettyDay(h.at)} · watered {Object.keys(h.w || {}).length} days</span></span></div>)}</>}
+      {g.roots.length > 0 && <><p className="note">Weeds you named</p>{g.roots.map((r) => <div className="filed-row" key={r.id}><span>{r.name} <span className="note">{prettyDay(r.at)}</span></span></div>)}</>}
+      {g.gone.length > 0 && <><p className="note">Let go or pulled out</p>{g.gone.map((x, i) => <div className="filed-row" key={i}><span>{x.name} <span className="note">{x.kind === "root" ? "pulled" : "let go"} {prettyDay(x.on)}</span></span></div>)}</>}
+    </details>
   );
 }
 

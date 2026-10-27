@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 // One watering event per real tick (grid cell, ladder milestone, quest). on:false removes it, so undoing
 // a tick takes the water back. Her session, so RLS applies. Quiet { setup: true } before migration 0004.
-const SOURCES = new Set(["grid", "milestone", "quest", "anchors", "samsara"]);
+const SOURCES = new Set(["grid", "milestone", "quest", "anchors", "anchor", "samsara"]);
 
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -18,7 +18,19 @@ export async function POST(req: Request) {
   const weight = typeof b.weight === "number" && b.weight > 0 && b.weight <= 10 ? b.weight : 1;
   const { error } = b.on === false
     ? await supabase.from("watering_events").delete().eq("user_id", user.id).eq("source", source).eq("ref", ref)
-    : await supabase.from("watering_events").upsert({ user_id: user.id, source, ref, weight }, { onConflict: "user_id,source,ref", ignoreDuplicates: true });
+    : await supabase.from("watering_events").upsert({ user_id: user.id, source, ref, weight }, { onConflict: "user_id,source,ref" });
   if (error && (error.code === "42P01" || error.code === "PGRST205")) return NextResponse.json({ setup: true });
   return error ? NextResponse.json({ error: "Could not save" }, { status: 500 }) : NextResponse.json({ ok: true });
+}
+
+// GET ?days=N (default 30, max 120): her events, newest first, for the garden's decay.
+export async function GET(req: Request) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
+  const days = Math.min(120, Math.max(1, +(new URL(req.url).searchParams.get("days") ?? 30) || 30));
+  const { data, error } = await supabase.from("watering_events").select("at, source, ref, weight").eq("user_id", user.id)
+    .gte("at", new Date(Date.now() - days * 86400000).toISOString()).order("at", { ascending: false }).limit(2000);
+  if (error && (error.code === "42P01" || error.code === "PGRST205")) return NextResponse.json({ setup: true, events: [] });
+  return error ? NextResponse.json({ error: "Could not read" }, { status: 500 }) : NextResponse.json({ events: data });
 }

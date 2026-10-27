@@ -13,12 +13,12 @@ export const QUESTS: Quest[] = [
   { id: "k2", crew: "kumo", cad: "Daily", title: "Study block, 1.5 hours", sub: "Your Mon to Thu course session.", xp: 25, star: 3, goal: 1, auto: true, cal: /study/i, days: [1, 2, 3, 4], ck: "Logs itself when the block ends" },
   { id: "o1", crew: "olli", cad: "Daily", title: "Check the macro calendar before the open", sub: "Know which US data releases land today.", xp: 15, star: 2, goal: 1, auto: true, evt: "macro", ck: "Counted when the live release list loads" },
   { id: "l2", crew: "luna", cad: "Daily", title: "Note your mood against the sky", sub: "One line on the Sky tab.", xp: 15, star: 2, goal: 1, auto: true, evt: "mood", ck: "Counted when you save a mood" },
-  { id: "k1", crew: "kumo", cad: "Daily", title: "Keep your daily anchors", sub: "Bed before midnight, a morning move, tea first, one proper meal.", xp: 30, star: 4, goal: 1, calCat: /self.?care|health|wellness|routine/i, ck: "Ticks itself from a self-care calendar, or tick it tonight" },
-  { id: "f1", crew: "fenn", cad: "Daily", title: "Run the pre-entry checklist", sub: "Bias written, limit entry, stop beyond the swing, size from risk, backup alert set.", xp: 30, star: 4, goal: 1, ck: "Tick it in the evening check-in" },
-  { id: "c1", crew: "coco", cad: "Daily", title: "Log today's spending, habit level", sub: "Categories only. No account numbers.", xp: 15, star: 2, goal: 1, ck: "Tick it in the evening check-in" },
+  { id: "k1", crew: "kumo", cad: "Daily", title: "Daily anchors", sub: "Your eight Small Wins anchors, ticked in the Garden.", xp: 30, star: 4, goal: 8, auto: true, ck: "Counts your anchor ticks, n/8" },
+  { id: "f1", crew: "fenn", cad: "Daily", title: "Run the pre-entry checklist", sub: "Bias written, limit entry, stop beyond the swing, size from risk, backup alert set.", xp: 30, star: 4, goal: 1, auto: true, ck: "Auto: a trade or plan saved today with the checklist at 9/9" },
+  { id: "c1", crew: "coco", cad: "Daily", title: "Log today's spending, habit level", sub: "Categories only. No account numbers.", xp: 15, star: 2, goal: 1, auto: true, ck: "Auto: a spending line logged today (Money)" },
   { id: "k5", crew: "kumo", cad: "Weekly", title: "Heavenly Tribulation: weekly review", sub: "What worked, what slipped, one change for next week.", xp: 40, star: 6, goal: 1, auto: true, cal: /weekly review|review|reset/i, ck: "Logs itself when the review block ends" },
-  { id: "o2", crew: "olli", cad: "Weekly", title: "Write your weekly bias", sub: "One line, plus what would prove it wrong.", xp: 25, star: 3, goal: 1, ck: "Tick it in the evening check-in" },
-  { id: "c2", crew: "coco", cad: "Weekly", title: "Weekly money review", sub: "Look at the week's pattern and pick one tweak.", xp: 30, star: 4, goal: 1, ck: "Tick it in the evening check-in" },
+  { id: "o2", crew: "olli", cad: "Weekly", title: "Write your weekly bias", sub: "One line, plus what would prove it wrong.", xp: 25, star: 3, goal: 1, auto: true, ck: "Auto: a plan with a thesis written this week (Trade)" },
+  { id: "c2", crew: "coco", cad: "Weekly", title: "Weekly money review", sub: "Look at the week's pattern and pick one tweak.", xp: 30, star: 4, goal: 1, auto: true, ck: "Auto: Sunday reset ticked and money figures updated that day" },
 ];
 
 export const QPRI = ["m1", "k7", "o1", "l2", "k2", "k1", "f1", "c1", "k5", "o2", "c2"];

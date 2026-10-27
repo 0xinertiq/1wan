@@ -17,7 +17,7 @@ export type LifeItem = {
   note?: string; sched?: string; paid?: string | number;
 };
 export type Seed = { id: string; name: string; pk?: string; q?: string; auto?: string; at: string; w: Record<string, number> };
-export type Garden = { seeds: Seed[]; roots: { id: string; name: string; at: string }[]; gone: { name: string; kind: string; on: string }[]; init?: number; v17?: number };
+export type Garden = { seeds: Seed[]; roots: { id: string; name: string; at: string }[]; gone: { name: string; kind: string; on: string }[]; init?: number; v17?: number; weed?: Record<string, string> };
 export type Mood = { m: number; n?: string };
 // Life > Money figures she types in (key mny). The imported Money Wins blob stays untouched under money.
 export type MLine = { id: string; name: string; amt: number };
