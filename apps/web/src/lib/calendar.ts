@@ -1,5 +1,5 @@
-// Server only. Reads her Google Calendars from their secret iCal addresses (env GCAL_ICAL_URL_1 to _5,
-// labels GCAL_NAME_1 to _5). The addresses never leave the server and are never logged.
+// Server only. Reads her Google Calendars from their secret iCal addresses (env GCAL_ICAL_URL_1 to _8,
+// labels GCAL_NAME_1 to _8). The addresses never leave the server and are never logged.
 // Handles all-day events, time zones (default Asia/Singapore), RRULE (daily, weekly, monthly, yearly with
 // INTERVAL, COUNT, UNTIL, BYDAY, BYMONTHDAY, BYMONTH), EXDATE and moved or cancelled single occurrences.
 
@@ -7,7 +7,7 @@ import type { CalEvent } from "./court/state";
 import { addDays, sgt } from "./court/time";
 
 const DEFAULT_TZ = "Asia/Singapore";
-const COLORS = ["#FF8FBF", "#7FD1C0", "#B8C4FF", "#FFD95E", "#FFAE82"];
+const COLORS = ["#FF8FBF", "#7FD1C0", "#B8C4FF", "#FFD95E", "#FFAE82", "#C9A7FF", "#9ED98A", "#8FD3FF"];
 const CACHE_MS = 15 * 60 * 1000;
 
 export type CalStatus = { name: string; color: string; ok: boolean };
@@ -198,9 +198,10 @@ function occurrences(evs: VEvent[], cal: string, color: string, winStart: number
 }
 
 /* ---------- fetch with cache ---------- */
+const MAX_FEEDS = 8;
 function configured() {
   const out: { url: string; name: string; color: string }[] = [];
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= MAX_FEEDS; i++) {
     const url = (process.env[`GCAL_ICAL_URL_${i}`] ?? "").trim();
     if (!url) continue;
     out.push({ url, name: (process.env[`GCAL_NAME_${i}`] ?? "").trim().slice(0, 24) || `Calendar ${i}`, color: COLORS[(i - 1) % COLORS.length] });
