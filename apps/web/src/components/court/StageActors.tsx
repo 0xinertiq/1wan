@@ -1,13 +1,17 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PixelSprite } from "@/components/PixelSprite";
+import type { BriefKind } from "@/lib/briefKinds";
+import { crewDuty, type Duty } from "@/lib/court/duty";
+import type { WaterEvt } from "@/lib/court/garden";
+import { getOnce } from "@/lib/court/once";
 import { AGENTS, NODES } from "./agents";
 import { useCourt } from "./CourtState";
 
-// Walking crew from dashboard-v52 (bfs over the platform graph, walk and hop segments, palace rest).
-// Change from v52: the crew rests in the palace when she has been away for a while, not on a per-agent timer,
-// and walks back out on her next tap, key or scroll.
+// Walking crew from dashboard-v52 (bfs over the platform graph, walk and hop segments).
+// Change from v52: positions follow real events only (lib/court/duty.ts). Everyone starts inside the palace;
+// a crew member walks to their desk once their own work for today exists and stays there. No random wandering.
 
 type Node = keyof typeof NODES;
 type Edge = [Node, Node, "w" | "h"];
@@ -37,22 +41,25 @@ function bfs(from: Node, to: Node): Node[] {
   return path;
 }
 const edgeType = (a: Node, b: Node) => ADJ[a].find((x) => x[0] === b)?.[1] ?? "w";
-const rnd = (a: number, b: number) => a + Math.random() * (b - a);
-
-// How long without a tap, key or scroll before the crew goes inside to rest.
-const IDLE_MS = 2 * 60 * 1000;
 
 type Seg = { x0: number; y0: number; x1: number; y1: number; type: "w" | "h"; dur: number; t: number; to: Node; arc: number };
 type Actor = {
   id: string; work: Node; hello: string;
   el: HTMLButtonElement; flip: HTMLElement; bubble: HTMLElement;
   node: Node; x: number; y: number; seg: Seg | null; path: Node[]; goal: Node | null;
-  cb: (() => void) | null; replan: boolean; mode: "idle" | "rest" | "inside"; wait: number; inside: boolean; bt?: number;
+  cb: (() => void) | null; replan: boolean; inside: boolean; bt?: number; why: string;
 };
 
-export function StageActors() {
+export function StageActors({ filed }: { filed: Partial<Record<BriefKind, string>> }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const { openSheet } = useCourt();
+  const { openSheet, st, k } = useCourt();
+  const [water, setWater] = useState<WaterEvt[]>([]);
+  const apply = useRef<((d: Record<string, Duty>) => void) | null>(null);
+  useEffect(() => { getOnce<{ events?: WaterEvt[] }>("/api/water?days=1").then((j) => setWater(Array.isArray(j.events) ? j.events : [])); }, []);
+  const duty = crewDuty({ k, filed, water, st, sky: true });
+  const dutyKey = JSON.stringify(duty);
+  const dutyRef = useRef(duty);
+  dutyRef.current = duty;
 
   useEffect(() => {
     const root = rootRef.current;
@@ -62,12 +69,11 @@ export function StageActors() {
     root.querySelectorAll<HTMLButtonElement>(".agent:not(.boss)").forEach((el) => {
       const def = AGENTS.find((a) => a.id === el.dataset.id);
       if (!def?.work) return;
-      const [x, y] = NODES[def.work];
+      const [x, y] = NODES.pal;
       actors.push({
         id: def.id, work: def.work, hello: def.hello, el,
         flip: el.querySelector(".flip")!, bubble: el.querySelector(".bubble")!,
-        node: def.work, x, y, seg: null, path: [], goal: null, cb: null, replan: false,
-        mode: "idle", wait: rnd(1, 4), inside: false,
+        node: "pal", x, y, seg: null, path: [], goal: null, cb: null, replan: false, inside: true, why: "",
       });
     });
 
@@ -81,9 +87,9 @@ export function StageActors() {
       const z = document.getElementById("zz");
       if (z) { z.hidden = !n; z.textContent = n ? Array(Math.min(3, n) + 1).join("z ") : ""; }
       const chip = document.getElementById("crewChip");
-      if (chip) chip.textContent = n ? `${n} RESTING` : "ALL IDLE";
+      if (chip) chip.textContent = `${actors.length - n} AT WORK`;
     }
-    function arrived(a: Actor) { const cb = a.cb; a.cb = null; a.goal = null; if (cb) cb(); else a.wait = rnd(1, 3); }
+    function arrived(a: Actor) { const cb = a.cb; a.cb = null; a.goal = null; if (cb) cb(); }
     function startSeg(a: Actor, to: Node) {
       const [fx, fy] = NODES[a.node], [tx, ty] = NODES[to], type = edgeType(a.node, to);
       const dx = tx - fx, dy = ty - fy;
@@ -103,40 +109,31 @@ export function StageActors() {
       a.goal = target; a.cb = cb ?? null;
       if (!a.seg) { a.path = bfs(a.node, target); nextSeg(a); } else a.replan = true;
     }
-    function deskMode(a: Actor) { a.el.classList.add("desk"); a.wait = rnd(3, 6); }
-    function goRest(a: Actor) {
-      if (a.inside || a.mode === "rest") return;
-      a.mode = "rest"; a.el.classList.remove("desk");
-      goTo(a, "pal", () => {
-        a.inside = true; a.mode = "inside"; a.el.classList.add("inside"); a.bubble.classList.remove("on");
-        palZ();
-      });
-    }
-    function wake(a: Actor, delay: number) {
-      if (!a.inside && a.mode !== "rest") return;
-      a.inside = false; a.mode = "idle"; a.el.classList.remove("inside");
-      a.wait = 9999;
-      palZ();
-      window.setTimeout(() => goTo(a, a.work, () => { a.mode = "idle"; deskMode(a); }), RM ? 0 : delay);
-    }
     function say(a: Actor, text: string) {
       a.bubble.textContent = text; a.bubble.classList.add("on");
       window.clearTimeout(a.bt); a.bt = window.setTimeout(() => a.bubble.classList.remove("on"), 3200);
     }
-    function idleStep(a: Actor, dt: number) {
-      a.wait -= dt; if (a.wait > 0) return;
-      if (RM) { a.wait = 9999; return; }
-      a.el.classList.remove("desk");
-      let target: Node | undefined;
-      if (Math.random() < 0.5) target = a.work;
-      else {
-        const near = (Object.keys(NODES) as Node[]).filter((n) => n !== a.node && n !== "pal" && bfs(a.node, n).length <= 3);
-        target = near[Math.floor(Math.random() * near.length)];
-      }
-      if (!target) return;
-      if (target === a.node) { deskMode(a); return; }
-      goTo(a, target, () => { if (target === a.work) deskMode(a); else a.wait = rnd(1, 3); });
+    // Out to the desk when the work exists, back inside when it does not (a new day, a removed line).
+    function goOut(a: Actor, delay: number) {
+      if (!a.inside) return;
+      a.inside = false; a.el.classList.remove("inside"); palZ();
+      window.setTimeout(() => goTo(a, a.work, () => { a.el.classList.add("desk"); say(a, a.why); }), RM ? 0 : delay);
     }
+    function goIn(a: Actor) {
+      if (a.inside) return;
+      a.el.classList.remove("desk");
+      goTo(a, "pal", () => { a.inside = true; a.el.classList.add("inside"); a.bubble.classList.remove("on"); palZ(); });
+    }
+    apply.current = (d) => {
+      let i = 0;
+      for (const a of actors) {
+        const x = d[a.id]; a.why = x?.why ?? "";
+        a.el.setAttribute("aria-label", a.el.dataset.label + (a.why ? `. ${a.why}.` : ""));
+        if (x?.on) goOut(a, 150 + i++ * 260); else goIn(a);
+      }
+    };
+    actors.forEach((a) => setPos(a, a.x, a.y));
+    palZ();
 
     let raf = 0, last = 0;
     function tick(ts: number) {
@@ -152,49 +149,39 @@ export function StageActors() {
           }
           continue;
         }
-        if (a.mode === "idle") idleStep(a, dt);
       }
       raf = requestAnimationFrame(tick);
     }
     raf = requestAnimationFrame((ts) => { last = ts; tick(ts); });
 
-    // Away for a while: everyone walks into the palace. Back: they come out, one after another.
-    let idleTimer = 0;
-    const sleepAll = () => actors.forEach(goRest);
-    function onActivity() {
-      window.clearTimeout(idleTimer);
-      idleTimer = window.setTimeout(sleepAll, IDLE_MS);
-      actors.forEach((a, i) => wake(a, 150 + i * 260));
-    }
-    const evs = ["pointerdown", "keydown", "wheel", "touchstart"] as const;
-    evs.forEach((e) => window.addEventListener(e, onActivity, { passive: true }));
-    idleTimer = window.setTimeout(sleepAll, IDLE_MS);
+    apply.current(dutyRef.current);
 
     const clicks = actors.map((a) => {
-      const h = () => say(a, a.hello);
+      const h = () => say(a, a.why || a.hello);
       a.el.addEventListener("click", h);
       return () => a.el.removeEventListener("click", h);
     });
 
     return () => {
       cancelAnimationFrame(raf);
-      window.clearTimeout(idleTimer);
-      evs.forEach((e) => window.removeEventListener(e, onActivity));
+      apply.current = null;
       clicks.forEach((off) => off());
       actors.forEach((a) => window.clearTimeout(a.bt));
     };
   }, []);
+  useEffect(() => { apply.current?.(dutyRef.current); }, [dutyKey]);
 
   return (
     <div className="actors" id="actors" ref={rootRef}>
       {AGENTS.map((d, i) => {
-        const [x, y] = d.id === "kumo" ? [50, 84] : NODES[d.work!];
+        const [x, y] = d.id === "kumo" ? [50, 84] : NODES.pal;
         return (
           <button
             key={d.id}
             type="button"
-            className={d.id === "kumo" ? "agent boss" : "agent desk"}
+            className={d.id === "kumo" ? "agent boss" : "agent inside"}
             data-id={d.id}
+            data-label={`${d.name}, ${d.role}. Select to meet`}
             aria-label={`${d.name}, ${d.role}. Select to meet.`}
             style={{ left: `${x}%`, top: `${y}%`, zIndex: Math.round(y * 10) }}
             onClick={() => openSheet({ kind: "crew", id: d.id })}

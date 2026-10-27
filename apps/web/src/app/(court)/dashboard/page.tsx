@@ -96,7 +96,7 @@ export default async function Dashboard() {
                 <TodayLive />
               </div>
               <div className="col c-m">
-                <Stage />
+                <Stage filed={Object.fromEntries(rows.map((r) => [r.kind, r.at]))} />
                 <StatusLine latest={latest} />
                 <LunaSky />
                 <BriefWin docs={docs} initial={initial} />

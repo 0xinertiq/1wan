@@ -96,7 +96,7 @@
    "status": "done",
    "expect": "Needs you now, today card with weather, brief, watchlist, week strip, week ahead.",
    "you_do": "",
-   "note": "Needs you now, today card with weather, brief cards with \"3 things that matter\" on top, watchlist, this-week strip."
+   "note": "Needs you now, today card with weather, brief cards with \"3 things that matter\" on top, watchlist, this-week strip. Crew stand at their desks only when their work for today is real."
   },
   {
    "id": "s10",
@@ -114,7 +114,7 @@
    "status": "done",
    "expect": "Astro weather on the Court, cross-check with your astro calendar, Kumo's tails.",
    "you_do": "Optional: enter birth date, time and city in Settings (private).",
-   "note": "Luna's computed sky (positions, retrogrades, moon, 14-day stations, ingresses, eclipses), your astro calendar's own words with a cross-check, transits to your chart once birth details are in, Kumo's nine tails."
+   "note": "Luna's computed sky (positions, retrogrades, moon, 14-day stations, ingresses, eclipses), your astro calendar's own words with a cross-check, transits to your chart once birth details are in, Kumo's nine tails. The Court sky now follows the real sun and moon over Singapore."
   },
   {
    "id": "s12",

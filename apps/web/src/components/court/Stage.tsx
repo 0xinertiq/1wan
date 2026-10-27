@@ -1,15 +1,18 @@
 import { StageActors } from "./StageActors";
 import { StagePrices } from "./Prices";
+import { StageSky } from "./StageSky";
+import type { BriefKind } from "@/lib/briefKinds";
 
-// Court scene from dashboard-v52. The crew walks, hops and rests in the palace (StageActors).
-export function Stage() {
+// Court scene from dashboard-v52. Sky colour and moon from Luna's real sun and moon positions (StageSky);
+// the crew stands at their desks only when their real work for today exists (StageActors).
+export function Stage({ filed }: { filed: Partial<Record<BriefKind, string>> }) {
   return (
-    <section className="stage" id="stage" aria-label="Court scene. Chief Kumo and nine agents move around.">
+    <section className="stage" id="stage" aria-label="Court scene. Crew members stand at their desks when their work for today is done.">
       <div className="sky"></div>
       <div className="stars" aria-hidden="true">
         <i style={{ left: "8%", top: "12%" }}></i><i style={{ left: "18%", top: "30%", animationDelay: "-1s" }}></i><i style={{ left: "27%", top: "8%", animationDelay: "-2s" }}></i><i style={{ left: "36%", top: "22%", animationDelay: "-.5s" }}></i><i style={{ left: "46%", top: "10%", animationDelay: "-1.6s" }}></i><i style={{ left: "55%", top: "28%" }}></i><i style={{ left: "63%", top: "14%", animationDelay: "-2.4s" }}></i><i style={{ left: "71%", top: "34%", animationDelay: "-1.2s" }}></i><i style={{ left: "79%", top: "9%", animationDelay: "-.8s" }}></i><i style={{ left: "88%", top: "26%", animationDelay: "-2.1s" }}></i><i style={{ left: "94%", top: "16%" }}></i><i style={{ left: "12%", top: "44%", animationDelay: "-1.4s" }}></i>
       </div>
-      <div className="orb" aria-hidden="true"></div>
+      <StageSky />
       <svg className="cloud sk" viewBox="0 -6 200 70" style={{ top: "12%", "--rm-left": "14%", animationDuration: "70s", animationDelay: "-12s" } as React.CSSProperties} aria-hidden="true"><use href="#cl" /></svg>
       <svg className="cloud sk" viewBox="0 -6 200 70" style={{ top: "26%", "--rm-left": "52%", animationDuration: "96s", animationDelay: "-58s", transformOrigin: "left", scale: ".8" } as React.CSSProperties} aria-hidden="true"><use href="#cl" /></svg>
       <svg className="cloud sk" viewBox="0 -6 200 70" style={{ top: "6%", "--rm-left": "70%", animationDuration: "84s", animationDelay: "-40s", scale: ".65" } as React.CSSProperties} aria-hidden="true"><use href="#cl" /></svg>
@@ -44,9 +47,9 @@ export function Stage() {
       <svg className="banner" viewBox="0 0 60 100" aria-hidden="true"><path d="M6 0H54V90L30 76L6 90Z" fill="var(--banner)" stroke="var(--line)" strokeWidth="3" strokeLinejoin="round" /><polygon points="30,24 34,34 45,35 37,42 39,53 30,47 21,53 23,42 15,35 26,34" fill="#FFD95E" stroke="var(--line)" strokeWidth="2.4" strokeLinejoin="round" /></svg>
       <div className="dais" aria-hidden="true"></div>
       <div className="chip-map chip-l" aria-hidden="true">CLOUD COURT</div>
-      <div className="chip-map chip-r" id="crewChip" aria-hidden="true">ALL IDLE</div>
+      <div className="chip-map chip-r" id="crewChip" aria-hidden="true">0 AT WORK</div>
       <StagePrices />
-      <StageActors />
+      <StageActors filed={filed} />
       <div className="fx" id="fx" aria-hidden="true"></div>
       <div className="lvl" id="lvlBanner" hidden><b id="lvlTxt">LEVEL UP</b><span id="lvlSub"></span></div>
     </section>
