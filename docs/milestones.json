@@ -48,10 +48,10 @@
    "id": "s4",
    "group": "Build",
    "title": "4. Life > Trade",
-   "status": "partial",
-   "note": "Ledger, sizer, review tiles, freeze rate, stop kept, the nine \"Before you enter\" checks in your ledger's wording, and stop/ATR flags. Saving a stop on a plan needs one small setup step.",
+   "status": "done",
+   "note": "Ledger, sizer, plans as the thesis log (with the Samsara fields), trade log, review tiles, freeze rate, stop kept, recurring mistakes, the nine \"Before you enter\" checks in your ledger's wording, stop/ATR flags, gamble log kept out of the stats. Migration 0005 is applied (checked live 27 Oct), so plans save their stop and target.",
    "expect": "Plans, trade log, review tiles, gamble log kept separate.",
-   "you_do": "Run migration 0005 in Supabase (manual steps, section H)."
+   "you_do": ""
   },
   {
    "id": "s5",
@@ -138,10 +138,10 @@
    "id": "s14",
    "group": "Optional",
    "title": "14. Kumo weekly review packet",
-   "status": "partial",
+   "status": "done",
    "expect": "Copy-for-Claude button and a Sunday review.",
-   "you_do": "Paste READ_SECRET into Vercel once.",
-   "note": "Weekly packet with a preview of exactly what is sent, sensitive sections off by default, Copy for Claude, and Kumo's spec crew/kumo.md. The read endpoint for the Sunday task is built and waits for a secret. Each packet copy or read, and each filed brief, now writes a usage row."
+   "you_do": "",
+   "note": "Weekly packet with a preview of exactly what is sent, sensitive sections off by default, Copy for Claude, and Kumo's spec crew/kumo.md. GET /api/export/weekly with READ_SECRET returns the packet (checked live 27 Oct: 200, week and packet). The Sunday cloud task reads it. Each packet copy or read, and each filed brief, writes a usage row."
   },
   {
    "id": "pwa",
@@ -162,20 +162,21 @@
    "you_do": ""
   },
   {
-   "id": "l1",
-   "group": "Later",
-   "title": "Repoint the 6 scheduled tasks to the new site (phase 1: extra post; phase 2: learning loop)",
-   "status": "next",
-   "expect": "Briefs also appear in 1(WAN); your ratings reach the desks.",
-   "you_do": "Add one network secret in your cloud environment (guide given), then approve the throwaway test."
+   "id": "sched1",
+   "group": "Foundation",
+   "title": "Scheduled tasks post to 1(WAN) (phase 1)",
+   "status": "done",
+   "expect": "Briefs from the cloud tasks appear in 1(WAN).",
+   "you_do": "",
+   "note": "New cloud tasks: Daily Intel Brief 07:42, Watchlist Scan 03:50, Midday Movers 14:30, Chief Kumo Sun 08:50, each posting to /api/ingest/brief (200). Old tasks switched off. Checked 27 Oct: intel, scan and review briefs filed today with usage rows; the first movers brief lands at its next 14:30 run."
   },
   {
-   "id": "l2",
+   "id": "l1",
    "group": "Later",
-   "title": "Polish pass: fonts, spacing, colours, sprites",
-   "status": "todo",
-   "expect": "After about a week of real use.",
-   "you_do": "Tell me what you ignore and what you love."
+   "title": "Scheduled tasks phase 2: your ratings feed back to the desks",
+   "status": "next",
+   "expect": "Your ratings and notes on briefs reach the desks that write them.",
+   "you_do": ""
   },
   {
    "id": "l3",
@@ -192,6 +193,79 @@
    "status": "todo",
    "expect": "",
    "you_do": "Check availability."
+  },
+  {
+   "id": "aea",
+   "group": "Aesthetic overhaul",
+   "title": "A. Fonts and tokens",
+   "status": "done",
+   "expect": "Fonts self-hosted, design tokens, a classic/new switch. Nothing looks different.",
+   "you_do": "",
+   "note": "next/font self-hosts the same six fonts and weights (no Google Fonts link); tokens.css maps colours, spacing, radii, shadows and type sizes to the current values, day and night; data-ui=\"classic\" by default, \"?ui=new\" switches (does nothing yet)."
+  },
+  {
+   "id": "aeb",
+   "group": "Aesthetic overhaul",
+   "title": "B. Court home",
+   "status": "next",
+   "expect": "Redesigned behind the classic/new switch; classic stays until you approve.",
+   "you_do": ""
+  },
+  {
+   "id": "aec",
+   "group": "Aesthetic overhaul",
+   "title": "C. Garden",
+   "status": "todo",
+   "expect": "Redesigned behind the classic/new switch; classic stays until you approve.",
+   "you_do": ""
+  },
+  {
+   "id": "aed",
+   "group": "Aesthetic overhaul",
+   "title": "D. Diary",
+   "status": "todo",
+   "expect": "Redesigned behind the classic/new switch; classic stays until you approve.",
+   "you_do": ""
+  },
+  {
+   "id": "aee",
+   "group": "Aesthetic overhaul",
+   "title": "E. Calendar",
+   "status": "todo",
+   "expect": "Redesigned behind the classic/new switch; classic stays until you approve.",
+   "you_do": ""
+  },
+  {
+   "id": "aef",
+   "group": "Aesthetic overhaul",
+   "title": "F. Life (Money, Trade, Grid & Wins, Samsara)",
+   "status": "todo",
+   "expect": "Redesigned behind the classic/new switch; classic stays until you approve.",
+   "you_do": ""
+  },
+  {
+   "id": "aeg",
+   "group": "Aesthetic overhaul",
+   "title": "G. Luna astro weather",
+   "status": "todo",
+   "expect": "Redesigned behind the classic/new switch; classic stays until you approve.",
+   "you_do": ""
+  },
+  {
+   "id": "aeh",
+   "group": "Aesthetic overhaul",
+   "title": "H. Split dashboard.css per component",
+   "status": "todo",
+   "expect": "Easier to change one tab without touching the others.",
+   "you_do": ""
+  },
+  {
+   "id": "aei",
+   "group": "Aesthetic overhaul",
+   "title": "I. Final polish and phone check",
+   "status": "todo",
+   "expect": "Redesigned behind the classic/new switch; classic stays until you approve.",
+   "you_do": ""
   }
  ]
 }

@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 // Build progress, read from docs/milestones.json at build time (no database, no personal data).
 // Claude Code updates that file after every step, so this page refreshes on each deploy.
 type M = { id: string; group: string; title: string; status: string; note?: string; expect: string; you_do: string };
-const GROUPS = ["Foundation", "Build", "Intelligence", "Optional", "Later"];
+const GROUPS = ["Foundation", "Build", "Intelligence", "Optional", "Aesthetic overhaul", "Later"];
 const LABEL: Record<string, string> = { done: "Done", partial: "Partly done", next: "Next", todo: "To do", blocked: "Blocked" };
 
 export default async function ProgressPage() {

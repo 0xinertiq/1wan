@@ -1,0 +1,39 @@
+/* Design tokens (aesthetic overhaul, step A). Nothing reads these yet, so the dashboard looks exactly as before.
+   Colours point at the v52 variables in dashboard.css, so day and night (system setting, data-theme="dark" or
+   "light") follow automatically. Spacing, radii, shadows and type sizes are the values dashboard.css uses most.
+   Redesigned tabs read tokens only, and only under :root[data-ui="new"] (set before paint; default "classic"). */
+:root{
+  /* type */
+  --t-font-display:var(--font-display);
+  --t-font-body:var(--font-body);
+  --t-font-ui:var(--nf-quicksand),var(--nf-atkinson),system-ui,sans-serif;
+  --t-font-pixel:var(--nf-silkscreen),monospace;
+  --t-font-seal:var(--nf-mashan),var(--nf-noto),serif;
+  --t-font-serif-cn:var(--nf-noto),var(--nf-baloo),serif;
+  --t-size-2xs:11px; --t-size-xs:12px; --t-size-sm:13px; --t-size-md:14px; --t-size-base:16px; --t-size-lg:18px; --t-size-xl:22px;
+  --t-leading:1.5; --t-leading-tight:1.3;
+
+  /* colours: surfaces, text, lines, accents */
+  --c-bg:var(--bg); --c-bg-2:var(--bg2);
+  --c-surface:var(--win); --c-surface-hi:var(--win-hi); --c-surface-tint:var(--tint); --c-surface-dim:var(--win-dim);
+  --c-text:var(--ink); --c-text-soft:var(--ink-soft);
+  --c-line:var(--line); --c-line-soft:var(--lav); --c-line-strong:var(--lav-strong); --c-edge:var(--edge); --c-track:var(--track);
+  --c-accent:var(--btn-bg); --c-accent-ink:var(--btn-ink); --c-accent-alt:var(--btn-alt);
+  --c-rose:var(--rose-strong); --c-mint:var(--mint-strong); --c-peach:var(--peach-strong); --c-butter:var(--butter-strong);
+  --c-chip-mint:var(--chip-mint); --c-chip-lav:var(--chip-lav); --c-chip-peach:var(--chip-peach); --c-chip-butter:var(--chip-butter); --c-chip-pink:var(--chip-pink); --c-chip-sky:var(--chip-sky);
+  --c-gold:var(--pal-trim); --c-outline:#4a2538;
+
+  /* spacing (4px steps, plus the 2, 6 and 10 the dashboard uses a lot) */
+  --s-0:2px; --s-1:4px; --s-1h:6px; --s-2:8px; --s-2h:10px; --s-3:12px; --s-4:16px; --s-5:20px; --s-6:24px; --s-8:32px;
+
+  /* radii */
+  --r-xs:6px; --r-sm:8px; --r-md:10px; --r-lg:12px; --r-xl:14px; --r-2xl:16px; --r-pill:999px;
+
+  /* shadows: the hard pixel drop under windows and buttons */
+  --sh-1:0 1px 0 var(--edge); --sh-2:0 3px 0 var(--edge); --sh-3:0 4px 0 var(--edge); --sh-none:none;
+
+  /* borders */
+  --b-thin:1px; --b-std:2px; --b-thick:3px;
+}
+/* New-design overrides go here, tab by tab (step B onwards). Empty on purpose. */
+:root[data-ui="new"]{}
