@@ -52,7 +52,7 @@ export function LunaCaption() {
 }
 
 export function LunaSky() {
-  const { st, k, events } = useCourt();
+  const { st, k, events, openSheet } = useCourt();
   const { pos, phase, ev } = useSky();
   const [open, setOpen] = useState(false);
   const astro = useMemo(() => {
@@ -74,6 +74,7 @@ export function LunaSky() {
       <div className="win-title"><h2 id="lunaT">Luna&apos;s sky</h2><span className="sub">{phase.name} · Moon in {pos[1].sign}</span></div>
       <div className="win-body">
         <LunaCaption />
+        {!st.birth && <p className="note">Luna can read transits to your own chart. <button className="btn sm" type="button" onClick={() => openSheet({ kind: "birth" })}>Add birth details</button></p>}
         <button className="btn sm ghost" type="button" onClick={() => setOpen(!open)}>{open ? "Hide the full reading" : "Full reading"}</button>
         {open && <>
           {astro.length > 0 && <>
@@ -94,7 +95,7 @@ export function LunaSky() {
           <div className="sec-h">Transits to your chart</div>
           {natal ? (natal.tr.length ? natal.tr.slice(0, 8).map((x, i) => <div className="filed-row" key={i}><span>{x.t}</span><span className="note">{x.orb.toFixed(1)}° · house {x.house}</span></div>)
             : <p className="note">No transits within 1.5° today.</p>)
-            : <p className="note">Add your birth details privately in Settings to see transits to your chart. Until then Luna shows the general sky.</p>}
+            : <p className="note">Until you add birth details, Luna shows the general sky. <button className="btn sm ghost" type="button" onClick={() => openSheet({ kind: "birth" })}>Add birth details</button></p>}
           <p className="note">The sky gives timing context only, never outcomes, and never trade calls.</p>
         </>}
       </div>

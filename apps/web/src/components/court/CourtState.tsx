@@ -11,7 +11,7 @@ import { sgt } from "@/lib/court/time";
 
 export type SaveState = "idle" | "saving" | "saved" | "offline";
 export type CalState = { state: "off" | "loading" | "live" | "error"; cals: { name: string; color: string; ok: boolean }[] };
-export type Sheet = { kind: "crew"; id: string } | { kind: "settings" } | { kind: "wins" } | null;
+export type Sheet = { kind: "crew"; id: string } | { kind: "settings" } | { kind: "wins" } | { kind: "birth" } | null;
 
 type Ctx = {
   st: CourtState;

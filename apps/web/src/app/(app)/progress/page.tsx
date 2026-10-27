@@ -27,8 +27,10 @@ export default async function ProgressPage() {
         <h1>{APP_NAME} · Progress</h1>
         <div className="actions"><a className="button" href="/dashboard">Back</a></div>
       </header>
-      <p className="pg-sub">Updated {data.updated}. {pct}% built.</p>
-      <div className="pg-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Overall progress"><i style={{ width: pct + "%" }} /></div>
+      <p className="pg-pct">{pct}% built</p>
+      <p className="pg-sub">{ms.filter((m) => m.status === "done").length} of {ms.length} milestones done · updated {data.updated}</p>
+      <div className="pg-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Overall progress"><span style={{ width: pct + "%" }} /></div>
+      {!ms.length && <p className="pg-sub">No milestones found in this build.</p>}
       {next && <section className="pg-next"><b>Next: {next.title}</b><p>{next.expect}</p>{next.you_do && <p><b>What you do:</b> {next.you_do}</p>}</section>}
       {GROUPS.map((g) => {
         const list = ms.filter((m) => m.group === g);

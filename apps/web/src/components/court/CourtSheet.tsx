@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { PixelSprite } from "@/components/PixelSprite";
 import { useCourt } from "./CourtState";
 import { AGENTS } from "./agents";
-import { SettingsLive } from "./live/SettingsLive";
+import { BirthForm, SettingsLive } from "./live/SettingsLive";
 import { WinsLive } from "./live/GrowLive";
 import type { Latest } from "./StatusLine";
 import { kindLabel } from "@/lib/briefs";
@@ -73,9 +73,9 @@ export function CourtSheet({ latest }: { latest: Latest }) {
   if (!sheet) return null;
   return (
     <div className="sheet-bg" onPointerDown={(e) => { if (e.target === e.currentTarget) openSheet(null); }}>
-      <div className="sheet" role="dialog" aria-modal="true" aria-labelledby={sheet.kind === "crew" ? "sheetT" : undefined} aria-label={sheet.kind === "settings" ? "Settings" : sheet.kind === "wins" ? "Count your wins" : undefined}>
+      <div className="sheet" role="dialog" aria-modal="true" aria-labelledby={sheet.kind === "crew" ? "sheetT" : undefined} aria-label={sheet.kind === "settings" ? "Settings" : sheet.kind === "wins" ? "Count your wins" : sheet.kind === "birth" ? "Birth details" : undefined}>
         <button ref={closeRef} className="btn sm ghost sheet-x" type="button" onClick={() => openSheet(null)}>Close</button>
-        {sheet.kind === "crew" ? <CrewDetail id={sheet.id} latest={latest} /> : sheet.kind === "wins" ? <WinsLive onDone={() => openSheet(null)} /> : <SettingsLive open />}
+        {sheet.kind === "crew" ? <CrewDetail id={sheet.id} latest={latest} /> : sheet.kind === "wins" ? <WinsLive onDone={() => openSheet(null)} /> : sheet.kind === "birth" ? <div className="detail"><BirthForm /></div> : <SettingsLive open />}
       </div>
     </div>
   );

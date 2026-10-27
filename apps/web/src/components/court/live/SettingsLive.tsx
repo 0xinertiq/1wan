@@ -114,7 +114,7 @@ export function SettingsLive({ open = false }: { open?: boolean }) {
 
 // Birth details for Luna's natal chart. Private: stored only in her own state, never in shared tables,
 // briefs, git or logs. Only the place name is sent to the place search.
-function BirthForm() {
+export function BirthForm() {
   const { st, update } = useCourt();
   const b = st.birth;
   const [f, setF] = useState({ date: b?.date ?? "", time: b?.time ?? "", q: b?.place ?? "" });
@@ -131,8 +131,8 @@ function BirthForm() {
   };
   return (
     <>
-      <div className="sec-h">Birth details (private)</div>
-      <p className="note xd">For Luna&apos;s natal chart only. Kept in your own data; never shown to friends or put in shared briefs.</p>
+      <div className="sec-h" id="birthH">Birth details (private)</div>
+      <p className="note">For Luna&apos;s natal chart only. Kept in your own data; never shown to friends or put in shared briefs. Only the city name goes to the place search.</p>
       <div className="field-row">
         <input type="date" aria-label="Birth date" value={f.date} onChange={(e) => setF({ ...f, date: e.target.value })} />
         <input type="time" aria-label="Birth time" value={f.time} onChange={(e) => setF({ ...f, time: e.target.value })} />
