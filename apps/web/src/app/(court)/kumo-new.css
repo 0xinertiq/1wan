@@ -253,6 +253,38 @@ a.pb-chip:focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:-3
 @keyframes pbfall{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(18px,120px) rotate(160deg)}100%{transform:translate(-6px,260px) rotate(320deg);opacity:0}}
 @media (prefers-reduced-motion:reduce){.pb-fx{display:none}}
 
+/* Living Kingdom card (New look): painted scene at its own aspect ratio, place chips over the painted ones
+   (they may grow past the painted chip to stay readable, always centred on it), crew sprites under a place. */
+.lk .pbanner.lkscene{height:auto;aspect-ratio:760/528;border:0;border-radius:0 0 var(--kumo-radius-card) var(--kumo-radius-card);box-shadow:none}
+.lk .pbanner.lk-growing{aspect-ratio:772/528}
+@media (max-width:759px){.lk .pbanner.lkscene{aspect-ratio:680/500}.lk .pbanner.lk-growing{aspect-ratio:700/500}}
+.lkscene .pb-box{overflow:visible;align-items:center;justify-content:center}
+.lkscene .pb-box{font-size:max(10px,1.5cqw)}
+.lkscene .lk-chip{flex:none;min-width:100%;min-height:100%;white-space:nowrap;padding:2px 6px;font-weight:800}
+.lkscene .pb-castle .lk-chip{gap:0}
+.lkscene .lk-title{padding:2px 6%}
+.lkscene .lk-title h2{font:700 max(12px,2.6cqw)/1.1 var(--kumo-font-display)!important;color:var(--kumo-text)}
+.lkscene .lk-title p{font:700 max(10px,1.6cqw)/1.2 var(--kumo-font-body)!important;color:var(--kumo-text-muted);margin-top:1px}
+.lkscene .lk-bubble{flex-direction:column;gap:1px;font-size:max(10px,1.6cqw)}
+.lkscene .lk-bubble i{font-style:normal}
+.lkscene .lk-bubble .up{color:var(--kumo-success)}.lkscene .lk-bubble .dn{color:var(--kumo-danger)}
+.lkscene .lk-crew{position:absolute;top:100%;left:50%;transform:translateX(-50%);display:flex;gap:1px;margin-top:2px}
+.lkscene .lk-crew span{display:block;width:max(16px,3.2cqw);height:max(16px,3.2cqw);filter:drop-shadow(0 1px 0 rgba(74,37,56,.3))}
+.lkscene .lk-crew svg{width:100%;height:100%}
+.lkscene .lk-add{position:absolute;height:auto;image-rendering:pixelated}
+.lkscene .pb-tag{font-size:11px;padding:1px 6px}
+/* Night after 19:00 SGT: moonlit recolour, a soft gradient, twinkling stars and warm lantern glow. */
+.lk-night .pb-art img{filter:brightness(.72) saturate(.85) hue-rotate(-18deg)}
+.lk-night.lk-growing .pb-art img{filter:brightness(.85) saturate(.95)}
+.lk-night .pb-fx{background:linear-gradient(180deg,rgba(28,22,64,.35),rgba(28,22,64,0) 55%)}
+.lk-night .pb-fx::after{content:"";position:absolute;inset:auto 0 0 0;height:45%;background:radial-gradient(18% 30% at 18% 70%,rgba(255,206,120,.35),transparent),radial-gradient(14% 26% at 82% 68%,rgba(255,206,120,.32),transparent);animation:lkglow 4s ease-in-out infinite}
+@keyframes lkglow{50%{opacity:.6}}
+.lkscene .lk-star{position:absolute;width:2.2%;height:auto;image-rendering:pixelated;animation:lktw 3s ease-in-out infinite}
+@keyframes lktw{50%{opacity:.4}}
+.lk .lvl{position:absolute;left:50%;top:40%;z-index:5;transform:translate(-50%,-50%);padding:8px 16px;border-radius:var(--kumo-radius-control);background:linear-gradient(var(--chip-butter),var(--chip-pink));border:1px solid var(--line);box-shadow:var(--kumo-shadow-floating);text-align:center;display:grid;font-family:var(--kumo-font-body)}
+.lk .lvl[hidden]{display:none}
+.lk>.win-title{border-bottom:0}
+
 /* Focus ring from the kit. */
 :root[data-ui="new"] :focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:2px}
 

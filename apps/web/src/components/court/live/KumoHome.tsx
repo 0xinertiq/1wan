@@ -13,11 +13,11 @@ import { TodayChips } from "./TodayLive";
 // The Court tab. Classic: the v52 three columns, exactly as before. New look (moodboard 01, "a summary, never
 // a second calendar or hub"): banner; Today / Needs you now / Kingdom progress / Quick capture; Luna's
 // forecast; every other window folded under "More on your court". Nothing is removed, only arranged.
-// The Court scene stays visible as a compact card under Kingdom progress (it also shows level-ups).
+// The Living Kingdom card sits under Kingdom progress in place of the Cloud Court (it also shows level-ups).
 export type CourtSlots = {
   weather: React.ReactNode; today: React.ReactNode; todayBare: React.ReactNode; stage: React.ReactNode; statusLine: React.ReactNode;
   luna: React.ReactNode; brief: React.ReactNode; scan: React.ReactNode; tech: React.ReactNode; weekStrip: React.ReactNode;
-  weekAhead: React.ReactNode; econ: React.ReactNode; news: React.ReactNode; needs: React.ReactNode; status: React.ReactNode;
+  weekAhead: React.ReactNode; econ: React.ReactNode; news: React.ReactNode; needs: React.ReactNode; status: React.ReactNode; kingdom: React.ReactNode;
 };
 
 export function CourtLayout({ s }: { s: CourtSlots }) {
@@ -37,7 +37,7 @@ export function CourtLayout({ s }: { s: CourtSlots }) {
       <div className="krow">
         <TodayCard weather={s.weather} more={s.todayBare} />
         {s.needs}
-        <div className="kprog">{s.status}{s.stage}</div>
+        <div className="kprog">{s.status}{s.kingdom}</div>
         <QuickCapture />
       </div>
       <AstroForecast />

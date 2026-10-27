@@ -22,12 +22,13 @@ export const OBS_BANNER: { desktop: Crop; mobile: Crop } = {
   mobile: { file: "/kumo/obs-banner-mobile.webp", w: 530, h: 216, fx: 0.4, boxes: { bubble: [135, 132, 115, 59] } },
 };
 
-function Art({ crop, cls, fill }: { crop: Crop; cls: string; fill: Record<string, React.ReactNode> }) {
+function Art({ crop, cls, fill, extra }: { crop: Crop; cls: string; fill: Record<string, React.ReactNode>; extra?: React.ReactNode }) {
   const style = { "--r": crop.w / crop.h, "--fx": crop.fx } as React.CSSProperties;
   return (
     <div className={"pb " + cls}>
       <div className="pb-art" style={style}>
         <img src={crop.file} alt="" width={crop.w} height={crop.h} decoding="async" />
+        {extra}
         {Object.entries(crop.boxes).map(([id, [x, y, w, h]]) => (
           <div key={id} className={"pb-box pb-" + id} style={{ left: (x / crop.w) * 100 + "%", top: (y / crop.h) * 100 + "%", width: (w / crop.w) * 100 + "%", height: (h / crop.h) * 100 + "%" }}>
             {fill[id] ?? null}
@@ -40,18 +41,21 @@ function Art({ crop, cls, fill }: { crop: Crop; cls: string; fill: Record<string
 
 // Desktop and phone crops both render; CSS shows one. Petals and a slow cloud drift sit on top (they stop
 // under reduced motion). The "Prototype art" label stays until final art replaces the crop.
-export function PaintedBanner({ set, fill, fillMobile, label, className }: {
+// extra(which) draws more layers in crop coordinates (code-drawn additions, night stars), under the boxes.
+export function PaintedBanner({ set, fill, fillMobile, label, className, extra, children }: {
   set: { desktop: Crop; mobile: Crop }; fill: Record<string, React.ReactNode>; fillMobile?: Record<string, React.ReactNode>; label: string; className?: string;
+  extra?: (which: "d" | "m") => React.ReactNode; children?: React.ReactNode;
 }) {
   return (
     <section className={"pbanner " + (className ?? "")} aria-label={label}>
-      <Art crop={set.desktop} cls="pb-d" fill={fill} />
-      <Art crop={set.mobile} cls="pb-m" fill={fillMobile ?? fill} />
+      <Art crop={set.desktop} cls="pb-d" fill={fill} extra={extra?.("d")} />
+      <Art crop={set.mobile} cls="pb-m" fill={fillMobile ?? fill} extra={extra?.("m")} />
       <div className="pb-fx" aria-hidden="true">
         <i className="pb-cloud" /><i className="pb-cloud c2" />
         {Array.from({ length: 7 }, (_, i) => <i key={i} className={"pb-petal p" + i} />)}
       </div>
       <span className="pb-tag">Prototype art</span>
+      {children}
     </section>
   );
 }

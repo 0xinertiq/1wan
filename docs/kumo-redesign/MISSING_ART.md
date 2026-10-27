@@ -20,3 +20,12 @@ Pixel items use a 32x32 grid, plum outline #4a2538, one gold accent, nearest-nei
 | Calendar (Clock Tower) banner candidate | Concept image 36 has a clock-tower strip, but greeting, stat bar, toggle, avatar and a speech bubble are painted across its sky; not used yet | clock_tower_banner.webp | ~1408x312 | centre | Calendar tab header |
 
 Code-drawn moon and star (`decor/moon.ts`, `decor/star.ts`) are no longer on the Observatory banner; they stay for Kingdom Mode skies.
+
+## Living Kingdom (concept image 26)
+| Spot | Current stand-in | File to commission | Size | Anchor | Slot |
+|---|---|---|---|---|---|
+| Kingdom, Starter | `public/kumo/kingdom-starter-desktop.webp` (x 0-760) and `-mobile.webp` (x 40-720, y 0-500): prototype, cropped from concept image 26, replace with final art | kingdom_starter.webp, no text, wide | 760x528 | whole scene | Living Kingdom card, stage 1. Real title card, place chips and bubble cover the painted ones (boxes in `components/kumo/kingdom.ts`). Painted pixel fox kept (it is baked in). |
+| Kingdom, Growing | `public/kumo/kingdom-growing-desktop.webp` (x 764-1536) and `-mobile.webp`: prototype, cropped from concept image 26, replace with final art | kingdom_growing.webp, no text | 772x528 | whole scene | Living Kingdom card, stage 2+ |
+| Kingdom, Expanding / Thriving / Your Own (stages 3-5) | Growing scene plus code-drawn flowers, lanterns, sakura tree, mushroom (`decor/`) | kingdom_expanding / thriving / unique scenes | 772x528 | whole scene | Living Kingdom, stages 3-5 |
+| Kingdom, Night | CSS recolour + gradient + code-drawn stars + lantern glow (after 19:00 SGT) | kingdom_starter_night, kingdom_growing_night | 772x528 | whole scene | Living Kingdom at night |
+| Kingdom seasons: Summer, Autumn, Winter | NEEDS REAL ART, nothing shown | kingdom_<season> per stage | 772x528 | whole scene | Theme / season |
