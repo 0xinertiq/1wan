@@ -685,3 +685,9 @@ body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .crewfacts{margin:4px 0 0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 12px}
 .crewfacts dt{font:600 13px var(--font-display);color:var(--ink-soft)}
 .crewfacts dd{margin:0;overflow-wrap:anywhere}
+
+/* Life > Money */
+.money .filed-row{margin-top:6px}
+.money .filed-row input[type=number]{width:96px}
+.mbar{display:block;height:8px;margin-top:4px;border:2px solid var(--line);border-radius:6px;background:var(--tint);overflow:hidden}
+.mbar i{display:block;height:100%;background:var(--chip-mint)}

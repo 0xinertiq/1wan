@@ -19,17 +19,24 @@ export type LifeItem = {
 export type Seed = { id: string; name: string; pk?: string; q?: string; auto?: string; at: string; w: Record<string, number> };
 export type Garden = { seeds: Seed[]; roots: { id: string; name: string; at: string }[]; gone: { name: string; kind: string; on: string }[]; init?: number; v17?: number };
 export type Mood = { m: number; n?: string };
+// Life > Money figures she types in (key mny). The imported Money Wins blob stays untouched under money.
+export type MLine = { id: string; name: string; amt: number };
+export type MFund = { id: string; name: string; target: number; saved: number };
+export type MAsset = MLine & { kind: "a" | "d" };
+export type MItem = { id: string; t: string; done: boolean };
+export type Money = { inc: MLine[]; fixed: MLine[]; funds: MFund[]; nw: MAsset[]; goals: MItem[]; open: MItem[]; upd?: string; hideNw?: boolean };
 
 export type CourtState = {
   v: 1; day: string; week: string; streak: number; stars: number; lvl: number; xp: number;
   q: Record<string, [number, number]>; days: Record<string, Day>; wins: Record<string, Win>;
   dump: Dump[]; life: LifeItem[]; gd: Garden; cad: { wk: string; ig: number; x: number };
   mood: Record<string, Mood>; restDay: string | null; restWeek: string | null; uq: string[];
+  mny: Money;
   last: Record<string, unknown>; prev: Record<string, unknown> | null;
 };
 
 // Keys this UI owns. Saves send only these; the server refuses anything else.
-export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "last", "prev"] as const;
+export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "last", "prev"] as const;
 export type OwnedKey = (typeof OWNED_KEYS)[number];
 
 export type Recap = { old: string; done: number; total: number; newWeek: boolean; lost: boolean; restY: boolean };
@@ -38,6 +45,13 @@ const obj = <T,>(v: unknown, d: T): T => (v && typeof v === "object" && !Array.i
 const arr = <T,>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : []);
 const num = (v: unknown, d: number) => (typeof v === "number" && isFinite(v) ? v : d);
 const str = (v: unknown, d: string) => (typeof v === "string" ? v : d);
+
+function normMoney(v: unknown): Money {
+  const m = obj<Partial<Money>>(v, {});
+  const ok = <T extends { id?: unknown }>(a: unknown) => arr<T>(a).filter((x) => x && typeof x.id === "string");
+  return { inc: ok(m.inc), fixed: ok(m.fixed), funds: ok(m.funds), nw: ok(m.nw), goals: ok(m.goals), open: ok(m.open),
+    upd: typeof m.upd === "string" ? m.upd : undefined, hideNw: m.hideNw !== false };
+}
 
 // Tolerates missing or odd keys: anything absent gets the old dashboard's default.
 export function normalize(raw: unknown, today: string): CourtState {
@@ -57,6 +71,7 @@ export function normalize(raw: unknown, today: string): CourtState {
     restDay: typeof r.restDay === "string" ? r.restDay : null,
     restWeek: typeof r.restWeek === "string" ? r.restWeek : null,
     uq: arr<string>(r.uq).filter((s) => typeof s === "string"),
+    mny: normMoney(r.mny),
     last: obj(r.last, {}), prev: r.prev && typeof r.prev === "object" ? (r.prev as Record<string, unknown>) : null,
   };
 }

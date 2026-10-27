@@ -93,14 +93,15 @@ def main():
 
     # user_state keys. grid is the 64 Actionables ticks; samsara keeps its weekly counters.
     mandala = SRC / "64-actionables" / "db" / "data" / "users" / "me" / "mandala.json"
-    keys = {"wins": page_state("small-wins"), "money": page_state("money-wins"),
+    # Small Wins goes to swins: the key wins already holds the dashboard's diary wins.
+    keys = {"swins": page_state("small-wins"), "money": page_state("money-wins"),
             "grid": read(mandala) if mandala.exists() else None, "samsara": page_state("samsara")}
     keys = {k: v for k, v in keys.items() if v is not None}
 
     # Garden history: one watering event per trade and per day of logged anchors.
     water = [{"user_id": uid, "at": t["at"], "source": "trade", "ref": "trade:" + t["id"], "weight": 1}
              for t in trades if t["at"]]
-    for d, v in sorted(((keys.get("wins") or {}).get("log") or {}).items()):
+    for d, v in sorted(((keys.get("swins") or {}).get("log") or {}).items()):
         n = sum(1 for x in v if x) if isinstance(v, list) else 0
         if day(d) and n:
             water.append({"user_id": uid, "at": d + "T21:00:00+08:00", "source": "anchors", "ref": "anchors:" + d, "weight": n})

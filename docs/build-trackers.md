@@ -29,7 +29,7 @@ Every tick is either AUTO (derived from a real record) or SELF-REPORT (labelled 
 
 ## Data model (migration 0004, additive, RLS own rows on every table)
 - `trades`, `plans`, `gamble` tables (user_id, id text, fields as in the ledger, `at` timestamptz), plus `ledger_settings` (account, risk %, rules[3], wallets).
-- `user_state.data` keys `wins` (done map + daily log by date), `money` (state blob: done, t, f, nw), `grid` (done map by cell id).
+- `user_state.data` keys `swins` (Small Wins: done map + daily log by date), `money` (state blob: done, t, f, nw), `grid` (done map by cell id).
 - `watering_events` (user_id, at, source, ref, weight): written whenever a quest is completed, a grid cell ticked, a trade or plan saved, a spending line logged. The garden reads only this table plus `grid`.
 - Spending log (Coco, manual entry or CSV, no account numbers): `spending` (user_id, at, amount, category, note). Minimal quick-add.
 - Import script `scripts/import_trackers.py` (same style as import_export.py, dry run first, idempotent) reading `data-import/trackers/`. Add all new tables to "Export my data".
