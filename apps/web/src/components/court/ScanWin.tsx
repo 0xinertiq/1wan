@@ -1,6 +1,6 @@
 import { BriefFeedback } from "./BriefFeedback";
 import { ScanPrices } from "./Prices";
-import { SourcesLine, type BriefDoc } from "./BriefTabs";
+import { SourcesLine, TopThree, type BriefDoc } from "./BriefTabs";
 
 // Watchlist scan window (v52 scanBox). v52 read TradingView live; here it shows the newest brief of kind
 // "scan" from her 03:50 scheduled task.
@@ -14,6 +14,7 @@ export function ScanWin({ doc }: { doc: BriefDoc | null }) {
           {doc ? (
             <>
               <p className="note brh"><b>{doc.title}</b>{doc.when && ` · ${doc.when}`}</p>
+              <TopThree top={doc.top} />
               <div className="brb open" dangerouslySetInnerHTML={{ __html: doc.html }} />
               <SourcesLine s={doc.sources} />
               <BriefFeedback kind="scan" at={doc.at} initial={doc.vote} />

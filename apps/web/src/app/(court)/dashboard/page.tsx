@@ -5,6 +5,7 @@ import { CourtDefs } from "@/components/court/CourtDefs";
 import { Header } from "@/components/court/Header";
 import { Stage } from "@/components/court/Stage";
 import { mdLite } from "@/components/court/mdLite";
+import { topThree } from "@/lib/briefTop";
 import type { BriefDoc } from "@/components/court/BriefTabs";
 import { ScanWin } from "@/components/court/ScanWin";
 import { loadBriefs, kindLabel, type BriefRow, type Vote } from "@/lib/briefs";
@@ -51,6 +52,7 @@ function toDoc(b: BriefRow, now: Date, vote: Vote): BriefDoc {
     title: (b.title || kindLabel(b.kind)).slice(0, 120),
     when: ok ? `${day} ${hm(at)} (${agoTxt(at.getTime(), now.getTime())})` : "",
     html: mdLite(b.body),
+    top: topThree(b.body),
     at: b.at,
     sources: b.sources,
     vote,
