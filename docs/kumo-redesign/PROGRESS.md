@@ -5,8 +5,8 @@ Branch: `kumo/aesthetic-overhaul`. Design package lives in `docs/` (not `docs/ku
 | Slice | Status | Commit | Notes |
 |---|---|---|---|
 | Preflight | done | 01a4622 baseline | tsc OK, 29/29 tests, build OK. Backup: newest export is 2026-10-16 (old dashboard). Needs a fresh Export my data before deploy. |
-| A. Foundation | done | (this commit) | Playfair Display + Nunito, kit tokens, day palette, cards/buttons/chips/inputs/tabs. New is default; Classic switch in Settings. Night keeps the v52 palette for now. |
-| B. Primitives + nav | todo | | |
+| A. Foundation | done, live | fc0d74b | Playfair Display + Nunito, kit tokens, day palette, cards/buttons/chips/inputs/tabs. New is default; Classic switch in Settings. Night keeps the v52 palette for now. |
+| B. Primitives + nav | done | (this commit) | Nav bar and rail restyled (still 5 tabs), empty states, 44px touch targets. Docs task (prompts) shipped with this deploy. |
 | C. Court home | todo | | |
 | D. Luna Astro Weather | todo | | |
 | E. Pages | todo | | |

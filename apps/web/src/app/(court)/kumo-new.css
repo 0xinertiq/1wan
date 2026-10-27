@@ -91,6 +91,26 @@
 :root[data-ui="new"] #kbText,:root[data-ui="new"] .field textarea{border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win-hi);font-family:var(--kumo-font-body)}
 :root[data-ui="new"] .field-row input:focus,:root[data-ui="new"] select:focus,:root[data-ui="new"] textarea:focus{border-color:var(--kumo-lavender);outline:none;box-shadow:0 0 0 3px var(--kumo-lavender-soft)}
 
+/* Main navigation: white bar (phone) or rail (desktop), hairline edge, pink pill on the open tab. */
+:root[data-ui="new"] .tabnav{background:var(--win);border-top:1px solid var(--line);box-shadow:0 -4px 20px rgba(42,35,64,.05)}
+:root[data-ui="new"] .tabnav button{font:700 12px var(--kumo-font-body);color:var(--ink-soft);min-height:52px}
+:root[data-ui="new"] .tabnav button:hover{color:var(--ink)}
+:root[data-ui="new"] .tabnav button[aria-current=page]{background:var(--chip-pink);color:var(--lav-strong)}
+:root[data-ui="new"] .tabnav button:focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:2px}
+@media (min-width:980px){
+  :root[data-ui="new"] .tabnav{border-top:0;border-right:1px solid var(--line);box-shadow:4px 0 20px rgba(42,35,64,.04)}
+}
+
+/* Empty, loading and quiet states: soft dashed box, muted text. */
+:root[data-ui="new"] .empty{border:1px dashed var(--line);border-radius:var(--kumo-radius-card);background:var(--win-dim);font-family:var(--kumo-font-body)}
+:root[data-ui="new"] .note{font-family:var(--kumo-font-body)}
+
+/* Touch screens: every control at least 44px tall. */
+@media (pointer:coarse){
+  :root[data-ui="new"] .btn,:root[data-ui="new"] .btn.sm,:root[data-ui="new"] .chipb,:root[data-ui="new"] .tab,:root[data-ui="new"] .icon-btn,:root[data-ui="new"] select{min-height:44px}
+  :root[data-ui="new"] .icon-btn{min-width:44px}
+}
+
 /* Focus ring from the kit. */
 :root[data-ui="new"] :focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:2px}
 
