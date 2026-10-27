@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useCourt } from "../CourtState";
 import { dueList, LCATS, money, type CourtState, type MAsset, type MItem, type MLine } from "@/lib/court/state";
 import { prettyDay } from "@/lib/court/time";
+import { MoneyPorted } from "./MoneyPorted";
 
 // Life > Money (docs/build-trackers.md, Screens). Tracks and explains only, never advises.
 // Spending lines live in the spending table (0004); her typed figures live in user_state key mny.
@@ -66,10 +67,12 @@ export function MoneyLive() {
   return (
     <div className="money">
       <p className="note xd">Coco keeps your money in one place. This page tracks and explains; it never tells you what to do with your money.</p>
-      <p className="note" role="status">
-        Today's spending log: {loggedToday ? "done (auto, from a line logged today)" : "not yet"}
-        {" · "}Money figures last updated: {m.upd ? prettyDay(m.upd) : "never"}
-      </p>
+      {!st.defs.money && (
+        <p className="note" role="status">
+          Today's spending log: {loggedToday ? "done (auto, from a line logged today)" : "not yet"}
+          {" · "}Money figures last updated: {m.upd ? prettyDay(m.upd) : "never"}
+        </p>
+      )}
 
       <div className="sec-h">Spending this month</div>
       {setup ? (
@@ -110,6 +113,7 @@ export function MoneyLive() {
         </>
       )}
 
+      {st.defs.money ? <MoneyPorted d={st.defs.money} loggedToday={loggedToday} /> : <>
       <div className="sec-h">Cash flow, {month}</div>
       <p className="note xd">Money in, minus fixed costs, minus what you logged this month.</p>
       <div className="filed-row"><span>Money in per month</span><span>{money(inc)}</span></div>
@@ -167,6 +171,7 @@ export function MoneyLive() {
 
       <Ticks title="Goals" k="goals" items={m.goals} edit={edit} placeholder="A money goal, for example Emergency fund full by June" />
       <Ticks title="Open items" k="open" items={m.open} edit={edit} placeholder="Something to sort out, for example Cancel unused subscription" />
+      </>}
     </div>
   );
 }

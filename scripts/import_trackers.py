@@ -12,6 +12,7 @@ import argparse
 import json
 import pathlib
 import re
+import subprocess
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -42,6 +43,14 @@ def page_state(name):
 
 def docs(folder):
     return [(p.stem, read(p)) for p in sorted((LEDGER / folder).glob("*.json"))] if (LEDGER / folder).exists() else []
+
+
+def defs_counts(d):
+    if "grid" in d:
+        yield "grid cells", sum(len(p["acts"]) for p in d["grid"]["pillars"])
+    for k in ("swins", "samsara", "money"):
+        if k in d:
+            yield k + " items", sum(len(p["items"]) for p in d[k]["phases"])
 
 
 def main():
@@ -106,6 +115,10 @@ def main():
             "grid": read(mandala) if mandala.exists() else None, "samsara": page_state("samsara")}
     keys = {k: v for k, v in keys.items() if v is not None}
 
+    # Item wording and definitions (grid cells, ladders, money lines) from the page code. Private to her,
+    # so they live in her state, never in git. Always refreshed, since they are definitions, not ticks.
+    defs = json.loads(subprocess.run(["node", str(ROOT / "scripts" / "extract_defs.js")], capture_output=True, text=True, encoding="utf-8", check=True).stdout or "{}")
+
     # Garden history: one watering event per trade and per day of logged anchors.
     water = [{"user_id": uid, "at": t["at"], "source": "trade", "ref": "trade:" + t["id"], "weight": 1}
              for t in trades if t["at"]]
@@ -117,6 +130,8 @@ def main():
     row = s.req("GET", f"/rest/v1/user_state?select=data,version&user_id=eq.{uid}")
     have = (row[0]["data"] or {}) if row else {}
     add = {k: v for k, v in keys.items() if k not in have}
+    if defs:
+        add["defs"] = defs
     kept = sorted(k for k in keys if k in have)
     old_water = {w["ref"] for w in s.req("GET", f"/rest/v1/watering_events?select=ref&user_id=eq.{uid}")}
     new_water = [w for w in water if w["ref"] not in old_water]
@@ -124,6 +139,7 @@ def main():
     print("Trackers import" + ("" if a.apply else " (dry run, nothing written)"))
     print(f"  trades: {len(trades)}  plans: {len(plans)}  gamble: {len(gamble)}  ledger settings: {'yes' if ledger else 'no'}")
     print(f"  user_state keys to add: {', '.join(sorted(add)) or 'none'}" + (f"  (kept existing: {', '.join(kept)})" if kept else ""))
+    print("  definitions: " + (", ".join(f"{k} ({n})" for k, n in defs_counts(defs)) or "none"))
     print(f"  watering events: {len(new_water)} new, {len(water) - len(new_water)} already there")
     if not a.apply:
         print("Looks right? Run again with --apply.")

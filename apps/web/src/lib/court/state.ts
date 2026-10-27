@@ -24,6 +24,22 @@ export type MLine = { id: string; name: string; amt: number };
 export type MFund = { id: string; name: string; target: number; saved: number };
 export type MAsset = MLine & { kind: "a" | "d" };
 export type MItem = { id: string; t: string; done: boolean };
+// Her tracker definitions (key defs), imported from the private tracker pages; read-only here.
+export type PItem = [string, string, string, string?, number?];   // id, title, detail, date, review flag
+export type Phase = { id: string; title: string; when: string; why: string; daily?: boolean; course?: string; items: PItem[] };
+export type MoneyDefs = {
+  asOf: string; phases: Phase[]; routines: PItem[]; open: PItem[];
+  cash: [string, string, number][]; steps: [string, string, number][]; up: [string, string, number | null, string][];
+  funds: [string, string, number, string | null, number, string][]; nw: [string, string, string, number, number][];
+  k: { base: number; ef: number; sgdExp: number; usdExp: number } | null;
+};
+export type Defs = {
+  grid?: { goal: string; pillars: { name: string; acts: { t: string; why: string; when: string }[] }[] };
+  swins?: { phases: Phase[] }; samsara?: { phases: Phase[] }; money?: MoneyDefs;
+};
+export type Ticks = { done: Record<string, boolean> };
+export type MoneyW = Ticks & { t: Record<string, number>; f: Record<string, number>; nw: Record<string, number>; upd?: string };
+export type Samsara = Ticks & { t: { hours: number; entries: number; posts: number; replies: number; wk: string } };
 export type Money = { inc: MLine[]; fixed: MLine[]; funds: MFund[]; nw: MAsset[]; goals: MItem[]; open: MItem[]; upd?: string; hideNw?: boolean };
 
 export type CourtState = {
@@ -32,12 +48,12 @@ export type CourtState = {
   dump: Dump[]; life: LifeItem[]; gd: Garden; cad: { wk: string; ig: number; x: number };
   mood: Record<string, Mood>; restDay: string | null; restWeek: string | null; uq: string[];
   mny: Money;
-  tchk: Record<string, string>;   // her wording for the "Before you enter" checks c1..c9
+  grid: Ticks; swins: Ticks & { log: Record<string, string[]> }; money: MoneyW; samsara: Samsara; defs: Defs;
   last: Record<string, unknown>; prev: Record<string, unknown> | null;
 };
 
 // Keys this UI owns. Saves send only these; the server refuses anything else.
-export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tchk", "last", "prev"] as const;
+export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "grid", "swins", "money", "samsara", "last", "prev"] as const;
 export type OwnedKey = (typeof OWNED_KEYS)[number];
 
 export type Recap = { old: string; done: number; total: number; newWeek: boolean; lost: boolean; restY: boolean };
@@ -73,7 +89,12 @@ export function normalize(raw: unknown, today: string): CourtState {
     restWeek: typeof r.restWeek === "string" ? r.restWeek : null,
     uq: arr<string>(r.uq).filter((s) => typeof s === "string"),
     mny: normMoney(r.mny),
-    tchk: obj(r.tchk, {}),
+    grid: { done: obj(obj<Ticks>(r.grid, { done: {} }).done, {}) },
+    swins: (() => { const w = obj<Record<string, unknown>>(r.swins, {}); return { done: obj(w.done, {}), log: obj(w.log, {}) }; })(),
+    money: (() => { const w = obj<Record<string, unknown>>(r.money, {}); return { done: obj(w.done, {}), t: obj(w.t, {}), f: obj(w.f, {}), nw: obj(w.nw, {}), ...(typeof w.upd === "string" ? { upd: w.upd } : {}) }; })(),
+    samsara: (() => { const w = obj<Record<string, unknown>>(r.samsara, {}); const t = obj<Record<string, unknown>>(w.t, {});
+      return { done: obj(w.done, {}), t: { hours: num(t.hours, 0), entries: num(t.entries, 0), posts: num(t.posts, 0), replies: num(t.replies, 0), wk: str(t.wk, "") } }; })(),
+    defs: obj(r.defs, {}),
     last: obj(r.last, {}), prev: r.prev && typeof r.prev === "object" ? (r.prev as Record<string, unknown>) : null,
   };
 }

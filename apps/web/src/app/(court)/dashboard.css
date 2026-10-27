@@ -699,3 +699,9 @@ body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
 .checks{display:flex;flex-direction:column;gap:2px;margin:6px 0;border:2px solid var(--line);border-radius:10px;padding:6px 10px}
 .filed-row.col{flex-direction:column;align-items:stretch}
 .flag{font-weight:700}
+/* Life > Grid & Wins */
+.pillar{margin-top:8px;border:2px solid var(--line);border-radius:10px;padding:6px 10px;background:var(--tint)}
+.pillar>summary{cursor:pointer;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pillar>summary .mbar{flex-basis:100%}
+.mfld input{width:110px;margin-left:6px}
+.st-bad,.flag-bad{font-weight:700}
