@@ -43,6 +43,8 @@ export function buildPacket({ st, k, events, trades, plans, water, spending, sky
   const late = tw.filter((t) => { const h = new Date(Date.parse(String(t.at)) + 8 * 3600000).getUTCHours(); return h >= 23 || h < 6; });
   L.push("TRADING (counts only)");
   L.push(`Trades logged ${tw.length}, closed ${closed.length}, wins ${closed.filter((t) => Number(t.pnl) > 0).length}. Checklist average ${scores.length ? r1(scores.reduce((a, b) => a + b, 0) / scores.length) + "/9" : "not scored"}. Placed 11pm to 6am: ${late.length}.`);
+  const ks = closed.filter((t) => t.stop != null), moved = ks.filter((t) => Array.isArray(t.tags) && t.tags.includes("Moved the stop"));
+  L.push(`Stop kept: ${ks.length ? ks.length - moved.length + " of " + ks.length + " closed with a stop" : "no closed trades with a stop"}.`);
   L.push(`Plans written this week ${pw.length}. Freeze rate (all plans) ${trig.length ? Math.round((froze.length / trig.length) * 100) + "% (" + froze.length + " of " + trig.length + " triggered)" : "no plans triggered"}.`);
   const tags: Record<string, number> = {}; for (const t of tw) for (const x of Array.isArray(t.tags) ? t.tags : []) tags[String(x)] = (tags[String(x)] ?? 0) + 1;
   if (Object.keys(tags).length) L.push("Mistake tags: " + Object.entries(tags).map(([a, b]) => `${a} ${b}`).join(", "));

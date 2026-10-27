@@ -49,7 +49,7 @@
    "group": "Build",
    "title": "4. Life > Trade",
    "status": "partial",
-   "note": "Ledger, sizer, review tiles, freeze rate and stop/ATR flags work. Saving a stop on a plan needs one small setup step.",
+   "note": "Ledger, sizer, review tiles, freeze rate, stop kept, the nine \"Before you enter\" checks in your ledger's wording, and stop/ATR flags. Saving a stop on a plan needs one small setup step.",
    "expect": "Plans, trade log, review tiles, gamble log kept separate.",
    "you_do": "Run migration 0005 in Supabase (manual steps, section H)."
   },

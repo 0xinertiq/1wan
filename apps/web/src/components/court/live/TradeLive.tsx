@@ -15,14 +15,14 @@ type Ledger = { trades: Row[]; plans: Row[]; gamble: Row[]; settings: Settings |
 
 export const CHECKS: [string, string, string][] = [
   ["c1", "Weekly bias written down", "Thesis and invalidation written before checking the current price."],
-  ["c2", "Entering on a pullback, with a limit order at a planned level", "Not chasing the high or a green candle."],
+  ["c2", "Entering on a pullback, with a limit order at a planned level", "Not chasing the high or a green candle. Chasing has never worked for you."],
   ["c3", "Stop sits beyond the last swing low or high", "Outside the range's normal noise, not a few % under entry."],
   ["c4", "Size comes from the dollar risk", "Coins = risk ÷ stop distance. Not margin × leverage."],
   ["c5", "Liquidation is further away than the stop", "Checked on mark price."],
   ["c6", "It's between 6am and 11pm", "No late-night entries."],
   ["c7", "Not a re-entry after a stop-out in the last 24h", "Same coin, same day is a revenge-trade warning."],
   ["c8", "Backup alert set at the entry or stop", "So you don't have to watch the chart."],
-  ["c9", "Not a memecoin", "Memecoins only on a gamble day, from the separate gamble budget."],
+  ["c9", "Not a memecoin", "Memecoins only on a day you've decided is a gamble day, from a separate gamble budget. Never from this account."],
 ];
 const TAGS = ["Stop inside noise", "FOMO / market chase", "Chased the high", "Added to a losing position", "Memecoin", "No thesis written", "Oversized", "Late-night trade", "Revenge trade", "Moved the stop", "Exited early"];
 
@@ -48,6 +48,12 @@ export function score(t: Row) {
   if (typeof t.rules === "number") return t.rules;
   const c = t.checks;
   return c && typeof c === "object" ? CHECKS.filter(([id]) => (c as Record<string, unknown>)[id]).length : null;
+}
+// Stop kept: the ledger has no separate figure, so it counts closed trades with a stop that were not tagged "Moved the stop".
+export function stopKept(list: Row[]) {
+  const withStop = list.filter((t) => n(t.stop) != null && (n(t.exit) != null || n(t.pnl) != null));
+  const moved = withStop.filter((t) => Array.isArray(t.tags) && t.tags.includes("Moved the stop")).length;
+  return { n: withStop.length, kept: withStop.length - moved, rate: withStop.length ? (withStop.length - moved) / withStop.length : null };
 }
 export function planStats(list: Row[]) {
   const trig = list.filter((p) => p.triggered).length;
@@ -190,11 +196,13 @@ function Review({ trades, plans, account }: { trades: Row[]; plans: Row[]; accou
   const pnl = closed.map((x) => x.d.pnl).filter((v): v is number => v != null).reduce((a, b) => a + b, 0);
   const sc = trades.map(score).filter((v): v is number => v != null);
   const ps = planStats(plans);
+  const sk = stopKept(trades);
   const open = list.length - closed.length;
   const exec: [string, string, string][] = [
     ["Plans written", String(ps.n), ps.n ? ps.trig + " reached entry" : "none yet"],
     ["Freeze rate", ps.freeze != null ? Math.round(ps.freeze * 100) + "%" : "–", ps.trig ? ps.froze + " froze of " + ps.trig + " triggered" : "no plans triggered yet"],
     ["Thesis hit rate", ps.resolved ? Math.round((ps.right / ps.resolved) * 100) + "%" : "–", ps.resolved ? ps.right + " right of " + ps.resolved + " resolved" : ps.open ? ps.open + " still open" : "no theses yet"],
+    ["Stop kept", sk.rate != null ? Math.round(sk.rate * 100) + "%" : "–", sk.n ? sk.kept + " of " + sk.n + " closed with a stop" : "no closed trades with a stop"],
     ["Checklist", sc.length ? (sc.reduce((a, b) => a + b, 0) / sc.length).toFixed(1) + " / 9" : "–", sc.length ? "average before entry" : "not scored yet"],
   ];
   const res: [string, string, string][] = [
@@ -232,7 +240,8 @@ function Checks({ value, onChange }: { value: Record<string, boolean>; onChange:
   return (
     <fieldset className="checks">
       <legend className="note">Before you enter ({c}/9{c === 9 ? " · ready" : ""})</legend>
-      {CHECKS.map(([id, t, d]) => <label key={id} title={d}><input type="checkbox" checked={!!value[id]} onChange={(e) => onChange({ ...value, [id]: e.target.checked })} /> {t}</label>)}
+      <span className="note">Tick these for the trade in front of you. The score carries into the log.</span>
+      {CHECKS.map(([id, t, d]) => <label key={id} className="chk"><input type="checkbox" checked={!!value[id]} onChange={(e) => onChange({ ...value, [id]: e.target.checked })} /> <span><span>{t}</span><span className="note chk-d">{d}</span></span></label>)}
     </fieldset>
   );
 }
