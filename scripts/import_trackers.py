@@ -6,6 +6,7 @@ and user_state keys that already exist are kept (the app's copy is newer).
 Prints counts only, never data contents.
 
   python -I scripts/import_trackers.py --email you@example.com [--apply]
+  python -I scripts/import_trackers.py --only-user [--apply]   (when there is exactly one login)
 """
 import argparse
 import json
@@ -45,7 +46,9 @@ def docs(folder):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--email", required=True)
+    who = ap.add_mutually_exclusive_group(required=True)
+    who.add_argument("--email")
+    who.add_argument("--only-user", action="store_true", help="use the single Supabase login; never prints it")
     ap.add_argument("--apply", action="store_true")
     a = ap.parse_args()
 
@@ -53,9 +56,14 @@ def main():
     s = Supa(env["NEXT_PUBLIC_SUPABASE_URL"], env["SUPABASE_SERVICE_ROLE_KEY"])
 
     users = s.req("GET", "/auth/v1/admin/users?per_page=200")["users"]
-    me = next((u for u in users if (u.get("email") or "").lower() == a.email.lower()), None)
+    if a.only_user:
+        if len(users) != 1:
+            sys.exit(f"--only-user needs exactly one login; found {len(users)}. Use --email instead.")
+        me = users[0]
+    else:
+        me = next((u for u in users if (u.get("email") or "").lower() == a.email.lower()), None)
     if not me:
-        sys.exit(f"No Supabase login found for {a.email}. Invite yourself first (Authentication > Users).")
+        sys.exit("No Supabase login found for that email. Invite yourself first (Authentication > Users).")
     uid = me["id"]
 
     for t in ("trades", "plans", "gamble", "ledger_settings", "watering_events", "user_state"):
