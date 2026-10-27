@@ -2,6 +2,7 @@ import { createHash, timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 import { canonKind } from "@/lib/briefKinds";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { estTokens, logUsage, ownerId } from "@/lib/usage";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -81,5 +82,7 @@ export async function POST(req: Request) {
     res = await db.from("briefs").insert({ ...row, body }).select("id").single();
   }
   if (res.error) return bad("Could not save the brief.", 500);
+  // One usage row per filed brief: the scheduled task's output, estimated from the body length.
+  await logUsage(db, { userId: await ownerId(db), feature: "ingest:" + kind, output: estTokens(row.body) });
   return NextResponse.json({ ok: true, id: res.data.id, kind, at });
 }

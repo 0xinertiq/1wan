@@ -6,6 +6,7 @@ import { normalize } from "@/lib/court/state";
 import { PACKET_DEFAULT, buildPacket } from "@/lib/court/packet";
 import { sgt, weekKey } from "@/lib/court/time";
 import { skyEvents } from "@/lib/sky";
+import { estTokens, logUsage } from "@/lib/usage";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +32,7 @@ export async function GET(req: Request) {
   const k = sgt(new Date()).key, wk = weekKey(k);
   const [row, trades, plans, water, spend, cal] = await Promise.all([
     db.from("user_state").select("data").eq("user_id", owner.id).maybeSingle(),
-    db.from("trades").select("date, inst, exit, pnl, rules, tags, lesson, at").eq("user_id", owner.id),
+    db.from("trades").select("date, inst, stop, exit, pnl, rules, tags, lesson, at").eq("user_id", owner.id),
     db.from("plans").select("date, inst, thesis, triggered, placed").eq("user_id", owner.id),
     db.from("watering_events").select("at, source, ref, weight").eq("user_id", owner.id).gte("at", new Date(Date.now() - 30 * 86400000).toISOString()),
     db.from("spending").select("at, amount, category").eq("user_id", owner.id).gte("at", wk + "T00:00:00+08:00"),
@@ -40,5 +41,6 @@ export async function GET(req: Request) {
   const st = normalize(row.data?.data ?? {}, k);
   const text = buildPacket({ st, k, events: cal.events, trades: trades.data ?? [], plans: plans.data ?? [], water: water.data ?? [], spending: spend.data ?? [],
     sky: skyEvents(new Date(wk + "T00:00:00+08:00"), 14), opts: { ...PACKET_DEFAULT, ...st.packet } });
+  await logUsage(db, { userId: owner.id, feature: "weekly-packet:read", input: estTokens(text) });
   return NextResponse.json({ week: wk, packet: text }, { headers: { "Cache-Control": "no-store" } });
 }

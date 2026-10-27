@@ -33,6 +33,7 @@ export function PacketLive() {
   async function copy() {
     try {
       await navigator.clipboard.writeText(kumoPrompt.trim() + "\n\n---\n\n" + text);
+      fetch("/api/usage", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ feature: "weekly-packet:copy", chars: kumoPrompt.length + text.length }) }).catch(() => {});
       window.open("https://claude.ai/new", "_blank", "noopener");
       setMsg("Copied. In the Claude tab, paste (Ctrl+V) and send.");
     } catch { setMsg("Could not copy here. Select the text below and copy it by hand."); }
