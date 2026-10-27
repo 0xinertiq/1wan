@@ -111,28 +111,61 @@
   :root[data-ui="new"] .icon-btn{min-width:44px}
 }
 
-/* Court home (New look only): kingdom banner, then Today / Luna's astro weather / Quick capture. */
-.khome{display:none}
-:root[data-ui="new"] .khome{display:grid;gap:16px;margin-bottom:16px}
-:root[data-ui="new"] .kbanner{position:relative;height:clamp(140px,22vw,210px);border-radius:var(--kumo-radius-card);overflow:hidden;box-shadow:var(--kumo-shadow-card);border:1px solid var(--line)}
-:root[data-ui="new"] .kbanner-scene{position:absolute;inset:0;background-image:url(./kumo/layers/07_lanterns.svg),url(./kumo/layers/06_foreground.svg),url(./kumo/layers/05_trees.svg),url(./kumo/layers/04_castle.svg),url(./kumo/layers/03_floating_island.svg),url(./kumo/layers/02_clouds.svg),url(./kumo/layers/01_sky.svg);background-size:cover;background-position:center 70%;background-repeat:no-repeat}
-:root[data-ui="new"] .kbanner-text{position:absolute;left:16px;top:14px;max-width:min(70%,420px);padding:10px 14px;border-radius:var(--kumo-radius-control);background:rgba(255,255,255,.82);color:var(--kumo-text);backdrop-filter:blur(4px)}
+/* Court home (New look only; Classic renders the v52 columns instead). 12 columns, 24px gaps:
+   banner; Today / Needs you now / Kingdom progress / Quick capture (equal height); Luna's forecast; More. */
+:root[data-ui="new"] .khome{display:grid;gap:24px}
+:root[data-ui="new"] .kbanner{position:relative;height:clamp(130px,24vw,280px);border-radius:var(--kumo-radius-card);overflow:hidden;box-shadow:var(--kumo-shadow-card);border:1px solid var(--line)}
+/* Framed from the top so the whole castle skyline shows; the foreground crops first. */
+:root[data-ui="new"] .kbanner-scene{position:absolute;inset:0;background-image:url(./kumo/layers/07_lanterns.svg),url(./kumo/layers/06_foreground.svg),url(./kumo/layers/05_trees.svg),url(./kumo/layers/04_castle.svg),url(./kumo/layers/03_floating_island.svg),url(./kumo/layers/02_clouds.svg),url(./kumo/layers/01_sky.svg);background-size:cover;background-position:center 6%;background-repeat:no-repeat}
+:root[data-ui="new"] .kbanner-text{position:absolute;left:16px;top:14px;max-width:min(62%,420px);padding:10px 14px;border-radius:var(--kumo-radius-control);background:rgba(255,255,255,.86);color:var(--kumo-text);backdrop-filter:blur(4px)}
 :root[data-ui="new"] .kbanner-text h2{font:700 clamp(18px,2.6vw,26px)/1.15 var(--kumo-font-display)}
-:root[data-ui="new"] .kbanner-text p{font:600 13px var(--kumo-font-body);color:var(--kumo-text-muted);margin-top:2px}
-:root[data-ui="new"] .kbanner-fox{position:absolute;right:clamp(16px,8%,96px);bottom:8px;width:clamp(56px,8vw,84px);height:clamp(56px,8vw,84px);animation:kfloat 4s ease-in-out infinite}
+:root[data-ui="new"] .kbanner-text p{font:600 14px var(--kumo-font-body);color:var(--kumo-text-muted);margin-top:2px}
+:root[data-ui="new"] .kbanner-fox{position:absolute;left:26%;bottom:4%;width:clamp(52px,7.5vw,88px);height:clamp(52px,7.5vw,88px);filter:drop-shadow(0 3px 0 rgba(74,37,56,.25));animation:kfloat 4s ease-in-out infinite}
 :root[data-ui="new"] .kbanner-fox svg{width:100%;height:100%;display:block}
+:root[data-ui="new"] .kbanner-tag{position:absolute;right:10px;top:8px;padding:2px 8px;border-radius:var(--kumo-radius-chip);background:rgba(255,255,255,.85);color:var(--kumo-text-muted);font:700 12px var(--kumo-font-body)}
 @keyframes kfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-:root[data-ui="new"] .khome-grid{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
-@media (min-width:760px){:root[data-ui="new"] .khome-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (min-width:1180px){:root[data-ui="new"] .khome-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,1fr)}}
-:root[data-ui="new"] .khome .win-title a.sub{font:700 13px var(--kumo-font-body);color:var(--lav-strong);text-decoration:none}
-:root[data-ui="new"] .knl .win-body{gap:6px}
-:root[data-ui="new"] .knl-row{display:flex;align-items:center;gap:10px;min-height:32px}
-:root[data-ui="new"] .knl-t{font:700 13px var(--kumo-font-body);color:var(--ink-soft);font-variant-numeric:tabular-nums;width:44px;flex:none}
+:root[data-ui="new"] .khome>.statusline{margin:-12px 4px 0;font:600 14px var(--kumo-font-body);color:var(--ink-soft)}
+:root[data-ui="new"] .krow{display:grid;gap:24px;grid-template-columns:repeat(12,minmax(0,1fr));align-items:stretch}
+:root[data-ui="new"] .krow>*{grid-column:span 12;height:100%;margin:0}
+@media (min-width:760px){:root[data-ui="new"] .krow>*{grid-column:span 6}}
+@media (min-width:1180px){:root[data-ui="new"] .krow>*{grid-column:span 3}}
+:root[data-ui="new"] .kprog{display:grid;gap:12px;align-content:start}
+:root[data-ui="new"] .kprog .stage{border:1px solid var(--line);border-radius:var(--kumo-radius-card);box-shadow:var(--kumo-shadow-card);aspect-ratio:16/10;filter:saturate(.8)}
+:root[data-ui="new"] .kprog .status{margin:0}
+:root[data-ui="new"] .khome .win-title a.sub,:root[data-ui="new"] .khome .win-title .sub a{font:700 14px var(--kumo-font-body);color:var(--lav-strong);text-decoration:none}
+:root[data-ui="new"] .knl .win-body{gap:10px}
+:root[data-ui="new"] .knl-list{display:grid;gap:4px}
+:root[data-ui="new"] .knl-row{display:flex;align-items:center;gap:10px;min-height:32px;font-size:15px}
+:root[data-ui="new"] .knl-t{font:700 14px var(--kumo-font-body);color:var(--ink-soft);font-variant-numeric:tabular-nums;width:46px;flex:none}
 :root[data-ui="new"] .knl-dot{width:8px;height:8px;border-radius:50%;flex:none}
+:root[data-ui="new"] .tchips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+:root[data-ui="new"] .tchip{display:grid;gap:0;padding:6px 8px;border-radius:var(--kumo-radius-control);background:var(--win-dim);text-align:center}
+:root[data-ui="new"] .tchip i{font:700 12px/1.2 var(--kumo-font-body);font-style:normal;color:var(--ink-soft)}
+:root[data-ui="new"] .tchip b{font:700 16px var(--kumo-font-body);font-variant-numeric:tabular-nums}
+:root[data-ui="new"] .kfold>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font:700 14px var(--kumo-font-body);color:var(--lav-strong)}
+:root[data-ui="new"] .kfold[open]>summary{margin-bottom:8px}
+:root[data-ui="new"] .today-bare{display:grid;gap:12px}
 :root[data-ui="new"] .kastro .win-title{background:linear-gradient(90deg,var(--kumo-lavender-soft),var(--win))}
-:root[data-ui="new"] .kastro-h{font:600 16px var(--kumo-font-display);color:var(--ink)}
-:root[data-ui="new"] .kastro-ev{display:grid;gap:4px;padding-top:8px;border-top:1px solid var(--line)}
+:root[data-ui="new"] .kastro-h{font:600 18px var(--kumo-font-display);color:var(--ink)}
+:root[data-ui="new"] .kastro-evs{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+:root[data-ui="new"] .kastro-ev{display:grid;gap:4px;align-content:start;padding:12px;border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win)}
+:root[data-ui="new"] .kdo{margin:4px 0 0;padding:0;list-style:none;display:grid;gap:4px;font-size:14px}
+:root[data-ui="new"] .kdo b{display:inline-block;min-width:48px;padding:0 6px;margin-right:6px;border-radius:var(--kumo-radius-chip);font-size:12px;text-align:center}
+:root[data-ui="new"] .kdo .pos b{background:#DDF5EC;color:var(--kumo-success)}
+:root[data-ui="new"] .kdo .neg b{background:var(--kumo-pink-soft);color:var(--kumo-danger)}
+:root[data-ui="new"] .kmore{border:1px solid var(--line);border-radius:var(--kumo-radius-card);background:var(--win);box-shadow:var(--kumo-shadow-card)}
+:root[data-ui="new"] .kmore>summary{cursor:pointer;min-height:52px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:12px 16px;font:600 18px var(--kumo-font-display)}
+:root[data-ui="new"] .kmore[open]>summary{border-bottom:1px solid var(--line)}
+:root[data-ui="new"] .kmore-grid{display:grid;gap:24px;padding:16px;grid-template-columns:minmax(0,1fr);align-items:start}
+@media (min-width:980px){:root[data-ui="new"] .kmore-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+:root[data-ui="new"] .obs-back{justify-self:start;margin-bottom:12px}
+
+/* Type floor (New look): body and controls at least 14px; 12px only for captions and eyebrow labels. */
+:root[data-ui="new"] .note,:root[data-ui="new"] .wx,:root[data-ui="new"] .statusline{font-size:14px;color:var(--ink-soft)}
+:root[data-ui="new"] .qod blockquote{font-size:15px}
+:root[data-ui="new"] .qod{border:1px dashed var(--line);border-radius:var(--kumo-radius-control)}
+:root[data-ui="new"] .qod figcaption{font:700 12px var(--kumo-font-body);opacity:1;color:var(--ink-soft)}
+:root[data-ui="new"] .btn.sm,:root[data-ui="new"] .chipb,:root[data-ui="new"] .filed-row{font-size:14px}
 
 /* Observatory (Luna's sky), New look only: moonlit banner and the 7-day folds. Classic keeps its flat list. */
 .obanner,.obs7{display:none}

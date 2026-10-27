@@ -19,22 +19,25 @@ function Mini({ name }: { name: "momo" | "coco" | "kumo" }) {
   return <span className="mini"><PixelSprite name={name} /></span>;
 }
 
-export function TodayLive() {
+// bare: the New look's merged Today card shows the title, Since yesterday and the glance numbers itself
+// (TodayChips), and folds the rest of this window under "More".
+export function TodayLive({ bare = false }: { bare?: boolean }) {
   const [tab, setTab] = useState<"brief" | "sky" | "week">("brief");
   const { st, k } = useCourt();
   const dateLabel = prettyDay(k);
   const yd = st.days[addDays(k, -1)];
+  const Wrap = bare ? "div" : "section";
 
   return (
-    <section className="win" id="todayWin" aria-labelledby="tdT">
-      <div className="win-title"><h2 id="tdT">Today</h2><span className="sub" id="tdDate">{dateLabel}</span></div>
-      <div id="sinceBox">
+    <Wrap className={bare ? "today-bare" : "win"} id="todayWin" aria-labelledby={bare ? undefined : "tdT"}>
+      {!bare && <div className="win-title"><h2 id="tdT">Today</h2><span className="sub" id="tdDate">{dateLabel}</span></div>}
+      {!bare && <div id="sinceBox">
         <div className="sec-h">Since yesterday</div>
         <div className="win-line">
           <span className="pillx">{yd ? `Yesterday ${yd.d} of ${yd.t} habits` : "No record for yesterday"}</span>
           <span className={st.streak > 0 ? "pillx ok" : "pillx"}>{st.streak} day streak</span>
         </div>
-      </div>
+      </div>}
       <div className="tabs" role="tablist" aria-label="Today views">
         {(["brief", "sky", "week"] as const).map((t) => (
           <button key={t} className="ttab" role="tab" id={`tt-${t}`} aria-controls={`tp-${t}`} aria-selected={tab === t} tabIndex={tab === t ? 0 : -1} type="button" onClick={() => setTab(t)}>
@@ -43,7 +46,7 @@ export function TodayLive() {
         ))}
       </div>
       <div className="panel" id="tp-brief" role="tabpanel" aria-labelledby="tt-brief" hidden={tab !== "brief"}>
-        <Strip />
+        <Strip quoteOnly={bare} />
         <RecapBox />
         <div id="dayCard" className="daycard">
           <NowCard />
@@ -59,20 +62,35 @@ export function TodayLive() {
       <div className="panel" id="tp-week" role="tabpanel" aria-labelledby="tt-week" hidden={tab !== "week"}>
         <WeekPanel />
       </div>
-    </section>
+    </Wrap>
   );
 }
 
-function Strip() {
+// The glance numbers and Since yesterday as one compact row (New look's Today card).
+export function TodayChips() {
+  const { st, k, events } = useCourt();
+  const wh = weekHab(st, k), due = dueList(st, k, events).filter((x) => x.dd <= 3).length;
+  const yd = st.days[addDays(k, -1)];
+  return (
+    <div className="tchips" role="group" aria-label="Today at a glance">
+      <span className="tchip"><i>Due soon</i><b>{due}</b></span>
+      <span className="tchip"><i>Streak</i><b>{st.streak}</b></span>
+      <span className="tchip"><i>Habits this week</i><b>{wh.d}/{wh.t}</b></span>
+      <span className="tchip"><i>Yesterday</i><b>{yd ? `${yd.d}/${yd.t}` : "–"}</b></span>
+    </div>
+  );
+}
+
+function Strip({ quoteOnly = false }: { quoteOnly?: boolean }) {
   const { st, k, events } = useCourt();
   const wh = weekHab(st, k), due = dueList(st, k, events).filter((x) => x.dd <= 3).length;
   return (
     <div id="stripBox">
-      <div className="strip" role="group" aria-label="Today at a glance">
+      {!quoteOnly && <div className="strip" role="group" aria-label="Today at a glance">
         <span className="sc"><i>Due soon</i><b>{due}</b></span>
         <span className="sc"><i>Streak</i><b>{st.streak}</b></span>
         <span className="sc"><i>Habits this week</i><b>{wh.d}/{wh.t}</b></span>
-      </div>
+      </div>}
       <figure className="qod">
         <figcaption>Quote of the day</figcaption>
         <blockquote>{quoteOfDay(k, st.uq)}</blockquote>

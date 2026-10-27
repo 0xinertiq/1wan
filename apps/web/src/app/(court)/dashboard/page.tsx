@@ -25,7 +25,7 @@ import { CalendarLoader } from "@/components/court/CalendarLoader";
 import { PricesLoader } from "@/components/court/Prices";
 import { watchlistFrom } from "@/lib/prices";
 import { TodayLive } from "@/components/court/live/TodayLive";
-import { KumoHome } from "@/components/court/live/KumoHome";
+import { CourtLayout, Observatory } from "@/components/court/live/KumoHome";
 import { DiaryLive, GardenLive, StatusLive, WinsButton } from "@/components/court/live/GrowLive";
 import { bootState } from "@/lib/court/actions";
 import { normalize } from "@/lib/court/state";
@@ -89,33 +89,28 @@ export default async function Dashboard() {
       <CourtDefs />
       <Header />
       <AppTabs
+        extra={{ observatory: <Observatory luna={<LunaSky />} /> }}
         panels={{
           court: (
-            <>
-            <KumoHome />
-            <div className="layout">
-              <div className="col c-l">
-                <WeatherLine />
-                <TodayLive />
-              </div>
-              <div className="col c-m">
-                <Stage filed={Object.fromEntries(rows.map((r) => [r.kind, r.at]))} />
-                <StatusLine latest={latest} />
-                <LunaSky />
-                <BriefWin docs={docs} initial={initial} />
-                <ScanWin doc={scanDoc} />
-                <TechLive />
-                <WeekStrip />
-                <WeekAhead />
-                <EconLive />
-                <NewsLive />
-              </div>
-              <div className="col c-r">
-                <NeedsNow />
-                <StatusLive />
-              </div>
-            </div>
-            </>
+            <CourtLayout
+              s={{
+                weather: <WeatherLine />,
+                today: <TodayLive />,
+                todayBare: <TodayLive bare />,
+                stage: <Stage filed={Object.fromEntries(rows.map((r) => [r.kind, r.at]))} />,
+                statusLine: <StatusLine latest={latest} />,
+                luna: <LunaSky />,
+                brief: <BriefWin docs={docs} initial={initial} />,
+                scan: <ScanWin doc={scanDoc} />,
+                tech: <TechLive />,
+                weekStrip: <WeekStrip />,
+                weekAhead: <WeekAhead />,
+                econ: <EconLive />,
+                news: <NewsLive />,
+                needs: <NeedsNow />,
+                status: <StatusLive />,
+              }}
+            />
           ),
           calendar: <CalendarTab />,
           garden: <div className="tabcol"><GardenLive /></div>,

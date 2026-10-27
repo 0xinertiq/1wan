@@ -6,7 +6,10 @@ import { useEffect, useState } from "react";
 // when she switches; the open tab lives in the address (#garden) so reload and back keep her place.
 
 export const TABS = ["court", "calendar", "garden", "diary", "life"] as const;
+// Pages reached by link only, not shown in the nav (the nav stays at five): Luna's Observatory.
+const EXTRA = ["observatory"] as const;
 export type TabId = (typeof TABS)[number];
+type PageId = TabId | (typeof EXTRA)[number];
 const LABEL: Record<TabId, string> = { court: "Court", calendar: "Calendar", garden: "Garden", diary: "Diary", life: "Life" };
 
 // 9x8 pixel icons: X outline, o fill, g gold accent, p blossom pink.
@@ -27,13 +30,13 @@ function Icon({ id }: { id: TabId }) {
   );
 }
 
-const fromHash = (): TabId => {
+const fromHash = (): PageId => {
   const h = window.location.hash.slice(1);
-  return (TABS as readonly string[]).includes(h) ? (h as TabId) : "court";
+  return ([...TABS, ...EXTRA] as readonly string[]).includes(h) ? (h as PageId) : "court";
 };
 
-export function AppTabs({ panels }: { panels: Record<TabId, React.ReactNode> }) {
-  const [tab, setTab] = useState<TabId>("court");
+export function AppTabs({ panels, extra = {} }: { panels: Record<TabId, React.ReactNode>; extra?: Partial<Record<(typeof EXTRA)[number], React.ReactNode>> }) {
+  const [tab, setTab] = useState<PageId>("court");
 
   useEffect(() => {
     setTab(fromHash());
@@ -62,6 +65,11 @@ export function AppTabs({ panels }: { panels: Record<TabId, React.ReactNode> }) 
       {TABS.map((id) => (
         <div key={id} className={`tabpanel tp-${id}`} id={`tab-${id}`} hidden={tab !== id} aria-label={LABEL[id]}>
           {panels[id]}
+        </div>
+      ))}
+      {EXTRA.filter((id) => extra[id]).map((id) => (
+        <div key={id} className={`tabpanel tp-${id}`} id={`tab-${id}`} hidden={tab !== id} aria-label={id[0].toUpperCase() + id.slice(1)}>
+          {extra[id]}
         </div>
       ))}
     </>
