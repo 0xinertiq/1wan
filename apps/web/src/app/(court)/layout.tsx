@@ -3,8 +3,8 @@ import { APP_NAME } from "@/lib/brand";
 import "./dashboard.css";
 
 // Separate root layout so the v52 dashboard CSS never mixes with the rest of the app.
-export const metadata: Metadata = { title: APP_NAME };
-export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover" };
+export const metadata: Metadata = { title: APP_NAME, icons: { icon: [{ url: "/icons/icon-192.png", sizes: "192x192" }, { url: "/icons/icon.svg", type: "image/svg+xml" }], apple: "/icons/apple-touch-icon.png" }, appleWebApp: { capable: true, title: APP_NAME, statusBarStyle: "default" } };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: [{ media: "(prefers-color-scheme: light)", color: "#FFA3C8" }, { media: "(prefers-color-scheme: dark)", color: "#1C1630" }] };
 
 const THEME_BOOT =
   "try{var t=localStorage.getItem('kumo.theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}";

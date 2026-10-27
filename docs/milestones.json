@@ -144,6 +144,15 @@
    "note": "Weekly packet with a preview of exactly what is sent, sensitive sections off by default, Copy for Claude, and Kumo's spec crew/kumo.md. The read endpoint for the Sunday task is built and waits for a secret. Each packet copy or read, and each filed brief, now writes a usage row."
   },
   {
+   "id": "pwa",
+   "group": "Build",
+   "title": "Add to home screen (PWA basics)",
+   "status": "done",
+   "note": "App name, Kumo pixel icons and theme colour. No offline cache, so nothing private is stored on the phone.",
+   "expect": "Add 1(WAN) to your home screen; it opens full screen like an app.",
+   "you_do": ""
+  },
+  {
    "id": "l1",
    "group": "Later",
    "title": "Repoint the 6 scheduled tasks to the new site (phase 1: extra post; phase 2: learning loop)",
