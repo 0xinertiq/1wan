@@ -153,6 +153,15 @@
    "you_do": ""
   },
   {
+   "id": "env",
+   "group": "Foundation",
+   "title": "Vercel settings for today's features",
+   "status": "blocked",
+   "note": "Claude could not sign in to Vercel from this computer.",
+   "expect": "Weekly packet read, work and astro calendars live on the website.",
+   "you_do": "Add the variables listed in manual steps, section K, then Redeploy."
+  },
+  {
    "id": "l1",
    "group": "Later",
    "title": "Repoint the 6 scheduled tasks to the new site (phase 1: extra post; phase 2: learning loop)",

@@ -113,8 +113,33 @@ The app finds the astro feed by its name "astro", so the slot number does not ma
 
 The "Copy for Claude" button already works without this. Do it only if you want the scheduled task to fetch the packet by itself.
 1. Already done for you: `apps/web/.env.local` now has a `READ_SECRET=` line. Open the file and copy the long value after the `=`.
-3. In Vercel, Settings, Environment Variables: add `READ_SECRET` with the same value, tick Sensitive, Production and Preview. Then Deployments, ⋯, Redeploy.
-4. Tell Claude Code it is done; it will run one throwaway read before the Sunday task uses it.
+2. In Vercel, Settings, Environment Variables: add `READ_SECRET` with the same value, tick Sensitive, Production and Preview. Then Deployments, ⋯, Redeploy.
+3. Tell Claude Code it is done; it will run one throwaway read before the Sunday task uses it.
+
+## K. Today's Vercel variables, in one go (10 minutes)
+
+Claude Code could not add these itself: the Vercel command line is not signed in on this computer. Do it in the website instead. Never paste the values into chat.
+
+What to add (names only; the values are in `apps/web/.env.local`):
+- `READ_SECRET` (Sensitive)
+- `GCAL_ICAL_URL_1` and `GCAL_NAME_1`: your work calendar slot (update both if they already exist; the address is Sensitive)
+- Your astro calendar: it is **not in `.env.local` yet** (no calendar there is named "astro"). Do section I steps 1 to 3 first, then add that slot's `GCAL_ICAL_URL_n` (Sensitive) and `GCAL_NAME_n` = `astro`.
+
+Clicks:
+1. In VS Code, open `apps/web/.env.local` and keep it open next to the browser.
+2. Open vercel.com, sign in, click your **1wan** project.
+3. Click **Settings** (top bar), then **Environment Variables** (left).
+4. For each name above: if it is already in the list, click its **⋯** then **Edit**; if not, use the form at the top.
+   - **Key**: the name, exactly as written above.
+   - **Value**: copy the part after `=` on that line in `.env.local`.
+   - Tick **Sensitive** for `READ_SECRET` and every `GCAL_ICAL_URL_` line.
+   - Environments: **Production** and **Preview**.
+   - Click **Save**.
+5. Click **Deployments** (top bar). On the newest one, click **⋯**, then **Redeploy**, then **Redeploy** again.
+6. Wait for **Ready** (about a minute), then open your site and go to `/dashboard`. Calendar chips should show your work calendar; Luna's card should show "From your astro calendar" once the astro feed is in.
+7. Tell Claude Code "variables are in". It will then do one throwaway read of the weekly packet.
+
+Optional, so Claude Code can do this itself next time: in the VS Code terminal type `npx vercel login`, press Enter and follow the browser prompt. Then `npx vercel link` inside `apps/web` and pick the 1wan project.
 
 ## Later (not tonight)
 
