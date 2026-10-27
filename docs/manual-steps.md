@@ -95,6 +95,12 @@ Do this once per calendar (up to 5).
    This is a dry run. It only prints counts (trades, gamble, keys to add). Nothing is written.
 5. If the counts look right, press the Up arrow, add ` --apply` at the end, and press Enter. You should see "Done." Running it again later is safe; it skips what is already there.
 
+## H. Add stops to plans (1 minute, safe; do it after G)
+
+1. In Supabase, click **SQL Editor**, then **New query**.
+2. In VS Code, open `supabase/migrations/0005_plan_stop.sql`. Copy all of it.
+3. Paste it into the query box. Click **Run**. You should see "Success. No rows returned." It only adds two empty columns (stop, target) to plans.
+
 ## Later (not tonight)
 
 31. Only after step 30 passes: point the scheduled tasks at the new address (build order step 6), starting with one task and a real throwaway brief, as `prompts/INGEST.md` describes.

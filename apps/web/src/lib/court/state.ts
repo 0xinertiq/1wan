@@ -32,11 +32,12 @@ export type CourtState = {
   dump: Dump[]; life: LifeItem[]; gd: Garden; cad: { wk: string; ig: number; x: number };
   mood: Record<string, Mood>; restDay: string | null; restWeek: string | null; uq: string[];
   mny: Money;
+  tchk: Record<string, string>;   // her wording for the "Before you enter" checks c1..c9
   last: Record<string, unknown>; prev: Record<string, unknown> | null;
 };
 
 // Keys this UI owns. Saves send only these; the server refuses anything else.
-export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "last", "prev"] as const;
+export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tchk", "last", "prev"] as const;
 export type OwnedKey = (typeof OWNED_KEYS)[number];
 
 export type Recap = { old: string; done: number; total: number; newWeek: boolean; lost: boolean; restY: boolean };
@@ -72,6 +73,7 @@ export function normalize(raw: unknown, today: string): CourtState {
     restWeek: typeof r.restWeek === "string" ? r.restWeek : null,
     uq: arr<string>(r.uq).filter((s) => typeof s === "string"),
     mny: normMoney(r.mny),
+    tchk: obj(r.tchk, {}),
     last: obj(r.last, {}), prev: r.prev && typeof r.prev === "object" ? (r.prev as Record<string, unknown>) : null,
   };
 }

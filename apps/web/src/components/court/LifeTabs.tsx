@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MoneyLive } from "./live/MoneyLive";
+import { TradeLive } from "./live/TradeLive";
 
 // Life area: four sub-tabs only (docs/build-trackers.md). Each screen arrives in its own build step.
 const SUBS = [
@@ -26,7 +27,7 @@ export function LifeTabs() {
         </div>
         {SUBS.map((s) => (
           <div key={s.id} className="panel" id={`lp-${s.id}`} role="tabpanel" aria-labelledby={`lt-${s.id}`} hidden={sub !== s.id}>
-            {s.id === "money" ? <MoneyLive /> : <p className="note">{s.label} is not built yet. It arrives in build step {s.step}.</p>}
+            {s.id === "money" ? <MoneyLive /> : s.id === "trade" ? <TradeLive /> : <p className="note">{s.label} is not built yet. It arrives in build step {s.step}.</p>}
           </div>
         ))}
       </div>
