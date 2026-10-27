@@ -49,13 +49,14 @@ export type CourtState = {
   mood: Record<string, Mood>; restDay: string | null; restWeek: string | null; uq: string[];
   mny: Money;
   tails: number[];
+  tg: { channels: { handle: string; enabled: boolean; title?: string }[] };   // public Telegram channels she follows
   birth: { date: string; time: string; place: string; lat: number; lon: number; tz: string } | null;   // private, never shared
   grid: Ticks; swins: Ticks & { log: Record<string, string[]> }; money: MoneyW; samsara: Samsara; defs: Defs;
   last: Record<string, unknown>; prev: Record<string, unknown> | null;
 };
 
 // Keys this UI owns. Saves send only these; the server refuses anything else.
-export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "birth", "grid", "swins", "money", "samsara", "last", "prev"] as const;
+export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "tg", "birth", "grid", "swins", "money", "samsara", "last", "prev"] as const;
 export type OwnedKey = (typeof OWNED_KEYS)[number];
 
 export type Recap = { old: string; done: number; total: number; newWeek: boolean; lost: boolean; restY: boolean };
@@ -93,6 +94,7 @@ export function normalize(raw: unknown, today: string): CourtState {
     mny: normMoney(r.mny),
     birth: (() => { const b = obj<Record<string, unknown>>(r.birth, {}); return typeof b.date === "string" && typeof b.lat === "number" && typeof b.lon === "number"
       ? { date: b.date, time: str(b.time, ""), place: str(b.place, ""), lat: b.lat, lon: b.lon, tz: str(b.tz, "UTC") } : null; })(),
+    tg: { channels: arr<{ handle: string; enabled: boolean; title?: string }>(obj<Record<string, unknown>>(r.tg, {}).channels).filter((c) => c && typeof c.handle === "string").slice(0, 20) },
     tails: arr<number>(r.tails).filter((n) => Number.isInteger(n) && n >= 0 && n < 9),
     grid: { done: obj(obj<Ticks>(r.grid, { done: {} }).done, {}) },
     swins: (() => { const w = obj<Record<string, unknown>>(r.swins, {}); return { done: obj(w.done, {}), log: obj(w.log, {}) }; })(),

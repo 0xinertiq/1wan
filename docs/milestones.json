@@ -129,9 +129,10 @@
    "id": "s15",
    "group": "Intelligence",
    "title": "15. Global news, Telegram, technicals (support/resistance, trendlines) used in Trade analysis, alerts",
-   "status": "next",
+   "status": "partial",
    "expect": "More sources, public Telegram channels, charts with auto and your own trendlines, in-app alerts.",
-   "you_do": "Public channels: list them. Private channels: one-time Telegram API setup."
+   "you_do": "Add the public channel handles you follow in Settings, News.",
+   "note": "Public Telegram channels work: add them in Settings, News; they show under Telegram in Headlines. Technicals and trendlines next."
   },
   {
    "id": "s13",

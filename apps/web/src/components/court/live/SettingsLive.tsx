@@ -65,6 +65,7 @@ export function SettingsLive({ open = false }: { open?: boolean }) {
         <p className="note xd">Everything here is private to you. Download a full copy any time.</p>
         <div className="rep-act"><a className="btn sm ghost" href="/api/export">Export my data</a></div>
         <BirthForm />
+        <NewsSettings />
         <div className="sec-h">Life admin</div>
         <p className="note xd">Coco keeps bills, care and renewals. Momo slots them into free time.</p>
         <div id="lifeList">
@@ -145,6 +146,56 @@ export function BirthForm() {
       {hits.map((h) => <div className="filed-row" key={h.label + h.lat}><span>{h.label}</span><button className="btn sm" type="button" onClick={() => save(h)}>Use this</button></div>)}
       {b && !hits.length && <p className="note">Saved: {b.date}{b.time ? " " + b.time : " (no time: houses use noon)"}, {b.place}.</p>}
       {msg && <p className="note" role="status">{msg}</p>}
+    </>
+  );
+}
+
+// Settings > News: public Telegram channels she follows (lane A). Handles only; nothing private.
+function NewsSettings() {
+  const { st, update } = useCourt();
+  const [h, setH] = useState("");
+  const [msg, setMsg] = useState("");
+  const [health, setHealth] = useState<Record<string, { ok: boolean; at: string; items: number; error?: string }>>({});
+  const chans = st.tg.channels;
+  useEffect(() => {
+    if (!chans.length) return;
+    fetch("/api/telegram").then((r) => r.json()).then((j) => { const m: typeof health = {}; for (const x of j.health ?? []) m[x.handle] = x; setHealth(m); }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chans.length]);
+  async function add(e: React.FormEvent) {
+    e.preventDefault();
+    const handle = h.trim().replace(/^@|^https?:\/\/t\.me\/(s\/)?/i, "").replace(/\/.*$/, "");
+    if (!handle) return;
+    if (chans.some((c) => c.handle.toLowerCase() === handle.toLowerCase())) return setMsg("Already in your list.");
+    if (chans.length >= 20) return setMsg("Twenty channels at most.");
+    setMsg("Checking the public preview…");
+    const j = await fetch("/api/telegram?check=" + encodeURIComponent(handle)).then((r) => r.json()).catch(() => ({}));
+    if (!j.health?.ok) return setMsg(`Could not read @${handle}: ${j.health?.error ?? "not reachable"}. Only public channels work here.`);
+    update((d) => { d.tg = { channels: [...d.tg.channels, { handle: j.health.handle, enabled: true, title: j.health.title }] }; }, ["tg"]);
+    setHealth({ ...health, [j.health.handle]: j.health });
+    setH(""); setMsg(`Added ${j.health.title ?? "@" + handle} (${j.health.items} recent posts).`);
+  }
+  return (
+    <>
+      <div className="sec-h">News: Telegram channels</div>
+      <p className="note">Public channels only. Their posts appear in Headlines under Telegram, refreshed every few minutes. Posts are shown as text; nothing is copied into briefs.</p>
+      {chans.map((c) => {
+        const x = health[c.handle];
+        return (
+          <div className="filed-row" key={c.handle}>
+            <label><input type="checkbox" checked={c.enabled} onChange={(e) => update((d) => { d.tg = { channels: d.tg.channels.map((y) => (y.handle === c.handle ? { ...y, enabled: e.target.checked } : y)) }; }, ["tg"])} /> {c.title ?? c.handle} <span className="note">@{c.handle}</span></label>
+            <span className="note">{!c.enabled ? "off" : x ? (x.ok ? `ok, ${x.items} posts` : `unavailable: ${x.error}`) : ""}</span>
+            <button className="btn sm ghost" type="button" onClick={() => update((d) => { d.tg = { channels: d.tg.channels.filter((y) => y.handle !== c.handle) }; }, ["tg"])}>Remove</button>
+          </div>
+        );
+      })}
+      <form className="field" onSubmit={add}>
+        <div className="field-row">
+          <input type="text" maxLength={80} autoComplete="off" placeholder="@channel or t.me/channel" aria-label="Telegram channel handle" value={h} onChange={(e) => setH(e.target.value)} />
+          <button className="btn sm" type="submit">Add</button>
+        </div>
+        {msg && <p className="note" role="status">{msg}</p>}
+      </form>
     </>
   );
 }
