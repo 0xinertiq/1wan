@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { PixelSprite } from "@/components/PixelSprite";
 import { useCourt } from "../CourtState";
+import { SprintLive } from "./SprintLive";
 import { logQuest } from "@/lib/court/actions";
 import { quoteOfDay } from "@/lib/court/quotes";
 import { QUESTS } from "@/lib/court/quests";
@@ -49,6 +50,7 @@ export function TodayLive() {
           <MomoCard />
           <LifeCard />
         </div>
+        <SprintLive />
         <DumpBox />
       </div>
       <div className="panel" id="tp-sky" role="tabpanel" aria-labelledby="tt-sky" hidden={tab !== "sky"}>

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useCourt } from "../CourtState";
 import { weekKey } from "@/lib/court/time";
 import { water } from "@/lib/court/water";
+import { studyHours } from "@/lib/court/sprint";
 
 // Life > Samsara, ported from her Samsara page. One source of truth per fact (docs/build-trackers.md):
 // thesis entries = count of Trade plans (never typed), X posts = the Court's weekly posts counter (cad.x),
@@ -19,6 +20,7 @@ export function SamsaraLive({ onWriteThesis }: { onWriteThesis: () => void }) {
   useEffect(() => { getOnce<any>("/api/ledger").then((j) => setPlans(Array.isArray(j.plans) ? j.plans : [])).catch(() => setPlans([])); }, []);
 
   const t = st.samsara.t.wk === wk ? st.samsara.t : { ...st.samsara.t, hours: 0, posts: 0, replies: 0, wk };
+  const sh = studyHours(st, wk);
   const posts = st.cad?.wk === wk ? st.cad.x || 0 : 0;
   const entries = plans?.length ?? 0;
   const thisWeek = (plans ?? []).filter((p) => String(p.date ?? "") >= wk).length;
@@ -31,7 +33,7 @@ export function SamsaraLive({ onWriteThesis }: { onWriteThesis: () => void }) {
   };
 
   const rhythm: Record<string, [boolean, string]> = {
-    w1: [t.hours >= 6, `${t.hours} / 6 h this week`],
+    w1: [sh.total >= 6, `${sh.total} / 6 h this week`],
     w2: [thisWeek > 0, thisWeek ? `${thisWeek} entr${thisWeek === 1 ? "y" : "ies"} this week (auto, from Trade plans)` : "none yet this week"],
     w4: [posts >= 2 && t.replies >= 3, `${posts} posts · ${t.replies} replies`],
   };
@@ -46,7 +48,8 @@ export function SamsaraLive({ onWriteThesis }: { onWriteThesis: () => void }) {
 
       <div className="sec-h">This week</div>
       <div className="tiles">
-        <div className="tile"><span className="note">Study</span><b>{t.hours} / 6 h</b><span className="mbar"><i style={{ width: Math.min(t.hours / 6, 1) * 100 + "%" }} /></span>
+        <div className="tile"><span className="note">Study</span><b>{sh.total} / 6 h</b><span className="mbar"><i style={{ width: Math.min(sh.total / 6, 1) * 100 + "%" }} /></span>
+          <span className="note">{sh.spr} h from study sprints · {sh.typed} h added by hand</span>
           <span className="rep-act"><button className="btn sm ghost" type="button" onClick={() => setT({ hours: Math.max(0, t.hours - 0.5) })}>−½h</button><button className="btn sm" type="button" onClick={() => setT({ hours: t.hours + 0.5 })}>+½h</button></span></div>
         <div className="tile"><span className="note">Thesis log</span><b>{plans == null ? "…" : entries}</b><span className="note">Goal 24 by end of March · {[[8, "Nov"], [16, "Jan"], [24, "Mar"]].map(([x, m]) => `${entries >= +x ? "✓ " : ""}${x} ${m}`).join(" · ")}</span><span className="mbar"><i style={{ width: Math.min(entries / 24, 1) * 100 + "%" }} /></span></div>
         <div className="tile"><span className="note">X this week</span><b>{posts} · {t.replies}</b><span className="note">Posts and thoughtful replies. Goal: 2–3 posts, 3–5 replies.</span>

@@ -8,14 +8,15 @@ import { getOnce } from "@/lib/court/once";
 import { WeekAhead } from "./CourtHome";
 import { useSky } from "./LunaSky";
 import { useEcon } from "./EconLive";
+import { datesIn } from "@/lib/court/gridDates";
 
 // Calendar tab (docs/build-dashboard-v2.md section 3): Agenda (14 days), Week (default), Month, day detail
 // with free 45-minute gaps. Calendar chips per feed; extra layers from her own records, off by default.
 type View = "agenda" | "week" | "month";
-type Layer = "money" | "plans" | "thesis" | "sky" | "macro";
+type Layer = "money" | "plans" | "thesis" | "sky" | "macro" | "grid";
 type Item = { t: string; color: string; a: number; b: number; allDay: boolean; layer?: Layer; cal?: string };
-const LAYERS: [Layer, string][] = [["money", "Money"], ["plans", "Plan timeframes"], ["thesis", "Friday thesis slot"], ["sky", "Luna's sky"], ["macro", "Macro releases"]];
-const LCOL: Record<Layer, string> = { money: "#9fd8b8", plans: "#ffd95e", thesis: "#ffb3d1", sky: "#c9b6ff", macro: "#9cc7f0" };
+const LAYERS: [Layer, string][] = [["money", "Money"], ["plans", "Plan timeframes"], ["thesis", "Friday thesis slot"], ["sky", "Luna's sky"], ["macro", "Macro releases"], ["grid", "Grid dates"]];
+const LCOL: Record<Layer, string> = { money: "#9fd8b8", plans: "#ffd95e", thesis: "#ffb3d1", sky: "#c9b6ff", macro: "#9cc7f0", grid: "#ffc9a8" };
 
 function gaps(items: Item[]) {
   const busy = items.filter((e) => !e.allDay && !e.layer).map((e) => [Math.max(540, e.a), Math.min(1260, e.b)]).filter(([a, b]) => b > a).sort((x, y) => x[0] - y[0]);
@@ -40,6 +41,11 @@ export function CalendarTab() {
   useEffect(() => { try { const v = localStorage.getItem("1wan-cal-view") as View | null; if (v) setView(v); } catch {} }, []);
   const pick = (v: View) => { setView(v); setDay(null); setAnchor(k); try { localStorage.setItem("1wan-cal-view", v); } catch {} };
 
+  // Grid items whose own text holds a real day (lib/court/gridDates.ts); open items only.
+  const gridDated = (st.defs.grid?.pillars ?? []).flatMap((p, pi) => p.acts.flatMap((a, ai) => {
+    const id = `${pi + 1}.${ai + 1}`;
+    return st.grid.done[id] ? [] : datesIn(`${a.t} ${a.when}`, k).map((d) => ({ id, d, t: a.t }));
+  }));
   const feeds = [...new Set(events.filter((e) => !isAstro(e)).map((e) => e.cal))];
   const itemsOn = (d: string): Item[] => {
     const out: Item[] = eventsOn(events, d).filter((e) => !off.includes(e.cal)).map((e: DayEvent) => ({ t: e.t, color: e.color, a: e.a, b: e.b, allDay: e.allDay, cal: e.cal }));
@@ -50,6 +56,7 @@ export function CalendarTab() {
     if (layers.includes("plans")) for (const p of plans) if (p.until === d && p.outcome === "open") out.push({ t: `${String(p.inst)} plan timeframe ends`, color: LCOL.plans, a: 0, b: 0, allDay: true, layer: "plans" });
     if (layers.includes("macro")) for (const e of econ?.items ?? []) if ((e.top || e.impact === "High") && new Date(Date.parse(e.at) + 8 * 3600000).toISOString().slice(0, 10) === d) { const m = new Date(Date.parse(e.at) + 8 * 3600000); out.push({ t: `${e.country} ${e.title}`, color: LCOL.macro, a: m.getUTCHours() * 60 + m.getUTCMinutes(), b: m.getUTCHours() * 60 + m.getUTCMinutes() + 15, allDay: false, layer: "macro" }); }
     if (layers.includes("sky")) for (const e of sky.ev) if (new Date(e.at.getTime() + 8 * 3600000).toISOString().slice(0, 10) === d) out.push({ t: e.t, color: LCOL.sky, a: 0, b: 0, allDay: true, layer: "sky" });
+    if (layers.includes("grid")) for (const g of gridDated) if (g.d === d) out.push({ t: `Grid ${g.id}: ${g.t}`, color: LCOL.grid, a: 0, b: 0, allDay: true, layer: "grid" });
     if (layers.includes("thesis") && wdOf(d) === 5) out.push({ t: "Thesis log entry", color: LCOL.thesis, a: 0, b: 0, allDay: true, layer: "thesis" });
     return out.sort((x, y) => Number(y.allDay) - Number(x.allDay) || x.a - y.a);
   };
@@ -83,6 +90,7 @@ export function CalendarTab() {
             {feeds.map((c) => { const col = events.find((e) => e.cal === c)?.color; return <button key={c} type="button" className="chipb" aria-pressed={!off.includes(c)} onClick={() => setOff(off.includes(c) ? off.filter((x) => x !== c) : [...off, c])}><i className="cdot" style={{ background: col }} />{c}</button>; })}
             {LAYERS.map(([id, l]) => <button key={id} type="button" className="chipb" aria-pressed={layers.includes(id)} onClick={() => setLayers(layers.includes(id) ? layers.filter((x) => x !== id) : [...layers, id])}><i className="cdot" style={{ background: LCOL[id] }} />{l}</button>)}
           </div>
+          {layers.includes("grid") && <p className="note">{gridDated.length ? `${gridDated.length} open grid item${gridDated.length === 1 ? "" : "s"} with a real date in the text.` : "No open grid item has a real date in its text, so nothing is placed."}</p>}
 
           {view !== "agenda" && (
             <div className="rep-act">

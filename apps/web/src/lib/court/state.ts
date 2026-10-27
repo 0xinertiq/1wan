@@ -57,11 +57,12 @@ export type CourtState = {
   tg: { channels: { handle: string; enabled: boolean; title?: string }[] };   // public Telegram channels she follows
   birth: { date: string; time: string; place: string; lat: number; lon: number; tz: string } | null;   // private, never shared
   grid: Ticks; swins: Ticks & { log: Record<string, string[]> }; money: MoneyW; samsara: Samsara; defs: Defs;
+  spr: { run: { at: string; tag: "study" | "other" } | null; log: { at: string; tag: "study" | "other"; min: number }[] };   // focus sprints, tagged
   last: Record<string, unknown>; prev: Record<string, unknown> | null;
 };
 
 // Keys this UI owns. Saves send only these; the server refuses anything else.
-export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "news", "tg", "birth", "grid", "swins", "money", "samsara", "last", "prev"] as const;
+export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "news", "tg", "birth", "grid", "swins", "money", "samsara", "spr", "last", "prev"] as const;
 export type OwnedKey = (typeof OWNED_KEYS)[number];
 
 export type Recap = { old: string; done: number; total: number; newWeek: boolean; lost: boolean; restY: boolean };
@@ -111,6 +112,10 @@ export function normalize(raw: unknown, today: string): CourtState {
     samsara: (() => { const w = obj<Record<string, unknown>>(r.samsara, {}); const t = obj<Record<string, unknown>>(w.t, {});
       return { done: obj(w.done, {}), t: { hours: num(t.hours, 0), entries: num(t.entries, 0), posts: num(t.posts, 0), replies: num(t.replies, 0), wk: str(t.wk, "") } }; })(),
     defs: obj(r.defs, {}),
+    spr: (() => { const w = obj<Record<string, unknown>>(r.spr, {}); const tag = (x: unknown) => (x === "study" ? "study" : "other") as "study" | "other";
+      const run = obj<Record<string, unknown>>(w.run, {});
+      return { run: typeof run.at === "string" ? { at: run.at, tag: tag(run.tag) } : null,
+        log: arr<Record<string, unknown>>(w.log).filter((x) => x && typeof x.at === "string" && typeof x.min === "number").map((x) => ({ at: x.at as string, tag: tag(x.tag), min: x.min as number })).slice(-200) }; })(),
     last: obj(r.last, {}), prev: r.prev && typeof r.prev === "object" ? (r.prev as Record<string, unknown>) : null,
   };
 }

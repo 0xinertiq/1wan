@@ -2,6 +2,7 @@ import { QUESTS } from "./quests";
 import { dueList, eventsOn, isAstro, type CalEvent, type CourtState } from "./state";
 import { addDays, prettyDay, weekKey } from "./time";
 import { branches, type WaterEvt } from "./garden";
+import { studyHours } from "./sprint";
 
 // Kumo weekly review packet (BUILD-ORDER step 14). A compact, structured summary of Monday to Sunday (SGT)
 // built only from her own records. The same function feeds "Copy for Claude" and GET /api/export/weekly.
@@ -78,7 +79,8 @@ export function buildPacket({ st, k, events, trades, plans, water, spending, sky
   const t = st.samsara.t.wk === wk ? st.samsara.t : { hours: 0, replies: 0 };
   const posts = st.cad?.wk === wk ? st.cad.x || 0 : 0;
   L.push("RHYTHM");
-  L.push(`Study ${t.hours}/6 h. X posts ${posts}, replies ${t.replies}. Nights in bed before midnight: ${days.filter((d) => (st.swins.log[d] || []).includes("d1")).length}/${days.length}.`, "");
+  const sh = studyHours(st, wk);
+  L.push(`Study ${sh.total}/6 h (${sh.spr} h from study sprints, ${sh.typed} h typed). X posts ${posts}, replies ${t.replies}. Nights in bed before midnight: ${days.filter((d) => (st.swins.log[d] || []).includes("d1")).length}/${days.length}.`, "");
 
   L.push("SKY (context only)");
   L.push(sky.filter((e) => { const d = sgtDay(e.at.toISOString()); return d >= wk && d <= addDays(nextWk, 6); }).map((e) => `${prettyDay(sgtDay(e.at.toISOString()))} ${e.t}`).join(" · ") || "no stations, ingresses or eclipses");

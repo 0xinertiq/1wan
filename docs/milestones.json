@@ -69,7 +69,7 @@
    "status": "done",
    "expect": "Weekly study hours, thesis count, posts, course milestones.",
    "you_do": "",
-   "note": "Weekly study, thesis count from your Trade plans, X posts and replies, course milestones and monthly reviews."
+   "note": "Weekly study, thesis count from your Trade plans, X posts and replies, course milestones and monthly reviews. Study hours now include tagged study sprints."
   },
   {
    "id": "s7",
@@ -105,7 +105,7 @@
    "status": "done",
    "expect": "Agenda, week and month views, colours per calendar, layers, free gaps.",
    "you_do": "Update the astro and new work calendar addresses (manual steps, section I).",
-   "note": "Agenda, Week and Month views, chips per calendar, money, plan and thesis layers, free 45-minute gaps, 90 days ahead."
+   "note": "Agenda, Week and Month views, chips per calendar, money, plan and thesis layers, free 45-minute gaps, 90 days ahead. Grid dates layer shows grid items whose text holds a real date."
   },
   {
    "id": "s11",
