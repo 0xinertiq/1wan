@@ -24,7 +24,7 @@ import { CourtProvider } from "@/components/court/CourtState";
 import { CalendarLoader } from "@/components/court/CalendarLoader";
 import { PricesLoader } from "@/components/court/Prices";
 import { watchlistFrom } from "@/lib/prices";
-import { TodayLive } from "@/components/court/live/TodayLive";
+import { KumoPick, MomoCard, TodayLive } from "@/components/court/live/TodayLive";
 import { CourtLayout, Observatory } from "@/components/court/live/KumoHome";
 import { CrewRoster, LivingWorld } from "@/components/court/live/LivingWorld";
 import { BriefsBlock, BriefsLibrary, MoversCard, ReviewCard } from "@/components/court/CourtBriefs";
@@ -147,8 +147,8 @@ export default async function Dashboard() {
               }}
             />
           ),
-          calendar: <NewOnly classic={<CalendarTab />}><div className="tgrid cal"><div className="tcol"><WeekAhead strip /><EconLive /></div><div className="tcol"><CalendarTab noWeek /></div></div></NewOnly>,
-          garden: <div className="tabcol"><GardenLive /></div>,
+          calendar: <NewOnly classic={<CalendarTab />}><div className="tgrid cal"><div className="tcol"><WeekAhead strip /><MomoCard /><EconLive /></div><div className="tcol"><CalendarTab noWeek /></div></div></NewOnly>,
+          garden: <div className="tabcol"><NewOnly><section className="win kpick" aria-label="Chief Kumo's pick"><div className="win-body"><KumoPick /></div></section></NewOnly><GardenLive /></div>,
           diary: <div className="tabcol"><WinsButton /><DiaryLive open /></div>,
           life: <div className="tabcol"><LifeTabs /></div>,
         }}

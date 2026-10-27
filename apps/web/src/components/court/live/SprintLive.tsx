@@ -9,9 +9,9 @@ import { weekKey } from "@/lib/court/time";
 
 // One 25-minute focus sprint with a tag (Study or Other). The running sprint is saved, so a reload keeps it.
 // A sprint that reaches 25 minutes is logged, counts quest k7, and study sprints add to Samsara's hours.
-export function SprintLive() {
-  const { st, k, update, levelUp } = useCourt();
-  const [tag, setTag] = useState<SprintTag>("study");
+// The sprint's state and actions, shared by this window (Classic) and the hourglass in the New-look world.
+export function useSprint() {
+  const { st, update, levelUp } = useCourt();
   const [now, setNow] = useState(() => Date.now());
   const run = st.spr.run;
   useEffect(() => { if (!run) return; const t = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(t); }, [run]);
@@ -27,7 +27,14 @@ export function SprintLive() {
     }
   }, ["spr", "q", "stars", "streak", "xp", "lvl"]);
   useEffect(() => { if (run && left === 0) finish(true); });  // eslint-disable-line react-hooks/exhaustive-deps
+  const start = (tag: SprintTag) => update((d) => { d.spr.run = { at: new Date().toISOString(), tag }; }, ["spr"]);
+  return { run, left, finish, start };
+}
 
+export function SprintLive() {
+  const { st, k } = useCourt();
+  const [tag, setTag] = useState<SprintTag>("study");
+  const { run, left, finish, start } = useSprint();
   const today = st.spr.log.filter((s) => new Date(Date.parse(s.at) + 8 * 3600000).toISOString().slice(0, 10) === k);
   const mm = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
   return (
@@ -44,7 +51,7 @@ export function SprintLive() {
           <span className="ntabs" role="group" aria-label="Sprint tag">
             {(["study", "other"] as const).map((t) => <button key={t} className="chipb" type="button" aria-pressed={tag === t} onClick={() => setTag(t)}>{t === "study" ? "Study" : "Other"}</button>)}
           </span>
-          <button className="btn sm" type="button" onClick={() => update((d) => { d.spr.run = { at: new Date().toISOString(), tag }; }, ["spr"])}>Start {SPRINT_MIN} min</button>
+          <button className="btn sm" type="button" onClick={() => start(tag)}>Start {SPRINT_MIN} min</button>
         </div>
       )}
     </div>

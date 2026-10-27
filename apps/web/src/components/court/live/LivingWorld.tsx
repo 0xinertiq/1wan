@@ -11,6 +11,8 @@ import { getOnce } from "@/lib/court/once";
 import { greetWord, prettyDay } from "@/lib/court/time";
 import { quoteOfDay } from "@/lib/court/quotes";
 import { useCourt } from "../CourtState";
+import { useSprint } from "./SprintLive";
+import { SPRINT_MIN, type SprintTag } from "@/lib/court/sprint";
 
 // The Living World (COURT_SPEC Part 1 and 4): the code-drawn pixel kingdom at the top of the New-look Court.
 // Places are links to the same tabs as the rail. The crew walk to their place when their desk has run today
@@ -20,7 +22,7 @@ import { useCourt } from "../CourtState";
 
 const PLACE_DESC: Record<string, string> = {
   castle: "The Castle: home, your Court", clock: "Clock Tower: calendar", obs: "Observatory: Luna's sky and research",
-  garden: "Sakura Garden: habits and growth", life: "Life Hub: life admin and money", diary: "Fox Diary: reflection",
+  garden: "Sakura Garden: habits and growth", life: "Life Hub: life admin and money", diary: "Dungeon: reflection, your diary",
 };
 const CREW = ["olli", "pip", "fenn", "tilly", "luna", "momo", "coco", "poppy", "dundun"];
 
@@ -91,6 +93,7 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
             })}
           </>
         )}
+        <SprintIcon />
         <div className="lw-top">
           <p className="lw-greet">{greetWord(nm)}, Queen · {prettyDay(k)}</p>
           <div className="lw-badges">
@@ -174,5 +177,37 @@ function CloudSay({ text, open, onToggle, night, style }: { text: string; open: 
       </svg>
       <span className="lw-say-t">{text}</span>
     </button>
+  );
+}
+
+// Focus sprint, top left of the world: a pixel hourglass with a face. Tap to start the existing 25-minute
+// sprint (Study or Other); while it runs, a ring and the minutes left show, and a tap offers Stop.
+const HG = ["XXXXXXXXX", ".XgggggX.", ".XoooooX.", "..XoXoX..", "..XoooX..", "...XcX...", "..XoooX..", ".XooooX..", ".XoooooX.", "XXXXXXXXX"];
+const HGF: Record<string, string> = { X: "#4a2538", o: "#FFF8EE", g: "#FFD95E", c: "#FF9DBF" };
+function SprintIcon() {
+  const { run, left, finish, start } = useSprint();
+  const [open, setOpen] = useState(false);
+  const total = SPRINT_MIN * 60, frac = run ? 1 - left / total : 0, mins = Math.ceil(left / 60);
+  return (
+    <div className="lw-sprint">
+      <button type="button" className={"lw-sprint-btn" + (run ? " on" : "")} aria-expanded={open} aria-label={run ? `Focus sprint running, ${mins} minutes left` : "Start a 25-minute focus sprint"} onClick={() => setOpen(!open)}>
+        {run && <svg className="lw-ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16" fill="none" stroke="rgba(255,255,255,.7)" strokeWidth="3" /><circle cx="18" cy="18" r="16" fill="none" stroke="#F65A9B" strokeWidth="3" strokeDasharray={`${frac * 100.5} 100.5`} transform="rotate(-90 18 18)" /></svg>}
+        <svg className="lw-hg" viewBox="0 0 9 10" shapeRendering="crispEdges" aria-hidden="true">
+          {HG.flatMap((row, y) => row.split("").map((ch, x) => (ch === "." ? null : <rect key={x + "-" + y} x={x} y={y} width="1" height="1" fill={HGF[ch]} />)))}
+        </svg>
+        {run && <span className="lw-min">{mins}m</span>}
+      </button>
+      {open && (
+        <div className="lw-sprint-pop" role="dialog" aria-label="Focus sprint">
+          {run ? <>
+            <p><b>{mins} min left</b> · {run.tag === "study" ? "Study" : "Other"}</p>
+            <button className="btn sm ghost" type="button" onClick={() => { finish(false); setOpen(false); }}>Stop (not counted)</button>
+          </> : <>
+            <p><b>Focus sprint, {SPRINT_MIN} min</b></p>
+            <div className="rep-act">{(["study", "other"] as SprintTag[]).map((t) => <button key={t} className="btn sm" type="button" onClick={() => { start(t); setOpen(false); }}>{t === "study" ? "Study" : "Other"}</button>)}</div>
+          </>}
+        </div>
+      )}
+    </div>
   );
 }

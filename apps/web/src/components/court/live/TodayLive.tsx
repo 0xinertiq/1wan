@@ -99,7 +99,7 @@ function Strip() {
   );
 }
 
-function RecapBox() {
+export function RecapBox() {
   const { recap: r, clearRecap, nm } = useCourt();
   if (!r) return <div id="recapBox"></div>;
   return (
@@ -188,7 +188,7 @@ function CalPill() {
   return <span className="pillx mid">Calendar not connected yet</span>;
 }
 
-function MomoCard() {
+export function MomoCard() {
   const { st, k, nm, events, cal } = useCourt();
   const [hide, setHide] = useState<string[]>([]);
   const shown = events.filter((e) => !hide.includes(e.cal));
@@ -282,6 +282,52 @@ function LifeCard() {
         {total > 0 && <p className="note">Bills and transfers due in the next 7 days: {money(total)}.</p>}
       </div>
     </div>
+  );
+}
+
+// Parked thoughts for the New-look Today card (the one-line input lives under the world).
+export function ParkedList() {
+  const { st, update } = useCourt();
+  const open = st.dump.filter((d) => !d.done).slice(0, 6);
+  return (
+    <div className="kparked">
+      <div className="sec-h">Parked thoughts</div>
+      {open.length ? open.map((d) => (
+        <div className="filed-row" key={d.id}>
+          <span>{d.t}</span>
+          <button className="btn sm ghost" type="button" aria-label="Mark done" onClick={() => update((s) => { const it = s.dump.find((x) => x.id === d.id); if (it) it.done = true; }, ["dump"])}>Done</button>
+        </div>
+      )) : <p className="note">Nothing parked.</p>}
+    </div>
+  );
+}
+
+// Coming up on the New-look Court: only what needs her soon. Auto-paid bills (GIRO, auto-deducted tax) and
+// subscriptions are left out here by their name or note (there is no auto-paid flag yet; NEEDS OWNER
+// APPROVAL to add one). Every item stays in Settings, Life admin.
+const AUTO = /\bgiro\b|auto[\s-]?(?:pay|paid|deduct|debit|renew)|instal?ments?|income tax|property tax|subscription|spotify|claude|netflix|icloud|google one|youtube|disney|apple (?:one|music|tv)/i;
+export function ComingUpCourt() {
+  const { st, k, events, update } = useCourt();
+  const list = dueList(st, k, events).filter((x) => x.dd <= 10 && !((x.it.cat === "bill" || x.it.cat === "money") && AUTO.test(x.it.name + " " + (x.it.note ?? "")))).slice(0, 5);
+  const done = (id: string) => update((d) => {
+    const x = dueList(d, k, events).find((y) => y.it.id === id);
+    if (!x) return;
+    const it = d.life.find((i) => i.id === id)!;
+    it.sched = "";
+    if (it.rule.type === "every") it.rule.last = k; else it.paid = it.rule.type === "once" ? 1 : x.d;
+  }, ["life"]);
+  return (
+    <section className="win kcoming" aria-labelledby="kcuT">
+      <div className="win-title"><h2 id="kcuT">Coming up</h2><span className="sub">needs you soon</span></div>
+      <div className="win-body">
+        {list.length ? list.map((x) => (
+          <div className="filed-row" key={x.it.id}>
+            <span>{x.it.name}{x.it.amt != null ? " · " + money(x.it.amt) : ""} <span className="note">{whenText(x.dd, x.d)}</span></span>
+            <button className="btn sm ghost" type="button" onClick={() => done(x.it.id)}>{x.it.rule.type === "every" ? "Done today" : x.it.cat === "decision" ? "Decided" : x.it.rule.type === "once" ? "Done" : "Paid"}</button>
+          </div>
+        )) : <p className="note">Nothing needs you in the next 10 days.</p>}
+      </div>
+    </section>
   );
 }
 

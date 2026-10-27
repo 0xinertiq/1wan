@@ -56,3 +56,20 @@ Where each "More on your court" widget went:
 Open questions (NEEDS OWNER INPUT):
 - Brief formats: I could not read the real briefs (reading production data was blocked), so Top 5, Today's plan, the no-movers note and the review summary are read by tolerant rules and tested on made-up text. If a card looks wrong on the preview, send me the headings of that brief, or allow a read-only check of the briefs table.
 - Observatory is now thin (only Luna's 7-day sky). Proposal: keep it as "Sky" inside News, or as a tab inside Calendar. Nothing deleted until you choose.
+
+## R4 (owner's round 4, on preview)
+Done: Luna card order (energy, transits, DOs, DON'Ts; no Read more; extra text only on the Observatory with the attribution); Kumo's weekly review moved below Luna; Today card = Now / Next / Later + stat strip + parked thoughts; Quick capture renamed Park a thought (same list, confirmed: both write to the same "dump" list), one line under the world, floating button and old card removed; Coming up card on the Court with auto-paid and subscriptions hidden (Court only); focus sprint hourglass in the world; Fox Diary renamed Dungeon with a new icon and an enchanted gate in the world.
+
+Where the old Today window's parts went (New look):
+- Brief | Sky | Week tabs: removed from the Court (calendar day lives in Calendar, Luna in her card, the week in Calendar's Week ahead).
+- Momo's day (timeline and free-time ideas): Calendar tab, left column, under Week ahead.
+- Kumo's pick: Sakura Garden tab, at the top.
+- Return recap ("Last time was..."): top of the Today card, only on the day it applies.
+- Focus sprint: the hourglass in the world.
+- Park a thought: the line under the world; parked thoughts in the Today card.
+- Quote of the day: Kumo's cloud bubble.
+
+NEEDS OWNER APPROVAL:
+- An "auto-paid / hide on Court" flag for life items. Until then the Court hides bills and money items whose name or note mentions GIRO, auto pay or deduct, instalment, income tax, property tax, subscription, Spotify, Claude, Netflix, iCloud, Google One, YouTube, Disney or Apple One/Music/TV. Adding the flag would change the saved state shape, so it waits for you.
+- Focus sprint pause: the existing sprint has Start and Stop only. A pause would need a new saved field, so the hourglass offers Stop for now.
+- "Marked important" for Coming up: there is no such field today; it would need the same kind of flag.

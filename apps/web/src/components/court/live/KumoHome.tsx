@@ -5,13 +5,13 @@ import { useUi } from "@/components/kumo/useUi";
 import { useCourt } from "../CourtState";
 import { eventsOn, isAstro, type DayEvent } from "@/lib/court/state";
 import { hm, prettyDay } from "@/lib/court/time";
-import { TodayChips } from "./TodayLive";
+import { ComingUpCourt, ParkedList, RecapBox, TodayChips } from "./TodayLive";
 import { PricesStrip } from "./LivingWorld";
 import { astroParts } from "@/components/kumo/astroParts";
 
-// The Court tab. Classic: the v52 three columns, exactly as before. New look (moodboard 01, "a summary, never
-// a second calendar or hub"): banner; Today / Needs you now / Kingdom progress / Quick capture; Luna's
-// forecast; every other window folded under "More on your court". Nothing is removed, only arranged.
+// The Court tab. Classic: the v52 three columns, exactly as before. New look (COURT_SPEC): the world, Park a
+// thought, prices, Briefs (Intel | Scan) beside a rail (Today, Needs you now, Coming up, Kumo's review, Luna),
+// and the crew roster. Each item has one home; the Court shows summaries and links.
 // The pixel Living World replaces the Cloud Court and carries the level-up banner; level and EXP live in the header.
 export type CourtSlots = {
   weather: React.ReactNode; today: React.ReactNode; todayBare: React.ReactNode; stage: React.ReactNode; statusLine: React.ReactNode;
@@ -39,19 +39,19 @@ export function CourtLayout({ s }: { s: CourtSlots }) {
       <div className="kmain">
         {s.briefs}
         <div className="krail">
-          <TodayCard more={s.todayBare} />
+          <TodayCard />
           {s.needs}
-          {s.review}
+          <ComingUpCourt />
           <AstroForecast />
+          {s.review}
         </div>
       </div>
       {s.roster}
-      <QuickFab />
     </div>
   );
 }
 
-// Quick capture as one line under the world (desktop and tablet); same list as Park a thought.
+// Park a thought: one line under the world (the same list Today shows under its stat strip).
 function QuickLine() {
   const { update } = useCourt();
   const [t, setT] = useState("");
@@ -62,24 +62,13 @@ function QuickLine() {
       const v = t.trim();
       if (!v) return;
       update((d) => { d.dump.unshift({ id: "d" + Date.now(), t: v.slice(0, 140), done: false, ts: Date.now() }); d.dump = d.dump.slice(0, 40); }, ["dump"]);
-      setT(""); setMsg("Parked in Today, Park a thought.");
+      setT(""); setMsg("Parked. It is in Today.");
     }}>
-      <label htmlFor="kqlIn" className="sr">Quick capture</label>
-      <input id="kqlIn" type="text" autoComplete="off" maxLength={140} placeholder="Quick capture: a task, a note, an idea" value={t} onChange={(e) => { setT(e.target.value); setMsg(""); }} />
+      <label htmlFor="kqlIn" className="sr">Park a thought</label>
+      <input id="kqlIn" type="text" autoComplete="off" maxLength={140} placeholder="Park a thought: anything nagging at you" value={t} onChange={(e) => { setT(e.target.value); setMsg(""); }} />
       <button className="btn" type="submit">Park it</button>
       {msg && <span className="note" role="status">{msg}</span>}
     </form>
-  );
-}
-
-// Phone: Quick capture is a floating button that opens the same form.
-function QuickFab() {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className={"kfab" + (open ? " open" : "")}>
-      {open && <div className="kfab-sheet"><QuickCapture sfx="Fab" /></div>}
-      <button className="btn kfab-btn" type="button" aria-expanded={open} aria-label={open ? "Close quick capture" : "Quick capture"} onClick={() => setOpen(!open)}>{open ? "×" : "+"}</button>
-    </div>
   );
 }
 
@@ -94,9 +83,8 @@ export function Observatory({ luna }: { luna: React.ReactNode }) {
   );
 }
 
-// One Today card: Now / Next / Later from the calendar, the glance numbers in one row, and the rest of the
-// Today window (brief, sky, week, Kumo's pick, Momo's day, Park a thought, quote) under "More".
-function TodayCard({ more }: { more: React.ReactNode }) {
+// One Today card: Now / Next / Later from the calendar, the glance numbers in one row, then parked thoughts.
+function TodayCard() {
   const { k, nm, events, cal } = useCourt();
   const evs = eventsOn(events, k).filter((e) => !e.allDay);
   const now = evs.filter((e) => e.a <= nm && nm < e.b);
@@ -119,19 +107,17 @@ function TodayCard({ more }: { more: React.ReactNode }) {
             {next.length ? next.map(row) : <p className="note">Nothing else today.</p>}
             {rest.length > 0 && <><div className="sec-h">Later</div>{rest.map(row)}</>}
           </div>}
+        <RecapBox />
         <TodayChips />
-        <details className="kfold">
-          <summary>More: brief, sky, week, Kumo&apos;s pick, Park a thought</summary>
-          {more}
-        </details>
+        <ParkedList />
       </div>
     </section>
   );
 }
 
-// Luna's forecast (owner's brief): for each of today's astro calendar entries, the transit lines in small
-// type, then "DOs:" and "DON'Ts:" exactly as the calendar text has them (a line it lacks is left out), a small
-// source tag and Read more for the full original text. Nothing here is written by the app.
+// Luna's forecast (owner's brief): the energy line as the calendar gives it, the transit line in small type,
+// then "DOs:" and "DON'Ts:" exactly as written (a line the text lacks is left out). Nothing repeated, nothing
+// written by the app; anything else in the calendar text shows only on the Observatory.
 function AstroForecast() {
   const { k, events, cal } = useCourt();
   const today = eventsOn(events, k, true).filter((e) => isAstro(e));
@@ -145,44 +131,14 @@ function AstroForecast() {
             const p = astroParts(e.desc);
             return (
               <div className="kastro-ev" key={i}>
+                {p.energy && <p className="kastro-en">{p.energy}</p>}
                 {p.transits.length > 0 && <p className="kastro-tr">{p.transits.join(" · ")}</p>}
-                {p.dos && <p className="kdo pos"><b>DOs:</b> {p.dos}</p>}
-                {p.donts && <p className="kdo neg"><b>DON&apos;Ts:</b> {p.donts}</p>}
-                <div className="kastro-foot">
-                  <span className="kastro-src">astro calendar</span>
-                  {p.full && <details className="kfold"><summary>Read more</summary><blockquote className="adesc">{p.full}</blockquote></details>}
-                </div>
+                {p.dos && <p className="kdo"><b>DOs:</b> {p.dos}</p>}
+                {p.donts && <p className="kdo"><b>DON&apos;Ts:</b> {p.donts}</p>}
               </div>
             );
           }) : <p className="note">No astro calendar entries today.</p>}
-      </div>
-    </section>
-  );
-}
-
-function QuickCapture({ sfx = "" }: { sfx?: string }) {
-  const { st, update } = useCourt();
-  const [t, setT] = useState("");
-  const [msg, setMsg] = useState("");
-  const open = st.dump.filter((d) => !d.done).length;
-  return (
-    <section className="win kqc" aria-labelledby={"kqcT" + sfx}>
-      <div className="win-title"><h2 id={"kqcT" + sfx}>Quick capture</h2><span className="sub">{open} parked</span></div>
-      <div className="win-body">
-        <form className="field" onSubmit={(e) => {
-          e.preventDefault();
-          const v = t.trim();
-          if (!v) return;
-          update((d) => { d.dump.unshift({ id: "d" + Date.now(), t: v.slice(0, 140), done: false, ts: Date.now() }); d.dump = d.dump.slice(0, 40); }, ["dump"]);
-          setT(""); setMsg("Parked. It is in Today, Park a thought.");
-        }}>
-          <label htmlFor={"kqcIn" + sfx}>What&apos;s on your mind?</label>
-          <div className="field-row">
-            <input id={"kqcIn" + sfx} type="text" autoComplete="off" maxLength={140} placeholder="A task, a note, an idea" value={t} onChange={(e) => { setT(e.target.value); setMsg(""); }} />
-            <button className="btn" type="submit">Park it</button>
-          </div>
-        </form>
-        {msg && <p className="note" role="status">{msg}</p>}
+        <span className="kastro-src">astro calendar</span>
       </div>
     </section>
   );

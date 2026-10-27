@@ -6,6 +6,7 @@ import { eventsOn, isAstro } from "@/lib/court/state";
 import { addDays, hm, prettyDay } from "@/lib/court/time";
 import { OBS_BANNER, PaintedBanner } from "@/components/kumo/PaintedBanner";
 import { AstroText } from "./AstroText";
+import { astroParts } from "@/components/kumo/astroParts";
 import { GLYPH, SIGNS, birthMoment, fmtDeg, houses, moonPhase, positions, signOf, skyEvents, transits, lonOf, type BodyName, type SkyEvent } from "@/lib/sky";
 
 // Luna's sky: "From your astro calendar" first (the astrologer's title and description, quoted as written,
@@ -136,8 +137,8 @@ function Obs7({ k, astro, ev }: { k: string; astro: AstroRow[]; ev: SkyEvent[] }
             {rows.map((x, j) => (
               <div className="obs-ev" key={j}>
                 <div><b>{x.t}</b> <span className="note">{x.allDay ? "All day" : `${hm(x.a)}–${hm(x.b)} SGT`}</span></div>
-                <AstroText text={x.desc} />
-                <p className="note obs-src">Source: {x.cal}, your astro calendar. Quoted as written.</p>
+                {x.d === k ? (astroParts(x.desc).extra ? <AstroText text={astroParts(x.desc).extra} /> : <p className="note">Today&apos;s energy, transits and DOs / DON&apos;Ts are on the Court.</p>) : <AstroText text={x.desc} />}
+                <p className="note obs-src">Source: {x.cal}, your astro calendar{astroParts(x.desc).source ? ` (© ${astroParts(x.desc).source})` : ""}. Quoted as written.</p>
               </div>
             ))}
             {calc.map((e, j) => (

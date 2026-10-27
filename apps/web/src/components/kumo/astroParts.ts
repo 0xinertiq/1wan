@@ -12,7 +12,7 @@ export function utcToSgt(s: string) {
   });
 }
 
-export function astroParts(desc?: string): { transits: string[]; dos: string | null; donts: string | null; full: string; source: string | null } {
+export function astroParts(desc?: string): { energy: string | null; transits: string[]; dos: string | null; donts: string | null; extra: string; full: string; source: string | null } {
   const lines = (desc ?? "").split(/\r?\n/).map((l) => l.trim());
   const transits = lines.filter((l) => /^[•·]\s*/.test(l)).map((l) => utcToSgt(l.replace(/^[•·]\s*/, "")));
   const pick = (re: RegExp) => { const m = lines.map((l) => l.match(re)).find((x) => x); return m ? utcToSgt(m[1].trim()) : null; };
@@ -20,5 +20,10 @@ export function astroParts(desc?: string): { transits: string[]; dos: string | n
   const donts = pick(/^(?:🚫\s*)?DON['’]?TS?:\s*(.+)$/i);
   const source = (desc ?? "").match(/©\s*([^\n]+)/)?.[1]?.trim() ?? null;
   const full = utcToSgt((desc ?? "").replace(BOILER, "")).trim();
-  return { transits, dos, donts, full, source };
+  // The energy line: the first plain line with "·" separators, before the bullets (for example "Tense · ...").
+  const energy = lines.find((l) => l && !/^[•·]/.test(l) && !/^(?:✅|🚫)/.test(l) && !/^(?:DOS?|DON['’]?TS?):/i.test(l) && /\s·\s/.test(l)) ?? null;
+  // Anything the Court card does not show (for the Observatory only).
+  const shown = new Set([energy, ...lines.filter((l) => /^[•·]\s*/.test(l) || /^(?:✅\s*)?DOS?:/i.test(l) || /^(?:🚫\s*)?DON['’]?TS?:/i.test(l))]);
+  const extra = lines.filter((l) => l && !shown.has(l) && !BOILER.test(" " + l) && !/^©/.test(l) && !/^Applies all day/i.test(l)).map(utcToSgt).join("\n").replace(/\s*©[^\n]*$/, "").trim();
+  return { energy, transits, dos, donts, extra, full, source };
 }

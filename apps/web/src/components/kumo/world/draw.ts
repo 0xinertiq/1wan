@@ -80,7 +80,7 @@ export function geometry(W: number, H: number) {
     { id: "obs", label: "Observatory", href: "#observatory", x: cx + 114, y: gy - 50, desk: [cx + 104, gy + 6] },
     { id: "garden", label: "Sakura Garden", href: "#garden", x: cx - 58, y: gy - 36, desk: [cx - 50, gy + 14] },
     { id: "life", label: "Life Hub", href: "#life", x: cx - 146, y: gy - 22, desk: [cx - 136, gy + 22] },
-    { id: "diary", label: "Fox Diary", href: "#diary", x: cx + 150, y: gy - 18, desk: [cx + 140, gy + 24] },
+    { id: "diary", label: "Dungeon", href: "#diary", x: cx + 150, y: gy - 18, desk: [cx + 140, gy + 24] },
   ];
   return { cx, gy, places };
 }
@@ -277,11 +277,17 @@ function drawIsland(c: C, o: WorldOpts, r: () => number, wins: Win[]) {
   rect(c, ob + 14, gy - 39, 2, 2, K.gold);
   for (const wx of [ob - 10, ob + 8]) roundWin(c, wx, gy - 11, 2, wins);
 
-  // Life Hub: mushroom-cap cottage with a vegetable bed; Fox Diary: round-windowed cottage under a teal roof
+  // Life Hub: mushroom-cap cottage with a vegetable bed; the Dungeon gate sits on the right
   house(c, cx - 160, gy + 10, 26, 16, K.pink2, K.roofLo, wins, true, "mushroom");
   for (let i = 0; i < 4; i++) { rect(c, cx - 128 + i * 4, gy + 4, 3, 5, K.trunk); rect(c, cx - 128 + i * 4, gy + 3, 3, 1, i % 2 ? K.leaf : K.gold); }
-  house(c, cx + 136, gy + 12, 26, 16, K.teal, K.tealLo, wins, true, "round");
-  orect(c, cx + 165, gy - 1, 6, 6, K.wood); rect(c, cx + 166, gy, 1, 4, K.pink2); rect(c, cx + 168, gy, 1, 4, K.lav); rect(c, cx + 170, gy, 1, 4, K.gold);
+  // Dungeon: an arched door set into a mossy blush-and-plum rock, with runes (glowing live) and a lantern
+  { const gx = cx + 149, gb = gy + 12;
+    oell(c, gx, gb - 9, 17, 13, "#E9B8CF", true); ell(c, gx + 6, gb - 12, 7, 8, "#D79BBD", true); ell(c, gx - 9, gb - 6, 4, 3, "#F6D3E2", true);
+    for (const [dx, dy] of [[-12, -15], [-4, -21], [5, -20], [12, -14], [-15, -8], [14, -6]]) { rect(c, gx + dx, gb + dy, 3, 2, K.ivy); rect(c, gx + dx + 1, gb + dy - 1, 1, 1, "#A6DDB8"); }
+    ell(c, gx, gb - 12, 6, 6, P, true); rect(c, gx - 6, gb - 12, 13, 12, P); ell(c, gx, gb - 12, 5, 5, K.door, true); rect(c, gx - 5, gb - 12, 11, 12, K.door);
+    for (const dx of [-3, 0, 3]) rect(c, gx + dx, gb - 15, 1, 15, "#5A3F69");
+    rect(c, gx, gb - 9, 1, 1, K.gold); rect(c, gx, gb - 8, 1, 2, K.gold); wins.push([gx, gb - 9, 1, 3]);
+    orect(c, gx + 15, gb - 14, 1, 14, K.wood); orect(c, gx + 14, gb - 17, 3, 3, K.gold); wins.push([gx + 14, gb - 17, 3, 3]); }
 
   // Lanterns (two at the start), flower beds and mushrooms
   const lanterns: [number, number][] = [[cx - 14, gy + 16], [cx + 14, gy + 16]];
@@ -359,8 +365,12 @@ export function makeWorld(o: WorldOpts): World {
       for (const [x, y, p] of stars) if ((Math.sin(s * 2 + p * 20) + 1) / 2 > 0.25) rect(c, x, y, 1, 1, p > 0.85 ? "#FFE9A8" : "#F2ECFF");
       // constellation lines between a few bright stars
       c.save(); c.globalAlpha = 0.28; c.strokeStyle = "#CDBFFF"; c.lineWidth = 1; c.beginPath();
-      const bright = stars.filter(([, , p]) => p > 0.85).slice(0, 6);
-      bright.forEach(([x, y], i) => (i ? c.lineTo(x + 0.5, y + 0.5) : c.moveTo(x + 0.5, y + 0.5))); c.stroke(); c.restore();
+      // only short links between nearby stars, so they read as small constellations
+      for (let i = 0; i < stars.length; i++) for (let j = i + 1; j < stars.length; j++) {
+        const [x1, y1, p1] = stars[i], [x2, y2, p2] = stars[j];
+        if (p1 > 0.6 && p2 > 0.6 && Math.hypot(x2 - x1, y2 - y1) < 26) { c.moveTo(x1 + 0.5, y1 + 0.5); c.lineTo(x2 + 0.5, y2 + 0.5); }
+      }
+      c.stroke(); c.restore();
       const nt = ((mins + 300) % 1440) / 660, mx = Math.round(o.W * 0.15 + nt * o.W * 0.7), my = Math.round(18 + Math.abs(nt - 0.5) * 30);
       ell(c, mx, my, 7, 7, "#FFF6D6"); ell(c, mx + 3, my - 2, 6, 6, SKY.night[0]); rect(c, mx - 4, my + 1, 1, 1, "#E8DDB6");
       if (Math.floor(s / 47) % 5 === 0 && s % 47 < 1.2) { const k = (s % 47) / 1.2; for (let i = 0; i < 6; i++) rect(c, o.W * 0.7 - k * 60 - i * 2, 14 + k * 20 - i, 1, 1, "#FFFFFF"); }
@@ -415,7 +425,9 @@ export function makeWorld(o: WorldOpts): World {
       c.save(); c.globalCompositeOperation = "lighter"; const g = c.createRadialGradient(x, y + 5, 0, x, y + 5, 14); g.addColorStop(0, `rgba(190,170,255,${0.35 + 0.15 * Math.sin(s * 2)})`); g.addColorStop(1, "rgba(190,170,255,0)"); c.fillStyle = g; c.fillRect(x - 14, y - 9, 28, 28); c.restore(); }
     { const ob = cx + 114; for (let i = 0; i < 10; i++) { const a = s * 0.4 + (i / 10) * Math.PI * 2; const x = ob + Math.round(Math.cos(a) * 24), y = gy - 4 + Math.round(Math.sin(a) * 5); c.globalAlpha = glowy ? 0.9 : 0.55; rect(c, x, y, 1, 1, i % 2 ? "#FFE9A8" : "#D9CCFF"); } c.globalAlpha = 1; }
     for (const [x, y, ph] of [[cx - 33, gy - 79, 0], [cx + 30, gy - 78, 1.3], [cx + 2, gy - 102, 2.1], [cx - 113, gy - 85, 2.9]] as const) if (Math.sin(s * 2.2 + ph) > 0.55) { rect(c, x, y - 1, 1, 3, "#FFFFFF"); rect(c, x - 1, y, 3, 1, "#FFFFFF"); }
-    // enchanted books drifting by the Fox Diary
+    // Dungeon runes glow around the gate
+    for (let i = 0; i < 5; i++) { const a = Math.PI + (i / 4) * Math.PI, x = cx + 149 + Math.round(Math.cos(a) * 10), y = gy + 1 + Math.round(Math.sin(a) * 10); c.globalAlpha = 0.5 + 0.5 * Math.sin(s * 2 + i); rect(c, x, y, 1, 1, i % 2 ? "#D9CCFF" : "#FFE9A8"); c.globalAlpha = 1; }
+    // enchanted books drifting by the Dungeon
     for (let i = 0; i < 3; i++) { const k = (s * 0.15 + i / 3) % 1, x = cx + 128 + Math.round(Math.sin(s * 0.6 + i) * 10) + i * 8, y = gy - 22 - Math.round(k * 22), f = Math.floor(s * 3 + i) % 2; c.globalAlpha = Math.min(1, (1 - k) * 2); rect(c, x - 2, y - f, 2, 2 + f, [K.pink2, K.teal, K.lav][i]); rect(c, x + 1, y - f, 2, 2 + f, [K.pink2, K.teal, K.lav][i]); rect(c, x, y, 1, 2, P); c.globalAlpha = 1; }
     // two tiny villagers stroll the paths, a cat naps by the diary cottage
     for (const [i, x0, span, col] of [[0, cx - 70, 30, K.lav], [1, cx + 50, 24, K.pink2]] as const) {

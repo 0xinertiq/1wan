@@ -30,7 +30,7 @@ Briefs and scans were hidden under a collapsed "More"; painted concept crops wit
 Tablet: same order, two columns. Mobile (below 768px): world as a short strip (130-180px), then Needs you now, Today, Briefs and scans, prices, Luna, progress; Quick Capture is global (button), bottom bar of 5 (Home, Calendar, Hub, Diary, More).
 
 ### The world, details
-- Layers: sky gradient, drifting clouds, a floating island with castle, clock tower, sakura tree, observatory dome, small house(s), waterfall, path and bridge, soft light and petals. Places (The Castle, Clock Tower, Sakura Garden, Observatory, Fox Diary, Life Hub) are hotspots with small labels and 44px touch areas, keyboard focusable, same destinations as the rail.
+- Layers: sky gradient, drifting clouds, a floating island with castle, clock tower, sakura tree, observatory dome, small house(s), waterfall, path and bridge, soft light and petals. Places (The Castle, Clock Tower, Sakura Garden, Observatory, Dungeon, Life Hub) are hotspots with small labels and 44px touch areas, keyboard focusable, same destinations as the rail.
 - Crew: existing sprites only. Idle bob; working pose at their place when a desk is running; walking along predefined paths between places when a desk starts or finishes. Use only the live data that already exists (who is at work, level). Pixel sprites scale nearest-neighbour, small, never covering labels.
 - Day and night follow Asia/Singapore time (dawn, day, dusk, night with stars, moon, lantern glow, lit windows).
 - Weather uses the Open-Meteo reading the Court already fetches for Singapore (clear, cloudy, rain, drizzle): rain streaks and darker clouds when it rains, no new API.
@@ -46,7 +46,7 @@ Tablet: same order, two columns. Mobile (below 768px): world as a short strip (1
 ## Part 2: Shared design system and all tabs
 
 ### Tab roles (her words)
-Main Dashboard = Overview. Clock Tower = Time and scheduling. Life Hub = Long-term planning and life management. Sakura Garden = Habits and growth. Fox Diary = Reflection. Observatory = Research and intelligence. Each tab does only its role; never repeat another tab's content (one canonical source per activity).
+Main Dashboard = Overview. Clock Tower = Time and scheduling. Life Hub = Long-term planning and life management. Sakura Garden = Habits and growth. Dungeon = Reflection. Observatory = Research and intelligence. Each tab does only its role; never repeat another tab's content (one canonical source per activity).
 
 ### Look and feel
 Follow the GPT boards for the feel (cream, soft plum, sakura accents, rounded cards, airy), but keep the numbers readable. "Balanced" density: airy feel, key information above the fold on desktop.
@@ -71,7 +71,7 @@ Main view: TODAY TIMELINE (hour by hour, Now / Next / Later, all-day events sepa
 ### Sakura Garden (habits and growth)
 The garden itself leads: a larger pixel garden scene (tree growth stages 0-4 with one anchor so no scale jumps, bridge, lanterns, petals, companions) that grows from the existing habit activity. Habit quests sit beside or below it, with the evening check-in expandable. Keep the existing decay and rest-day logic exactly; no punitive wording; no duplicate tracking.
 
-### Fox Diary (reflection), guided
+### Dungeon (reflection), guided
 Guided layout: the daily prompts first (one thing that went well, what I am grateful for, free writing), then the writing area. Month calendar and a TEXT-ONLY archive list (no thumbnails, no decorative charts), weekly recap from existing entries, autosave with an honest status ("saving", "saved", "could not save, retry"), privacy note. Entries stay private.
 
 ### Observatory (research and intelligence), in this order
@@ -81,7 +81,7 @@ Guided layout: the daily prompts first (one thing that went well, what I am grat
 Four parts: Goals and milestones; Projects (linked to canonical tasks, no duplicate task records); Life admin (dog grooming, self-care, yoga, home reminders); Finance and trading journal (trading goals, thesis log, capital plan; tracking only, never advice). Do not repeat Today, the calendar, the full habit list or the diary.
 
 ### Order of delivery
-R1 (hotfix, production) -> R2 Court Living World (preview, she says "ship it") -> Clock Tower -> Sakura Garden -> Observatory -> Fox Diary -> Life Hub -> Notifications, Settings, Onboarding, Mobile pass. Calendar and Garden are already deployed in the older style: restyle them to match this spec. Every visual slice goes to a preview link first, with your own desktop and mobile screenshots compared against the spec and honest notes on weaknesses; she says "ship it" to deploy. Protected paths untouched; Classic switch stays; keep PROGRESS.md accurate.
+R1 (hotfix, production) -> R2 Court Living World (preview, she says "ship it") -> Clock Tower -> Sakura Garden -> Observatory -> Dungeon -> Life Hub -> Notifications, Settings, Onboarding, Mobile pass. Calendar and Garden are already deployed in the older style: restyle them to match this spec. Every visual slice goes to a preview link first, with your own desktop and mobile screenshots compared against the spec and honest notes on weaknesses; she says "ship it" to deploy. Protected paths untouched; Classic switch stays; keep PROGRESS.md accurate.
 
 ## Part 3: Amendments (override Parts 1 and 2 where they differ)
 
@@ -91,7 +91,7 @@ For every tab, follow its moodboard in docs/kumo-redesign/moodboards/ for the he
 ### All options selected (include every one)
 - Clock Tower: Today timeline; Week grid and Month calendar as switchable views; My tasks + Focus timer; Upcoming events + habits today.
 - Sakura Garden: big pixel garden scene; habit quests + check-ins; streaks and garden progress; companions + decorations preview (preview only, no spending).
-- Fox Diary: daily prompts + mood check-in; month calendar + text-only entry list; weekly recap; insights and mood chart (from real entries only, never invented; show an empty state until there is data).
+- Dungeon: daily prompts + mood check-in; month calendar + text-only entry list; weekly recap; insights and mood chart (from real entries only, never invented; show an empty state until there is data).
 - Court extras: Chief Kumo's pick + daily quote; Quick capture; Kingdom progress; Crew roster + weather chip (the roster shows who is on duty and what each desk is doing from existing data).
 
 Keep the Court calm even so: the world, prices strip, row 1 (Today + Needs you now | Briefs and scans), row 2 (Luna, Kingdom progress, Quick capture), then Crew roster, Chief Kumo's pick and the quote as a quiet third row. The weather chip lives in the world.
@@ -128,7 +128,7 @@ The owner dislikes tabs that are one narrow centred column ("one profile") where
 
 Sakura Garden layout as the worked example (desktop): LEFT column (about 5/12, sticky): the pixel garden scene with the tree, the stat strip beneath it. RIGHT (7/12): a segmented control Daily anchors | Branches | Activity. Daily anchors as a compact two-column checklist (eight items, checkbox, title, one-line hint on hover or expand); Branches as a grid of eight small cards (name, stage, blossoms x/8, last watered, Weed it out as a small secondary button); Activity as a short recent list. No page needs more than about one screen of scroll.
 
-Apply the same thinking to Clock Tower (timeline left, month/tasks/focus right), Fox Diary (calendar and entries left, prompts and writing centre, mood and recap right), Observatory (briefs, watchlist, Luna, macro in a grid), and Life Hub (goals, projects, life admin, finance in a 2x2 grid with tabs for details).
+Apply the same thinking to Clock Tower (timeline left, month/tasks/focus right), Dungeon (calendar and entries left, prompts and writing centre, mood and recap right), Observatory (briefs, watchlist, Luna, macro in a grid), and Life Hub (goals, projects, life admin, finance in a 2x2 grid with tabs for details).
 
 ## Part 6: Fonts (as amended by the owner on 27 Oct; overrides every earlier font line, including DECISIONS.md section 4)
 The spec text proposed Inter for body; the owner overrode it:
@@ -147,3 +147,11 @@ The spec text proposed Inter for body; the owner overrode it:
 - Luna card: transit line small, bold "DOs:" and "DON'Ts:" only from the calendar text, no colours, readable header with a 1px line, no "Applies all day", no "astronomical", no copyright line on the card (it stays inside Read more and on the Observatory).
 - No Bigdata wording in the UI.
 - New tabs (rail on desktop; phone bar Home, Calendar, Hub, Diary, More with the rest under More): Trades (scan in full with prices, technicals, Midday Movers card left; trade log and tools right), News (headlines feed with "In today's top 5" tags; full text of every brief with history, reading layout), Calendar gets one merged Week ahead and the Economic calendar on the left, Observatory keeps Luna's 7-day sky.
+
+## Part 8: Owner update round 4 (overrides earlier parts where they differ)
+- Luna's card, in this order and nothing repeated: the energy line as the calendar gives it (with its icons), the transit line in smaller type, then bold "DOs:" and "DON'Ts:" with plain text, only from the calendar text. No Read more on the Court; anything else in the calendar text shows only on the Observatory (with the attribution). Readable header with a 1px line. Kumo's weekly review sits below Luna's card.
+- Today card: Now / Next / Later, the stat strip (Due soon, Streak, Habits this week, Yesterday), then the parked thoughts (Done). No Brief | Sky | Week tabs.
+- Park a thought (was Quick capture): one line under the world, on every width; the only entry point on the Court.
+- Coming up on the Court: only what needs her soon; auto-paid bills (GIRO, auto-deducted tax) and subscriptions are hidden on the Court only; every item stays in Life admin.
+- Focus sprint: a pixel hourglass with a face, top left of the world; tap to start (Study or Other), ring and minutes while running, tap to stop. Nowhere else on the Court.
+- "Fox Diary" is now "Dungeon" everywhere she sees it (internal ids, links and stored data unchanged); new pixel icon (arched door, gold keyhole, tiny lantern) and an enchanted dungeon gate in the world. The journal stays private and exportable, written in Inter.

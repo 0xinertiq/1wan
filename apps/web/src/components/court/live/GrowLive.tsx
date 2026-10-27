@@ -14,12 +14,13 @@ import {
 import { addDays, prettyDay, weekKey, dayIdx } from "@/lib/court/time";
 import { branches, needsCare, type Branch, type WaterEvt } from "@/lib/court/garden";
 import { DecorSprite } from "@/components/kumo/DecorSprite";
+import { DungeonIcon } from "@/components/kumo/DungeonIcon";
 import { NUDGE } from "@/lib/gardenMap";
 import { water } from "@/lib/court/water";
 import { TAILS, earned } from "@/lib/court/tails";
 
 // Growth column from dashboard-v52: Sakura Garden (with Habit Quests inside), Tonight count your wins,
-// Fox Diary with the weekly recap, and the "You" status card. Everything saves to her state.
+// Dungeon with the weekly recap, and the "You" status card. Everything saves to her state.
 
 const short = (id: string) => AGENTS.find((a) => a.id === id)?.short ?? id;
 const Mini = ({ name, sm }: { name: SpriteName; sm?: boolean }) => <span className={sm ? "mini sm" : "mini"}><PixelSprite name={name} /></span>;
@@ -302,7 +303,7 @@ export function WinsButton() {
   );
 }
 
-/* ---------- Fox Diary and weekly recap ---------- */
+/* ---------- Dungeon and weekly recap ---------- */
 const MOODS = ["Low", "Flat", "Okay", "Good", "Bright"];
 
 function diaryDays(st: CourtState, k: string) {
@@ -312,7 +313,7 @@ function diaryDays(st: CourtState, k: string) {
 }
 
 function downloadDiary(st: CourtState, k: string) {
-  const lines = ["# Fox Diary", "", `Exported ${k}. Private to you.`, ""];
+  const lines = ["# Dungeon", "", `Exported ${k}. Private to you.`, ""];
   for (const d of diaryDays(st, k)) {
     const w = st.wins[d] ?? {}, m = st.mood[d];
     if (!w.w && !w.g && !w.n && !m) continue;
@@ -324,7 +325,7 @@ function downloadDiary(st: CourtState, k: string) {
     lines.push("");
   }
   const url = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/markdown" }));
-  const a = document.createElement("a"); a.href = url; a.download = `fox-diary-${k}.md`; a.click();
+  const a = document.createElement("a"); a.href = url; a.download = `dungeon-${k}.md`; a.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
@@ -383,7 +384,7 @@ export function DiaryLive({ open }: { open?: boolean }) {
   return (
     <details className="gdet" id="gdJoy" open={open}><summary>Diary and weekly recap</summary><div id="joyBox">
       <div className="tcard joy">
-        <h3><Mini name="coco" />Fox Diary <span className="cnj">狐记</span></h3>
+        <h3><span className="mini dicon"><DungeonIcon /></span>Dungeon <span className="cnj">地牢</span></h3>
         <div className="joyhero">
           <p className="joyq" id="joyQ">{praise[joyI % praise.length]}</p>
           <div className="rep-act">

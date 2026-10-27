@@ -546,6 +546,37 @@ a.pb-chip:focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:-3
 .lw{position:relative}
 @media (max-width:767px){.lw-say{position:relative!important;display:block!important;font-size:14px;padding:10px 16px!important;max-width:calc(100% - 24px)!important;top:auto!important;left:auto!important;margin:14px 0 0 12px;transform:none;animation:none!important}.lw-say-t{-webkit-line-clamp:2}}
 
+/* Round 4: Luna order, Today with parked thoughts, Coming up, sprint hourglass, Dungeon icon. */
+:root[data-ui="new"] .kastro-en{font:600 15px/1.45 var(--kumo-font-body);color:var(--ink)}
+:root[data-ui="new"] .kastro .kdo{font:400 15px/1.5 var(--kumo-font-body)}
+:root[data-ui="new"] .kastro .kdo b{font-weight:800;font-size:15px;letter-spacing:0;color:var(--ink)}
+:root[data-ui="new"] .kastro .kastro-src{display:block;margin-top:2px}
+:root[data-ui="new"] .kparked{display:grid;gap:6px}
+:root[data-ui="new"] .kcoming .filed-row .note{font-size:13px}
+.lw-sprint{position:absolute;left:10px;top:8px;z-index:6}
+.lw-sprint-btn{position:relative;display:grid;place-items:center;width:44px;height:44px;border:1px solid rgba(255,255,255,.7);border-radius:12px;background:rgba(255,255,255,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);cursor:pointer;padding:0}
+.lw-sprint-btn:hover,.lw-sprint-btn:focus-visible{background:#fff}
+.lw-hg{width:22px;height:24px;image-rendering:pixelated}
+.lw-ring{position:absolute;inset:3px;width:36px;height:36px}
+.lw-sprint-btn.on .lw-hg{width:16px;height:18px}
+.lw-min{position:absolute;right:-6px;bottom:-6px;padding:0 4px;border-radius:6px;background:#4a2538;color:#fff;font:700 11px/16px var(--kumo-font-body)}
+.lw-sprint-pop{position:absolute;left:0;top:52px;display:grid;gap:8px;min-width:200px;padding:12px;border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);box-shadow:var(--kumo-shadow-floating);font:500 14px var(--kumo-font-body);color:var(--ink)}
+.lw-top{left:62px!important}
+.mini.dicon svg{width:100%;height:100%;display:block}
+@media (max-width:767px){
+  :root[data-ui="new"] .kqline{display:flex;margin-top:0;order:2}
+  :root[data-ui="new"] .khome #needWin{order:3}
+  :root[data-ui="new"] .khome .knl{order:4}
+  :root[data-ui="new"] .khome .kcoming{order:5}
+  :root[data-ui="new"] .khome .kbriefs{order:6}
+  :root[data-ui="new"] .khome .kastro{order:7}
+  :root[data-ui="new"] .khome .kreview{order:8}
+  :root[data-ui="new"] .khome>.kprices{order:9}
+  :root[data-ui="new"] .khome>.kroster{order:10}
+  :root[data-ui="new"] .khome>.statusline{order:11}
+  .lw-top{left:58px!important}
+}
+
 /* Focus ring from the kit. */
 :root[data-ui="new"] :focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:2px}
 

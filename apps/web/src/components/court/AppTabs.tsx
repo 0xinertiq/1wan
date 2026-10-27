@@ -7,14 +7,14 @@ import { useCourt } from "./CourtState";
 // Main tabs: bottom bar on phone, left rail on desktop. Every panel stays mounted so nothing she typed is lost
 // when she switches; the open tab lives in the address (#garden) so reload and back keep her place.
 // Classic: the five v52 tabs. New look: Trades, News and Observatory join the rail; on the phone the bar is
-// Home, Calendar, Hub, Diary and More (More holds Garden, Observatory, Trades, News and Settings).
+// Home, Calendar, Hub, Dungeon and More (More holds Garden, Observatory, Trades, News and Settings).
 
 export const TABS = ["court", "calendar", "garden", "diary", "life"] as const;
 const EXTRA = ["trades", "news", "observatory"] as const;
 export type TabId = (typeof TABS)[number];
 type ExtraId = (typeof EXTRA)[number];
 type PageId = TabId | ExtraId;
-const LABEL: Record<PageId, string> = { court: "Court", calendar: "Calendar", garden: "Garden", diary: "Diary", life: "Life", trades: "Trades", news: "News", observatory: "Observatory" };
+const LABEL: Record<PageId, string> = { court: "Court", calendar: "Calendar", garden: "Garden", diary: "Dungeon", life: "Life", trades: "Trades", news: "News", observatory: "Observatory" };
 const PHONE_BAR: PageId[] = ["court", "calendar", "life", "diary"];
 
 // 9x8 pixel icons: X outline, o fill, g gold accent, p blossom pink.
@@ -22,7 +22,7 @@ const ICONS: Record<PageId | "more", string[]> = {
   court: ["....gg...", "....X....", "X.X.X.X.X", "XXXXXXXXX", ".XoooooX.", ".XooXooX.", ".XoXXXoX.", ".XXXXXXX."],
   calendar: [".X.....X.", "XXXXXXXXX", "XgggggggX", "XXXXXXXXX", "XoXoXoXoX", "XoooooooX", "XoXoXoXoX", "XXXXXXXXX"],
   garden: ["...ppp...", "..ppgpp..", "...ppp...", "....X....", ".XX.X....", "..XXX.XX.", "....XXX..", "....X...."],
-  diary: [".XXXXXXX.", ".XoooogX.", ".XoXXXgX.", ".XoooogX.", ".XoXXogX.", ".XoooogX.", ".XXXXXXX.", "........."],
+  diary: ["..XXXX..X", ".XooooX.p", "XooooooX.", "XoogooX..", "XoooXooX.", "XoooXooX.", "XooooooX.", "XXXXXXXX."],
   life: [".XX...XX.", "XppX.XppX", "XpppXpppX", "XpppppppX", ".XpppppX.", "..XpppX..", "...XpX...", "....X...."],
   trades: ["........g", ".......X.", "......X..", ".X...X...", "X.X.X....", "X..X.....", "X........", "XXXXXXXXX"],
   news: ["XXXXXXXX.", "XooooooXX", "XoXXXXoXX", "XooooooXX", "XoXXoXoXX", "XooooooXX", "XoXXXgoXX", "XXXXXXXX."],

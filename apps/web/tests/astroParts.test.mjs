@@ -24,3 +24,10 @@ test("the boilerplate is dropped from the full text", () => {
   assert.ok(!/Applies all day/.test(astroParts(sample).full));
   assert.equal(utcToSgt("at 03:00 UTC"), "at 11:00 SGT");
 });
+
+test("energy line comes first as written; anything else is the Observatory's extra part", () => {
+  const p = astroParts(sample + "\nA note from the astrologer.");
+  assert.equal(p.energy, "🔴 Tense · emotions active");
+  assert.equal(p.extra, "A note from the astrologer.");
+  assert.equal(astroParts("🔴 Tense · x\n• Mars's Day\n✅ DO: Rest.").extra, "");
+});
