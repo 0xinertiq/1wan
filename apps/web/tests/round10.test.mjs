@@ -40,6 +40,7 @@ test("trade reflection: no 'Not a trade' option, and no selector without trades"
   const d = src("components/court/pages/Dungeon.tsx");
   assert.ok(!/Not about a trade|Not a trade/.test(d));
   assert.match(d, /\{trades\.length > 0 && <select aria-label="Link a trade"/);
+  assert.match(d, /\{!cur\.tradeId && <option value="" disabled>Pick a trade<\/option>\}/, "any trade, the newest included, can be picked and saved");
 });
 
 test("the 2027 chart is its own: separate key and ticks, blank to start, 2026 untouched", async () => {
@@ -63,10 +64,13 @@ test("the 2027 chart is its own: separate key and ticks, blank to start, 2026 un
 
 test("loans: the USD 9,000 entry is removed (restorable), SGD loans come to S$40,000, edits keep history", async () => {
   const { loanFix, loanMath } = await import("../src/lib/court/finance.ts");
-  assert.deepEqual(loanFix([{ id: "a", name: "Loan USD", lent: 9000 }]), { remove: ["a"], amend: null, add: { name: "Loans owed to me (SGD)", lent: 40000 } });
-  assert.deepEqual(loanFix([{ id: "a", name: "Friend", lent: 9000 }, { id: "b", name: "Family", lent: 25000 }]), { remove: ["a"], amend: { id: "b", from: 25000 }, add: null });
-  assert.deepEqual(loanFix([{ id: "b", name: "Family", lent: 40000 }]).add, null);
-  assert.deepEqual(loanFix([{ id: "a", name: "Old", lent: 9000, deleted: true }, { id: "b", name: "Family", lent: 40000 }]), { remove: [], amend: null, add: null }, "a removed loan stays removed, nothing else changes");
+  assert.deepEqual(loanFix([{ id: "a", name: "Loan USD", lent: 9000 }], true), { remove: ["a"], amend: null, add: { name: "Loans owed to me (SGD)", lent: 40000 } });
+  assert.deepEqual(loanFix([{ id: "a", name: "Loan to a friend", lent: 9000, note: "in USD" }, { id: "b", name: "Family", lent: 25000 }], true), { remove: ["a"], amend: { id: "b", from: 25000 }, add: null });
+  assert.deepEqual(loanFix([{ id: "f", name: "Friend", lent: 9000 }], true), { remove: [], amend: { id: "f", from: 9000 }, add: null }, "a S$9,000 loan is never removed for its amount");
+  assert.deepEqual(loanFix([], false), { remove: [], amend: null, add: null }, "no import (a friend, a new account): nothing is added");
+  assert.deepEqual(loanFix([{ id: "b", name: "Family", lent: 40000 }], true).add, null);
+  assert.deepEqual(loanFix([{ id: "a", name: "Old USD", lent: 9000, deleted: true }, { id: "b", name: "Family", lent: 40000 }], true), { remove: [], amend: null, add: null }, "a removed loan stays removed, nothing else changes");
+  assert.match(src("components/court/live/FinanceTracker.tsx"), /if \(!v\.ready \|\| v\.failed \|\| fixed \|\| ran\.current\) return;/, "never on a failed load");
   assert.equal(loanMath({ lent: 40000, repaid: [], off: 0 }).expected, 40000);
   const f = src("components/court/live/FinanceTracker.tsx");
   assert.match(f, /v\.put\(\{ id: l\.id, deleted: false \} as Partial<Row>\); log\("loan\." \+ l\.id, `Restored loan/, "Restore brings a removed loan back");
@@ -138,4 +142,6 @@ test("the garden grows on real activity this week, and past catalyst dates are f
   assert.deepEqual([0, 1, 4, 5, 11, 12, 19, 20, 60].map(gardenStage), [0, 1, 1, 2, 2, 3, 3, 4, 4]);
   const { pastDates } = await import("../src/components/court/pages/TradesPage.tsx");
   assert.deepEqual(pastDates("Unlock 12 Oct · FOMC Nov 5 · listing 2026-10-30 · old 2026-09-01", "2026-10-28").sort(), ["2026-09-01", "2026-10-12"]);
+  assert.deepEqual(pastDates("Prices 3 may rise", "2026-10-28"), [], "'may' as a word is not May");
+  assert.deepEqual(pastDates("Dec 30 unlock", "2027-01-05", 2026), ["2026-12-30"], "a December date in a December scan read in January is past");
 });

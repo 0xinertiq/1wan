@@ -109,9 +109,10 @@ export function FinanceTracker({ d: raw }: { d: MoneyDefs | undefined }) {
   // round 10, once: the USD 9,000 loan entry is removed (kept and restorable) and SGD loans come to S$40,000
   const ran = useRef(false);
   useEffect(() => {
-    if (!v.ready || fixed || ran.current) return;
+    // never on a failed load (the list would look empty), never twice
+    if (!v.ready || v.failed || fixed || ran.current) return;
     ran.current = true;
-    const plan = loanFix(allLoans);
+    const plan = loanFix(allLoans, d.k.sgdExp > 0 || d.k.usdExp > 0);
     for (const id of plan.remove) { const l = allLoans.find((x) => x.id === id); v.put({ id, deleted: true } as Partial<Row>); log("loan." + id, `Removed loan ${l?.name ?? ""}`.trim(), 0, 1); }
     if (plan.amend) { v.put({ id: plan.amend.id, lent: 40000 } as Partial<Row>); log("loan." + plan.amend.id + ".lent", "Amount lent", plan.amend.from, 40000); }
     if (plan.add) v.put({ kind: "loan", name: plan.add.name, lent: plan.add.lent, repaid: [], off: 0 } as Partial<Row>);

@@ -28,11 +28,12 @@ const rTxt = (r: number | null) => (r == null ? "–" : (r >= 0 ? "+" : "") + r.
 const SECTIONS: [RegExp, string][] = [[/style\s*map/i, "Style Map"], [/also\s*on\s*watch|on\s*watch|watch\s*list/i, "Also on watch"], [/alert/i, "Alerts"], [/thesis/i, "Thesis log"], [/catalyst/i, "Catalysts"]];
 // round 8: inside the Trades card "Midday movers and scan details", under the movers (no card of its own)
 /** Round 10 (D2): dates written in a catalysts list ("12 Nov", "2026-11-12", "Nov 12") that are before today. */
-export function pastDates(text: string, today: string) {
-  const M = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], y = +today.slice(0, 4), out: string[] = [];
+export function pastDates(text: string, today: string, year = +today.slice(0, 4)) {
+  const M = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], y = year, out: string[] = [];
   const add = (mm: number, dd: number, yy = y) => { if (mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31) { const k = `${yy}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}`; if (k < today) out.push(k); } };
   for (const m of text.matchAll(/\b(20\d\d)-(\d\d)-(\d\d)\b/g)) add(+m[2], +m[3], +m[1]);
-  for (const m of text.matchAll(/\b(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b/gi)) add(M.indexOf(m[2].toLowerCase()) + 1, +m[1]);
+  // "may" is also a word ("3 may rise"): only read it as a month when no lower-case word follows
+  for (const m of text.matchAll(/\b(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b(?!\s+[a-z])/gi)) add(M.indexOf(m[2].toLowerCase()) + 1, +m[1]);
   for (const m of text.matchAll(/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+(\d{1,2})\b/gi)) add(M.indexOf(m[1].toLowerCase()) + 1, +m[2]);
   return [...new Set(out)];
 }
@@ -57,7 +58,7 @@ export function ScanDetails({ doc }: { doc: BriefDoc | null }) {
         // round 10: the Style Map is always open, never clamped
         if (label === "Style Map") return <div key={label} className="kstyle"><SectionLabel>Style Map</SectionLabel><article className="read" dangerouslySetInnerHTML={{ __html: mdLite(body) }} /></div>;
         // round 10 (D2): catalysts carry the scan's own date, and dates already passed are flagged
-        const past = label === "Catalysts" ? pastDates(body, sgtKeyOf(Date.now())) : [];
+        const past = label === "Catalysts" ? pastDates(body, sgtKeyOf(Date.now()), +sgtKeyOf(doc.at).slice(0, 4)) : [];
         return <details key={label} className="klib-item"><summary><b>{label}</b>{label === "Catalysts" && <span className="note"> · from the scan of <time className="ts">{stamp(doc.at)}</time>{past.length ? ` · ${past.length} date${past.length === 1 ? "" : "s"} already passed` : ""}</span>}</summary><Clamp label={label} lines={5}><article className="read" dangerouslySetInnerHTML={{ __html: mdLite(body) }} /></Clamp></details>;
       })}
       <p className="note xd">The morning scan itself is in Briefs on the Court. Tracking only, not advice.</p>

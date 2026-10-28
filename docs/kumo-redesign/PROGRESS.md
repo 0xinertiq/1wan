@@ -589,3 +589,25 @@ Nothing protected was edited and nothing was deleted. Scheduled tasks were read,
 - 169 tests pass, including 10 new ones.
 - All 56 browser runs are clean.
 - The build passes.
+
+### Independent review (fresh reviewer, read-only) and the one fix round
+The reviewer found no protected file touched. It confirmed the 2027 chart is isolated, the leverage and short-liquidation maths are right, and to-dos stay off other views.
+
+**Fixed:**
+- **Must-fix, phantom loan.** The one-time loan change could add S$40,000 for anyone with no loans. It now adds nothing without her imported Money Wins loans (so friends and new accounts are untouched), never runs on a failed load, and runs once.
+- **Must-fix, wrong loan removed.** It removed any S$9,000 loan. It now removes only a loan marked USD.
+- **Must-fix, unsaveable trade link.** The newest trade could not be linked in the reflection. A disabled "Pick a trade" placeholder now shows until a trade is chosen.
+- **Minor:**
+  - The "why" line now counts sources after the final merge.
+  - Catalyst dates no longer read "3 may rise" as a date, and use the scan's own year.
+  - Dead layout code was removed.
+
+**Kept, with notes:**
+- **Quote bubble placement:** the bubble only rises from Kumo, so on short scenes it sits under the strip instead of in a corner of the sky, as asked.
+- **Quote on load:** the quote changes once just after load (the day's quote, then the rotation).
+
+After the fix round:
+- Typecheck is clean.
+- 169 tests pass.
+- All 56 browser runs are clean.
+- The build passes.

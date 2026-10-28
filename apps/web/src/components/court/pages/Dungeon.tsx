@@ -109,7 +109,8 @@ function Side({ day, e, put, part }: { day: string; e: Entry | undefined; put: (
         </form>
       </Card>
       <Card title="Trade reflection" sub="before and after a trade">
-        {trades.length > 0 && <select aria-label="Link a trade" value={cur.tradeId ?? trades[0].id} onChange={(ev) => put({ ...base, tradeId: ev.target.value })}>
+        {trades.length > 0 && <select aria-label="Link a trade" value={cur.tradeId ?? ""} onChange={(ev) => ev.target.value && put({ ...base, tradeId: ev.target.value })}>
+          {!cur.tradeId && <option value="" disabled>Pick a trade</option>}
           {trades.map((t) => <option key={t.id} value={t.id}>{String(t.inst ?? "")} {t.date ? prettyDay(String(t.date)) : ""}</option>)}
         </select>}
         <label className="kform">Before: what is the plan?<textarea key={day + "p"} maxLength={1000} defaultValue={cur.plan ?? ""} onBlur={(ev) => ev.target.value !== (cur.plan ?? "") && put({ ...base, plan: ev.target.value })} /></label>

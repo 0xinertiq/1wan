@@ -59,11 +59,13 @@ export function foldDone<T>(items: T[], done: (x: T) => boolean) {
   return { open: items.filter((x) => !done(x)), done: items.filter(done) };
 }
 
-/** Round 10, her loans as she asked: the USD 9,000 entry is removed (soft: kept, restorable, logged) and her SGD
- *  loans come to S$40,000 as one entry. Runs once. Several SGD loans are left for her to set by hand. */
-export function loanFix(loans: { id: string; name: string; lent: number; note?: string; deleted?: boolean }[], total = 40000) {
+/** Round 10, her loans as she asked: a loan entry marked USD is removed (soft: kept, restorable, logged), and with
+ *  her imported Money Wins loans (only she has them) her SGD loans come to S$40,000 as one entry. Nothing happens
+ *  for anyone without that import, a S$9,000 loan is never removed for its amount alone, and it runs once. */
+export function loanFix(loans: { id: string; name: string; lent: number; note?: string; deleted?: boolean }[], imported: boolean, total = 40000) {
   const active = loans.filter((l) => !l.deleted);
-  const remove = active.filter((l) => /\busd\b|us\$/i.test(`${l.name} ${l.note ?? ""}`) || l.lent === 9000).map((l) => l.id);
+  const remove = active.filter((l) => /\busd\b|us\$/i.test(`${l.name} ${l.note ?? ""}`)).map((l) => l.id);
+  if (!imported) return { remove, amend: null, add: null };
   const rest = active.filter((l) => !remove.includes(l.id));
   if (!rest.length) return { remove, amend: null, add: { name: "Loans owed to me (SGD)", lent: total } };
   if (rest.length === 1 && rest[0].lent !== total) return { remove, amend: { id: rest[0].id, from: rest[0].lent }, add: null };

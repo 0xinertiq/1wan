@@ -61,7 +61,6 @@ export function briefing(clusters: Cluster[], lenses: LensId[], n = 5): { storie
     const lift = c.why.find((w) => /watchlist|release|independent/.test(w));
     groups.push({ titles, s: { title: c.lead.title, link: c.lead.link, group: c.lead.group ?? "", at: c.lead.at ?? null, score: c.score, source: c.lead.source, sources: names, also: names.filter((x) => x !== c.lead.source), why: "" }, lift });
   }
-  for (const g of groups) g.s.why = [`score ${g.s.score}`, `${g.s.sources.length} source${g.s.sources.length === 1 ? "" : "s"}`, g.lift].filter(Boolean).join(" · ");
   const ranked = groups.map((g) => g.s).sort((a, b) => b.score - a.score || (b.at ?? "").localeCompare(a.at ?? ""));
   // hard check across all items: no two stories in the briefing may be the same story
   const stories: Story[] = [];
@@ -70,5 +69,8 @@ export function briefing(clusters: Cluster[], lenses: LensId[], n = 5): { storie
     if (twin) { twin.sources = [...new Set([...twin.sources, ...x.sources])]; twin.also = twin.sources.filter((s) => s !== twin.source); continue; }
     if (stories.length < n) stories.push(x);
   }
+  // the why line is written last, so its source count includes every merge
+  const lift = new Map(groups.map((g) => [g.s, g.lift]));
+  for (const x of stories) x.why = [`score ${x.score}`, `${x.sources.length} source${x.sources.length === 1 ? "" : "s"}`, lift.get(x)].filter(Boolean).join(" · ");
   return { stories, headlines };
 }
