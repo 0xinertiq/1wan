@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { getOnce } from "@/lib/court/once";
 import type { EconEvent } from "@/lib/econ";
+import { inText, liquidityList, nextLiquidity, sgtShort } from "@/lib/liquidity";
 
-// Olli's economic calendar, next 7 days, Singapore time. US jobs, CPI, FOMC, GDP and PCE first.
+// Olli's economic calendar, Singapore time: the canonical home of releases. By default the liquidity whitelist
+// (lib/liquidity.ts), with an "All releases" toggle. The Court shows only the one "Next:" line.
 export type EconRes = { items: EconEvent[]; ok: boolean; at: string; error?: string };
 export const useEcon = () => {
   const [r, setR] = useState<EconRes | null>(null);
@@ -16,25 +18,37 @@ export const sgtTime = (iso: string) => new Date(iso).toLocaleString("en-SG", { 
 export function EconLive() {
   const r = useEcon();
   const [all, setAll] = useState(false);
-  const week = (r?.items ?? []).filter((e) => Date.parse(e.at) <= Date.now() + 7 * 86400e3);
-  const top = week.filter((e) => e.top), rest = week.filter((e) => !e.top && e.impact === "High");
-  const more = week.filter((e) => !e.top && e.impact !== "High");
+  const now = Date.now(), from = now - 3 * 3600e3, to = now + 7 * 86400e3;
+  const liq = liquidityList(r?.items ?? [], from, to);
+  const rest = (r?.items ?? []).filter((e) => Date.parse(e.at) >= from && Date.parse(e.at) <= to && (e.impact === "High" || e.impact === "Medium"));
   const Row = ({ e }: { e: EconEvent }) => (
-    <div className="filed-row"><span className="note">{sgtTime(e.at)}</span><span>{e.top ? <b>{e.title}</b> : e.title} <span className="note">{e.country} · {e.impact}{e.forecast ? ` · forecast ${e.forecast}` : ""}{e.previous ? ` · previous ${e.previous}` : ""}{e.source === "Federal Reserve" ? " · Fed schedule" : ""}</span></span></div>
+    <div className="filed-row"><span className="note">{sgtTime(e.at)}</span><span>{e.title} <span className="note">{e.country} · {e.impact}{e.forecast ? ` · forecast ${e.forecast}` : ""}{e.previous ? ` · previous ${e.previous}` : ""}{e.source === "Federal Reserve" ? " · Fed schedule" : ""}</span></span></div>
   );
   return (
     <section className="win" id="econWin" aria-labelledby="econT">
       <div className="win-title"><h2 id="econT">Economic calendar</h2><span className="sub">Olli · next 7 days</span></div>
       <div className="win-body">
         {!r ? <p className="note">Loading releases…</p> : <>
-          {top.length > 0 && <><div className="sec-h">Jobs, CPI, FOMC, GDP, PCE</div>{top.map((e, i) => <Row e={e} key={"t" + i} />)}</>}
-          {rest.length > 0 && <><div className="sec-h">Other high impact</div>{rest.slice(0, all ? 50 : 6).map((e, i) => <Row e={e} key={"h" + i} />)}</>}
-          {all && more.length > 0 && <><div className="sec-h">Medium impact</div>{more.map((e, i) => <Row e={e} key={"m" + i} />)}</>}
-          {!week.length && <p className="note">{r.ok ? "No high or medium impact releases in the next 7 days." : `Calendar not reachable (${r.error}).`}</p>}
-          {(rest.length > 6 || more.length > 0) && <button className="btn sm ghost" type="button" onClick={() => setAll(!all)}>{all ? "Fewer" : "Show all"}</button>}
-          <p className="note">Times in Singapore time. Source: an unofficial free calendar (forecast and previous only, no actuals); FOMC dates from the Federal Reserve. Check the official release before relying on it.</p>
+          <div className="kseg" role="tablist" aria-label="Releases">
+            <button type="button" role="tab" aria-selected={!all} className={!all ? "on" : ""} onClick={() => setAll(false)}>Moves liquidity</button>
+            <button type="button" role="tab" aria-selected={all} className={all ? "on" : ""} onClick={() => setAll(true)}>All releases</button>
+          </div>
+          {!all
+            ? liq.length ? liq.map((x) => (
+              <div className="filed-row" key={x.at + x.name}><span className="note">{sgtShort(x.at)}</span><span><b>{x.name}</b> <span className="note">{inText(x.at)}{x.titles.length > 1 ? ` · ${x.titles.join(", ")}` : ""}</span></span></div>
+            )) : <p className="note">{r.ok ? "No liquidity releases in the next 7 days." : `Calendar not reachable (${r.error}).`}</p>
+            : rest.length ? rest.map((e, i) => <Row e={e} key={i} />) : <p className="note">No high or medium impact releases in the next 7 days.</p>}
+          <p className="note">Moves liquidity: FOMC decision, statement, press conference and minutes; US jobs, CPI, PPI, PCE and GDP; ECB, BoJ and BoE decisions; Treasury refunding; high impact only. Times in Singapore time. Source: an unofficial free calendar (forecast and previous only) plus the Federal Reserve&apos;s FOMC dates.</p>
         </>}
       </div>
     </section>
   );
+}
+
+// The one slim line on the Court under the prices: the next liquidity release within 48 hours, else nothing.
+export function NextLiquidityLine() {
+  const r = useEcon();
+  const n = r ? nextLiquidity(r.items) : null;
+  if (!n) return null;
+  return <p className="knext"><b>Next:</b> {n.name} {sgtShort(n.at)} SGT, {inText(n.at)}</p>;
 }

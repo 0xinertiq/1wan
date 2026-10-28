@@ -306,6 +306,7 @@ export function ParkedList() {
 // subscriptions are left out here by their name or note (there is no auto-paid flag yet; NEEDS OWNER
 // APPROVAL to add one). Every item stays in Settings, Life admin.
 const AUTO = /\bgiro\b|auto[\s-]?(?:pay|paid|deduct|debit|renew)|instal?ments?|income tax|property tax|subscription|spotify|claude|netflix|icloud|google one|youtube|disney|apple (?:one|music|tv)/i;
+export const isAutoPaid = (it: { cat: string; name: string; note?: string }) => (it.cat === "bill" || it.cat === "money") && AUTO.test(it.name + " " + (it.note ?? ""));
 export function ComingUpCourt() {
   const { st, k, events, update } = useCourt();
   const list = dueList(st, k, events).filter((x) => x.dd <= 10 && !((x.it.cat === "bill" || x.it.cat === "money") && AUTO.test(x.it.name + " " + (x.it.note ?? "")))).slice(0, 5);

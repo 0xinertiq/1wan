@@ -22,7 +22,7 @@ const F: Record<string, string> = { X: "#4a2538", r: "#E9B8CF", d: "#6B4E7A", w:
 export function DungeonIcon({ size = 32, label }: { size?: number; label?: string }) {
   return (
     <svg viewBox="0 0 16 15" width={size} height={size} shapeRendering="crispEdges" role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
-      {G.flatMap((row, y) => row.split("").map((c, x) => (c === "." ? null : <rect key={x + "-" + y} x={x} y={y} width="1" height="1" fill={F[c]} />)))}
+      {G.flatMap((row, y) => row.split("").map((c, x) => (c === "." ? null : <rect key={x + "-" + y} className={"ic-" + c} x={x} y={y} width="1" height="1" fill={F[c]} />)))}
     </svg>
   );
 }

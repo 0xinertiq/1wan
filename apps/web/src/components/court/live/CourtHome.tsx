@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { PixelSprite, type SpriteName } from "@/components/PixelSprite";
 import { useCourt } from "../CourtState";
-import { dueList, eventsOn, isDone, money, type CalEvent, type CourtState } from "@/lib/court/state";
+import { dueList, eventsOn, isAstro, money, type CalEvent, type CourtState } from "@/lib/court/state";
+import { isAutoPaid } from "./TodayLive";
 import { addDays, hm, prettyDay, wdName, wdOf, weekKey } from "@/lib/court/time";
 import { branches, needsCare, type WaterEvt } from "@/lib/court/garden";
 import { getOnce } from "@/lib/court/once";
@@ -38,100 +39,63 @@ function useRecords() {
   return { plans, evs };
 }
 
-// t is the bold first line (and the "Seen" key); sub is the smaller second line; rows list grouped releases.
-type Need = { rank: number; crew: SpriteName; t: string; go?: string; id?: string; sub?: string; rows?: { name: string; vals: string }[] };
-function needs(st: CourtState, k: string, nm: number, events: CalEvent[], plans: Row[], evs: WaterEvt[]): Need[] {
+// Needs you now (owner's rules, round 5): only (a) tasks, reminders and bookings due today, overdue, or due
+// within 3 days (auto-paid bills and subscriptions stay hidden), plus calendar bookings starting within two
+// hours, and (b) agents waiting on her (today's briefs still to rate, as one line). No macro releases, no
+// habits, no price alerts. Items on the same day (or at the same time) share one card with one Seen.
+type Need = { id: string; crew: SpriteName; t: string; sub?: string; rows?: string[]; go?: string; rank: number };
+function needs(st: CourtState, k: string, nm: number, events: CalEvent[], unrated: string[]): Need[] {
   const out: Need[] = [];
-  for (const x of dueList(st, k, events)) if (x.dd === 0 && (x.it.cat === "bill" || x.it.cat === "money")) out.push({ rank: 1, crew: "coco", t: `${x.it.name} is due today${x.it.amt != null ? " · " + money(x.it.amt) : ""}.` });
-  for (const p of plans) if (p.triggered && !p.placed && p.outcome === "open") out.push({ rank: 2, crew: "fenn", t: `Your ${String(p.inst ?? "")} plan reached entry with no order logged. Mark it placed, or note why you held off.`, go: "life" });
-  const g = branches(st, k, evs);
-  for (const b of [g.trunk, ...g.list].filter(needsCare)) out.push({ rank: 3, crew: "coco", t: `${b.n ? b.name : "The trunk"} is ${b.stage}, ${b.idle} days since activity.`, go: "garden" });
-  for (const e of eventsOn(events, k)) if (!e.allDay && e.a > nm && e.a - nm <= 120) out.push({ rank: 4, crew: "momo", t: `${e.t} at ${hm(e.a)}${e.loc ? ", " + e.loc : ""}.`, go: "calendar" });
-  if (!isDone(st, "m1")) out.push({ rank: 5, crew: "kumo", t: "Today's brief is not opened yet." });
-  return out.sort((a, b) => a.rank - b.rank);
-}
-
-// Her own chart lines: price within 0.5% of a saved level, or of a saved line extended to now (in-app only).
-function useLineTouches() {
-  const { st } = useCourt();
-  const [last, setLast] = useState<Record<string, number>>({});
-  const syms = [...new Set(st.lines.map((l) => l.sym))].slice(0, 12).join(",");
-  useEffect(() => {
-    if (!syms) return;
-    getOnce<{ items?: { sym: string; snap?: { last: number } | null }[] }>(`/api/ta?tf=1h&syms=${syms}`).then((j) => { const m: Record<string, number> = {}; for (const x of j.items ?? []) if (x.snap) m[x.sym] = x.snap.last; setLast(m); });
-  }, [syms]);
-  const now = Date.now(), out: Need[] = [];
-  for (const l of st.lines) {
-    const px = last[l.sym]; if (px == null) continue;
-    const at = l.kind === "level" || !l.p2 ? l.p1.p : l.p1.p + ((l.p2.p - l.p1.p) * (now - l.p1.t)) / ((l.p2.t - l.p1.t) || 1);
-    if (at > 0 && Math.abs(px - at) / at <= 0.005) out.push({ rank: 2, crew: "fenn", t: `${l.sym} is at your ${l.kind === "level" ? "level" : "line"} near ${at.toPrecision(5)} (${l.tf}).`, go: "court" });
-  }
-  return out;
-}
-
-// Alerts from section E: macro release in the next 2 hours, sources failing, a price move above her
-// threshold, fresh headlines on her watchlist. Quiet hours hold them; "Seen" hides one for the day.
-function useAlerts(): Need[] {
-  const { st, nm, prices } = useCourt();
-  const [econ, setEcon] = useState<{ at: string; title: string; country: string; top: boolean; impact: string; forecast?: string; previous?: string }[]>([]);
-  const [news, setNews] = useState<{ title: string; link: string; at: string | null }[]>([]);
-  const [fails, setFails] = useState(0);
-  useEffect(() => {
-    getOnce<{ items?: typeof econ }>("/api/econ?days=30").then((j) => setEcon(j.items ?? []));
-    getOnce<{ items?: typeof news; feeds?: { ok: boolean }[] }>("/api/news").then((j) => { setNews(j.items ?? []); setFails((j.feeds ?? []).filter((f) => !f.ok).length); });
-  }, []);
-  const n = st.news, h = Math.floor(nm / 60);
-  const quiet = n.quietFrom != null && n.quietTo != null && (n.quietFrom <= n.quietTo ? h >= n.quietFrom && h < n.quietTo : h >= n.quietFrom || h < n.quietTo);
-  if (quiet) return [];
-  const out: Need[] = [];
-  // Releases at the same time from the same country become one card with a row per release. Only the
-  // fields the calendar has are shown (it has no actuals today); nothing is invented.
-  const groups = new Map<string, typeof econ>();
-  for (const e of econ) { const m = (Date.parse(e.at) - Date.now()) / 60000; if (m > 0 && m <= 120 && (e.top || e.impact === "High")) groups.set(e.at + e.country, [...(groups.get(e.at + e.country) ?? []), e]); }
-  for (const g of groups.values()) {
-    const m = Math.round((Date.parse(g[0].at) - Date.now()) / 60000), sgtHm = new Date(Date.parse(g[0].at) + 8 * 3600000).toISOString().slice(11, 16);
+  const due = dueList(st, k, events).filter((x) => x.dd <= 3 && !isAutoPaid(x.it));
+  const byDay = new Map<string, typeof due>();
+  for (const x of due) byDay.set(x.d, [...(byDay.get(x.d) ?? []), x]);
+  for (const [d, xs] of byDay) {
+    const dd = xs[0].dd, when = dd < 0 ? "overdue" : dd === 0 ? "due today" : dd === 1 ? "due tomorrow" : `due ${prettyDay(d)}`;
+    const name = (x: (typeof due)[number]) => `${x.it.name}${x.it.amt != null ? " · " + money(x.it.amt) : ""}`;
     out.push({
-      rank: 1, crew: "olli", id: g[0].at + g[0].country, t: `${g[0].country} ${g.length > 1 ? econName(g.map((e) => e.title)) : g[0].title}, in ${m} min`,
-      sub: `${sgtHm} SGT · in ${m} min · ${g.some((e) => e.impact === "High") ? "High" : g[0].impact} impact`,
-      rows: g.map((e) => ({ name: e.title, vals: [e.forecast && `Forecast ${e.forecast}`, e.previous && `Previous ${e.previous}`].filter(Boolean).join(" · ") })),
+      id: "due" + d + xs.map((x) => x.it.name).join(), crew: "coco", rank: dd <= 0 ? 1 : 3, go: "life",
+      t: xs.length === 1 ? `${xs[0].it.name} ${when}` : `${xs.length} items ${when}`,
+      sub: dd > 0 ? `${prettyDay(d)} · in ${dd} day${dd === 1 ? "" : "s"}` : prettyDay(d),
+      rows: xs.length > 1 ? xs.map(name) : xs[0].it.amt != null ? [name(xs[0])] : undefined,
     });
   }
-  if (n.movePct) for (const p of prices?.prices ?? []) if (p.ch24 != null && Math.abs(p.ch24) >= n.movePct) out.push({ rank: 2, crew: "dundun", t: `${p.sym} moved ${p.ch24 > 0 ? "+" : ""}${p.ch24.toFixed(1)}% in 24h (your alert is ${n.movePct}%).` });
-  const syms = (prices?.prices ?? []).map((p) => p.sym);
-  const hot = news.filter((x) => x.at && Date.now() - Date.parse(x.at) < 3 * 3600e3 && syms.some((s) => new RegExp("\\b" + s + "\\b").test(x.title)));
-  if (hot.length >= 2) out.push({ rank: 3, crew: "pip", t: `${hot.length} fresh headlines mention your watchlist, for example: ${hot[0].title.slice(0, 90)}`, go: "court" });
-  if (fails >= 4) out.push({ rank: 4, crew: "pip", t: `${fails} news sources are not reachable right now. See Settings, Source health.` });
-  return out;
+  const soon = eventsOn(events, k).filter((e) => !e.allDay && !isAstro(e) && e.a > nm && e.a - nm <= 120);
+  const byTime = new Map<number, typeof soon>();
+  for (const e of soon) byTime.set(e.a, [...(byTime.get(e.a) ?? []), e]);
+  for (const [a, es] of byTime) out.push({
+    id: "ev" + k + a, crew: "momo", rank: 2, go: "calendar",
+    t: es.length === 1 ? es[0].t : `${es.length} bookings at ${hm(a)}`,
+    sub: `${hm(a)} SGT · in ${a - nm} min${es.length === 1 && es[0].loc ? " · " + es[0].loc : ""}`,
+    rows: es.length > 1 ? es.map((e) => e.t) : undefined,
+  });
+  if (unrated.length) out.push({ id: "rate" + k, crew: "kumo", rank: 4, t: `Rate today's ${unrated.length === 1 ? "brief" : "briefs"}: ${unrated.join(", ")}`, sub: "Useful or Needs work, under each brief" });
+  return out.sort((x, y) => x.rank - y.rank);
 }
 
-// A short name for a group of releases: the word they share (CPI for "CPI m/m", "Trimmed Mean CPI m/m").
-function econName(titles: string[]) {
-  const words = titles[0].split(/\s+/).filter((w) => /^[A-Za-z][\w-]{1,}$/.test(w) && !/^(m\/m|y\/y|q\/q)$/i.test(w));
-  return words.find((w) => titles.every((t) => t.split(/\s+/).includes(w))) ?? "releases";
-}
-
-export function NeedsNow() {
+export function NeedsNow({ unrated = [] }: { unrated?: string[] }) {
   const { st, k, nm, events } = useCourt();
-  const { plans, evs } = useRecords();
-  const touches = useLineTouches();
-  const alerts = useAlerts();
   const [seen, setSeen] = useState<string[]>([]);
+  const [all, setAll] = useState(false);
   useEffect(() => { try { setSeen(JSON.parse(localStorage.getItem("1wan-seen-" + k) ?? "[]")); } catch {} }, [k]);
-  const hide = (t: string) => { const x = [...seen, t]; setSeen(x); try { localStorage.setItem("1wan-seen-" + k, JSON.stringify(x)); } catch {} };
-  const list = [...needs(st, k, nm, events, plans, evs), ...touches, ...alerts].filter((x) => !seen.includes(x.id ?? x.t)).sort((a, b) => a.rank - b.rank);
+  const hide = (id: string) => { const x = [...seen, id]; setSeen(x); try { localStorage.setItem("1wan-seen-" + k, JSON.stringify(x)); } catch {} };
+  const list = needs(st, k, nm, events, unrated).filter((x) => !seen.includes(x.id));
+  const shown = all ? list : list.slice(0, 3);
   return (
-    <Card id="needWin" title="Needs you now" sub={list.length ? `${list.length} waiting` : "all clear"}>
-      {list.length ? list.slice(0, 3).map((x, i) => (
-        <div className="kneed" key={i}>
-          <Mini name={x.crew} />
-          <div className="kneed-b">
-            <b className="kneed-t">{x.t}</b>
-            {x.sub && <span className="kneed-s">{x.sub}</span>}
-            {x.rows && x.rows.map((r) => <span className="kneed-r" key={r.name}><b>{r.name}</b>{r.vals && <> · {r.vals}</>}</span>)}
+    <Card id="needWin" title="Needs you now" sub={list.length ? `${list.length} waiting` : undefined}>
+      {list.length ? <>
+        {shown.map((x) => (
+          <div className="kneed" key={x.id}>
+            <Mini name={x.crew} />
+            <div className="kneed-b">
+              <b className="kneed-t">{x.t}</b>
+              {x.sub && <span className="kneed-s">{x.sub}</span>}
+              {x.rows && x.rows.map((r) => <span className="kneed-r" key={r}>{r}</span>)}
+            </div>
+            <div className="kneed-a">{x.go && <a className="btn sm ghost" href={"#" + x.go}>Open</a>}<button className="btn sm ghost" type="button" onClick={() => hide(x.id)}>Seen</button></div>
           </div>
-          <div className="kneed-a">{x.go && <a className="btn sm ghost" href={"#" + x.go}>Open</a>}<button className="btn sm ghost" type="button" onClick={() => hide(x.id ?? x.t)}>Seen</button></div>
-        </div>
-      )) : <p className="note">Nothing needs you right now. Lovely.</p>}
+        ))}
+        {list.length > 3 && <button className="btn sm ghost" type="button" aria-expanded={all} onClick={() => setAll(!all)}>{all ? "Show fewer" : `+${list.length - 3} more`}</button>}
+      </> : <p className="note">All clear</p>}
     </Card>
   );
 }

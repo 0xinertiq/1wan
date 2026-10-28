@@ -30,13 +30,14 @@ const ICONS: Record<PageId | "more", string[]> = {
   observatory: ["......g..", "....XX...", "...XooX..", "..XoooX..", ".XoooX...", "X.XXX....", "..X.X....", ".X...X..."],
   more: [".........", ".........", ".........", "XX.XX.XX.", "XX.XX.XX.", ".........", ".........", "........."],
 };
-// pixel-art palette (nav icons)
+// pixel-art palette (nav icons, Classic). The New look colours the same rects through tokens by class
+// (ic-X outline, ic-o fill), so they stay visible at night and the active tab turns sakura. pixel-art
 const FILL: Record<string, string> = { X: "var(--line)", o: "var(--win-hi)", g: "#FFD95E", p: "#FFB3D1" };
 
 function Icon({ id }: { id: PageId | "more" }) {
   return (
     <svg viewBox="0 0 9 8" shapeRendering="crispEdges" aria-hidden="true">
-      {ICONS[id].flatMap((row, y) => row.split("").map((c, x) => (c === "." ? null : <rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" fill={FILL[c]} />)))}
+      {ICONS[id].flatMap((row, y) => row.split("").map((c, x) => (c === "." ? null : <rect key={`${x}-${y}`} className={"ic-" + c} x={x} y={y} width="1" height="1" fill={FILL[c]} />)))}
     </svg>
   );
 }

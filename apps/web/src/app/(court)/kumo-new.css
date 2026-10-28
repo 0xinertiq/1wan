@@ -98,7 +98,6 @@
 :root[data-ui="new"] .kfold>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font:700 14px var(--kumo-font-body);color:var(--lav-strong)}
 :root[data-ui="new"] .kfold[open]>summary{margin-bottom:var(--sp-2)}
 :root[data-ui="new"] .today-bare{display:grid;gap:var(--sp-3)}
-:root[data-ui="new"] .kastro .win-title{background:linear-gradient(90deg,var(--kumo-lavender-soft),var(--win))}
 :root[data-ui="new"] .kastro-h{font:600 18px var(--kumo-font-display);color:var(--ink)}
 :root[data-ui="new"] .kastro-evs{display:grid;gap:var(--sp-3);grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
 :root[data-ui="new"] .kastro-ev{display:grid;gap:var(--sp-1);align-content:start;padding:var(--sp-3);border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win)}
@@ -237,8 +236,8 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
    Inter only for the diary writing area and journal entries. Replaces the v52 Quicksand override (New look only). */
 :root[data-ui="new"] body{font-variant-numeric:tabular-nums}
 :root[data-ui="new"] input:not([type=checkbox]):not([type=file]):not([type=range]),:root[data-ui="new"] textarea,:root[data-ui="new"] select{font-family:var(--kumo-font-body)!important;font-weight:inherit}
-:root[data-ui="new"] .tp-diary textarea,:root[data-ui="new"] .tp-diary .pre,:root[data-ui="new"] .tp-diary .jn{font-family:var(--nf-inter),system-ui,var(--nf-noto),sans-serif!important;font-size:16px;line-height:1.5}
-:root[data-ui="new"] .cnj{font-family:var(--nf-noto),var(--nf-mashan),serif}
+:root[data-ui="new"] .tp-diary textarea,:root[data-ui="new"] .tp-diary .pre,:root[data-ui="new"] .tp-diary .jn{font-family:var(--k-font-journal)!important;font-size:16px;line-height:1.5}
+:root[data-ui="new"] .cnj{font-family:var(--k-font-cjk)}
 
 /* R2 Living World and Court layout (COURT_SPEC). The world: full width, about half the viewport, max 520px;
    a short strip on the phone. Place labels are small; their hit area is 44px. */
@@ -271,7 +270,7 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 @media (prefers-reduced-motion:reduce){.lw-crew,.lw-kumo{animation:none;transition:none}}
 
 /* Prices strip under the world */
-:root[data-ui="new"] .kprices{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--sp-2) var(--sp-4);margin-top:calc(-1 * var(--sp-3));padding:var(--sp-3) var(--sp-4);border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);box-shadow:var(--kumo-shadow-card)}
+:root[data-ui="new"] .kprices{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--sp-2) var(--sp-4);margin-top:0;padding:var(--sp-3) var(--sp-4);border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);box-shadow:var(--kumo-shadow-card)}
 :root[data-ui="new"] .kprices ul{display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-4);margin:0;padding:0;list-style:none;font:600 14px var(--kumo-font-body);font-variant-numeric:tabular-nums}
 :root[data-ui="new"] .kprices b{font-weight:800}
 :root[data-ui="new"] .kprices i{font-style:normal}
@@ -332,7 +331,7 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 @media (max-width:767px){.lw-say{font-size:13px;max-width:62%;padding:var(--sp-1) var(--sp-2)}.lw-say.open{max-width:90%}}
 
 /* Prices: one line, never wraps; extra tickers scroll sideways */
-:root[data-ui="new"] .kprices{flex-wrap:nowrap;gap:var(--sp-4);padding:var(--sp-2) var(--sp-4);margin-top:calc(-1 * var(--sp-3))}
+:root[data-ui="new"] .kprices{flex-wrap:nowrap;gap:var(--sp-4);padding:var(--sp-2) var(--sp-4);margin-top:0}
 :root[data-ui="new"] .kprices ul{flex:1;min-width:0;flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
 :root[data-ui="new"] .kprices ul::-webkit-scrollbar{display:none}
 :root[data-ui="new"] .kprices li{flex:none}
@@ -370,7 +369,7 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 /* The Queen's progress in the header, right after the clock */
 .hprog{display:none}
 :root[data-ui="new"] .hprog{display:inline-flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-3);border:1px solid var(--line);border-radius:var(--r-pill);background:var(--win);box-shadow:var(--kumo-shadow-card);font:600 13px var(--kumo-font-body);color:var(--ink-soft)}
-:root[data-ui="new"] .hprog-lv b{font:700 13px var(--nf-silkscreen),monospace;color:var(--ink)}
+:root[data-ui="new"] .hprog-lv b{font:700 13px var(--k-font-label);color:var(--ink)}
 :root[data-ui="new"] .hprog-bar{position:relative;width:64px;height:6px;border-radius:var(--r-pill);background:var(--track);overflow:hidden}
 :root[data-ui="new"] .hprog-bar i{position:absolute;inset:0 auto 0 0;background:var(--kumo-pink);border-radius:var(--r-pill)}
 :root[data-ui="new"] .hprog-save.warn{color:var(--kumo-danger)}
@@ -406,10 +405,10 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 
 /* R3 (owner's round 3): quick line, Briefs block with Intel | Scan, rail, Trades / News / Calendar grids,
    reading layout, New-look nav with More, Luna header fix, roster without sideways scroll. */
-:root[data-ui="new"] .kqline{display:flex;align-items:center;gap:var(--sp-2);margin-top:calc(-1 * var(--sp-3))}
+:root[data-ui="new"] .kqline{display:flex;align-items:center;gap:var(--sp-2);margin-top:0}
 :root[data-ui="new"] .kqline input{flex:1;min-width:0;min-height:44px;padding:var(--sp-2) var(--sp-4);border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);font:500 15px var(--kumo-font-body);color:var(--ink)}
 :root[data-ui="new"] .kqline .note{flex:none;font-size:13px}
-:root[data-ui="new"] .kqline+.kprices{margin-top:calc(-1 * var(--sp-4))}
+:root[data-ui="new"] .kqline+.kprices{margin-top:0}
 /* segmented control */
 :root[data-ui="new"] .kseg{display:inline-flex;gap:var(--sp-1);padding:var(--sp-1);border-radius:var(--kumo-radius-control);background:var(--win-dim);max-width:100%;overflow-x:auto}
 :root[data-ui="new"] .kseg button{min-height:36px;padding:var(--sp-2) var(--sp-4);border:0;border-radius:var(--r-control);background:transparent;font:700 14px var(--kumo-font-body);color:var(--ink-soft);cursor:pointer;white-space:nowrap}
@@ -434,7 +433,6 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .rv-sug{margin:0;padding-left:var(--sp-6);display:grid;gap:var(--sp-1);font-size:14px}
 :root[data-ui="new"] .kreview .btn,:root[data-ui="new"] .kmovers .btn{justify-self:start}
 /* Luna: readable header with a 1px line, no colour labels */
-:root[data-ui="new"] .kastro .win-title{background:var(--win)!important;border-bottom:1px solid var(--line)}
 :root[data-ui="new"] .kastro .win-title h2{color:var(--ink)}
 :root[data-ui="new"] .kastro .kdo.pos b,:root[data-ui="new"] .kastro .kdo.neg b{color:var(--ink);font-weight:800}
 /* roster: wraps, never scrolls sideways */
@@ -451,7 +449,7 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .tcol{display:grid;gap:var(--sp-6);align-content:start;min-width:0}
 :root[data-ui="new"] .tcol>*{margin:0}
 /* reading layout for full briefs (News) */
-:root[data-ui="new"] .klib .klib-all{justify-self:end;margin-top:calc(-1 * var(--sp-1))}
+:root[data-ui="new"] .klib .klib-all{justify-self:end;margin-top:0}
 :root[data-ui="new"] .klib-item{border-top:1px solid var(--k-line-strong);padding-top:var(--sp-2)}
 :root[data-ui="new"] .klib-item>summary{cursor:pointer;min-height:44px;display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-1) var(--sp-3);font:600 16px var(--kumo-font-body)}
 :root[data-ui="new"] .read{max-width:72ch;font:400 17px/1.65 var(--kumo-font-body);color:var(--ink)}
@@ -594,7 +592,6 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .rv-sug{gap:var(--sp-2)}
 :root[data-ui="new"] .plan tbody tr:nth-child(even){background:var(--win-dim)}
 /* Luna's card (v52 structure in the New look): 1px header line, no colour coding */
-:root[data-ui="new"] .kluna .win-title{background:var(--win);border-bottom:1px solid var(--line)}
 :root[data-ui="new"] .kluna .win-title h2{display:flex;align-items:center;gap:var(--sp-2);color:var(--ink)}
 :root[data-ui="new"] .kluna .win-title .mini{width:28px;height:28px;margin:0}
 :root[data-ui="new"] .kluna .win-body{display:grid;gap:var(--sp-3);font:400 15px/1.55 var(--kumo-font-body);color:var(--ink)}
@@ -714,3 +711,106 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 .lw-fox-at{transition:left 1.8s cubic-bezier(.45,0,.55,1),top 1.8s cubic-bezier(.45,0,.55,1)}
 .lw-fox.hop{animation:foxhop 1.8s cubic-bezier(.45,0,.55,1)}
 @media (prefers-reduced-motion:reduce){.lw-fox-at{transition:none}.lw-fox.hop{animation:none}}
+
+/* Round 7 (owner's round 5): the old dashboard's day look (blush panels, lavender title bars, plum outline),
+   readable night icons, the world HUD band, small source lines, the full-brief card, Today | Week, Luna strips. */
+/* cards: 2px plum-pink outline, lavender title bar, blush panel */
+:root[data-ui="new"] :is(.win,.card,.tcard,details.gdet){border:var(--bw-2) solid var(--k-outline);background:var(--k-surface)}
+:root[data-ui="new"] .win-title{background:var(--k-title-bg);border-bottom:var(--bw-2) solid var(--k-outline)}
+:root[data-ui="new"] .win-title :is(h2,.sub),:root[data-ui="new"] .win-title a:not(.btn){color:var(--k-title-text)}
+:root[data-ui="new"] .win-title .sub{font:600 var(--fs-cap) var(--kumo-font-body)}
+/* rows: dashed blush dividers instead of boxes */
+:root[data-ui="new"] :is(.filed-row,.kneed,.knl-row){border:0;border-bottom:var(--bw) dashed var(--k-divider);border-radius:0;background:transparent;padding:var(--sp-2) 0}
+:root[data-ui="new"] :is(.filed-row,.kneed,.knl-row):last-child{border-bottom:0}
+:root[data-ui="new"] .kneed:first-child{padding-top:0}
+:root[data-ui="new"] :is(.gk,.gs,.gr,.jp,.jt,.sc,.lp,.quest,.joyhero,.qod,.daycard,#mktWrap){border-color:var(--k-divider);background:var(--k-surface)}
+:root[data-ui="new"] :is(.pillx,.chipb,.kluna-chips span,.intop5,.bitem-topic){border-color:var(--k-divider);background:var(--k-tint-lav);color:var(--k-chip-text)}
+:root[data-ui="new"] .chipb[aria-pressed="true"]{background:var(--k-tint-sakura);border-color:var(--k-outline)}
+
+/* night-readable icons: rail, phone bar, header and small pixel icons */
+:root[data-ui="new"] .tabnav .ic-X,:root[data-ui="new"] .ic-X{fill:var(--k-icon-line)}
+:root[data-ui="new"] .tabnav .ic-o{fill:var(--k-icon-fill)}
+:root[data-ui="new"] .tabnav button{color:var(--k-nav-text)}
+:root[data-ui="new"] .tabnav button[aria-current="page"]{background:var(--k-icon-on-bg);border-radius:var(--r-pill);color:var(--k-icon-on)}
+:root[data-ui="new"] .tabnav button[aria-current="page"] .ic-X{fill:var(--k-icon-on)}
+:root[data-ui="new"] .tabnav button:is(:hover,:focus-visible) .ic-X{fill:var(--k-icon-on)}
+:root[data-ui="new"] :is(.pills,#hmenu,.brand-mini,.mini,.kroster-px,.clockpill) svg{filter:var(--k-icon-glow)}
+
+/* the world HUD band: focus icon, greeting and chips; nothing else sits here */
+.lw-top{display:none}
+.lw-hud{position:absolute;left:0;right:0;top:0;height:var(--lw-hud,60px);display:flex;align-items:center;gap:var(--sp-2);padding:0 var(--sp-3);z-index:6;flex-wrap:nowrap;overflow:hidden;pointer-events:none}
+.lw-hud>*{pointer-events:auto;flex:none}
+.lw-hud .lw-sprint{position:relative;left:auto;top:auto}
+.lw-hud .lw-sprint-pop{position:fixed;left:auto;top:auto;margin-top:var(--sp-2)}
+.lw-hud .lw-badges{display:flex;flex-wrap:nowrap;gap:var(--sp-1);min-width:0;overflow:hidden}
+.lw-greet,.lw-badge,.lw-sprint-btn,.lw-place{-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.lw-greet{margin:0;padding:var(--sp-1) var(--sp-3)!important;border-radius:var(--r-pill);font:600 18px/1.3 var(--kumo-font-display)!important;text-shadow:none}
+.lw-badge{padding:var(--sp-1) var(--sp-2);border-radius:var(--r-chip);font:700 var(--fs-cap)/1.3 var(--kumo-font-body)}
+.scene-light :is(.lw-greet,.lw-badge,.lw-sprint-btn,.lw-place){background:var(--k-hud-light)!important;color:var(--k-plum-text)!important;border:var(--bw) solid var(--k-glass-line)}
+.scene-dark :is(.lw-greet,.lw-badge,.lw-sprint-btn,.lw-place){background:var(--k-hud-dark)!important;color:var(--k-night-text)!important;border:var(--bw) solid var(--k-night-icon-line)}
+.lw-place{transform:none!important;display:flex;align-items:center;justify-content:center;padding:0;min-height:0;z-index:5;font:700 var(--fs-ui)/1 var(--kumo-font-body)}
+.lw-place:hover,.lw-place:focus-visible{outline:3px solid var(--k-sakura-500);outline-offset:1px}
+.lw-crew{z-index:3}
+.lw-fox-at{z-index:4}
+@media (max-width:767px){.lw-greet{display:none}.lw-badge{font-size:12px}}
+/* quote bubble: positioned by the layout (no transform), a gentle float only */
+.lw-say.r5{transform:none;max-width:none!important;animation:lwfloat7 5s ease-in-out infinite!important}
+@keyframes lwfloat7{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@media (max-width:767px){.lw-say.r5{width:auto!important}}
+
+/* Next liquidity release line under the prices */
+:root[data-ui="new"] .knext{margin:0;padding:var(--sp-2) var(--sp-4);border:var(--bw) solid var(--k-divider);border-radius:var(--r-control);background:var(--k-surface);font:500 var(--fs-ui)/1.3 var(--kumo-font-body);color:var(--k-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Briefs card: the old dashboard's full brief style */
+:root[data-ui="new"] .kseg.pills{border-radius:var(--r-pill);background:var(--k-surface-2)}
+:root[data-ui="new"] .kseg.pills button{border-radius:var(--r-pill)}
+:root[data-ui="new"] .kseg button.on{background:var(--k-accent);color:var(--k-accent-ink)}
+:root[data-ui="new"] .bsnap{display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-4);margin:0;font:600 var(--fs-cap) var(--kumo-font-body);color:var(--k-text-muted)}
+:root[data-ui="new"] .kbrb{position:relative;max-height:36em;overflow:hidden;font:400 var(--fs-read)/var(--lh-read) var(--kumo-font-body);color:var(--k-text)}
+:root[data-ui="new"] .kbrb.open{max-height:none}
+:root[data-ui="new"] .kbrb:not(.open)::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4em;background:linear-gradient(transparent,var(--k-surface));pointer-events:none}
+:root[data-ui="new"] .kbrb h4{margin:var(--sp-4) 0 var(--sp-2);padding-top:var(--sp-3);border-top:var(--bw) dashed var(--k-divider);font:800 var(--fs-cap)/1.3 var(--kumo-font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--k-text-muted)}
+:root[data-ui="new"] .kbrb>h4:first-child{border-top:0;padding-top:0;margin-top:0}
+:root[data-ui="new"] .kbrb p{margin:0 0 var(--sp-3)}
+:root[data-ui="new"] .kbrb p.lead{padding:var(--sp-3) var(--sp-4);border-radius:var(--r-control);background:var(--k-tint-sakura);border:var(--bw) solid var(--k-divider);font-size:var(--fs-body)}
+:root[data-ui="new"] .kbrb ul{margin:0 0 var(--sp-3);padding-left:var(--sp-6)}
+:root[data-ui="new"] .kbrb .bitems{margin:0 0 var(--sp-3)}
+:root[data-ui="new"] .kbrb .bitems li{margin-bottom:var(--sp-3)}
+:root[data-ui="new"] .kbrb .brt{overflow-x:auto;margin:0 0 var(--sp-3)}
+:root[data-ui="new"] .kbrb table{width:100%;border-collapse:collapse;font:500 var(--fs-ui)/1.4 var(--kumo-font-body);font-variant-numeric:tabular-nums}
+:root[data-ui="new"] .kbrb th{text-align:left;padding:var(--sp-1) var(--sp-2);border-bottom:var(--bw-2) solid var(--k-outline);color:var(--k-text)}
+:root[data-ui="new"] .kbrb td{padding:var(--sp-1) var(--sp-2);border-bottom:var(--bw) dashed var(--k-divider)}
+:root[data-ui="new"] .kbrb tbody tr:nth-child(even){background:var(--k-surface-2)}
+:root[data-ui="new"] .kbrb blockquote{margin:0 0 var(--sp-3);padding-left:var(--sp-3);border-left:3px solid var(--k-divider)}
+/* sources: one small muted line */
+:root[data-ui="new"] .brsrc-line{display:block;margin-top:var(--sp-1);font:500 12px/1.4 var(--kumo-font-body);color:var(--k-text-muted)}
+:root[data-ui="new"] .brsrc-line a:not(.btn):not(.lw-place):not(.icon-btn):not(.wday){color:var(--k-text-muted);text-decoration:underline;text-decoration-style:dotted}
+:root[data-ui="new"] .brsrc-line a:not(.btn):not(.lw-place):not(.icon-btn):not(.wday):hover{color:var(--k-link);text-decoration-style:solid}
+:root[data-ui="new"] .brmem{border-top:var(--bw) dashed var(--k-divider);padding-top:var(--sp-2);font:400 var(--fs-ui)/1.5 var(--kumo-font-body)}
+:root[data-ui="new"] .brmem summary{cursor:pointer;min-height:var(--tap);display:flex;align-items:center;font-weight:700}
+
+/* Today | Week */
+:root[data-ui="new"] .kweek{display:grid;gap:0}
+:root[data-ui="new"] .kweek-d:not(.btn){display:grid;gap:var(--sp-1);padding:var(--sp-2) var(--sp-2);border-bottom:var(--bw) dashed var(--k-divider);color:var(--k-text);text-decoration:none;border-radius:var(--r-chip)}
+:root[data-ui="new"] .kweek-d.today{background:var(--k-tint-sakura)}
+:root[data-ui="new"] .kweek-h{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-1) var(--sp-2);font:700 var(--fs-ui)/1.3 var(--kumo-font-body)}
+:root[data-ui="new"] .kweek-sky{font:600 var(--fs-cap) var(--kumo-font-body);color:var(--k-text-muted)}
+:root[data-ui="new"] .kweek-tag{padding:0 var(--sp-1);border-radius:var(--r-chip);background:var(--k-tint-gold);color:var(--k-text);font:700 12px/1.6 var(--kumo-font-body)}
+:root[data-ui="new"] .kweek-ev{font:400 var(--fs-cap)/1.4 var(--kumo-font-body);color:var(--k-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+:root[data-ui="new"] .kweek-glance{margin:var(--sp-2) 0 0;font:500 var(--fs-cap) var(--kumo-font-body);color:var(--k-text-muted)}
+
+/* Luna: two slim stacked strips */
+:root[data-ui="new"] .kluna-strips{display:grid;gap:var(--sp-2)}
+:root[data-ui="new"] .kluna-strip{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--sp-3);align-items:baseline;margin:0;padding:var(--sp-2) var(--sp-3);border-radius:var(--r-control);border:var(--bw) solid var(--k-divider);color:var(--k-text);font:400 var(--fs-ui)/1.45 var(--kumo-font-body)}
+:root[data-ui="new"] .kluna-strip.lean{background:var(--k-tint-lav)}
+:root[data-ui="new"] .kluna-strip.ease{background:var(--k-tint-sakura)}
+:root[data-ui="new"] .kluna-strip b{font-weight:800;white-space:nowrap}
+@media (max-width:420px){:root[data-ui="new"] .kluna-strip{grid-template-columns:1fr}}
+
+/* Trades: Live tag, live watchlist with a 1-month range bar */
+:root[data-ui="new"] .livetag{display:inline-block;margin-right:var(--sp-1);padding:0 var(--sp-1);border-radius:var(--r-chip);background:var(--k-accent);color:var(--k-accent-ink);font:800 12px/1.6 var(--kumo-font-body);letter-spacing:.04em}
+:root[data-ui="new"] .kwatch{width:100%;border-collapse:collapse;font:500 var(--fs-ui)/1.4 var(--kumo-font-body);font-variant-numeric:tabular-nums}
+:root[data-ui="new"] .kwatch th{text-align:left;padding:var(--sp-1) var(--sp-2);border-bottom:var(--bw-2) solid var(--k-outline)}
+:root[data-ui="new"] .kwatch td{padding:var(--sp-2);border-bottom:var(--bw) dashed var(--k-divider)}
+:root[data-ui="new"] .krange{position:relative;display:block;min-width:80px;height:8px;border-radius:var(--r-pill);background:var(--k-track)}
+:root[data-ui="new"] .krange i{position:absolute;top:-3px;width:14px;height:14px;margin-left:-7px;border-radius:var(--r-pill);background:var(--k-accent);border:var(--bw-2) solid var(--k-surface)}

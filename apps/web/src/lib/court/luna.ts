@@ -35,7 +35,7 @@ function aspScore(e: { tp: string; a: string; n: string }) {
 }
 
 export type LunaDay = {
-  day: string; moon: string; el: string; phase: string; tone: "Flowing" | "Pressured" | "Mixed" | "Quiet"; mood: string; mrx: boolean;
+  day: string; moon: string; el: string; phase: string; tone: "Flowing" | "Pressured" | "Mixed" | "Quiet"; mood: string; mrx: boolean; score: number;
   ing: { t: string; s: string } | null; items: Item[]; lean: string[]; ease: string[]; merc: string | null; care: string[];
 };
 export const lunaRange = () => ({ from: DAYS[0].d, to: DAYS[DAYS.length - 1].d });
@@ -52,7 +52,7 @@ export function lunaDay(k: string): LunaDay | null {
   const rxIdx = DAYS.findIndex((x) => x.mrx);
   const merc = d.mrx ? "Mercury is retrograde. Review, revise and re-check. Avoid rushing signatures."
     : rxIdx > -1 && rxIdx > i && rxIdx - i <= 21 ? `Mercury turns retrograde around ${prettyDay(DAYS[rxIdx - 1].d)} (${rxIdx - 1 - i} day${rxIdx - 1 - i === 1 ? "" : "s"} away). Tie up loose ends and back things up.` : null;
-  const w = { day: d.d, moon: d.moon, el, phase, tone, mood: SIGNMOOD[d.moon], mrx: d.mrx, ing: d.ing, items, lean: [...ELEMLEAN[el].slice(0, 2), PHASELEAN[phase]], ease: ELEMEASE[el], merc } as LunaDay;
+  const w = { day: d.d, moon: d.moon, el, phase, tone, score, mood: SIGNMOOD[d.moon], mrx: d.mrx, ing: d.ing, items, lean: [...ELEMLEAN[el].slice(0, 2), PHASELEAN[phase]], ease: ELEMEASE[el], merc } as LunaDay;
   w.care = lunaCare(w);
   return w;
 }

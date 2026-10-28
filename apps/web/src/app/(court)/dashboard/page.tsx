@@ -27,7 +27,8 @@ import { watchlistFrom } from "@/lib/prices";
 import { KumoPick, MomoCard, TodayLive } from "@/components/court/live/TodayLive";
 import { CourtLayout, Observatory } from "@/components/court/live/KumoHome";
 import { CrewRoster, LivingWorld } from "@/components/court/live/LivingWorld";
-import { BriefsBlock, BriefsLibrary, MoversCard, ReviewCard } from "@/components/court/CourtBriefs";
+import { BriefsBlock, BriefsLibrary, MoversCard, ReviewCard, type DeskMem } from "@/components/court/CourtBriefs";
+import { LiveWatch } from "@/components/court/live/LiveWatch";
 import { NewOnly } from "@/components/kumo/NewOnly";
 import { TradeLive } from "@/components/court/live/TradeLive";
 import { topFive } from "@/components/kumo/briefParse";
@@ -92,6 +93,11 @@ export default async function Dashboard() {
   const { data: row } = await supabase.from("user_state").select("data, version").eq("user_id", user.id).maybeSingle();
   const today = dayKey(now);
   const boot = bootState(normalize(row?.data ?? {}, today), today);
+  // What each desk has learned (her agent memory, read-only under RLS), for the Briefs card.
+  const { data: memRows } = await supabase.from("agent_memory").select("key, data");
+  const mem: Record<string, DeskMem> = Object.fromEntries((memRows ?? []).map((m) => [m.key, (m.data ?? {}) as DeskMem]));
+  // Today's briefs still waiting for a rating: one line in Needs you now.
+  const unrated = docs.filter((d) => ["pulse", "intel", "scan"].includes(d.key) && !d.vote && dayKey(new Date(d.at)) === today).map((d) => d.label);
 
   return (
     <CourtProvider initial={boot.st} version={row?.version ?? 0} recap={boot.recap} dirty={boot.dirty} nowIso={now.toISOString()}>
@@ -106,7 +112,7 @@ export default async function Dashboard() {
           trades: (
             <NewOnly>
               <div className="tgrid">
-                <div className="tcol">{scanWin}<TechLive /><MoversCard list={history.filter((d) => d.key === "movers")} /></div>
+                <div className="tcol"><LiveWatch /><MoversCard list={history.filter((d) => d.key === "movers")} /><TechLive /></div>
                 <div className="tcol"><TradeLive /></div>
               </div>
             </NewOnly>
@@ -138,16 +144,16 @@ export default async function Dashboard() {
                 weekAhead: <WeekAhead />,
                 econ: <EconLive />,
                 news: <NewsLive />,
-                needs: <NeedsNow />,
+                needs: <NeedsNow unrated={unrated} />,
                 status: <StatusLive />,
-                briefs: <BriefsBlock intel={docOf("intel")} scan={scanDoc} />,
+                briefs: <BriefsBlock docs={{ pulse: docOf("pulse"), intel: docOf("intel"), scan: scanDoc }} mem={mem} />,
                 review: <ReviewCard d={docOf("review")} />,
                 world: <LivingWorld filed={filed} />,
                 roster: <CrewRoster filed={filed} />,
               }}
             />
           ),
-          calendar: <NewOnly classic={<CalendarTab />}><div className="tgrid cal"><div className="tcol"><WeekAhead strip /><MomoCard /><EconLive /></div><div className="tcol"><CalendarTab noWeek /></div></div></NewOnly>,
+          calendar: <NewOnly classic={<CalendarTab />}><div className="tgrid cal"><div className="tcol"><EconLive /><MomoCard /></div><div className="tcol"><CalendarTab noWeek /></div></div></NewOnly>,
           garden: <div className="tabcol"><NewOnly><section className="win kpick" aria-label="Chief Kumo's pick"><div className="win-body"><KumoPick /></div></section></NewOnly><GardenLive /></div>,
           diary: <div className="tabcol"><WinsButton /><DiaryLive open /></div>,
           life: <div className="tabcol"><LifeTabs /></div>,

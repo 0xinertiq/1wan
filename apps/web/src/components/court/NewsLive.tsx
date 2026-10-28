@@ -18,6 +18,17 @@ function ago(iso: string | null) {
 
 type Tg = { items: { channel: string; title: string; at: string | null; text: string; link: string }[]; health: { handle: string; ok: boolean }[]; at: string };
 
+// A story's topic comes from what it is about, not only from the feed it came through: a crypto headline on a
+// general markets or world feed ("Crypto Markets Muted As FOMC Starts") files under Crypto; central-bank and
+// inflation news on a world feed files under Macro.
+const CRYPTO = /\b(crypto|bitcoin|btc|ether(?:eum)?|eth|stablecoins?|solana|xrp|defi|altcoins?|memecoins?|coinbase|binance|blockchain|tokens?)\b/i;
+const MACRO = /\b(fed|fomc|federal reserve|cpi|inflation|interest rates?|rate (?:cut|hike|decision)|central bank|ecb|boj|bank of japan|bank of england|payrolls|treasur(?:y|ies)|bond yields?)\b/i;
+export function topicOf(title: string, group: string) {
+  if (CRYPTO.test(title)) return "Crypto";
+  if (group === "World" && MACRO.test(title)) return "Macro";
+  return group;
+}
+
 // Stories that share most of their words with one of today's Top 5 headlines get a small tag.
 const words = (s: string) => new Set(s.toLowerCase().replace(/[^a-z0-9 ]+/g, " ").split(" ").filter((w) => w.length > 3));
 function inTop5(title: string, top5: string[]) {
@@ -57,7 +68,7 @@ export function NewsLive({ top5 = [] }: { top5?: string[] }) {
 
   const tgItems = (tg?.items ?? []).map((m) => ({ title: m.text.split(String.fromCharCode(10))[0].slice(0, 220), source: m.title + " (Telegram)", group: "Telegram", region: "Global", tier: "social" as const, at: m.at, link: m.link }));
   const regions = st.news.regions.length ? st.news.regions : REGIONS;
-  const rss = (data?.items ?? []).filter((h) => regions.includes(h.region));
+  const rss = (data?.items ?? []).filter((h) => regions.includes(h.region)).map((h) => ({ ...h, group: topicOf(h.title, h.group) }));
   const watch = (prices?.prices ?? []).flatMap((p) => [p.sym, (COINGECKO_IDS[p.sym] ?? "").split("-")[0]]).filter(Boolean);
   const clusters = cluster([...rss, ...tgItems], { watch, releases: (econ?.items ?? []).filter((e) => e.top).map((e) => e.title) });
   const items = clusters;

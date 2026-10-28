@@ -8,7 +8,7 @@
 
 export type Phase = "dawn" | "day" | "dusk" | "night";
 export type Weather = "clear" | "cloudy" | "rain";
-export type WorldOpts = { W: number; H: number; phase: Phase; weather: Weather; stage: number; seed?: number };
+export type WorldOpts = { W: number; H: number; phase: Phase; weather: Weather; stage: number; seed?: number; top?: number };
 export type Place = { id: string; label: string; href: string; x: number; y: number; desk: [number, number] };
 
 type C = CanvasRenderingContext2D;
@@ -96,8 +96,9 @@ function tint(cv: HTMLCanvasElement, col: string | null) {
 // scale so this box fills the scene snugly. Nothing is cropped.
 export const RX = 176, TOP = 118, BOT = 58, MARGIN = 6;
 export const FIT_W = 2 * (RX + 8) + 2 * MARGIN, FIT_H = TOP + BOT + 2 * MARGIN;
-export function geometry(W: number, H: number) {
-  const cx = Math.round(W / 2), gy = Math.round(Math.max(TOP + MARGIN, (H - TOP - BOT) / 2 + TOP));
+// `top` is the HUD band (logical pixels) kept clear above the island.
+export function geometry(W: number, H: number, top = 0) {
+  const cx = Math.round(W / 2), gy = Math.round(top + Math.max(MARGIN, (H - top - TOP - BOT) / 2) + TOP);
   const ct = cx - 122, ob = cx + 116, lh = cx - 152, tx = cx - 66;
   const places: Place[] = [
     { id: "castle", label: "The Castle", href: "#court", x: cx, y: gy - 108, desk: [cx, gy + 8] },
@@ -129,7 +130,7 @@ function drawSky(c: C, o: WorldOpts) {
 }
 
 function drawHills(c: C, o: WorldOpts, r: () => number) {
-  const { gy } = geometry(o.W, o.H);
+  const { gy } = geometry(o.W, o.H, o.top);
   const [far, near] = HILL[o.phase], night = o.phase === "night";
   const ridge = (base: number, amp: number, col: string, f: number) => {
     const ph = r() * 10;
@@ -181,7 +182,7 @@ function islet(c: C, x: number, y: number, w: number, r: () => number, top: "tre
 type Win = [number, number, number, number];
 
 function drawIsland(c: C, o: WorldOpts, r: () => number, wins: Win[]) {
-  const { cx, gy, ct, ob, lh, tx } = geometry(o.W, o.H);
+  const { cx, gy, ct, ob, lh, tx } = geometry(o.W, o.H, o.top);
   // underside: soil band, then faceted lavender rock tapering to a point, cracks, roots, crystals
   const D = 46;
   for (let i = 0; i < D; i++) {
@@ -392,7 +393,7 @@ function drawDungeon(c: C, gx: number, gb: number, wins: Win[]) {
 }
 
 function drawIslets(c: C, o: WorldOpts, r: () => number, wins: Win[]) {
-  const { cx, gy } = geometry(o.W, o.H);
+  const { cx, gy } = geometry(o.W, o.H, o.top);
   islet(c, cx - 232, gy - 52, 44, r, "pink");
   islet(c, cx + 236, gy - 64, 36, r, "tree");
   islet(c, cx - 196, gy - 104, 26, r, "none");
@@ -414,7 +415,7 @@ export type World = { draw: (c: C, t: number, now: Date) => void; cheer: (t: num
 
 export function makeWorld(o: WorldOpts): World {
   const seed = o.seed ?? 7, r = rng(seed);
-  const { cx, gy, ct, ob, tx, places } = geometry(o.W, o.H);
+  const { cx, gy, ct, ob, tx, places } = geometry(o.W, o.H, o.top);
   const wins: Win[] = [];
   const back = canvas(o.W, o.H), bc = back.getContext("2d")!;
   drawSky(bc, o);

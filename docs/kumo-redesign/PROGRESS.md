@@ -135,3 +135,47 @@ Left to do (honest):
 - dashboard.css itself (Classic) still has many raw values; it is out of scope while the Classic switch stays. Some of its 2px borders on less common elements may still show in the New look.
 - Font sizes are tokenised in the new rules but not yet everywhere in kumo-new.css.
 - Underside facets of the island read a little stripy; the fox's tails still crowd at nine.
+
+## Round 5 of the owner's prompts (R7, on preview)
+COURT_SPEC.md is now one consolidated spec with a "where each thing lives" map at the top.
+
+Contradictions between earlier prompts, and the rule that won:
+1. Body font: Inter (DECISIONS section 4, kit) vs Nunito (owner, 27 Oct). Nunito; Inter only for journal writing.
+2. Night mode: "keep the v52 night palette" (Part 2, DECISIONS) vs a proper plum night. Plum night through tokens.
+3. Day colours: kit cream and white surfaces (Part 2) vs blush panels, lavender title bars, no white panel (round 5). Blush.
+4. Card headers: Luna's "1px line, no gradient header" (R3, R4) vs lavender title bars on every card (round 5). Title bars, with plum text (contrast checked).
+5. Borders: "1px soft line, no heavy outlines" (Part 2) vs "plum-pink outline 1-2px" (round 5). 2px plum-pink outline on cards, dashed blush dividers inside.
+6. World framing: zoomed and cropped (R5) vs snug, nothing cut off (R6). Snug, now below a HUD band.
+7. Crew size: 7-9%, 8.5%, 8-10% vs 15%. 15% (20% on the phone strip).
+8. Quote bubble: white chip, then 55-65% cloud, then 35-45% glass. Glass.
+9. Briefs on the Court: cards (R1), then summaries with full text only in News (R3), then the full briefs in a three-tab card (round 5). Full briefs on the Court; News keeps the history.
+10. Sources: chips (R6) vs one small text line (round 5). Text line.
+11. Today card: Brief | Sky | Week tabs removed (R4) vs Today | Week tabs (round 5). Today | Week.
+12. Week ahead card on Calendar (R3) vs the Week tab on the Court (round 5). Week tab; the Calendar card is gone.
+13. Coming up card on the Court (R4) vs due items in Needs within 3 days (round 5). Coming up removed from the Court.
+14. Needs you now: macro releases grouped into cards (R5) vs no macro releases (round 5). No macro releases; they live in the Calendar and the "Next:" line.
+15. Luna's card: the calendar's DOs and DON'Ts word for word (R4), then the v52 port (R5), then side-by-side blocks (R6), then stacked strips (round 5). Stacked strips on the v52 port.
+16. Midday movers: on the Court (R1) vs Trades only (R3, round 5). Trades only.
+17. Link colour: about #C2185B requested; #C2185B is 4.39:1 on the pink tint, so the same hue one step darker, #AD1457, is used (5.1:1 or better everywhere). Night #F7A8CC as asked.
+18. World places tappable on every width (Part 1) vs 44px tap targets (Part 2). On the phone strip six 44px targets cannot sit apart, so the strip has none; the bottom bar goes to the same places.
+19. Rail order changed four times. Final: Today | Week, Luna, Needs you now, Kumo's review while unread.
+20. Observatory: "briefs and scans first" (Part 2) vs Luna's sky only (R3). Luna's sky only.
+
+Done:
+- Tokens: blush day palette, plum night, font tokens, icon tokens (light fill and outline or glow at night, sakura active pill), HUD glass. The check now also fails on fonts outside the set and on contrast below the minimums for text, secondary text, links, title bars, chips, nav labels, icons (3:1) and the world HUD over the real sky colours (day and night, both themes).
+- World: HUD band (focus hourglass, greeting with a glass backing, level, at work, weather); island fitted below it; labels, crew, Kumo, bubble and fox placed by one layout. tests/world-layout.test.mjs checks phone, tablet, desktop and wide, day and night, every crew member out, short and long quotes: no overlaps. HUD and labels are glass by the scene (Singapore time), so a day world under the night theme and a night world under the day theme both read.
+- Court: "Next:" liquidity line; Briefs card with Pulse | Intelligence | Crypto scan and the full brief in the old style; Today | Week; Luna strips; Needs you now rules; review only while unread. Negative margins between Court sections removed (5), so sections cannot overlap.
+- Liquidity: why the FOMC alert was missing. The release is in the data (Wed 28 Oct 14:00 New York = Thu 02:00 SGT; the feed also lists the statement and press conference). The "Releases that move liquidity (Olli)" list and the "Memes" category you saw are not in this app's code (branch, main or the v52 reference); they come from the old claude.ai dashboard. Here the Economic calendar now defaults to the whitelist (lib/liquidity.ts), 48 hours ahead for the Court line, high impact only, same-moment releases grouped.
+- News: headlines are filed by content (crypto words file under Crypto whatever feed carried them; central-bank and inflation news on a world feed file under Macro).
+- Trades: Live watchlist (price, day change, 1-month range bar from 30 daily candles), Midday movers, Live technicals; the dated scan lives in the Court Briefs card only.
+
+Causes of the inconsistencies (summary): styles were added round by round as overrides (7 layers, up to three competing rules per element); colours and spacing were hard-coded; night mode used the Classic palette; Classic card styles leaked into the New look; icons used fixed dark colours with no night variant; links had three colours.
+
+Honest notes:
+- Screenshots: the world with its real layout boxes was rendered in headless Chrome (desktop day and night, tablet night, phone day). The full page could not be screenshot or clicked through, because the preview and the local app need your login. Please look at Calendar, Life Hub, Dungeon and Settings first.
+- Live watchlist: the old list selector and wave notes came from TradingView in the old dashboard and are not in this app. FEATURE GAP: a watchlist selector needs a saved list or a TradingView connection.
+- Week tab: tapping a day opens the Calendar tab, not that day yet (the calendar has no way to receive a day from another tab).
+- Needs you now rules also apply in Classic (it shares the card).
+- "Agents waiting on me" covers briefs to rate; there is no agent yes / no suggestion feature in this app yet (FEATURE GAP).
+
+NEEDS OWNER APPROVAL (open): focus sprint pause (new saved field); "auto-paid" and "important" flags for life items; synced weekly-review read state; an AI rewrite of the astro calendar in Luna's voice; Kingdom stage thresholds.

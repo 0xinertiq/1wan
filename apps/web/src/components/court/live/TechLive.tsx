@@ -29,7 +29,7 @@ export function TechLive() {
 
   return (
     <section className="win" id="techWin" aria-labelledby="techT">
-      <div className="win-title"><h2 id="techT">Technicals</h2><span className="sub">Fenn · {tf}</span></div>
+      <div className="win-title"><h2 id="techT">Technicals</h2><span className="sub"><span className="livetag">Live</span> Fenn · {tf}</span></div>
       <div className="win-body">
         <div className="ntabs" role="group" aria-label="Timeframe">{TFS.map((x) => <button key={x} className="chipb" type="button" aria-pressed={tf === x} onClick={() => setTf(x)}>{x}</button>)}</div>
         {items == null ? <p className="note">Reading candles…</p> : items.map((it) => (

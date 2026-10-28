@@ -3,7 +3,8 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { PixelSprite, type SpriteName } from "@/components/PixelSprite";
 import { CREW_AT, stageFor } from "@/components/kumo/kingdom";
-import { FIT_H, FIT_W, geometry, makeWorld, phaseAt, weatherFrom } from "@/components/kumo/world/draw";
+import { geometry, makeWorld, phaseAt, weatherFrom } from "@/components/kumo/world/draw";
+import { worldLayout } from "@/components/kumo/world/layout";
 import type { BriefKind } from "@/lib/briefKinds";
 import { crewDuty } from "@/lib/court/duty";
 import type { WaterEvt } from "@/lib/court/garden";
@@ -30,24 +31,30 @@ const CREW = ["olli", "pip", "fenn", "tilly", "luna", "momo", "coco", "poppy", "
 export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string>> }) {
   const { st, k, nm } = useCourt();
   const box = useRef<HTMLDivElement>(null), cvRef = useRef<HTMLCanvasElement>(null);
-  const [size, setSize] = useState<{ W: number; H: number; s: number; px: number } | null>(null);
+  const [wh, setWh] = useState<[number, number] | null>(null);
   const [qOpen, setQOpen] = useState(false);
   const [wx, setWx] = useState<{ now: number | null; sky?: string } | null>(null);
   const [water, setWater] = useState<WaterEvt[]>([]);
   useEffect(() => { fetch("/api/weather").then((r) => r.json()).then(setWx).catch(() => setWx({ now: null })); }, []);
   useEffect(() => { getOnce<{ events?: WaterEvt[] }>("/api/water?days=1").then((j) => setWater(Array.isArray(j.events) ? j.events : [])).catch(() => {}); }, []);
-
-  // Snug framing: the scale is the largest that fits the whole island (FIT_W x FIT_H, spires and underside
-  // included) inside the box, so nothing is cut off and the island fills the width. Crew are about 15% of the
-  // scene height (20% on the phone strip) so they read in front of the buildings.
   useEffect(() => {
     const el = box.current; if (!el) return;
-    const ro = new ResizeObserver(() => { const w = el.clientWidth, h = el.clientHeight, s = Math.min(w / FIT_W, h / FIT_H); setSize({ W: Math.ceil(w / s), H: Math.floor(h / s), s, px: Math.round(h * (h >= 280 ? 0.15 : 0.2)) }); });
+    const ro = new ResizeObserver(() => setWh([el.clientWidth, el.clientHeight]));
     ro.observe(el); return () => ro.disconnect();
   }, []);
 
+  // Everything on top of the canvas comes from one layout (components/kumo/world/layout.ts, checked by
+  // tests/world-layout.test.mjs): a HUD band at the top, the island fitted snugly below it, labels clear of the
+  // HUD and the crew, crew about 15% of the scene height (20% on the phone strip) on the ground in front.
+  const duty = crewDuty({ k, filed, water, st, sky: true });
+  const crewOn = CREW.filter((id) => duty[id]?.on).map((id) => ({ id, place: Object.entries(CREW_AT).find(([, ids]) => ids.includes(id))?.[0] ?? "castle" }));
+  const quote = quoteOfDay(k, st.uq);
+  const crewKey = crewOn.map((c) => c.id).join();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const L = useMemo(() => (wh ? worldLayout(wh[0], wh[1], crewOn, quote.length) : null), [wh, crewKey, quote.length]);
+
   const phase = phaseAt(nm), weather = weatherFrom(wx?.sky), stage = stageFor(st.lvl);
-  const world = useMemo(() => (size ? makeWorld({ W: size.W, H: size.H, phase, weather, stage: stage.n }) : null), [size, phase, weather, stage.n]);
+  const world = useMemo(() => (L ? makeWorld({ W: L.W, H: L.H, top: L.top, phase, weather, stage: stage.n }) : null), [L, phase, weather, stage.n]);
   // Hearts and a happy fox when she earns XP (a habit, a trade or any logged win); cosmetic only.
   const xpSeen = useRef<number | null>(null), [cheer, setCheer] = useState(0);
   const xpKey = st.lvl * 100000 + st.xp;
@@ -57,14 +64,14 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
   }, [xpKey, world]);
 
   useEffect(() => {
-    const cv = cvRef.current; if (!cv || !world || !size) return;
+    const cv = cvRef.current; if (!cv || !world || !L) return;
     // The world is drawn at its logical size, blown up by a whole number nearest-neighbour (crisp, even pixels),
     // and the browser then fits that to the exact (fractional) scale.
-    const N = Math.max(1, Math.ceil(size.s));
-    cv.width = size.W * N; cv.height = size.H * N;
-    const lc = document.createElement("canvas"); lc.width = size.W; lc.height = size.H;
+    const N = Math.max(1, Math.ceil(L.s));
+    cv.width = L.W * N; cv.height = L.H * N;
+    const lc = document.createElement("canvas"); lc.width = L.W; lc.height = L.H;
     const l = lc.getContext("2d")!, c = cv.getContext("2d")!;
-    const paint = (t: number) => { world.draw(l, t, new Date()); c.imageSmoothingEnabled = false; c.drawImage(lc, 0, 0, size.W * N, size.H * N); };
+    const paint = (t: number) => { world.draw(l, t, new Date()); c.imageSmoothingEnabled = false; c.drawImage(lc, 0, 0, L.W * N, L.H * N); };
     const still = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     let raf = 0, last = 0, onScreen = true;
     const frame = (t: number) => { raf = requestAnimationFrame(frame); if (!onScreen || document.hidden || t - last < 33) return; last = t; paint(t); };
@@ -74,43 +81,35 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
     io.observe(cv);
     raf = requestAnimationFrame(frame);
     return () => { cancelAnimationFrame(raf); io.disconnect(); };
-  }, [world, size]);
+  }, [world, L]);
 
-  const duty = crewDuty({ k, filed, water, st, sky: true });
-  const at = CREW.filter((id) => duty[id]?.on).length;
-  const g = size ? geometry(size.W, size.H) : null;
-  // Crew spots in CSS pixels: at their place when their desk has run today (side by side, a sprite apart),
-  // otherwise inside the castle (hidden at the gate), as in the Cloud Court. Kumo waits at the gate.
-  const spot = (id: string): { x: number; y: number; on: boolean } => {
-    if (!g || !size) return { x: 0, y: 0, on: false };
-    const place = Object.entries(CREW_AT).find(([, ids]) => ids.includes(id))?.[0];
-    const p = g.places.find((x) => x.id === place);
-    if (duty[id]?.on && p) { const mates = CREW_AT[place!].filter((x) => duty[x]?.on), j = mates.indexOf(id); return { x: p.desk[0] * size.s + (j - (mates.length - 1) / 2) * size.px * 0.9, y: p.desk[1] * size.s, on: true }; }
-    return { x: g.cx * size.s, y: (g.gy - 6) * size.s, on: false };
-  };
-  const quote = quoteOfDay(k, st.uq);
+  const at = crewOn.length;
+  const g = L ? geometry(L.W, L.H, L.top) : null;
+  const night = phase === "night" || phase === "dusk";
 
   return (
-    <section className={"lw ph-" + phase} aria-label="Your kingdom">
-      <div className="lw-box" ref={box}>
-        <canvas ref={cvRef} className="lw-cv" aria-hidden="true" style={size ? { width: size.W * size.s, height: size.H * size.s } : undefined} />
-        {g && size && g.places.map((p) => (
-          <a key={p.id} className="lw-place" href={p.href} aria-label={PLACE_DESC[p.id]} style={{ left: p.x * size.s, top: p.y * size.s }}>
+    <section className={"lw ph-" + phase + (night ? " scene-dark" : " scene-light")} aria-label="Your kingdom">
+      <div className="lw-box" ref={box} style={L ? ({ "--lw-hud": L.hud.h + "px" } as React.CSSProperties) : undefined}>
+        <canvas ref={cvRef} className="lw-cv" aria-hidden="true" style={L ? { width: L.W * L.s, height: L.H * L.s } : undefined} />
+        {L && L.places.map((p) => (
+          <a key={p.id} className="lw-place" href={p.href} aria-label={PLACE_DESC[p.id]} style={{ left: p.box.x, top: p.box.y, width: p.box.w, height: p.box.h }}>
             <span>{p.label}</span>
           </a>
         ))}
-        {g && size && (
+        {L && g && (
           <>
-            <span className="lw-crew lw-kumo" style={{ left: (g.cx + 58) * size.s, top: (g.gy - 54) * size.s, width: Math.round(size.px * 0.75), height: Math.round(size.px * 0.75) }} title="Chief Kumo"><PixelSprite name="kumo" /></span>
+            <span className="lw-crew lw-kumo" style={{ left: L.kumo.x, top: L.kumo.y, width: L.kumo.w, height: L.kumo.h }} title="Chief Kumo"><PixelSprite name="kumo" /></span>
             {CREW.map((id) => {
-              const p = spot(id);
-              return <span key={id} className={"lw-crew" + (p.on ? " on" : " in")} style={{ left: p.x, top: p.y, width: size.px, height: size.px }} title={`${id[0].toUpperCase() + id.slice(1)}: ${duty[id]?.why ?? ""}`} aria-hidden={!p.on}><PixelSprite name={id as SpriteName} /></span>;
+              const b = L.crew.find((c) => c.id === id);
+              // off duty: inside the castle (hidden at the gate), as in the Cloud Court
+              const pos = b ?? { x: g.cx * L.s - L.px / 2, y: (g.gy - 6) * L.s - L.px, w: L.px, h: L.px };
+              return <span key={id} className={"lw-crew" + (b ? " on" : " in")} style={{ left: pos.x, top: pos.y, width: pos.w, height: pos.h }} title={`${id[0].toUpperCase() + id.slice(1)}: ${duty[id]?.why ?? ""}`} aria-hidden={!b}><PixelSprite name={id as SpriteName} /></span>;
             })}
           </>
         )}
-        {g && size && <WorldFox perches={g.perches} s={size.s} px={Math.round(size.px * 0.7)} cheer={cheer} />}
-        <SprintIcon />
-        <div className="lw-top">
+        {L && <WorldFox perches={L.perches} s={L.s} px={L.foxH} cheer={cheer} />}
+        <div className="lw-hud">
+          <SprintIcon />
           <p className="lw-greet">{greetWord(nm)}, Queen</p>
           <div className="lw-badges">
             <span className="lw-badge">Lv {st.lvl}</span>
@@ -120,7 +119,7 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
         </div>
         <div className="lvl" id="lvlBanner" hidden><b id="lvlTxt">LEVEL UP</b><span id="lvlSub"></span></div>
       </div>
-      {g && size && <CloudSay text={quote} open={qOpen} onToggle={() => setQOpen(!qOpen)} night={phase === "night"} style={{ left: (g.cx + 68) * size.s, top: (g.gy - 60) * size.s }} />}
+      {L && <CloudSay text={quote} open={qOpen} onToggle={() => setQOpen(!qOpen)} night={night} style={L.bubble ? { left: L.bubble.x, top: L.bubble.y, width: L.bubble.w } : {}} />}
     </section>
   );
 }

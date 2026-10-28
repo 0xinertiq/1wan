@@ -5,15 +5,19 @@ import { useUi } from "@/components/kumo/useUi";
 import { useCourt } from "../CourtState";
 import { eventsOn, isAstro, type DayEvent } from "@/lib/court/state";
 import { hm, prettyDay } from "@/lib/court/time";
-import { ComingUpCourt, ParkedList, RecapBox, TodayChips } from "./TodayLive";
+import { ParkedList, RecapBox, TodayChips, isAutoPaid } from "./TodayLive";
 import { PricesStrip } from "./LivingWorld";
+import { NextLiquidityLine, useEcon } from "./EconLive";
+import { liquidityList } from "@/lib/liquidity";
+import { addDays, wdName, wdOf } from "@/lib/court/time";
+import { dueList } from "@/lib/court/state";
 import { astroParts } from "@/components/kumo/astroParts";
 import { PixelSprite } from "@/components/PixelSprite";
 import { TONEMSG, enrich, explain, lunaDay, lunaRange, nextIngress } from "@/lib/court/luna";
 
 // The Court tab. Classic: the v52 three columns, exactly as before. New look (COURT_SPEC): the world, Park a
-// thought, prices, Briefs (Intel | Scan) beside a rail (Today, Needs you now, Coming up, Kumo's review, Luna),
-// and the crew roster. Each item has one home; the Court shows summaries and links.
+// thought, prices, the "Next:" liquidity line, Briefs (Pulse | Intelligence | Crypto scan) beside a rail
+// (Today | Week, Luna, Needs you now, Kumo's review while unread), and the crew roster. One home per item.
 // The pixel Living World replaces the Cloud Court and carries the level-up banner; level and EXP live in the header.
 export type CourtSlots = {
   weather: React.ReactNode; today: React.ReactNode; todayBare: React.ReactNode; stage: React.ReactNode; statusLine: React.ReactNode;
@@ -37,6 +41,7 @@ export function CourtLayout({ s }: { s: CourtSlots }) {
       {s.world}
       <QuickLine />
       <PricesStrip />
+      <NextLiquidityLine />
       {s.statusLine}
       <div className="kmain">
         {s.briefs}
@@ -44,7 +49,6 @@ export function CourtLayout({ s }: { s: CourtSlots }) {
           <TodayCard />
           <LunaCard />
           {s.needs}
-          <ComingUpCourt />
           {s.review}
         </div>
       </div>
@@ -95,10 +99,15 @@ function TodayCard() {
   const row = (e: DayEvent, i: number) => (
     <div className="knl-row" key={i}><span className="knl-t">{hm(e.a)}</span><span className="knl-dot" style={{ background: e.color }} aria-hidden="true" /><span>{e.t}</span></div>
   );
+  const [tab, setTab] = useState<"today" | "week">("today");
   return (
     <section className="win knl" aria-labelledby="knlT">
-      <div className="win-title"><h2 id="knlT">Today</h2><span className="sub">{prettyDay(k)} · <a href="#calendar">Calendar</a></span></div>
+      <div className="win-title"><h2 id="knlT">Today</h2><span className="sub">{prettyDay(k)}</span></div>
       <div className="win-body">
+        <div className="kseg" role="tablist" aria-label="Today or week">
+          {(["today", "week"] as const).map((t) => <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>{t === "today" ? "Today" : "Week"}</button>)}
+        </div>
+        {tab === "week" ? <WeekView /> : <>
         {cal.state === "loading" ? <p className="note">Calendar loading…</p>
           : cal.state === "error" ? <p className="note">Calendar not reachable right now.</p>
           : cal.state === "off" ? <p className="note">Calendar not connected yet.</p>
@@ -112,8 +121,43 @@ function TodayCard() {
         <RecapBox />
         <TodayChips />
         <ParkedList />
+        </>}
       </div>
     </section>
+  );
+}
+
+// Week tab: the next 7 days, two compact lines per day: Luna's Moon sign and tone, then her calendar events with
+// start times (top 3, then "+n more"), due life items and small tags for the big liquidity releases. A day
+// opens the Calendar. Then one line: the easiest day and the most friction (from Luna's tone scores).
+const TONE: Record<string, string> = { Flowing: "easy", Pressured: "tense", Mixed: "mixed", Quiet: "quiet" };
+function WeekView() {
+  const { st, k, events } = useCourt();
+  const econ = useEcon();
+  const days = Array.from({ length: 7 }, (_, i) => addDays(k, i));
+  const liq = liquidityList(econ?.items ?? [], Date.now() - 3 * 3600e3, Date.now() + 8 * 86400e3);
+  const due = dueList(st, k, events).filter((x) => !isAutoPaid(x.it));
+  const sgtDay = (iso: string) => new Date(Date.parse(iso) + 8 * 3600e3).toISOString().slice(0, 10);
+  const sky = days.map((d) => lunaDay(d));
+  const scored = sky.filter((x): x is NonNullable<typeof x> => !!x);
+  const best = scored.length ? scored.reduce((a, b) => (b.score > a.score ? b : a)) : null;
+  const hard = scored.length ? scored.reduce((a, b) => (b.score < a.score ? b : a)) : null;
+  return (
+    <div className="kweek">
+      {days.map((d, i) => {
+        const w = sky[i];
+        const evs = eventsOn(events, d).filter((e) => !isAstro(e));
+        const items = [...evs.map((e) => (e.allDay ? e.t : `${hm(e.a)} ${e.t}`)), ...due.filter((x) => x.d === d).map((x) => `${x.it.name} due`)];
+        const tags = liq.filter((x) => sgtDay(x.at) === d).map((x) => x.name);
+        return (
+          <a key={d} href="#calendar" className={"kweek-d" + (d === k ? " today" : "")} aria-label={`${prettyDay(d)}: ${items.length} item${items.length === 1 ? "" : "s"}`}>
+            <span className="kweek-h"><b>{wdName(wdOf(d)).slice(0, 3)} {+d.slice(8)}</b>{w && <span className="kweek-sky">{w.moon.slice(0, 3)} · {TONE[w.tone]}</span>}{tags.map((t) => <span className="kweek-tag" key={t}>{t}</span>)}</span>
+            <span className="kweek-ev">{items.length ? items.slice(0, 3).join(" · ") + (items.length > 3 ? ` · +${items.length - 3} more` : "") : "Nothing planned"}</span>
+          </a>
+        );
+      })}
+      {best && hard && <p className="kweek-glance">Week at a glance: easiest day {prettyDay(best.day)}{hard.day !== best.day && hard.score < 0 ? `, most friction ${prettyDay(hard.day)}` : ""}.</p>}
+    </div>
   );
 }
 
@@ -137,9 +181,9 @@ function LunaCard() {
           </div>
           <p>{TONEMSG[w.tone]} The Moon is {w.mood}.</p>
           {ing && <p className="kluna-sm">Moon moves into {ing.s} {ing.day === k ? "" : `on ${prettyDay(ing.day)} `}at {ing.t} SGT.</p>}
-          <div className="kluna-two">
-            <div className="kluna-blk lean"><b>The day leans toward</b><p>{w.lean.join(", ")}.</p></div>
-            <div className="kluna-blk ease"><b>Be gentle with</b><p>{w.ease.join(", ")}.</p></div>
+          <div className="kluna-strips">
+            <p className="kluna-strip lean"><b>The day leans toward</b><span>{w.lean.join(" · ")}</span></p>
+            <p className="kluna-strip ease"><b>Be gentle with</b><span>{w.ease.join(" · ")}</span></p>
           </div>
           {w.items.length > 0 && (
             <div className="kluna-chart">

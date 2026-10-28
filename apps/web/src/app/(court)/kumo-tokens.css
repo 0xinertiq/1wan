@@ -10,25 +10,36 @@
   /* palette */
   --k-white:#FFFFFF; --k-cream-50:#FFF8FB; --k-cream-100:#FFFDF8; --k-cream-200:#FDF1F7; --k-cream-glass:#FFF8EE;
   --k-plum-900:#2A2340; --k-plum-700:#4A2538; --k-plum-500:#655B78; --k-plum-line:#E9DCE8; --k-plum-track:#F6EAF1;
-  --k-sakura-800:#9E1450; --k-sakura-700:#C2185B; --k-sakura-600:#E6498A; --k-sakura-500:#F65A9B; --k-sakura-300:#FF9FCB; --k-sakura-200:#FFC2DD; --k-sakura-100:#FCE8F1; --k-sakura-50:#FFF0F6;
+  --k-sakura-800:#8A0F45; --k-sakura-700:#AD1457; --k-sakura-600:#E6498A; --k-sakura-500:#F65A9B; --k-sakura-300:#FF9FCB; --k-sakura-200:#FFC2DD; --k-sakura-100:#FCE8F1; --k-sakura-50:#FFF0F6;
   --k-lav-600:#6A4FC9; --k-lav-500:#A78BFA; --k-lav-300:#C9B6FF; --k-lav-200:#E9DCF5; --k-lav-100:#F0EAFF;
   --k-sky-500:#7DA7FF; --k-sky-100:#EAF2FF;
   --k-gold-500:#FBBF24; --k-gold-400:#FFD95E; --k-gold-600:#C99A2E;
   --k-mint-500:#7CC49D; --k-mint-100:#DDF5EC; --k-peach-100:#FFEBDD; --k-butter-100:#FFF4CF; --k-rose-400:#E58FB0; --k-icon-line:#A34876;
   --k-success:#21866F; --k-warning:#9B6300; --k-danger:#B83858;
   --k-night-950:#1C1730; --k-night-900:#2A2340; --k-night-800:#30294A; --k-night-700:#3A3258; --k-night-lav:#4B3F86;
-  --k-night-text:#ECE8F5; --k-night-muted:#BDB4D6;
+  --k-night-text:#ECE8F5; --k-night-muted:#BDB4D6; --k-night-link:#F7A8CC; --k-night-link-hi:#FFC8E0; --k-night-icon-line:#B9A6FF; --k-night-title-a:#3E3470; --k-night-title-b:#352C62;
+  /* day style of the old dashboard: blush page and panels, lavender title bars, plum text and outline */
+  --k-blush-page:#FFE8F1; --k-blush-panel:#FFF8FB; --k-blush-panel-2:#FFEDF4; --k-blush-dim:#FFE2EE; --k-blush-divider:#EBA9C6;
+  --k-title-a:#CDBFFB; --k-title-b:#B3A2F4; --k-plum-text:#5A2745; --k-plum-soft:#86506C; --k-plum-outline:#A34876;
+  --k-pastel-mint:#CDF2E0; --k-pastel-lav:#EADDFF; --k-pastel-peach:#FFE0CF; --k-pastel-butter:#FFF1B8; --k-pastel-pink:#FFD3E5; --k-pastel-sky:#D3EAFF;
   /* the world follows Singapore time, not the theme: its glass and text shadows come in a day and a night set */
+  /* HUD and place-label glass over the world, chosen by the scene (Singapore time), not by the theme */
+  --k-hud-light:rgba(255,248,251,.84); --k-hud-dark:rgba(42,35,64,.84);
   --k-scene-shadow-day:rgba(255,248,238,.95); --k-scene-shadow-night:rgba(30,20,60,.9); --k-cloud-day:var(--k-cream-glass); --k-cloud-night:var(--k-night-lav);
 
   /* chart colours (Trades technicals, both looks) */
   --k-chart-up:#7CC49D; --k-chart-down:#E58FB0; --k-chart-ma50:#C99A2E; --k-chart-ma200:#4A2538; --k-chart-line:#8A6FD1; --k-chart-off:#999999;
   --k-chart-grid:rgba(127,127,127,.15); --k-chart-vol:rgba(201,182,255,.5); --k-chart-ink:#4A2538;
 
+  /* fonts (locked): Playfair Display headings, Nunito body, Inter only for journal writing, Silkscreen only for
+     tiny labels, Noto Serif SC / Ma Shan Zheng only as the CJK fallback. Classic keeps its own fonts. */
+  --k-font-head:var(--nf-playfair),Georgia,var(--nf-noto),serif; --k-font-body:var(--nf-nunito),system-ui,var(--nf-noto),sans-serif;
+  --k-font-journal:var(--nf-inter),system-ui,var(--nf-noto),sans-serif; --k-font-label:var(--nf-silkscreen),monospace; --k-font-cjk:var(--nf-noto),var(--nf-mashan),serif;
+
   /* scales */
   --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-6:24px; --sp-8:32px; --sp-12:48px;
   --r-chip:8px; --r-control:12px; --r-card:16px; --r-modal:24px; --r-pill:999px;
-  --bw:1px;
+  --bw:1px; --bw-2:2px;
   --fs-cap:13px; --fs-ui:14px; --fs-body:15px; --fs-read:17px; --fs-h3:20px; --fs-h2:24px; --fs-h1:32px;
   --lh-ui:1.45; --lh-read:1.65;
   --tap:44px;
@@ -39,24 +50,25 @@
   --kumo-canvas:var(--k-cream-50); --kumo-surface:var(--k-white); --kumo-surface-muted:var(--k-cream-200);
   --kumo-text:var(--k-plum-900); --kumo-text-muted:var(--k-plum-500); --kumo-line:var(--k-plum-line); --kumo-plum:var(--k-plum-700);
   --kumo-success:var(--k-success); --kumo-warning:var(--k-warning); --kumo-danger:var(--k-danger);
-  --kumo-font-display:var(--nf-playfair),Georgia,var(--nf-noto),serif;
-  --kumo-font-body:var(--nf-nunito),system-ui,var(--nf-noto),sans-serif;
+  --kumo-font-display:var(--k-font-head); --kumo-font-body:var(--k-font-body);
   --kumo-space-1:var(--sp-1); --kumo-space-2:var(--sp-2); --kumo-space-3:var(--sp-3); --kumo-space-4:var(--sp-4); --kumo-space-6:var(--sp-6); --kumo-space-8:var(--sp-8); --kumo-space-12:var(--sp-12);
   --kumo-radius-chip:var(--r-chip); --kumo-radius-control:var(--r-control); --kumo-radius-card:var(--r-card); --kumo-radius-modal:var(--r-modal);
 }
 
-/* semantic tokens, day */
+/* semantic tokens, day: the old dashboard's look (no plain white panel) */
 :root[data-ui="new"]{
-  --k-bg:var(--k-cream-50); --k-bg-2:var(--k-cream-200); --k-surface:var(--k-white); --k-surface-2:var(--k-cream-200); --k-panel:var(--k-cream-100);
-  --k-text:var(--k-plum-900); --k-text-muted:var(--k-plum-500); --k-outline:var(--k-plum-700);
-  --k-line:var(--k-plum-line); --k-line-strong:rgba(74,37,56,.18); --k-line-soft:rgba(74,37,56,.1); --k-track:var(--k-plum-track);
+  --k-bg:var(--k-blush-page); --k-bg-2:var(--k-blush-panel-2); --k-surface:var(--k-blush-panel); --k-surface-2:var(--k-blush-dim); --k-panel:var(--k-blush-panel-2);
+  --k-text:var(--k-plum-text); --k-text-muted:var(--k-plum-soft); --k-outline:var(--k-plum-outline);
+  --k-line:var(--k-plum-outline); --k-line-strong:var(--k-plum-outline); --k-line-soft:var(--k-blush-divider); --k-divider:var(--k-blush-divider); --k-track:var(--k-blush-dim);
+  --k-title-bg:linear-gradient(90deg,var(--k-title-a),var(--k-title-b)); --k-title-text:var(--k-plum-text);
   --k-accent:var(--k-sakura-500); --k-accent-hover:var(--k-sakura-600); --k-accent-ink:var(--k-white);
   --k-link:var(--k-sakura-700); --k-link-hover:var(--k-sakura-800); --k-focus:var(--k-sakura-700);
-  --k-select:var(--k-sakura-100);
-  --k-tint-lav:var(--k-lav-100); --k-tint-sakura:var(--k-sakura-50); --k-tint-gold:var(--k-butter-100); --k-tint-mint:var(--k-mint-100); --k-tint-peach:var(--k-peach-100); --k-tint-sky:var(--k-sky-100);
-  --k-chip-text:var(--k-lav-600);
-  --k-glass:rgba(255,255,255,.6); --k-glass-hi:rgba(255,255,255,.92); --k-glass-line:rgba(255,255,255,.7);
-  --k-shadow-card:0 4px 20px rgba(42,35,64,.06); --k-shadow-float:0 12px 32px rgba(42,35,64,.12); --k-edge:rgba(42,35,64,.06);
+  --k-select:var(--k-pastel-pink);
+  --k-tint-lav:var(--k-pastel-lav); --k-tint-sakura:var(--k-pastel-pink); --k-tint-gold:var(--k-pastel-butter); --k-tint-mint:var(--k-pastel-mint); --k-tint-peach:var(--k-pastel-peach); --k-tint-sky:var(--k-pastel-sky);
+  --k-chip-text:var(--k-plum-text);
+  --k-icon-fill:var(--k-blush-panel); --k-icon-line:var(--k-plum-outline); --k-icon-on:var(--k-sakura-700); --k-icon-on-bg:var(--k-pastel-pink); --k-icon-glow:none; --k-nav-text:var(--k-plum-text);
+  --k-glass:rgba(255,248,251,.6); --k-glass-hi:rgba(255,248,251,.92); --k-glass-line:rgba(255,255,255,.7);
+  --k-shadow-card:0 3px 0 rgba(163,72,118,.18); --k-shadow-float:0 12px 32px rgba(90,39,69,.16); --k-edge:rgba(163,72,118,.18);
   color-scheme:light;
 }
 /* semantic tokens, night (system dark unless she chose day, or her saved night choice): a plum night */
@@ -66,7 +78,9 @@
     --k-text:var(--k-night-text); --k-text-muted:var(--k-night-muted); --k-outline:var(--k-plum-700);
     --k-line:rgba(236,232,245,.18); --k-line-strong:rgba(236,232,245,.24); --k-line-soft:rgba(236,232,245,.1); --k-track:var(--k-night-700);
     --k-accent:var(--k-sakura-500); --k-accent-hover:var(--k-sakura-300); --k-accent-ink:var(--k-white);
-    --k-link:var(--k-sakura-300); --k-link-hover:var(--k-sakura-200); --k-focus:var(--k-sakura-300);
+    --k-link:var(--k-night-link); --k-link-hover:var(--k-night-link-hi); --k-focus:var(--k-night-link);
+    --k-divider:rgba(236,232,245,.22); --k-title-bg:linear-gradient(90deg,var(--k-night-title-a),var(--k-night-title-b)); --k-title-text:var(--k-night-text);
+    --k-icon-fill:var(--k-night-text); --k-icon-line:var(--k-night-icon-line); --k-icon-on:var(--k-sakura-300); --k-icon-on-bg:rgba(247,168,204,.22); --k-icon-glow:drop-shadow(0 0 1px rgba(236,232,245,.9)) drop-shadow(0 0 2px rgba(236,232,245,.45)); --k-nav-text:var(--k-night-text);
     --k-select:var(--k-night-lav);
     --k-tint-lav:var(--k-night-700); --k-tint-sakura:var(--k-night-800); --k-tint-gold:var(--k-night-800); --k-tint-mint:var(--k-night-800); --k-tint-peach:var(--k-night-800); --k-tint-sky:var(--k-night-800);
     --k-chip-text:var(--k-night-text);
@@ -80,7 +94,9 @@
   --k-text:var(--k-night-text); --k-text-muted:var(--k-night-muted); --k-outline:var(--k-plum-700);
   --k-line:rgba(236,232,245,.18); --k-line-strong:rgba(236,232,245,.24); --k-line-soft:rgba(236,232,245,.1); --k-track:var(--k-night-700);
   --k-accent:var(--k-sakura-500); --k-accent-hover:var(--k-sakura-300); --k-accent-ink:var(--k-white);
-  --k-link:var(--k-sakura-300); --k-link-hover:var(--k-sakura-200); --k-focus:var(--k-sakura-300);
+  --k-link:var(--k-night-link); --k-link-hover:var(--k-night-link-hi); --k-focus:var(--k-night-link);
+  --k-divider:rgba(236,232,245,.22); --k-title-bg:linear-gradient(90deg,var(--k-night-title-a),var(--k-night-title-b)); --k-title-text:var(--k-night-text);
+  --k-icon-fill:var(--k-night-text); --k-icon-line:var(--k-night-icon-line); --k-icon-on:var(--k-sakura-300); --k-icon-on-bg:rgba(247,168,204,.22); --k-icon-glow:drop-shadow(0 0 1px rgba(236,232,245,.9)) drop-shadow(0 0 2px rgba(236,232,245,.45)); --k-nav-text:var(--k-night-text);
   --k-select:var(--k-night-lav);
   --k-tint-lav:var(--k-night-700); --k-tint-sakura:var(--k-night-800); --k-tint-gold:var(--k-night-800); --k-tint-mint:var(--k-night-800); --k-tint-peach:var(--k-night-800); --k-tint-sky:var(--k-night-800);
   --k-chip-text:var(--k-night-text);

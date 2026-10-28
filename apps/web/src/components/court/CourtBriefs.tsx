@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { BriefFeedback } from "./BriefFeedback";
 import { SourcesLine, type BriefDoc } from "./BriefTabs";
-import { briefSections, isNoMovers, reviewParts, todaysPlan, topFive, type Headline } from "@/components/kumo/briefParse";
+import { briefSections, isNoMovers, reviewParts, type Headline } from "@/components/kumo/briefParse";
+import { mdLite } from "./mdLite";
 import { useReview } from "@/components/kumo/reviewRead";
 
 // One uniform brief item, used by the Top 5 and by every block of a brief in News: bold numbered headline,
-// one why line, then the sources as link chips (never also as text).
+// the why, then one small "Sources: A · B" line (never also as a text tail).
 function Items({ items }: { items: Headline[] }) {
   return (
     <ol className="bitems">
@@ -16,29 +17,33 @@ function Items({ items }: { items: Headline[] }) {
           {h.topic && <span className="bitem-topic">{h.topic}</span>}
           {h.title && <b className="bitem-t">{h.title}</b>}
           {h.why && <span className="bitem-w">{h.why}</span>}
-          {h.links.length > 0 && <span className="top5-src">{h.links.map((l, j) => <a key={j} href={l.url} target="_blank" rel="noopener noreferrer">{l.text}</a>)}</span>}
+          {h.links.length > 0 && <span className="brsrc-line">Sources: {h.links.map((l, j) => <span key={j}>{j > 0 && " · "}<a href={l.url} target="_blank" rel="noopener noreferrer">{l.text}</a></span>)}</span>}
         </li>
       ))}
     </ol>
   );
 }
 
-// Briefs on the New-look Court and their homes elsewhere. One canonical home per item: the full text of every
-// brief lives in News; the scan's prices, technicals and Movers live in Trades. The Court shows summaries
-// (Top 5, Today's plan, the review's summary) with links to those homes, and the same feedback actions.
+// The Briefs card on the New-look Court, in the old dashboard's full brief style: three pill tabs (Pulse |
+// Intelligence | Crypto scan), each with its title, date and age, the summary as a soft pink callout, then the
+// whole stored brief (uppercase section labels, dashed dividers, bold-lead items, tables, a small Sources line;
+// the Intelligence Top 5 as a numbered list). Show more / Show less, then Useful / Needs work, the one-line
+// change box and "What this desk has learned" (her agent memory, read-only). Midday movers live in Trades.
+export type DeskMem = { lessons?: string[]; sourceNotes?: string[]; selfCheck?: string; stats?: { n?: number; up?: number; down?: number } };
+const TABS = [{ key: "pulse", label: "Pulse" }, { key: "intel", label: "Intelligence" }, { key: "scan", label: "Crypto scan" }] as const;
 
-export function BriefsBlock({ intel, scan }: { intel: BriefDoc | null; scan: BriefDoc | null }) {
-  const [tab, setTab] = useState<"intel" | "scan">("intel");
+export function BriefsBlock({ docs, mem }: { docs: Partial<Record<"pulse" | "intel" | "scan", BriefDoc | null>>; mem: Record<string, DeskMem> }) {
+  const first = (["intel", "scan", "pulse"] as const).find((k) => docs[k]) ?? "intel";
+  const [tab, setTab] = useState<"pulse" | "intel" | "scan">(first);
+  const d = docs[tab] ?? null;
   return (
     <section className="win kbriefs" aria-labelledby="kbT">
-      <div className="win-title"><h2 id="kbT">Briefs</h2><span className="sub">tracking only, never advice</span></div>
+      <div className="win-title"><h2 id="kbT">Briefs</h2><span className="sub">Your scheduled tasks</span></div>
       <div className="win-body">
-        <div className="kseg" role="tablist" aria-label="Briefs">
-          {(["intel", "scan"] as const).map((t) => (
-            <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>{t === "intel" ? "Intel" : "Scan"}</button>
-          ))}
+        <div className="kseg pills" role="tablist" aria-label="Briefs">
+          {TABS.map((t) => <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} className={tab === t.key ? "on" : ""} onClick={() => setTab(t.key)}>{t.label}</button>)}
         </div>
-        {tab === "intel" ? <IntelPane d={intel} /> : <ScanPane d={scan} />}
+        {d ? <BriefPane key={d.key + d.at} d={d} mem={mem[tab]} /> : <p className="note">{tab === "scan" ? "No scan yet. The 03:50 scan lands here." : tab === "pulse" ? "No Pulse brief yet. It lands at 07:27." : "No intelligence brief yet. The 07:52 brief lands here."}</p>}
       </div>
     </section>
   );
@@ -48,43 +53,34 @@ function Head({ d }: { d: BriefDoc }) {
   return <p className="bhead"><b>{d.title}</b>{d.when && <span className="note"> · {d.when}</span>}</p>;
 }
 
-function IntelPane({ d }: { d: BriefDoc | null }) {
-  if (!d) return <p className="note">No intelligence brief yet. The 07:42 brief lands here.</p>;
-  const t = topFive(d.body ?? "");
+const hmSgt = (iso: string) => new Date(Date.parse(iso) + 8 * 3600e3).toISOString().slice(11, 16);
+
+function BriefPane({ d, mem }: { d: BriefDoc; mem?: DeskMem }) {
+  const [open, setOpen] = useState(false);
+  const html = mdLite(d.body ?? "", { srcLine: true, numberTop5: true });
   return (
     <div className="bpane">
       <Head d={d} />
-      <div className="bcall">
-        <p className="bcall-h">{t.fromSection ? "Top 5 headlines" : "From this brief"}</p>
-        {t.items.length ? <Items items={t.items} /> : <p className="note">This brief has no headlines section.</p>}
-        <a className="blink" href="#news">Read the full brief in News →</a>
-      </div>
-      <SourcesLine s={d.sources} />
+      {d.key === "scan" && <p className="bsnap"><span>Snapshot · Scan {hmSgt(d.at)} SGT</span><a href="#trades">Open in Trades for live technicals</a></p>}
+      <div className={"brb kbrb" + (open ? " open" : "")} dangerouslySetInnerHTML={{ __html: html }} />
+      <button className="btn sm ghost" type="button" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? "Show less" : "Show more"}</button>
       <BriefFeedback key={d.key + d.at} kind={d.key} at={d.at} initial={d.vote} />
+      <DeskLearned m={mem} />
     </div>
   );
 }
 
-function ScanPane({ d }: { d: BriefDoc | null }) {
-  if (!d) return <p className="note">No scan yet. The 03:50 scan lands here.</p>;
-  const p = todaysPlan(d.body ?? "");
+function DeskLearned({ m }: { m?: DeskMem }) {
+  const ls = (m?.lessons ?? []).slice(0, 8), sn = (m?.sourceNotes ?? []).slice(0, 5), st = m?.stats;
+  if (!m || (!ls.length && !sn.length && !m.selfCheck && !st?.n)) return null;
   return (
-    <div className="bpane">
-      <Head d={d} />
-      <div className="bcall">
-        <p className="bcall-h">Today&apos;s plan</p>
-        {p.readThrough && <p className="bread">{p.readThrough}</p>}
-        {p.rows.length ? (
-          <table className="plan">
-            <thead><tr><th>Ticker</th><th>Grade</th><th>Entry</th><th>Stop</th><th>Target</th><th>R:R</th></tr></thead>
-            <tbody>{p.rows.map((r, i) => <tr key={i}><td><b>{r.ticker}</b></td><td>{r.grade || "–"}</td><td>{r.entry}</td><td>{r.stop}</td><td>{r.target || "–"}</td><td>{r.rr || "–"}</td></tr>)}</tbody>
-          </table>
-        ) : <p className="note">{p.noTrade ? "No trade today." : "This scan has no trade-plan table."}</p>}
-        <a className="blink" href="#trades">Open in Trades →</a>
-      </div>
-      <SourcesLine s={d.sources} />
-      <BriefFeedback key={d.key + d.at} kind={d.key} at={d.at} initial={d.vote} />
-    </div>
+    <details className="brmem">
+      <summary>What this desk has learned</summary>
+      {ls.length > 0 && <><p className="note">Your standing preferences</p><ul>{ls.map((x) => <li key={x}>{String(x).slice(0, 220)}</li>)}</ul></>}
+      {sn.length > 0 && <><p className="note">Source notes</p><ul>{sn.map((x) => <li key={x}>{String(x).slice(0, 220)}</li>)}</ul></>}
+      {m.selfCheck && <p className="note">Last run self-check: {String(m.selfCheck).slice(0, 260)}</p>}
+      {st?.n ? <p className="note">Ratings: {st.up ?? 0} useful, {st.down ?? 0} needs work</p> : null}
+    </details>
   );
 }
 
