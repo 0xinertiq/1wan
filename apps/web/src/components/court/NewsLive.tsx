@@ -71,7 +71,7 @@ export function NewsLive({ top5 = [] }: { top5?: string[] }) {
   const items = clusters;
   const list = tab === "All" ? items : items.filter((c) => c.lead.group === tab);
   const shown = list.slice(0, more ? 40 : 8);
-  const down = data?.feeds.filter((f) => !f.ok).map((f) => f.name) ?? [];
+  const down = (Array.isArray(data?.feeds) ? data.feeds : []).filter((f) => f && !f.ok).map((f) => f.name);
 
   return (
     <section className="win" id="newsWin" aria-labelledby="nwT">

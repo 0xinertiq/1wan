@@ -3,7 +3,8 @@
 // or when kumo-new.css uses spacing or radii off the 4/8/12/16/24/32/48 scale instead of the tokens.
 // Allowed: the token file itself, Classic's dashboard.css, and pixel-art / illustration files (listed below),
 // plus the line after a "pixel-art" comment. lib/court/tails.ts (the tail drawing) and lib/calendar.ts (feed
-// colours) are protected files, so they are listed rather than changed.
+// colours) are protected files, so they are listed rather than changed. app/global-error.tsx is the last-resort page,
+// which loads no stylesheet, so its few colours are inline.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -14,7 +15,7 @@ const ART = [
   "components/spriteDefs.ts", "components/PixelSprite.tsx", "components/kumo/world/draw.ts", "components/kumo/Fox.tsx",
   "components/kumo/DungeonIcon.tsx", "components/kumo/foxArt.ts", "components/kumo/decor/", "components/court/HeaderMenu.tsx", "components/court/live/GrowLive.tsx",
   "components/court/Stage.tsx", "components/court/StageSky.tsx", "components/court/StageActors.tsx", "components/court/CourtDefs.tsx",
-  "components/court/agents.ts", "lib/court/tails.ts", "lib/calendar.ts", "app/manifest.ts", "app/(court)/layout.tsx", "app/(app)/layout.tsx",
+  "components/court/agents.ts", "lib/court/tails.ts", "lib/calendar.ts", "app/manifest.ts", "app/global-error.tsx", "app/(court)/layout.tsx", "app/(app)/layout.tsx",
 ];
 const HEX = /(^|["'`\s:(,=])#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})(?![\w-])/;
 const RAW = /\b(?:rgba?|hsla?)\(\s*\d/;

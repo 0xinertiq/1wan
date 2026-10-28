@@ -15,6 +15,7 @@ const CASES = [{ crew: ALL, q: 60 }, { crew: ALL, q: 220 }, { crew: ALL, q: 320 
 for (const phase of ["day", "night"]) for (const sz of SIZES) test(`no overlaps: ${sz.name} ${phase}`, () => {
   for (const c of CASES) {
     const L = worldLayout(sz.w, sz.h, c.crew, c.q);
+    assert.ok(L, `${sz.name}: no layout`);
     const bad = [];
     const labels = L.places.map((p) => p.box);
     const others = [L.hud, L.kumo, ...L.crew, ...(L.bubble ? [L.bubble] : [])];
@@ -28,4 +29,8 @@ for (const phase of ["day", "night"]) for (const sz of SIZES) test(`no overlaps:
     assert.ok(L.perches.length >= 3, `${sz.name}: only ${L.perches.length} fox perches left`);
     assert.deepEqual([...new Set(bad)], [], `${sz.name} ${phase}, ${c.crew.length} crew, quote ${c.q}`);
   }
+});
+
+test("a box too small for the world gives no layout instead of a broken one", () => {
+  for (const [w, h] of [[0, 0], [1100, 0], [1100, 59], [1100, 100], [0, 520], [80, 400], [NaN, 400]]) assert.equal(worldLayout(w, h, [], 80), null, `${w}x${h}`);
 });

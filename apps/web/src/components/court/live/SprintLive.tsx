@@ -6,11 +6,13 @@ import { logQuest } from "@/lib/court/actions";
 import { isDone } from "@/lib/court/state";
 import { SPRINT_MIN, sprintHours, type SprintTag } from "@/lib/court/sprint";
 import { weekKey, sgtKeyOf } from "@/lib/court/time";
+import { dropSaved, readSaved, writeSaved } from "@/lib/court/store";
 
 // One 25-minute focus sprint with a tag (Study or Other). The running sprint is saved, so a reload keeps it.
 // A sprint that reaches 25 minutes is logged, counts quest k7, and study sprints add to Samsara's hours.
 // The sprint's state and actions, shared by this window (Classic) and the hourglass in the New-look world.
-const PAUSE = "1wan-sprint-pause";
+const PAUSE = "sprint-pause";
+const isPause = (v: unknown): v is { at: string; left: number } => !!v && typeof v === "object" && typeof (v as { at?: unknown }).at === "string" && Number.isFinite((v as { left?: unknown }).left);
 
 export function useSprint() {
   const { st, update, levelUp } = useCourt();
@@ -19,15 +21,15 @@ export function useSprint() {
   // Pause (owner approved, round 5b): the remaining seconds are kept on this device while paused; resuming
   // moves the saved start time forward by the paused stretch, so the saved state keeps its shape.
   const [pz, setPz] = useState<{ at: string; left: number } | null>(null);
-  useEffect(() => { try { const p = JSON.parse(localStorage.getItem(PAUSE) ?? "null"); setPz(p && run && p.at === run.at ? p : null); } catch {} }, [run]);
+  useEffect(() => { const p = readSaved(PAUSE, isPause, null); setPz(p && run && p.at === run.at ? p : null); }, [run]);
   const paused = !!(pz && run && pz.at === run.at);
   useEffect(() => { if (!run || paused) return; const t = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(t); }, [run, paused]);
   const left = run ? (paused ? pz!.left : Math.max(0, SPRINT_MIN * 60 - Math.floor((now - Date.parse(run.at)) / 1000))) : SPRINT_MIN * 60;
-  const pause = () => { if (!run) return; const p = { at: run.at, left }; setPz(p); try { localStorage.setItem(PAUSE, JSON.stringify(p)); } catch {} };
+  const pause = () => { if (!run) return; const p = { at: run.at, left }; setPz(p); writeSaved(PAUSE, p); };
   const resume = () => {
     if (!run || !pz) return;
     const at = new Date(Date.now() - (SPRINT_MIN * 60 - pz.left) * 1000).toISOString();
-    try { localStorage.removeItem(PAUSE); } catch {}
+    dropSaved(PAUSE);
     setPz(null); setNow(Date.now());
     update((d) => { if (d.spr.run) d.spr.run = { ...d.spr.run, at }; }, ["spr"]);
   };
@@ -43,7 +45,7 @@ export function useSprint() {
   }, ["spr", "q", "stars", "streak", "xp", "lvl"]);
   useEffect(() => { if (run && !paused && left === 0) finish(true); });  // eslint-disable-line react-hooks/exhaustive-deps
   const start = (tag: SprintTag) => update((d) => { d.spr.run = { at: new Date().toISOString(), tag }; }, ["spr"]);
-  const stop = () => { try { localStorage.removeItem(PAUSE); } catch {} setPz(null); finish(false); };
+  const stop = () => { dropSaved(PAUSE); setPz(null); finish(false); };
   return { run, left, finish, start, paused, pause, resume, stop };
 }
 

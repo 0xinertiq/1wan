@@ -126,7 +126,7 @@ export function TradeLive() {
       <Review trades={L.trades.filter(inPeriod)} plans={L.plans.filter(inPeriod)} account={L.settings?.account ?? null} />
       <Plans plans={L.plans} k={k} onSave={(r) => save("plans", r)} onRemove={(id) => remove("plans", id)} />
       <Trades trades={L.trades.filter(inPeriod)} plans={L.plans} k={k} onSave={saveTrade} onRemove={(id) => remove("trades", id)} />
-      <Gamble rows={L.gamble} k={k} onSave={(r) => save("gamble", r)} onRemove={(id) => remove("gamble", id)} />
+      <Gamble rows={L.gamble ?? []} k={k} onSave={(r) => save("gamble", r)} onRemove={(id) => remove("gamble", id)} />
     </div>
   );
 }

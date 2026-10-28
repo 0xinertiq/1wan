@@ -414,6 +414,8 @@ function drawIslets(c: C, o: WorldOpts, r: () => number, wins: Win[]) {
 export type World = { draw: (c: C, t: number, now: Date) => void; cheer: (t: number) => void; places: Place[] };
 
 export function makeWorld(o: WorldOpts): World {
+  // An impossible size (zero, negative, not a number or huge) draws nothing instead of throwing.
+  if (!(o.W > 0 && o.H > 0 && o.W <= 4096 && o.H <= 4096)) return { draw: () => {}, cheer: () => {}, places: [] };
   const seed = o.seed ?? 7, r = rng(seed);
   const { cx, gy, ct, ob, tx, places } = geometry(o.W, o.H, o.top);
   const wins: Win[] = [];

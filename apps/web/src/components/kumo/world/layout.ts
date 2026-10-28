@@ -25,8 +25,11 @@ export type WorldLayout = {
   crew: Box[]; kumo: Box; bubble: Box | null; perches: [number, number][]; foxW: number; foxH: number;
 };
 
-export function worldLayout(w: number, h: number, crewOn: { id: string; place: string }[], quoteLen: number): WorldLayout {
+// null when the box is too small to hold the HUD band and the island (hidden tab, collapsed or still sizing):
+// the page then shows no world rather than a negative or giant canvas.
+export function worldLayout(w: number, h: number, crewOn: { id: string; place: string }[], quoteLen: number): WorldLayout | null {
   const hudH = hudHeight(w);
+  if (!(w >= 120 && h >= hudH + 80 && Number.isFinite(w) && Number.isFinite(h))) return null;
   const s = Math.min(w / FIT_W, (h - hudH) / FIT_H);
   const W = Math.ceil(w / s), H = Math.floor(h / s), top = hudH / s;
   const g = geometry(W, H, top);

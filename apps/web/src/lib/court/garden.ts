@@ -1,18 +1,19 @@
 import { BRANCH_DEFAULTS, branchOf, isTrunk, stageOf, type BranchStage } from "@/lib/gardenMap";
 import type { CourtState } from "./state";
-import { addDays, dayGap, weekKey } from "./time";
+import { addDays, dayGap, sgtKeyOf, weekKey } from "./time";
 
 // Garden state computed from real records only: watering_events, grid ticks and the anchors log.
 export type WaterEvt = { at: string; source: string; ref: string; weight: number };
 export type Branch = { n: number; name: string; last: string | null; idle: number; stage: BranchStage | "sprout"; blossoms: number; resting: boolean };
 
-const sgtDay = (iso: string) => new Date(Date.parse(iso) + 8 * 3600000).toISOString().slice(0, 10);
+const sgtDay = (iso: string) => sgtKeyOf(iso);   // never throws on an unreadable date
 
 export function branches(st: CourtState, k: string, evs: WaterEvt[]): { trunk: Branch; list: Branch[] } {
   const resting = st.restDay === k || st.restWeek === weekKey(k);
   const last: Record<number, string> = {};
   const bump = (b: number, d: string) => { if (!last[b] || d > last[b]) last[b] = d; };
-  for (const e of evs) {
+  // only well-formed watering events count (a string source, ref and readable time)
+  for (const e of evs.filter((x) => x && typeof x.ref === "string" && typeof x.source === "string" && sgtDay(x.at) !== "")) {
     const d = sgtDay(e.at), b = branchOf(e.source, e.ref);
     if (b != null) bump(b, d);
     if (isTrunk(e.source)) bump(0, d);

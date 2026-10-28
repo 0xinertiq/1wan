@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --import ./tests/resolve.mjs --test tests/*.test.mjs"
+    "test": "node --import ./tests/tsx.mjs --test tests/*.test.mjs",
+    "test:browser": "node tests/browser/run.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.6.1",

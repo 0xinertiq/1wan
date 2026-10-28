@@ -14,6 +14,7 @@ import { dueList } from "@/lib/court/state";
 import { astroParts } from "@/components/kumo/astroParts";
 import { PixelSprite } from "@/components/PixelSprite";
 import { TONEMSG, enrich, explain, lunaDay, lunaRange, nextIngress } from "@/lib/court/luna";
+import { Boundary } from "../Boundary";
 
 // The Court tab. Classic: the v52 three columns, exactly as before. New look (COURT_SPEC): the world, Park a
 // thought, prices, the "Next:" liquidity line, Briefs (Pulse | Intelligence | Crypto scan) beside a rail
@@ -26,33 +27,36 @@ export type CourtSlots = {
   briefs: React.ReactNode; review: React.ReactNode; world: React.ReactNode; roster: React.ReactNode;
 };
 
+// Every card sits in its own error boundary, so one bad card shows "This card could not load" and the rest keeps working.
+const B = ({ n, children }: { n: string; children: React.ReactNode }) => <Boundary name={n}>{children}</Boundary>;
+
 export function CourtLayout({ s }: { s: CourtSlots }) {
   const ui = useUi();
   if (ui === "classic")
     return (
       <div className="layout">
-        <div className="col c-l">{s.weather}{s.today}</div>
-        <div className="col c-m">{s.stage}{s.statusLine}{s.luna}{s.brief}{s.scan}{s.tech}{s.weekStrip}{s.weekAhead}{s.econ}{s.news}</div>
-        <div className="col c-r">{s.needs}{s.status}</div>
+        <div className="col c-l"><B n="Weather">{s.weather}</B><B n="Today">{s.today}</B></div>
+        <div className="col c-m"><B n="Cloud Court">{s.stage}</B><B n="Status">{s.statusLine}</B><B n="Luna">{s.luna}</B><B n="Briefs">{s.brief}</B><B n="Scan">{s.scan}</B><B n="Technicals">{s.tech}</B><B n="This week">{s.weekStrip}</B><B n="Week ahead">{s.weekAhead}</B><B n="Economic calendar">{s.econ}</B><B n="Headlines">{s.news}</B></div>
+        <div className="col c-r"><B n="Needs you now">{s.needs}</B><B n="Status">{s.status}</B></div>
       </div>
     );
   return (
     <div className="khome">
-      {s.world}
-      <QuickLine />
-      <PricesStrip />
-      <NextLiquidityLine />
-      {s.statusLine}
+      <B n="Your kingdom">{s.world}</B>
+      <B n="Park a thought"><QuickLine /></B>
+      <B n="Prices"><PricesStrip /></B>
+      <B n="Next release"><NextLiquidityLine /></B>
+      <B n="Status">{s.statusLine}</B>
       <div className="kmain">
-        {s.briefs}
+        <B n="Briefs">{s.briefs}</B>
         <div className="krail">
-          {s.needs}
-          <TodayCard />
-          <LunaCard />
-          {s.review}
+          <B n="Needs you now">{s.needs}</B>
+          <B n="Today"><TodayCard /></B>
+          <B n="Luna"><LunaCard /></B>
+          <B n="Weekly review">{s.review}</B>
         </div>
       </div>
-      {s.roster}
+      <B n="Crew roster">{s.roster}</B>
     </div>
   );
 }

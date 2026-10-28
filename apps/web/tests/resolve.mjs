@@ -12,7 +12,7 @@ registerHooks({
     let s = spec;
     if (s.startsWith("@/")) s = pathToFileURL(path.join(SRC, s.slice(2))).href;
     const parent = ctx.parentURL && ctx.parentURL.startsWith("file:") ? fileURLToPath(ctx.parentURL) : null;
-    if ((s.startsWith("file:") || s.startsWith(".")) && parent !== null) {
+    if ((s.startsWith("file:") || s.startsWith(".")) && parent !== null && !parent.includes("node_modules")) {
       const base = s.startsWith("file:") ? fileURLToPath(s) : path.resolve(path.dirname(parent), s);
       for (const ext of ["", ".ts", ".tsx", "/index.ts"]) if (existsSync(base + ext) && !(ext === "" && !path.extname(base))) return next(pathToFileURL(base + ext).href, ctx);
     }

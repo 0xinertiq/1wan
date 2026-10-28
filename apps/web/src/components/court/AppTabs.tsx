@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useUi } from "@/components/kumo/useUi";
 import { useReview } from "@/components/kumo/reviewRead";
 import { useCourt } from "./CourtState";
+import { Boundary } from "./Boundary";
 
 // Main tabs: bottom bar on phone, left rail on desktop. Every panel stays mounted so nothing she typed is lost
 // when she switches; the open tab lives in the address (#garden) so reload and back keep her place.
@@ -96,12 +97,12 @@ export function AppTabs({ panels, extra = {} }: { panels: Record<TabId, React.Re
       </nav>
       {TABS.map((id) => (
         <div key={id} className={`tabpanel tp-${id}`} id={`tab-${id}`} hidden={tab !== id} aria-label={LABEL[id]}>
-          {panels[id]}
+          <Boundary name={LABEL[id]}>{panels[id]}</Boundary>
         </div>
       ))}
       {EXTRA.filter((id) => extra[id]).map((id) => (
         <div key={id} className={`tabpanel tp-${id}`} id={`tab-${id}`} hidden={tab !== id} aria-label={LABEL[id]}>
-          {extra[id]}
+          <Boundary name={LABEL[id]}>{extra[id]}</Boundary>
         </div>
       ))}
     </>

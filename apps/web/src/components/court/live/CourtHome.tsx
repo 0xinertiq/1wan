@@ -8,6 +8,7 @@ import { isAutoPaid } from "./TodayLive";
 import { addDays, hm, prettyDay, wdName, wdOf, weekKey } from "@/lib/court/time";
 import { branches, needsCare, type WaterEvt } from "@/lib/court/garden";
 import { getOnce } from "@/lib/court/once";
+import { isStringList, readSaved, writeSaved } from "@/lib/court/store";
 
 // Court home cards (docs/build-dashboard-v2.md section 2): Needs you now, weather, This week strip, Week ahead.
 // Rules only, from her real records. Each card folds, and the fold is remembered on this device.
@@ -76,8 +77,9 @@ export function NeedsNow({ unrated = [] }: { unrated?: string[] }) {
   const { st, k, nm, events } = useCourt();
   const [seen, setSeen] = useState<string[]>([]);
   const [all, setAll] = useState(false);
-  useEffect(() => { try { setSeen(JSON.parse(localStorage.getItem("1wan-seen-" + k) ?? "[]")); } catch {} }, [k]);
-  const hide = (id: string) => { const x = [...seen, id]; setSeen(x); try { localStorage.setItem("1wan-seen-" + k, JSON.stringify(x)); } catch {} };
+  // Seen items for today, on this device (versioned key; an old or broken value is ignored).
+  useEffect(() => { setSeen(readSaved("seen." + k, isStringList, [])); }, [k]);
+  const hide = (id: string) => { const x = [...seen, id]; setSeen(x); writeSaved("seen." + k, x); };
   const list = needs(st, k, nm, events, unrated).filter((x) => !seen.includes(x.id));
   const shown = all ? list : list.slice(0, 3);
   // When nothing is waiting the card animates away and leaves no space; it returns when something is due.

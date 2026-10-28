@@ -43,6 +43,7 @@ import { DiaryLive, GardenLive, StatusLive, WinsButton } from "@/components/cour
 import { bootState } from "@/lib/court/actions";
 import { normalize } from "@/lib/court/state";
 import { sgtKeyOf, stampAge } from "@/lib/court/time";
+import { Boundary } from "@/components/court/Boundary";
 
 export const dynamic = "force-dynamic";
 
@@ -106,7 +107,7 @@ export default async function Dashboard() {
     <div className="wrap">
       <PixelDefs />
       <CourtDefs />
-      <Header />
+      <Boundary name="Header"><Header /></Boundary>
       <AppTabs
         extra={{
           trades: (
@@ -159,7 +160,7 @@ export default async function Dashboard() {
           life: <div className="tabcol"><LifeTabs /></div>,
         }}
       />
-      <CourtSheet latest={latest} />
+      <Boundary name="Sheet"><CourtSheet latest={latest} /></Boundary>
     </div>
     </CourtProvider>
   );
