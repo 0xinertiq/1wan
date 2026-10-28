@@ -92,11 +92,11 @@ export function buildTree(d: Data) {
         <Header />
         <AppTabs
           extra={{
-            trades: <NewOnly><TradesPage movers={<MoversCard list={docs.filter((x) => x.key === "movers")} />} tech={<TechLive />} scan={docOf("scan")} intel={docOf("intel")} /></NewOnly>,
-            settings: <NewOnly><SettingsPage /></NewOnly>,
+            trades: <NewOnly><TradesPage movers={<MoversCard list={docs.filter((x) => x.key === "movers")} bare />} tech={<TechLive />} scan={docOf("scan")} intel={docOf("intel")} /></NewOnly>,
+            settings: <NewOnly><SettingsPage review={<BriefsLibrary history={docs} only={["review"]} bare />} /></NewOnly>,
             kingdom: <NewOnly><KingdomPage world={<LivingWorld filed={filed} />} /></NewOnly>,
             welcome: <NewOnly><WelcomePage /></NewOnly>,
-            news: <NewOnly><NewsPage headlines={<NewsLive top5={["The Fed holds."]} />} library={<BriefsLibrary history={docs} />} /></NewOnly>,
+            news: <NewOnly><NewsPage headlines={<NewsLive top5={["The Fed holds."]} follow />} /></NewOnly>,
           }}
           panels={{
             court: <CourtLayout s={s} />,

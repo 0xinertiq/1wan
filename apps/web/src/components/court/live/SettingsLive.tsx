@@ -61,7 +61,7 @@ export function HeaderClock({ icon }: { icon: React.ReactNode }) {
 }
 
 // Design version: New is the default; Classic brings back the v52 look in one click. Saved on this device only.
-export function LookSwitch() {
+export function LookSwitch({ bare = false }: { bare?: boolean } = {}) {
   const [ui, setUi] = useState<"new" | "classic">("new");
   useEffect(() => { setUi(document.documentElement.getAttribute("data-ui") === "classic" ? "classic" : "new"); }, []);
   function pick(v: "new" | "classic") {
@@ -69,15 +69,14 @@ export function LookSwitch() {
     document.documentElement.setAttribute("data-ui", v);
     setUi(v);
   }
-  return (
-    <>
-      <div className="sec-h">Look</div>
-      <div className="chips" role="group" aria-label="Design version">
+  const chips = (
+      <div className={bare ? "kchips" : "chips"} role="group" aria-label="Design version">
         <button type="button" className="chipb" aria-pressed={ui === "new"} onClick={() => pick("new")}>New</button>
         <button type="button" className="chipb" aria-pressed={ui === "classic"} onClick={() => pick("classic")}>Classic</button>
       </div>
-    </>
   );
+  if (bare) return chips;
+  return <><div className="sec-h">Look</div>{chips}</>;
 }
 
 // The Queen's progress in the header (New look only): level, EXP, habits this week, and the save state the

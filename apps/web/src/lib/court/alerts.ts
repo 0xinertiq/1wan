@@ -30,7 +30,7 @@ export function buildAlerts(x: AlertIn): Alert[] {
   if (x.on("liquidity") && x.releases.length) out.push({ id: "liq:" + x.releases.map((r) => r.name + r.at).join("|"), agent: "olli", text: `Big release${x.releases.length === 1 ? "" : "s"} within 48 hours: ${list(x.releases.map((r) => r.name))}.`, go: "econ-cal", label: "Open the economic calendar" });
   // Coco: tasks, routines and life admin due today or overdue
   const due = x.due.filter((d) => d.dd <= 0);
-  if (x.on("routines") && due.length) out.push({ id: "due:" + x.k + ":" + due.map((d) => d.id).join(","), agent: "coco", text: `${due.length === 1 ? "One thing is" : due.length + " things are"} due: ${list(due.map((d) => d.name + (d.dd < 0 ? " (overdue)" : "")))}.`, go: due.every((d) => d.kind === "task") ? "calendar" : "life", label: due.every((d) => d.kind === "task") ? "Open My tasks" : "Open the Life Hub" });
+  if (x.on("routines") && due.length) out.push({ id: "due:" + x.k + ":" + due.map((d) => d.id).join(","), agent: "coco", text: `${due.length === 1 ? "One thing is" : due.length + " things are"} due: ${list(due.map((d) => d.name + (d.dd < 0 ? " (overdue)" : "")))}.`, go: due.every((d) => d.kind === "task") ? "needWin" : "life", label: due.every((d) => d.kind === "task") ? "Open Needs you now" : "Open the Life Hub" });
   // Momo: habit reminders from 17:00, gently
   if (x.on("habits") && x.hour >= 17 && x.habits.length) out.push({ id: "habits:" + x.k, agent: "momo", text: `Still on today's list: ${list(x.habits.map((h) => h.name))}. Rest days count too.`, go: "garden", label: "Open the Garden" });
   // Kumo: what Needs you now holds that nobody else covers (bookings within two hours)

@@ -122,15 +122,15 @@ export default async function Dashboard() {
         extra={{
           trades: (
             <NewOnly>
-              <TradesPage movers={<MoversCard list={history.filter((d) => d.key === "movers")} />} tech={<TechLive />} scan={scanDoc} intel={docOf("intel")} />
+              <TradesPage movers={<MoversCard list={history.filter((d) => d.key === "movers")} bare />} tech={<TechLive />} scan={scanDoc} intel={docOf("intel")} />
             </NewOnly>
           ),
-          settings: <NewOnly><SettingsPage review={<BriefsLibrary history={history} only={["review"]} />} /></NewOnly>,
+          settings: <NewOnly><SettingsPage review={<BriefsLibrary history={history} only={["review"]} bare />} /></NewOnly>,
           kingdom: <NewOnly><KingdomPage world={<LivingWorld filed={filed} />} /></NewOnly>,
           welcome: <NewOnly><WelcomePage /></NewOnly>,
           news: (
             <NewOnly>
-              <NewsPage headlines={<NewsLive top5={top5} follow />} library={<BriefsLibrary history={history} only={["intel", "pulse"]} follow title="Briefs" />} />
+              <NewsPage headlines={<NewsLive top5={top5} follow />} />
             </NewOnly>
           ),
         }}

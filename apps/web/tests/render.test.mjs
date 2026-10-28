@@ -93,7 +93,7 @@ function screens(docs) {
     court: h(CourtLayout, { s: slots }),
     calendar: h("div", null, h(NextLiquidityLine), h(CalendarTab), h(CalendarPage, { main: h(CalendarTab, { noWeek: true }), econ: h(EconLive) }), h(MomoCard), h(MomoIdeas)),
     trades: h("div", null, h(TradeLive), h(TradesPage, { movers: h(MoversCard, { list: docs.filter((d) => d.key === "movers") }), tech: h(TechLive), scan: docOf("scan"), intel: docOf("intel") })),
-    news: h(NewsPage, { headlines: h(NewsLive, { top5: ["The Fed holds."] }), library: h(BriefsLibrary, { history: docs }) }),
+    news: h(NewsPage, { headlines: h(NewsLive, { top5: ["The Fed holds."], follow: true }) }), library: h(BriefsLibrary, { history: docs }), reviewOnly: h(BriefsLibrary, { history: docs, only: ["review"], bare: true }),
     garden: h("div", null, h(KumoPick), h(GardenLive)),
     diary: h("div", null, h(WinsButton), h(DiaryLive, { open: true })),
     life: h(LifeTabs), lifeHub: h(LifeHub), dungeon: h(DungeonPage), gardenPage: h(GardenPage), alerts: h(AlertsProvider, null, h(AlertMark, { agent: "kumo" }), h(ClockRoom)), settingsPage: h(SettingsPage), welcome: h(WelcomePage), kingdom: h(KingdomPage, { world: h(LivingWorld, { filed }) }), settings: h(SettingsLive, { open: true }),

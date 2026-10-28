@@ -6,6 +6,7 @@ import { COINGECKO_IDS } from "@/lib/prices";
 import { NEWS_GROUPS, REGIONS } from "@/lib/newsFeeds";
 import { headlineShown } from "@/lib/court/lenses";
 import { cluster } from "@/lib/cluster";
+import { briefing } from "@/lib/court/briefing";
 import { useCourt } from "./CourtState";
 import { useEcon } from "./live/EconLive";
 import type { NewsResult } from "@/lib/news";
@@ -82,7 +83,28 @@ export function NewsLive({ top5 = [], follow = false }: { top5?: string[]; follo
   const shown = list.slice(0, more ? 40 : 8);
   const down = (Array.isArray(data?.feeds) ? data.feeds : []).filter((f) => f && !f.ok).map((f) => f.name);
 
+  // round 8: on the News tab, Today's briefing (rules only) sits above the headlines
+  const brief = follow && data && !lensOff ? briefing(clusters, st.lenses) : null;
   return (
+    <>
+    {brief && (
+      <section className="win kcard" id="briefingWin" aria-labelledby="bfT">
+        <div className="win-title"><h2 id="bfT">Today&apos;s briefing</h2><span className="sub">Pip · by rules, from the headlines</span></div>
+        <div className="win-body">
+          {!brief.stories.length ? <p className="note">No stories in your lenses right now.</p> : (
+            <ol className="kbrief">
+              {brief.stories.map((x) => (
+                <li key={x.link}>
+                  <a href={x.link} target="_blank" rel="noopener noreferrer">{x.title}</a>
+                  <span className="note">{x.sources.slice(0, 3).join(", ")}{x.sources.length > 3 ? ` +${x.sources.length - 3}` : ""}{x.at ? " · " + ago(x.at) : ""}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+          <p className="note">{brief.stories.length} {brief.stories.length === 1 ? "story" : "stories"} from {brief.headlines} headlines, ranked by score. Not advice.</p>
+        </div>
+      </section>
+    )}
     <section className="win" id="newsWin" aria-labelledby="nwT">
       <div className="win-title"><h2 id="nwT">Headlines</h2><span className="sub">Pip {items.length > 0 && <span className="badge" id="newsCount">{items.length}</span>}</span></div>
       <div className="win-body">
@@ -117,5 +139,6 @@ export function NewsLive({ top5 = [], follow = false }: { top5?: string[]; follo
         </div>
       </div>
     </section>
+    </>
   );
 }

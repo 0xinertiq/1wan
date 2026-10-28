@@ -26,14 +26,16 @@ const rTxt = (r: number | null) => (r == null ? "–" : (r >= 0 ? "+" : "") + r.
 
 /* ---------- Scan details: the latest Crypto scan as a dated snapshot ---------- */
 const SECTIONS: [RegExp, string][] = [[/style\s*map/i, "Style Map"], [/also\s*on\s*watch|on\s*watch|watch\s*list/i, "Also on watch"], [/alert/i, "Alerts"], [/thesis/i, "Thesis log"], [/catalyst/i, "Catalysts"]];
+// round 8: inside the Trades card "Midday movers and scan details", under the movers (no card of its own)
 export function ScanDetails({ doc }: { doc: BriefDoc | null }) {
-  if (!doc) return <Card title="Scan details" sub="Crypto scan"><EmptyState>No scan filed yet. The 03:50 scan lands here.</EmptyState></Card>;
+  if (!doc) return <div className="kscan"><SectionLabel>Scan details</SectionLabel><EmptyState>No scan filed yet. The 03:50 scan lands here.</EmptyState></div>;
   const body = noBigdata(doc.body ?? "");
   const parts = body.split(/\r?\n(?=##\s)/).slice(1);
   const plan = todaysPlan(body);
   const logIt = (r: PlanRow) => window.dispatchEvent(new CustomEvent("1wan:log-trade", { detail: r }));
   return (
-    <Card title="Scan details" sub={<>Snapshot · <time className="ts">{stamp(doc.at)}</time></>}>
+    <div className="kscan">
+      <div className="kscan-h"><SectionLabel>Scan details</SectionLabel><span className="note">Snapshot · <time className="ts">{stamp(doc.at)}</time></span></div>
       <SectionLabel>Trade Plan</SectionLabel>
       {plan.rows.length ? (
         <Table caption="Trade plan from the scan" head={["Ticker", "Grade", "Entry", "Stop", "Target", "R:R", "ATR%", ""]}
@@ -45,7 +47,7 @@ export function ScanDetails({ doc }: { doc: BriefDoc | null }) {
         return <details key={label} className="klib-item" open={label === "Style Map"}><summary><b>{label}</b></summary><article className="read" dangerouslySetInnerHTML={{ __html: mdLite(sec.replace(/^##[^\n]*\n/, "")) }} /></details>;
       })}
       <p className="note xd">The full scan text stays in News. Tracking only, not advice.</p>
-    </Card>
+    </div>
   );
 }
 
@@ -62,7 +64,7 @@ export function MacroDesk({ intel }: { intel: BriefDoc | null }) {
   const val = text ?? mine?.text ?? "";
   const save = () => { if (text == null || text === (mine?.text ?? "")) return; notes.put({ ...(mine ? { id: mine.id } : {}), kind: "macro", week: wk, title: "Macro notes, week of " + wk, text, tags: ["macro"] }); };
   return (
-    <Card title="Macro desk" sub="Olli">
+    <Card title="Macro desk" sub="Olli" className="kcompact">
       <SectionLabel>Next releases that move liquidity</SectionLabel>
       {!econ ? <EmptyState kind="loading" who="olli">Checking the economic calendar…</EmptyState>
         : next.length ? next.map((x) => <div className="krow" key={x.at + x.name}><span className="krow-main"><b>{x.name}</b> <time className="ts">{dayStamp(x.at)}</time></span><span className="note">{inText(x.at)}</span></div>)
@@ -324,7 +326,7 @@ export function LongTerm() {
 }
 
 /* ---------- The page ---------- */
-// Round 7 order, top to bottom: Midday movers | Scan details, Macro desk, Technicals (full width), Trade log,
+// Round 8 order, top to bottom: one card with Midday movers then Scan details, a compact Macro desk, Technicals (full width), Trade log,
 // Position size calculator | Performance stats, Long-term watchlist. The Watchlist card is gone (prices live in
 // the Technicals rows and on the Court; the price feed is unchanged). The ledger review, plans, rules and gamble
 // log card is hidden: its records and the late-night flag logic are untouched (TradeLive, GridWins).
@@ -333,10 +335,10 @@ export function TradesPage({ movers, tech, scan, intel }: { movers: React.ReactN
   return (
     <div className="kpage">
       <PageHead scene="desk" title="Trades" sub="Your trades, the trading watchlist and the macro desk. Tracking only, never advice." />
-      <div className="kpg two even">
-        <div className="kcol">{movers}</div>
-        <div className="kcol"><ScanDetails doc={scan} /></div>
-      </div>
+      <Card title="Midday movers and scan details" sub="Fenn" className="kfull">
+        {movers}
+        <ScanDetails doc={scan} />
+      </Card>
       <MacroDesk intel={intel} />
       {tech}
       <TradeLog L={L} />

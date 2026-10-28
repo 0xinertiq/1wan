@@ -102,7 +102,12 @@ function ReviewRead({ at }: { at: string }) {
 
 // Midday Movers for Trades: the latest real alert, or the desk's "no movers" note with the age of the last
 // real alert.
-export function MoversCard({ list }: { list: BriefDoc[] }) {
+function Wrap({ bare, children }: { bare: boolean; children: React.ReactNode }) {
+  if (bare) return <div className="kmovers">{children}</div>;
+  return <section className="win kmovers" aria-labelledby="kmvT"><div className="win-title"><h2 id="kmvT">Midday movers</h2><span className="sub">Fenn</span></div>{children}</section>;
+}
+// bare (round 8): the body only, for the Trades card that shares one header with the scan details.
+export function MoversCard({ list, bare = false }: { list: BriefDoc[]; bare?: boolean }) {
   const [open, setOpen] = useState(false);
   const latest = list[0] ?? null;
   const quiet = latest ? isNoMovers(latest.body ?? "") : false;
@@ -110,8 +115,7 @@ export function MoversCard({ list }: { list: BriefDoc[] }) {
   const daysAgo = (iso: string) => Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 86400000));
   const checked = latest ? clock(latest.at) : "";
   return (
-    <section className="win kmovers" aria-labelledby="kmvT">
-      <div className="win-title"><h2 id="kmvT">Midday movers</h2><span className="sub">Fenn</span></div>
+    <Wrap bare={bare}>
       <div className="win-body">
         {!latest ? <p className="note">No movers note yet. The 14:30 run lands here.</p>
           : quiet ? <p>No movers today (checked {checked}).</p>
@@ -121,7 +125,7 @@ export function MoversCard({ list }: { list: BriefDoc[] }) {
         {latest && <BriefFeedback key={latest.key + latest.at} kind={latest.key} at={latest.at} initial={latest.vote} />}
         <p className="note xd">Tracking only. The crew never places trades or tells you what to buy.</p>
       </div>
-    </section>
+    </Wrap>
   );
 }
 
@@ -146,7 +150,8 @@ const DESKS: { key: string; label: string }[] = [
 // only: the desks this copy shows (News: Intel | Pulse; Settings: Kumo's weekly review). follow: News follows her
 // lenses, so a desk her lenses hide is left out. A single desk shows no tab strip.
 const SHORT: Record<string, string> = { intel: "Intel", pulse: "Pulse" };
-export function BriefsLibrary({ history, only, follow = false, title = "Briefs and scans" }: { history: BriefDoc[]; only?: string[]; follow?: boolean; title?: string }) {
+// bare: just the newest-first list, for a card that has its own header (Settings: Kumo's weekly review).
+export function BriefsLibrary({ history, only, follow = false, title = "Briefs and scans", bare = false }: { history: BriefDoc[]; only?: string[]; follow?: boolean; title?: string; bare?: boolean }) {
   const { st } = useCourt();
   const hid = useId();
   const allow = follow ? (briefTabs(st.lenses) as string[]) : null;
@@ -155,6 +160,16 @@ export function BriefsLibrary({ history, only, follow = false, title = "Briefs a
   const desk = desks.some((k) => k.key === pick) ? pick : desks[0]?.key ?? "intel";
   const [all, setAll] = useState(false);
   const list = history.filter((d) => d.key === desk).slice(0, 14);
+  const items = list.map((d, i) => (
+    <details key={d.at + all} className="klib-item" open={all || i === 0}>
+      <summary><b>{d.title}</b> <time className="ts">{d.when.split(" · ")[0]}</time></summary>
+      <BriefBody d={d} />
+      <SourcesLine s={d.sources} />
+      {i === 0 && d.key === "review" && <ReviewRead at={d.at} />}
+      {i === 0 && <BriefFeedback key={d.key + d.at} kind={d.key} at={d.at} initial={d.vote} />}
+    </details>
+  ));
+  if (bare) return <div className="klib-bare">{list.length ? items : <p className="note">No weekly review filed yet. Kumo writes one on Sunday mornings.</p>}</div>;
   return (
     <section className="win klib" aria-labelledby={hid}>
       <div className="win-title"><h2 id={hid}>{title}</h2><span className="sub">full text, newest first</span></div>
