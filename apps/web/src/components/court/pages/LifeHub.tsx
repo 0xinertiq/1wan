@@ -6,69 +6,21 @@ import { LifeAdmin } from "../live/SettingsLive";
 import { MoneyLive } from "../live/MoneyLive";
 import { Ladder, useTick } from "../live/GridWins";
 import { GridAndWins } from "./GridChart";
-import { chartOf, hasChart } from "@/lib/court/harada";
+
 import { getOnce } from "@/lib/court/once";
-import { useVault, newId, type VRow } from "@/lib/vault";
+import { useVault, type VRow } from "@/lib/vault";
 import { routineNext, type Routine } from "@/lib/court/vaultDue";
 import { dayGap, prettyDay, sgtKeyOf } from "@/lib/court/time";
 import { money } from "@/lib/court/state";
 import { Bar, Btn, Callout, Card, Chip, EmptyState, PageHead, StoreNote, TabPills, confirmDelete } from "../ui";
 
-// Life Hub (round 6 with addenda 1 and 2): Grid & Wins full width on top, then a 2x2 grid: Goals, Life admin,
-// Pets and self-care, Finance overview. Long-term planning and life management; tracking only, never advice.
+// Life Hub (round 7): Grid & Wins full width on top, then one full-width card for Life admin and the Finance
+// overview side by side, then Routine. Long-term planning and life management; tracking only, never advice.
 
-/* ---------- Goals: the chart's main goal as a summary and link (no copy of the chart), plus standalone goals ---------- */
-type Goal = VRow & { title: string; why: string; target: string; ms: { id: string; t: string; done: boolean }[] };
-function Goals() {
-  const { st } = useCourt();
-  const v = useVault<Goal>("goals");
-  const chart = chartOf(st.defs.grid, st.gridDefs);
-  const ticked = Object.keys(st.grid.done).filter((id) => st.grid.done[id] && /^[1-8]\.[1-8]$/.test(id)).length;
-  const [f, setF] = useState<{ title: string; why: string; target: string } | null>(null);
-  const [ms, setMs] = useState<Record<string, string>>({});
-  return (
-    <Card title="Goals" sub="milestones you can tick off" actions={!f ? <Btn kind="sm" onClick={() => setF({ title: "", why: "", target: "" })}>Add a goal</Btn> : null}>
-      {hasChart(chart) && (
-        <div className="krow"><span className="krow-main"><b>{chart!.goal}</b><br /><span className="note">Your main goal · {ticked} of 64 actions done</span></span><a href="#grid-wins">Open the chart →</a></div>
-      )}
-      {hasChart(chart) && <Bar v={ticked} max={64} label={`${ticked} of 64 actions done`} />}
-      {f && (
-        <form className="kform" aria-label="New goal" onSubmit={(e) => { e.preventDefault(); if (!f.title.trim()) return; v.put({ title: f.title.trim().slice(0, 80), why: f.why.slice(0, 300), target: f.target, ms: [] }); setF(null); }}>
-          <input aria-label="Goal" maxLength={80} placeholder="Goal, for example: relocate, buy a home, start a business" value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} required />
-          <input aria-label="Why" maxLength={300} placeholder="Why it matters" value={f.why} onChange={(e) => setF({ ...f, why: e.target.value })} />
-          <div className="kform-row"><input type="date" aria-label="Target date" value={f.target} onChange={(e) => setF({ ...f, target: e.target.value })} /><button className="btn" type="submit">Save</button><Btn kind="ghost" onClick={() => setF(null)}>Cancel</Btn></div>
-        </form>
-      )}
-      {!v.ready ? <EmptyState kind="loading" who="coco">Opening your goals…</EmptyState>
-        : !v.rows.length ? <EmptyState who="coco">No standalone goals yet. Ideas: a relocation, a property, a business. Each gets milestones and a progress bar.</EmptyState>
-        : v.rows.map((g) => {
-          const n = g.ms.filter((m) => m.done).length;
-          return (
-            <details key={g.id} className="pillar">
-              <summary><b>{g.title}</b> <span className="note">{n}/{g.ms.length}{g.target ? ` · by ${prettyDay(g.target)}` : ""}</span></summary>
-              <Bar v={n} max={g.ms.length || 1} label={`${n} of ${g.ms.length} milestones`} />
-              {g.why && <p className="note">{g.why}</p>}
-              {g.ms.map((m) => (
-                <div className={"krow" + (m.done ? " done" : "")} key={m.id}>
-                  <label className="kcheck"><input type="checkbox" checked={m.done} onChange={(e) => v.put({ id: g.id, ms: g.ms.map((x) => (x.id === m.id ? { ...x, done: e.target.checked } : x)) })} /><span className="sr">Done</span></label>
-                  <span className="krow-main">{m.t}</span>
-                  <Btn kind="sm ghost" aria-label={`Remove milestone ${m.t}`} onClick={() => v.put({ id: g.id, ms: g.ms.filter((x) => x.id !== m.id) })}>Remove</Btn>
-                </div>
-              ))}
-              <form className="kform-row" onSubmit={(e) => { e.preventDefault(); const t = (ms[g.id] ?? "").trim().slice(0, 100); if (!t) return; v.put({ id: g.id, ms: [...g.ms, { id: newId("m"), t, done: false }] }); setMs({ ...ms, [g.id]: "" }); }}>
-                <input aria-label={`New milestone for ${g.title}`} placeholder="Add a milestone" maxLength={100} value={ms[g.id] ?? ""} onChange={(e) => setMs({ ...ms, [g.id]: e.target.value })} />
-                <button className="btn sm" type="submit">Add</button>
-                <Btn kind="sm ghost" onClick={() => confirmDelete(`the goal “${g.title}”`) && v.remove(g.id)}>Delete goal</Btn>
-              </form>
-            </details>
-          );
-        })}
-      <StoreNote status={v.status} />
-    </Card>
-  );
-}
+// Round 7: the Goals card is retired from the page (progress lives in Grid & Wins). Saved goals stay in the goals
+// table and in Export my data; nothing is deleted.
 
-/* ---------- Pets and self-care routines ---------- */
+/* ---------- Routine (pets and self-care routines with a cadence) ---------- */
 type R = VRow & Routine;
 const KINDS = { pet: "Pet", self: "Self-care", custom: "Other" } as const;
 function Routines() {
@@ -77,7 +29,7 @@ function Routines() {
   const [f, setF] = useState({ name: "", kind: "self" as NonNullable<Routine["kind"]>, every: "7", start: "" });
   const hints = ["Dog grooming", "My haircut", "Yoga"];
   return (
-    <Card title="Pets and self-care" sub="routines with a cadence">
+    <Card title="Routine" sub="pets and self-care, with a cadence">
       <form className="kform" aria-label="Add a routine" onSubmit={(e) => { e.preventDefault(); const name = f.name.trim().slice(0, 60); if (!name) return; v.put({ name, kind: f.kind, every: Math.max(1, Math.min(365, Math.round(+f.every || 7))), start: f.start || k }); setF({ ...f, name: "" }); }}>
         <input aria-label="Routine" list="rhints" maxLength={60} placeholder="Routine, for example: dog grooming" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
         <datalist id="rhints">{hints.map((h) => <option key={h} value={h} />)}</datalist>
@@ -163,12 +115,22 @@ function MoneyWins() {
   return mw ? <Ladder title="Money Wins Q4 ladder" phases={mw.phases} done={st.money.done} auto={{}} onTick={(id, on) => tick("money", id, on, "milestone")} />
     : <EmptyState who="coco">Your Money Wins ladder arrives with the tracker import.</EmptyState>;
 }
-function Finance() {
+/** Life admin and the Finance overview in one full-width card, side by side (stacked on the phone). */
+function AdminAndMoney() {
   const [tab, setTab] = useState<"month" | "budgets" | "wins">("month");
   return (
-    <Card title="Finance overview" sub="manual only">
-      <TabPills label="Finance" value={tab} options={[["month", "This month"], ["budgets", "Budgets and CSV"], ["wins", "Money Wins"]] as const} onChange={setTab} />
-      {tab === "month" ? <MoneyLive /> : tab === "budgets" ? <Budgets /> : <MoneyWins />}
+    <Card title="Life admin and money" sub="Coco · bills, bookings, renewals and spending, manual only" className="kfull">
+      <div className="ksplit">
+        <div className="ksplit-col">
+          <div className="sec-h">Life admin</div>
+          <LifeAdmin />
+        </div>
+        <div className="ksplit-col">
+          <div className="sec-h">Finance overview</div>
+          <TabPills label="Finance" value={tab} options={[["month", "This month"], ["budgets", "Budgets and CSV"], ["wins", "Money Wins"]] as const} onChange={setTab} />
+          {tab === "month" ? <MoneyLive /> : tab === "budgets" ? <Budgets /> : <MoneyWins />}
+        </div>
+      </div>
       <Callout tone="lav">Private to you. No bank link and no account numbers: everything here is typed or imported by you. Tracking only, not advice.</Callout>
     </Card>
   );
@@ -177,14 +139,10 @@ function Finance() {
 export function LifeHub() {
   return (
     <div className="kpage">
-      <PageHead scene="cottage" title="Life Hub" sub="Long-term planning and life management: your chart, goals, life admin, routines and money." actions={<a className="btn sm ghost" href="#grid-wins">Grid & Wins</a>} />
+      <PageHead scene="cottage" title="Life Hub" sub="Long-term planning and life management: your chart, life admin, money and routine." />
       <GridAndWins />
-      <div className="kpg quad">
-        <div className="kcol"><Goals /></div>
-        <div className="kcol"><Card title="Life admin" sub="Coco · bills, bookings, renewals"><LifeAdmin /></Card></div>
-        <div className="kcol"><Routines /></div>
-        <div className="kcol"><Finance /></div>
-      </div>
+      <AdminAndMoney />
+      <Routines />
     </div>
   );
 }

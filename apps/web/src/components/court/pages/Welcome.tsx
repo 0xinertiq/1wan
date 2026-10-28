@@ -12,7 +12,7 @@ import { Btn, Callout, Card, Chip, PageHead, SectionLabel } from "../ui";
 
 export const INTERESTS = [
   ["habits", "Habits and routines"], ["goals", "Goals and projects"], ["journal", "Journal and mood"], ["money", "Money (manual)"],
-  ["health", "Health and fitness"], ["learning", "Learning and study"], ["pets", "Pets and self-care"], ["markets", "Markets and trading"],
+  ["health", "Health and fitness"], ["learning", "Learning and study"], ["pets", "Routine (pets and self-care)"], ["markets", "Markets and trading"],
 ] as const;
 /** Which tabs a room choice switches off (Settings can switch them back). Court, Calendar, Life Hub and Settings always stay. */
 export const ROOM_TABS: Record<string, string[]> = { habits: ["garden"], journal: ["diary"], markets: ["trades", "news"] };

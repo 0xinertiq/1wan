@@ -19,8 +19,7 @@ const label = (c: Cell) => (c.kind === "goal" ? "Main goal" : c.kind === "pillar
 export function GridAndWins() {
   const [tab, setTab] = useState<"chart" | "targets">("chart");
   return (
-    <Card title="Grid & Wins" sub="one goal, eight pillars, sixty-four actions" className="kfull" id="grid-wins">
-      <TabPills label="Grid & Wins" value={tab} options={[["chart", "Chart"], ["targets", "Weekly targets"]] as const} onChange={setTab} />
+    <Card title="Grid & Wins" sub="one goal, eight pillars, sixty-four actions" className="kfull" id="grid-wins" actions={<TabPills label="Grid & Wins" value={tab} options={[["chart", "Chart"], ["targets", "Weekly targets"]] as const} onChange={setTab} />}>
       {tab === "chart" ? <Chart /> : <SamsaraLive onWriteThesis={() => { window.location.hash = "trades"; }} />}
     </Card>
   );
@@ -70,7 +69,7 @@ function Chart() {
   return (
     <div className="hwrap">
       <div className="kform-row">
-        <TabPills label="Chart or list" value={view} options={[["chart", "Chart"], ["list", "List"]] as const} onChange={setView} />
+        <TabPills label="Chart view" value={view} options={[["chart", "Grid"], ["list", "List"]] as const} onChange={setView} />
         <span className="note">{total} of 64 done · {save === "saving" ? "saving…" : save === "offline" ? "not saved yet, retrying" : "all changes saved"}</span>
       </div>
       {view === "chart" ? <>

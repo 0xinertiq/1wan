@@ -1093,3 +1093,8 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kheart{position:absolute;inset:0;margin:auto;width:80%;height:80%;max-width:40px;image-rendering:pixelated}
 :root[data-ui="new"] .kheart .kh-x{fill:var(--k-btn-line)}
 :root[data-ui="new"] .kheart .kh-p{fill:var(--k-btn-fill-hover)}
+/* Round 7 Life Hub: Life admin and the Finance overview side by side in one full-width card */
+:root[data-ui="new"] .ksplit{display:grid;gap:var(--sp-6);grid-template-columns:minmax(0,1fr)}
+@media (min-width:900px){:root[data-ui="new"] .ksplit{grid-template-columns:repeat(2,minmax(0,1fr))}:root[data-ui="new"] .ksplit-col+.ksplit-col{padding-left:var(--sp-6);border-left:var(--bw) dashed var(--k-divider)}}
+:root[data-ui="new"] .ksplit-col{display:grid;gap:var(--sp-3);align-content:start;min-width:0}
+:root[data-ui="new"] .kcard-act .kseg{margin:0}
