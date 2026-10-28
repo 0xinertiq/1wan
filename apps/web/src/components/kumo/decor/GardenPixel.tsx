@@ -25,7 +25,9 @@ function rects(rows: Sprite, x0: number, y0: number, pal: Record<string, string>
   return out;
 }
 
-export function GardenPixel({ stage, wilt, label }: { stage: number; wilt: boolean; label: string }) {
+// Round 7: petals drift down as the week fills (0 to 14, fixed spots so the picture never jumps).
+const PETALS: [number, number][] = [[44, 12], [12, 18], [40, 26], [8, 30], [50, 33], [28, 36], [66, 24], [36, 8], [58, 30], [22, 38], [70, 34], [4, 22], [46, 37], [32, 30]];
+export function GardenPixel({ stage, wilt, label, petals = 0 }: { stage: number; wilt: boolean; label: string; petals?: number }) {
   const s = Math.max(0, Math.min(4, Math.round(stage)));
   const tree = DECOR["sakura_" + s]?.rows ?? [];
   return (
@@ -47,6 +49,7 @@ export function GardenPixel({ stage, wilt, label }: { stage: number; wilt: boole
         {s >= 3 && rects(heart, 50, 10, SCENE_PAL)}
         {s >= 4 && rects(heart, 70, 16, SCENE_PAL)}
         <g className="tree">{rects(tree, 18, G - 31, DECOR_PAL)}</g>
+        {PETALS.slice(0, Math.max(0, Math.min(14, petals))).map(([x, y], i) => <rect key={"pt" + i} className="kpetal" x={x} y={y} width={1} height={1} fill={i % 3 ? SCENE_PAL.p : SCENE_PAL.q} />)}
       </svg>
     </div>
   );

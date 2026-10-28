@@ -20,6 +20,8 @@ import { NUDGE } from "@/lib/gardenMap";
 import { water } from "@/lib/court/water";
 import { TAILS, earned } from "@/lib/court/tails";
 import { useUi } from "@/components/kumo/useUi";
+import { habitWeek } from "@/lib/court/habits";
+import { Card as GCard } from "../ui";
 
 // Growth column from dashboard-v52: Sakura Garden (with Habit Quests inside), Tonight count your wins,
 // Dungeon with the weekly recap, and the "You" status card. Everything saves to her state.
@@ -141,13 +143,12 @@ function bonsaiSvg(items: { f: SeedInfo }[], nroots: number) {
 const STAGE_TXT: Record<string, string> = { sprout: "sprout, waiting for its first activity", blooming: "blooming", thirsty: "thirsty", wilting: "wilting", withered: "withered", dead: "bare, ready to weed out" };
 
 // extra: more segments for the New-look Garden page (wins ladder, her own habits, the week).
-export function GardenLive({ extra = [] }: { extra?: { id: string; label: string; node: React.ReactNode }[] }) {
+export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode; quests?: React.ReactNode; wins?: React.ReactNode; pick?: React.ReactNode } }) {
   const { st, k, update, levelUp } = useCourt();
   const [evs, setEvs] = useState<WaterEvt[] | null>(null);
   const [ledger, setLedger] = useState<{ trades: Record<string, unknown>[]; plans: Record<string, unknown>[] } | null>(null);
   const [arm, setArm] = useState("");
   const ui = useUi();
-  const [seg, setSeg] = useState<string>("anchors");
   useEffect(() => {
     getOnce<any>("/api/water?days=30").then((j) => setEvs(Array.isArray(j.events) ? j.events : [])).catch(() => setEvs([]));
     getOnce<any>("/api/ledger").then((j) => j.trades && setLedger(j)).catch(() => {});
@@ -221,29 +222,37 @@ export function GardenLive({ extra = [] }: { extra?: { id: string; label: string
     <p className="note">Any real activity revives a branch at once. Weeding a bare branch regrows a sprout; blossoms and history are never lost.</p>
   </>;
 
-  // New look (COURT_SPEC Part 5): the scene, tree and summary on the left; a segmented control on the right
-  // (Daily anchors | Branches | Quests). The tails live with the fox in the world, so they are not repeated here.
-  if (ui === "new") return (
-    <div id="gardenBox" className="ggrid">
-      <div className="gleft">
-        <GardenPixel stage={wkh.t ? Math.min(4, Math.floor((wkh.d / wkh.t) * 5)) : 0} wilt={["thirsty", "wilting", "withered", "dead"].includes(trunk.stage)} label={`Sakura garden: the tree is a ${STAGES[wkh.t ? Math.min(4, Math.floor((wkh.d / wkh.t) * 5)) : 0].toLowerCase()} this week${trunk.stage === "blooming" || trunk.stage === "sprout" ? "" : ", a little thirsty"}`} />
-        <div className="tcard garden">
-          <p className="gtag">The tree grows with your habits this week. A thirsty garden droops a little and recovers with any activity; nothing is ever lost.</p>
-          <p className="gsum"><b>{blossoms}</b> of 64 blossoms · <b>{petals}</b> golden petals from ladder milestones{trunk.resting ? " · resting today, decay paused" : ""}</p>
+  // New look (round 7): the pixel sakura garden is the hero, growing through the week from real activity (quests,
+  // anchors and her own habits: more blossoms and petals as the week fills), with one line of this week's progress
+  // and any gentle nudge under it. Below, two columns of cards: Daily anchors and My habits; Branches, Quests (with
+  // Kumo's pick and her habits for today) and the Wins ladder. The tails live with the fox in the world.
+  if (ui === "new") {
+    const hw = habitWeek(st, k);
+    const want = wkh.t + hw.planned + anchors.length * hw.days, got = wkh.d + hw.done + Math.min(hw.anchors, anchors.length * hw.days);
+    const fill = want ? Math.min(1, got / want) : 0, stage = Math.min(4, Math.floor(fill * 5));
+    const thirsty = ["thirsty", "wilting", "withered", "dead"].includes(trunk.stage);
+    return (
+      <div id="gardenBox" className="kgarden-page">
+        <section className="win kcard kgarden-hero" aria-label="Sakura garden">
+          <GardenPixel stage={stage} petals={Math.round(fill * 14)} wilt={thirsty} label={`Sakura garden: the tree is a ${STAGES[stage].toLowerCase()} this week${thirsty ? ", a little thirsty" : ""}`} />
+          <p className="kgarden-line">This week: <b>{wkh.d}</b> of {wkh.t} quests · <b>{hw.anchors}</b> anchor tick{hw.anchors === 1 ? "" : "s"}{hw.planned ? <> · <b>{hw.done}</b> of {hw.planned} of your habits</> : null} · the tree is a {STAGES[stage].toLowerCase()}{trunk.resting ? " · resting today" : ""}</p>
           {evs == null && <p className="note">Reading your activity…</p>}
-          {nudge}
+          {care.length > 0 && <div className="kgarden-nudge">{care.slice(0, 3).map((b) => <p className="note" key={b.n}><Mini name={NUDGE[b.n].crew} sm /> <span><b>{b.n ? b.name : "Trunk"}</b>: {NUDGE[b.n].t}</span></p>)}</div>}
+        </section>
+        <div className="kpg two even">
+          <div className="kcol">
+            <GCard title="Daily anchors" sub={`${todayA.length}/${anchors.length || 8} today · waters the trunk`}>{anchorList}</GCard>
+            {slots.habits}
+          </div>
+          <div className="kcol">
+            <GCard title="Branches" sub={`${blossoms} of 64 blossoms`}>{branchList}<p className="note">Any real activity revives a branch at once. Weeding a bare branch regrows a sprout; blossoms and history are never lost.</p></GCard>
+            <GCard title="Quests">{slots.pick}<div id="gQuestSlot"><QuestLive /></div>{slots.quests}</GCard>
+            {slots.wins}
+          </div>
         </div>
       </div>
-      <div className="tcard gright">
-        <div className="kseg" role="tablist" aria-label="Garden">
-          {([["anchors", `Daily anchors ${todayA.length}/${anchors.length || 8}`], ["branches", "Branches"], ["quests", "Quests"], ...extra.map((x) => [x.id, x.label])] as [string, string][]).map(([id, t]) => (
-            <button key={id} type="button" role="tab" aria-selected={seg === id} className={seg === id ? "on" : ""} onClick={() => setSeg(id)}>{t}</button>
-          ))}
-        </div>
-        {seg === "anchors" ? anchorList : seg === "branches" ? branchList : seg === "quests" ? <div id="gQuestSlot"><QuestLive /></div> : extra.find((x) => x.id === seg)?.node}
-      </div>
-    </div>
-  );
+    );
+  }
   return (
     <div id="gardenBox">
       <GardenScene list={list} />
