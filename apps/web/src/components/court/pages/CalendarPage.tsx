@@ -8,9 +8,11 @@ import { openTab } from "@/lib/court/nav";
 import { useVault, type VRow } from "@/lib/vault";
 import { dueSoon, type Task } from "@/lib/court/vaultDue";
 import { Btn, Card, Chip, EmptyState, PageHead, StoreNote, TabPills, confirmDelete } from "../ui";
+import { ClockRoom } from "@/components/kumo/decor/ClockRoom";
 
-// Calendar (round 6): left two thirds, the Day | Week | Month views of her read-only Google Calendar and the
-// economic calendar; right third, her own tasks (Kumo tasks, never written to Google), a mini month and Upcoming.
+// Calendar (round 7): the clock-tower room banner, then two even columns. Left: the Day | Week | Month | Agenda
+// views of her read-only Google Calendar, then Upcoming. Right: the economic calendar, her own tasks (never written
+// to Google), then Month at a glance. No astrology anywhere on this tab (isAstro filters every list).
 
 type T = VRow & Task;
 const PRI = { high: "High", normal: "Normal", low: "Low" } as const;
@@ -89,21 +91,20 @@ function Upcoming() {
   );
 }
 
-export function CalendarPage({ main, econ, momo }: { main: React.ReactNode; econ: React.ReactNode; momo: React.ReactNode }) {
+export function CalendarPage({ main, econ }: { main: React.ReactNode; econ: React.ReactNode }) {
   const { events } = useCourt();
   const tasks = useVault<T>("tasks");
   return (
     <div className="kpage">
-      <PageHead scene="clock" title="Calendar" sub="Your time and scheduling: events, tasks and the releases that move liquidity." actions={<a className="btn sm ghost" href="#econ-cal">Economic calendar</a>} />
-      <div className="kpg cal">
-        <div className="kcol">{main}<div id="econ-cal">{econ}</div></div>
+      <PageHead scene="clock" room={<ClockRoom />} title="Calendar" sub="Your time and scheduling: events, tasks and the releases that move liquidity." />
+      <div className="kpg two even">
+        <div className="kcol">{main}<Upcoming /></div>
         <div className="kcol">
+          <div id="econ-cal">{econ}</div>
           <Tasks />
           <Card title="Month at a glance">
             <MiniMonth marks={(d) => eventsOn(events, d).some((e) => !isAstro(e)) || tasks.rows.some((t) => t.due === d && !t.done)} onPick={(d) => openTab("calendar", { day: d })} />
           </Card>
-          <Upcoming />
-          {momo}
         </div>
       </div>
     </div>

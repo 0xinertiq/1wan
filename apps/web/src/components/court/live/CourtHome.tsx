@@ -47,7 +47,7 @@ function useRecords() {
 // hours, and (b) agents waiting on her (today's briefs still to rate, as one line). No macro releases, no
 // habits, no price alerts. Items on the same day (or at the same time) share one card with one Seen.
 type Need = { id: string; crew: SpriteName; t: string; sub?: string; rows?: string[]; go?: string; rank: number };
-function needs(st: CourtState, k: string, nm: number, events: CalEvent[], unrated: string[], vdue: DueThing[] = []): Need[] {
+export function needs(st: CourtState, k: string, nm: number, events: CalEvent[], unrated: string[], vdue: DueThing[] = []): Need[] {
   const out: Need[] = [];
   // Round 6: her own tasks (Calendar) and routines (Life Hub) due within 3 days, one row each.
   for (const x of vdue) out.push({ id: x.id + x.d, crew: x.kind === "task" ? "momo" : "coco", rank: x.dd <= 0 ? 1 : 3, go: x.kind === "task" ? "calendar" : "life",

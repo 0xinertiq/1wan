@@ -9,16 +9,18 @@ import { hiddenTabs } from "./pages/Welcome";
 
 // Main tabs: bottom bar on phone, left rail on desktop. Every panel stays mounted so nothing she typed is lost
 // when she switches; the open tab lives in the address (#garden) so reload and back keep her place.
-// Classic: the five v52 tabs. New look (round 6): Trades, News, Notifications, Settings, Kingdom Mode and the
-// welcome tour join the rail; on the phone the bar is Home, Calendar, Hub, Diary (the Dungeon) and More.
+// Classic: the five v52 tabs. New look (round 6): Trades, News, Settings, Kingdom Mode and the welcome tour join
+// the rail; on the phone the bar is Home, Calendar, Hub, Diary (the Dungeon) and More, which opens a sheet with the
+// tabs that do not fit (Garden, Trades, News, Settings, Kingdom Mode). Round 7: the Notifications tab is retired
+// (alert pop-ups on the agents replace it); #inbox and #notifications open the Court.
 // There is no Observatory: old links (#observatory, #samsara, #money, #trade) are redirected (resolveHash).
 
 export const TABS = ["court", "calendar", "garden", "diary", "life"] as const;
-const EXTRA = ["trades", "news", "inbox", "settings", "kingdom", "welcome"] as const;
+const EXTRA = ["trades", "news", "settings", "kingdom", "welcome"] as const;
 export type TabId = (typeof TABS)[number];
 type ExtraId = (typeof EXTRA)[number];
 type PageId = TabId | ExtraId;
-const LABEL: Record<PageId, string> = { court: "Court", calendar: "Calendar", garden: "Garden", diary: "Dungeon", life: "Life", trades: "Trades", news: "News", inbox: "Notifications", settings: "Settings", kingdom: "Kingdom Mode", welcome: "Welcome tour" };
+const LABEL: Record<PageId, string> = { court: "Court", calendar: "Calendar", garden: "Garden", diary: "Dungeon", life: "Life", trades: "Trades", news: "News", settings: "Settings", kingdom: "Kingdom Mode", welcome: "Welcome tour" };
 const PHONE_BAR: PageId[] = ["court", "calendar", "life", "diary"];
 
 // 9x8 pixel icons: X outline, o fill, g gold accent, p blossom pink.
@@ -30,7 +32,6 @@ const ICONS: Record<PageId | "more", string[]> = {
   life: [".XX...XX.", "XppX.XppX", "XpppXpppX", "XpppppppX", ".XpppppX.", "..XpppX..", "...XpX...", "....X...."],
   trades: ["........g", ".......X.", "......X..", ".X...X...", "X.X.X....", "X..X.....", "X........", "XXXXXXXXX"],
   news: ["XXXXXXXX.", "XooooooXX", "XoXXXXoXX", "XooooooXX", "XoXXoXoXX", "XooooooXX", "XoXXXgoXX", "XXXXXXXX."],
-  inbox: ["....g....", "...XXX...", "..XoooX..", "..XoooX..", ".XoooooX.", "XXXXXXXXX", "...XoX...", "....X...."],
   settings: ["...XXX...", ".X.XoX.X.", "XXXoooXXX", ".XoogooX.", ".XoooooX.", "XXXoooXXX", ".X.XoX.X.", "...XXX..."],
   kingdom: ["g.......g", "X...X...X", "XX.XoX.XX", "XoXXoXXoX", "XoooooooX", "XooXXXooX", "XooXoXooX", "XXXXXXXXX"],
   welcome: ["....g....", "...XXX...", "..XpppX..", ".XpppppX.", ".XpppppX.", "..XpppX..", "...XpX...", "....X...."],
@@ -50,8 +51,8 @@ function Icon({ id }: { id: PageId | "more" }) {
 
 // Old or retired places and where they live now.
 // Cards on a page that links point to (their tab opens, then the page scrolls to them).
-const ANCHOR: Record<string, PageId> = { "grid-wins": "life", "econ-cal": "calendar", "dungeon-week": "diary", research: "news", tlog: "trades", "luna-card": "court" };
-const ALIAS: Record<string, PageId> = { observatory: "court", sky: "court", samsara: "life", money: "life", trade: "trades", grid: "life", notifications: "inbox", more: "settings", onboarding: "welcome" };
+const ANCHOR: Record<string, PageId> = { "grid-wins": "life", "econ-cal": "calendar", "dungeon-week": "diary", tlog: "trades", "luna-card": "court", needWin: "court", "review-card": "settings" };
+const ALIAS: Record<string, PageId> = { observatory: "court", sky: "court", samsara: "life", money: "life", trade: "trades", grid: "life", notifications: "court", inbox: "court", research: "news", more: "settings", onboarding: "welcome" };
 /** The tab for an address hash, and whether the address should be rewritten (a retired link). */
 export function resolveHash(h: string): { tab: PageId; rewrite: boolean } {
   if (([...TABS, ...EXTRA] as readonly string[]).includes(h)) return { tab: h as PageId, rewrite: false };

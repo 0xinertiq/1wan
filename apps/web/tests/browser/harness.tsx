@@ -16,7 +16,8 @@ import { LifeHub } from "@/components/court/pages/LifeHub";
 import { DungeonPage } from "@/components/court/pages/Dungeon";
 import { GardenPage } from "@/components/court/pages/GardenPage";
 import { NewsPage } from "@/components/court/pages/NewsPage";
-import { InboxPage, InboxProvider } from "@/components/court/pages/Inbox";
+import { InboxProvider } from "@/components/court/pages/Inbox";
+import { AlertsProvider } from "@/components/court/Alerts";
 import { SettingsPage } from "@/components/court/pages/SettingsPage";
 import { KingdomPage, WelcomePage } from "@/components/court/pages/Welcome";
 import { CrewRoster, LivingWorld } from "@/components/court/live/LivingWorld";
@@ -24,7 +25,7 @@ import { NeedsNow, WeekAhead } from "@/components/court/live/CourtHome";
 import { BriefsBlock, BriefsLibrary, MoversCard, ReviewCard, type DeskMem } from "@/components/court/CourtBriefs";
 import { StatusLine } from "@/components/court/StatusLine";
 import { EconLive } from "@/components/court/live/EconLive";
-import { MomoCard, TodayLive } from "@/components/court/live/TodayLive";
+import { TodayLive } from "@/components/court/live/TodayLive";
 import { CalendarTab } from "@/components/court/live/CalendarTab";
 import { LiveWatch } from "@/components/court/live/LiveWatch";
 import { TechLive } from "@/components/court/live/TechLive";
@@ -84,6 +85,7 @@ export function buildTree(d: Data) {
   return (
     <InboxProvider briefs={docs.map((x) => ({ key: x.key, label: x.label, at: x.at }))} review={docOf("review")?.at ?? null}>
     <CourtProvider initial={boot.st} version={0} recap={boot.recap} dirty={boot.dirty} nowIso={d.nowIso}>
+      <AlertsProvider>
       <CalendarLoader />
       <PricesLoader symbols={["BTC", "SOL", "ZRO"]} />
       <div className="wrap">
@@ -92,7 +94,6 @@ export function buildTree(d: Data) {
         <AppTabs
           extra={{
             trades: <NewOnly><TradesPage left={<><LiveWatch /><MoversCard list={docs.filter((x) => x.key === "movers")} /><TechLive /></>} scan={docOf("scan")} intel={docOf("intel")} /></NewOnly>,
-            inbox: <NewOnly><InboxPage /></NewOnly>,
             settings: <NewOnly><SettingsPage /></NewOnly>,
             kingdom: <NewOnly><KingdomPage world={<LivingWorld filed={filed} />} /></NewOnly>,
             welcome: <NewOnly><WelcomePage /></NewOnly>,
@@ -100,7 +101,7 @@ export function buildTree(d: Data) {
           }}
           panels={{
             court: <CourtLayout s={s} />,
-            calendar: <NewOnly classic={<CalendarTab />}><CalendarPage main={<CalendarTab noWeek />} econ={<EconLive />} momo={<MomoCard />} /></NewOnly>,
+            calendar: <NewOnly classic={<CalendarTab />}><CalendarPage main={<CalendarTab noWeek />} econ={<EconLive />} /></NewOnly>,
             garden: <NewOnly classic={<div className="tabcol"><GardenLive /></div>}><GardenPage /></NewOnly>,
             diary: <NewOnly classic={<div className="tabcol"><WinsButton /><DiaryLive open /></div>}><DungeonPage /></NewOnly>,
             life: <NewOnly classic={<div className="tabcol"><LifeTabs /></div>}><LifeHub /></NewOnly>,
@@ -108,6 +109,7 @@ export function buildTree(d: Data) {
         />
         <CourtSheet latest={latest} />
       </div>
+      </AlertsProvider>
     </CourtProvider>
     </InboxProvider>
   );

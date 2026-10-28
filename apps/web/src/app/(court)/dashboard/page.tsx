@@ -24,7 +24,7 @@ import { CourtProvider } from "@/components/court/CourtState";
 import { CalendarLoader } from "@/components/court/CalendarLoader";
 import { PricesLoader } from "@/components/court/Prices";
 import { watchlistFrom } from "@/lib/prices";
-import { KumoPick, MomoCard, TodayLive } from "@/components/court/live/TodayLive";
+import { KumoPick, TodayLive } from "@/components/court/live/TodayLive";
 import { CourtLayout } from "@/components/court/live/KumoHome";
 import { CrewRoster, LivingWorld } from "@/components/court/live/LivingWorld";
 import { BriefsBlock, BriefsLibrary, MoversCard, ReviewCard, type DeskMem } from "@/components/court/CourtBriefs";
@@ -43,7 +43,8 @@ import { LifeHub } from "@/components/court/pages/LifeHub";
 import { DungeonPage } from "@/components/court/pages/Dungeon";
 import { GardenPage } from "@/components/court/pages/GardenPage";
 import { NewsPage } from "@/components/court/pages/NewsPage";
-import { InboxPage, InboxProvider } from "@/components/court/pages/Inbox";
+import { InboxProvider } from "@/components/court/pages/Inbox";
+import { AlertsProvider } from "@/components/court/Alerts";
 import { SettingsPage } from "@/components/court/pages/SettingsPage";
 import { KingdomPage, WelcomePage } from "@/components/court/pages/Welcome";
 import { topFive } from "@/components/kumo/briefParse";
@@ -111,6 +112,7 @@ export default async function Dashboard() {
   return (
     <InboxProvider briefs={docs.map((d) => ({ key: d.key, label: d.label, at: d.at }))} review={docOf("review")?.at ?? null}>
     <CourtProvider initial={boot.st} version={row?.version ?? 0} recap={boot.recap} dirty={boot.dirty} nowIso={now.toISOString()}>
+    <AlertsProvider>
     <CalendarLoader />
     <PricesLoader symbols={watchlistFrom(rows.find((r) => r.kind === "scan")?.body)} />
     <div className="wrap">
@@ -124,7 +126,6 @@ export default async function Dashboard() {
               <TradesPage left={<><LiveWatch /><MoversCard list={history.filter((d) => d.key === "movers")} /><TechLive /></>} scan={scanDoc} intel={docOf("intel")} />
             </NewOnly>
           ),
-          inbox: <NewOnly><InboxPage /></NewOnly>,
           settings: <NewOnly><SettingsPage /></NewOnly>,
           kingdom: <NewOnly><KingdomPage world={<LivingWorld filed={filed} />} /></NewOnly>,
           welcome: <NewOnly><WelcomePage /></NewOnly>,
@@ -160,7 +161,7 @@ export default async function Dashboard() {
               }}
             />
           ),
-          calendar: <NewOnly classic={<CalendarTab />}><CalendarPage main={<CalendarTab noWeek />} econ={<EconLive />} momo={<MomoCard />} /></NewOnly>,
+          calendar: <NewOnly classic={<CalendarTab />}><CalendarPage main={<CalendarTab noWeek />} econ={<EconLive />} /></NewOnly>,
           garden: <NewOnly classic={<div className="tabcol"><GardenLive /></div>}><GardenPage /></NewOnly>,
           diary: <NewOnly classic={<div className="tabcol"><WinsButton /><DiaryLive open /></div>}><DungeonPage /></NewOnly>,
           life: <NewOnly classic={<div className="tabcol"><LifeTabs /></div>}><LifeHub /></NewOnly>,
@@ -168,6 +169,7 @@ export default async function Dashboard() {
       />
       <Boundary name="Sheet"><CourtSheet latest={latest} /></Boundary>
     </div>
+    </AlertsProvider>
     </CourtProvider>
     </InboxProvider>
   );

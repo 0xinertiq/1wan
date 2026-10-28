@@ -7,14 +7,13 @@ import { addDays, hm, prettyDay, wdName, wdOf, weekKey, sgtKeyOf, monthTitle, cl
 import { readSaved, writeSaved } from "@/lib/court/store";
 import { isDayKey, takeParam } from "@/lib/court/nav";
 import { WeekAhead } from "./CourtHome";
-import { AstroText } from "./AstroText";
 
 // Calendar tab (docs/build-dashboard-v2.md section 3): Agenda (14 days), Week (default), Month, day detail
 // with free 45-minute gaps, and a Day view (round 6). One chip per Google calendar. No astrology on the
 // Calendar (Luna owns it, on the Court). Money, plans, thesis, macro and grid layers live in their own tabs.
 type View = "day" | "week" | "month" | "agenda";
 const isView = (v: unknown): v is View => v === "day" || v === "week" || v === "month" || v === "agenda";
-type Item = { t: string; color: string; a: number; b: number; allDay: boolean; cal?: string; desc?: string };
+type Item = { t: string; color: string; a: number; b: number; allDay: boolean; cal?: string };
 
 function gaps(items: Item[]) {
   const busy = items.filter((e) => !e.allDay).map((e) => [Math.max(540, e.a), Math.min(1260, e.b)]).filter(([a, b]) => b > a).sort((x, y) => x[0] - y[0]);
@@ -25,12 +24,12 @@ function gaps(items: Item[]) {
   return out;
 }
 
-// One event line; astro entries carry their description under the title.
+// One event line.
 function Row({ x, withCal }: { x: Item; withCal?: boolean }) {
   return (
-    <div className={"filed-row" + (x.desc ? " hasd" : "")} style={{ borderLeft: `6px solid ${x.color}` }}>
+    <div className="filed-row" style={{ borderLeft: `6px solid ${x.color}` }}>
       <span className="note">{x.allDay ? "all day" : `${hm(x.a)}–${hm(x.b)}`}</span>
-      <div className="ftx"><span>{x.t}{withCal && x.cal ? <span className="note"> · {x.cal}</span> : null}</span><AstroText text={x.desc} /></div>
+      <div className="ftx"><span>{x.t}{withCal && x.cal ? <span className="note"> · {x.cal}</span> : null}</span></div>
     </div>
   );
 }

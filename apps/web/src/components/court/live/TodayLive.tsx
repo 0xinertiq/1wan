@@ -192,6 +192,23 @@ function CalPill() {
   return <span className="pillx mid">Calendar not connected yet</span>;
 }
 
+/** Round 7: Momo on the Court's Today card says one thing only: ideas for your free time today. */
+export function MomoIdeas() {
+  const { st, k, nm, events } = useCourt();
+  const ideas = momoIdeas(st, k, k, eventsOn(events, k), nm, events);
+  return (
+    <div className="kmomo-ideas">
+      <div className="sec-h"><Mini name="momo" />Momo: ideas for your free time</div>
+      {!ideas.length ? <p className="note">No free gap of 45 minutes or more between 08:00 and 22:00.</p> : ideas.map((x) => (
+        <div className="idea" key={x.id}>
+          <b>{hm(x.a)} to {hm(x.b)} · {x.title}</b>
+          <span className="why">Because: {x.why.join(" · ")}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function MomoCard() {
   const { st, k, nm, events, cal } = useCourt();
   const [hide, setHide] = useState<string[]>([]);

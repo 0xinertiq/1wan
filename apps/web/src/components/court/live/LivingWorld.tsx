@@ -13,6 +13,7 @@ import { greetWord, clock } from "@/lib/court/time";
 import { WorldFox } from "@/components/kumo/Fox";
 import { quoteOfDay } from "@/lib/court/quotes";
 import { useCourt } from "../CourtState";
+import { AlertMark } from "../Alerts";
 import { useSprint } from "./SprintLive";
 import { SPRINT_MIN, type SprintTag } from "@/lib/court/sprint";
 
@@ -151,11 +152,13 @@ export function CrewRoster({ filed }: { filed: Partial<Record<BriefKind, string>
   return (
     <section className="kroster" aria-label="Crew roster">
       <ul tabIndex={0}>
-        {CREW.map((id) => (
-          <li key={id} className={duty[id]?.on ? "on" : ""}>
+        {/* round 7: Chief Kumo leads the roster, so his alert "!" has a place on the Court */}
+        {["kumo", ...CREW].map((id) => (
+          <li key={id} className={duty[id]?.on || id === "kumo" ? "on" : ""}>
             <span className="kroster-px"><PixelSprite name={id as SpriteName} /></span>
+            {(id === "kumo" || id === "pip" || id === "olli" || id === "coco" || id === "momo") && <AlertMark agent={id} />}
             <b>{id[0].toUpperCase() + id.slice(1)}</b>
-            <span>{duty[id]?.why}</span>
+            <span>{id === "kumo" ? "Chief of the court" : duty[id]?.why}</span>
           </li>
         ))}
       </ul>

@@ -12,11 +12,11 @@ import { VAULT_LABEL, vaultMode, type VStatus } from "@/lib/vault";
 // bars, .chipb chips, .btn buttons, .kseg segmented tabs). No one-off styles: anything new lives here and in the
 // "Round 6 shared" block of kumo-new.css, on the tokens.
 
-/** Themed pixel scene, then the Playfair title, a one-line subtitle and the page actions at the right. */
-export function PageHead({ scene, title, sub, actions }: { scene: SceneId; title: string; sub: string; actions?: React.ReactNode }) {
+/** Themed pixel scene (or a room banner, round 7 pilot), then the Playfair title, a one-line subtitle and the page actions. */
+export function PageHead({ scene, room, title, sub, actions }: { scene: SceneId; room?: React.ReactNode; title: string; sub: string; actions?: React.ReactNode }) {
   return (
     <header className="kpage-head">
-      <Scene id={scene} />
+      {room ?? <Scene id={scene} />}
       <div className="kpage-title">
         <div><h1>{title}</h1><p>{sub}</p></div>
         {actions && <div className="kpage-act">{actions}</div>}

@@ -25,7 +25,7 @@ for (const c of ["full", "empty", "broken"]) runs.push({ c, theme: "dark", size:
 // Round 6: every tab opened by its address (all panels stay mounted, so each page's effects run), with odd
 // preview records saved on the device, day and night, desktop and phone.
 const oddRecords = encodeURIComponent(JSON.stringify({ "1wanvault.v1.journal_entries": '[{"id":"j1","day":"2026-10-28","text":null,"tags":"x"}]', "1wanvault.v1.tasks": '{"not":"a list"}', "1wanvault.v1.routines": '[{"id":"r","name":"Dog","every":"x"}]', "1wanvault.v1.research_notes": '[{"id":"n","kind":"note","tags":null}]', "1wanvault.v1.goals": '[{"id":"g","title":"Move","ms":null}]', "1wanvault.v1.finance_entries": '[{"id":"f","kind":"budget","cat":"food","amt":"x"}]', "1wan.v2.inbox.read": "nope" }));
-for (const tab of ["trades", "calendar", "life", "diary", "garden", "news", "inbox", "settings", "kingdom", "welcome", "observatory"]) for (const [theme, size] of [["light", "1280,900"], ["dark", "390,844"]]) runs.push({ c: "full", theme, size, ssr: false, ls: oddRecords, hash: tab });
+for (const tab of ["trades", "calendar", "life", "diary", "garden", "news", "settings", "kingdom", "welcome", "observatory"]) for (const [theme, size] of [["light", "1280,900"], ["dark", "390,844"]]) runs.push({ c: "full", theme, size, ssr: false, ls: oddRecords, hash: tab });
 for (const tab of ["life", "diary", "news"]) runs.push({ c: "empty", theme: "light", size: "1280,900", ssr: false, ls: "", hash: tab }, { c: "broken-old", theme: "dark", size: "820,1180", ssr: false, ls: oldStorage, hash: tab });
 
 let failed = 0;

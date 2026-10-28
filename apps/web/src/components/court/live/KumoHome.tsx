@@ -6,7 +6,7 @@ import { useUi } from "@/components/kumo/useUi";
 import { useCourt } from "../CourtState";
 import { eventsOn, isAstro, type DayEvent } from "@/lib/court/state";
 import { hm, prettyDay, sgtKeyOf } from "@/lib/court/time";
-import { ParkedList, RecapBox, TodayChips, isAutoPaid } from "./TodayLive";
+import { ParkedList, RecapBox, TodayChips, isAutoPaid, MomoIdeas } from "./TodayLive";
 import { PricesStrip } from "./LivingWorld";
 import { NextLiquidityLine, useEcon } from "./EconLive";
 import { liquidityList } from "@/lib/liquidity";
@@ -112,6 +112,7 @@ function TodayCard() {
             {next.length ? next.map(row) : <p className="note">Nothing else today.</p>}
             {rest.length > 0 && <><div className="sec-h">Later</div>{rest.map(row)}</>}
           </div>}
+        <MomoIdeas />
         <RecapBox />
         <TodayChips />
         <ParkedList />

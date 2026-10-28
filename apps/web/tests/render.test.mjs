@@ -16,7 +16,7 @@ import { NeedsNow, WeekAhead } from "../src/components/court/live/CourtHome.tsx"
 import { BriefsBlock, BriefsLibrary, MoversCard, ReviewCard } from "../src/components/court/CourtBriefs.tsx";
 import { StatusLine } from "../src/components/court/StatusLine.tsx";
 import { EconLive, NextLiquidityLine } from "../src/components/court/live/EconLive.tsx";
-import { MomoCard, KumoPick, TodayLive } from "../src/components/court/live/TodayLive.tsx";
+import { MomoCard, MomoIdeas, KumoPick, TodayLive } from "../src/components/court/live/TodayLive.tsx";
 import { CalendarTab } from "../src/components/court/live/CalendarTab.tsx";
 import { LiveWatch } from "../src/components/court/live/LiveWatch.tsx";
 import { TechLive } from "../src/components/court/live/TechLive.tsx";
@@ -34,7 +34,8 @@ import { LifeHub } from "../src/components/court/pages/LifeHub.tsx";
 import { DungeonPage } from "../src/components/court/pages/Dungeon.tsx";
 import { GardenPage } from "../src/components/court/pages/GardenPage.tsx";
 import { NewsPage } from "../src/components/court/pages/NewsPage.tsx";
-import { InboxPage, Bell } from "../src/components/court/pages/Inbox.tsx";
+import { AlertsProvider, AlertMark } from "../src/components/court/Alerts.tsx";
+import { ClockRoom } from "../src/components/kumo/decor/ClockRoom.tsx";
 import { SettingsPage } from "../src/components/court/pages/SettingsPage.tsx";
 import { KingdomPage, WelcomePage } from "../src/components/court/pages/Welcome.tsx";
 
@@ -91,13 +92,13 @@ function screens(docs) {
   return {
     header: h(Header),
     court: h(CourtLayout, { s: slots }),
-    calendar: h("div", null, h(NextLiquidityLine), h(CalendarTab), h(CalendarPage, { main: h(CalendarTab, { noWeek: true }), econ: h(EconLive), momo: h(MomoCard) })),
+    calendar: h("div", null, h(NextLiquidityLine), h(CalendarTab), h(CalendarPage, { main: h(CalendarTab, { noWeek: true }), econ: h(EconLive) }), h(MomoCard), h(MomoIdeas)),
     trades: h("div", null, h(TradeLive), h(TradesPage, { left: h("div", null, h(LiveWatch), h(MoversCard, { list: docs.filter((d) => d.key === "movers") }), h(TechLive)), scan: docOf("scan"), intel: docOf("intel") })),
     news: h(NewsPage, { headlines: h(NewsLive, { top5: ["The Fed holds."] }), library: h(BriefsLibrary, { history: docs }) }),
     garden: h("div", null, h(KumoPick), h(GardenLive)),
     diary: h("div", null, h(WinsButton), h(DiaryLive, { open: true })),
-    life: h(LifeTabs), lifeHub: h(LifeHub), dungeon: h(DungeonPage), gardenPage: h(GardenPage), inbox: h("div", null, h(Bell), h(InboxPage)), settingsPage: h(SettingsPage), welcome: h(WelcomePage), kingdom: h(KingdomPage, { world: h(LivingWorld, { filed }) }), settings: h(SettingsLive, { open: true }),
-    tabs: h(AppTabs, { panels: { court: h("p", null, "c"), calendar: null, garden: null, diary: null, life: null }, extra: { trades: h("p"), news: h("p"), inbox: h("p"), settings: h("p"), kingdom: h("p"), welcome: h("p") } }),
+    life: h(LifeTabs), lifeHub: h(LifeHub), dungeon: h(DungeonPage), gardenPage: h(GardenPage), alerts: h(AlertsProvider, null, h(AlertMark, { agent: "kumo" }), h(ClockRoom)), settingsPage: h(SettingsPage), welcome: h(WelcomePage), kingdom: h(KingdomPage, { world: h(LivingWorld, { filed }) }), settings: h(SettingsLive, { open: true }),
+    tabs: h(AppTabs, { panels: { court: h("p", null, "c"), calendar: null, garden: null, diary: null, life: null }, extra: { trades: h("p"), news: h("p"), settings: h("p"), kingdom: h("p"), welcome: h("p") } }),
   };
 }
 
