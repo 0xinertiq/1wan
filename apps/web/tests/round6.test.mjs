@@ -103,3 +103,22 @@ test("inbox: rules only, de-duplicated, grouped, and quiet by default", async ()
   assert.ok(["routine", "liquidity", "habit"].every((s) => all.some((n) => n.src === s)));
   assert.equal(new Set(all.map((n) => n.id)).size, all.length);
 });
+
+test("onboarding rooms switch tabs off; Court, Calendar, Life Hub and Settings always stay", async () => {
+  const { hiddenTabs } = await import("../src/components/court/pages/Welcome.tsx");
+  assert.deepEqual(hiddenTabs(undefined), []);
+  assert.deepEqual(hiddenTabs({ markets: false, journal: true }), ["trades", "news"]);
+  assert.deepEqual(hiddenTabs({ habits: false, journal: false }).sort(), ["diary", "garden"]);
+});
+
+test("stored records are cleaned on read: odd fields get defaults, unreadable rows are dropped", async () => {
+  const { cleanRows } = await import("../src/lib/vault.ts");
+  assert.deepEqual(cleanRows("tasks", { not: "a list" }), []);
+  const j = cleanRows("journal_entries", [{ id: "j1", day: "2026-10-28", text: null, tags: "x", mood: 9 }, { id: "j2", day: "soon" }, { day: "2026-10-28" }]);
+  assert.equal(j.length, 1); assert.equal(j[0].text, ""); assert.deepEqual(j[0].tags, []); assert.equal(j[0].mood, undefined);
+  assert.equal(cleanRows("routines", [{ id: "r", name: "Dog", every: "x" }])[0].every, 7);
+  assert.deepEqual(cleanRows("goals", [{ id: "g", title: "Move", ms: null }])[0].ms, []);
+  assert.deepEqual(cleanRows("finance_entries", [{ id: "f", kind: "budget", cat: "food", amt: "x" }]), []);
+  assert.deepEqual(cleanRows("research_notes", [{ id: "n", tags: null, url: "javascript:x" }])[0].tags, []);
+  assert.equal(cleanRows("research_notes", [{ id: "n", url: "javascript:x" }])[0].url, undefined);
+});

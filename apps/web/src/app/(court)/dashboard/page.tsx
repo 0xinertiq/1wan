@@ -45,6 +45,7 @@ import { GardenPage } from "@/components/court/pages/GardenPage";
 import { NewsPage } from "@/components/court/pages/NewsPage";
 import { InboxPage, InboxProvider } from "@/components/court/pages/Inbox";
 import { SettingsPage } from "@/components/court/pages/SettingsPage";
+import { KingdomPage, WelcomePage } from "@/components/court/pages/Welcome";
 import { topFive } from "@/components/kumo/briefParse";
 import { DiaryLive, GardenLive, StatusLive, WinsButton } from "@/components/court/live/GrowLive";
 import { bootState } from "@/lib/court/actions";
@@ -125,6 +126,8 @@ export default async function Dashboard() {
           ),
           inbox: <NewOnly><InboxPage /></NewOnly>,
           settings: <NewOnly><SettingsPage /></NewOnly>,
+          kingdom: <NewOnly><KingdomPage world={<LivingWorld filed={filed} />} /></NewOnly>,
+          welcome: <NewOnly><WelcomePage /></NewOnly>,
           news: (
             <NewOnly>
               <NewsPage headlines={<NewsLive top5={top5} />} library={<BriefsLibrary history={history} />} />

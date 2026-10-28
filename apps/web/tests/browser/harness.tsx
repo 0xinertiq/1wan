@@ -16,6 +16,9 @@ import { LifeHub } from "@/components/court/pages/LifeHub";
 import { DungeonPage } from "@/components/court/pages/Dungeon";
 import { GardenPage } from "@/components/court/pages/GardenPage";
 import { NewsPage } from "@/components/court/pages/NewsPage";
+import { InboxPage, InboxProvider } from "@/components/court/pages/Inbox";
+import { SettingsPage } from "@/components/court/pages/SettingsPage";
+import { KingdomPage, WelcomePage } from "@/components/court/pages/Welcome";
 import { CrewRoster, LivingWorld } from "@/components/court/live/LivingWorld";
 import { NeedsNow, WeekAhead } from "@/components/court/live/CourtHome";
 import { BriefsBlock, BriefsLibrary, MoversCard, ReviewCard, type DeskMem } from "@/components/court/CourtBriefs";
@@ -79,6 +82,7 @@ export function buildTree(d: Data) {
     review: <ReviewCard d={docOf("review")} />, world: <LivingWorld filed={filed} />, roster: <CrewRoster filed={filed} />,
   };
   return (
+    <InboxProvider briefs={docs.map((x) => ({ key: x.key, label: x.label, at: x.at }))} review={docOf("review")?.at ?? null}>
     <CourtProvider initial={boot.st} version={0} recap={boot.recap} dirty={boot.dirty} nowIso={d.nowIso}>
       <CalendarLoader />
       <PricesLoader symbols={["BTC", "SOL", "ZRO"]} />
@@ -88,6 +92,10 @@ export function buildTree(d: Data) {
         <AppTabs
           extra={{
             trades: <NewOnly><TradesPage left={<><LiveWatch /><MoversCard list={docs.filter((x) => x.key === "movers")} /><TechLive /></>} scan={docOf("scan")} intel={docOf("intel")} /></NewOnly>,
+            inbox: <NewOnly><InboxPage /></NewOnly>,
+            settings: <NewOnly><SettingsPage /></NewOnly>,
+            kingdom: <NewOnly><KingdomPage world={<LivingWorld filed={filed} />} /></NewOnly>,
+            welcome: <NewOnly><WelcomePage /></NewOnly>,
             news: <NewOnly><NewsPage headlines={<NewsLive top5={["The Fed holds."]} />} library={<BriefsLibrary history={docs} />} /></NewOnly>,
           }}
           panels={{
@@ -101,6 +109,7 @@ export function buildTree(d: Data) {
         <CourtSheet latest={latest} />
       </div>
     </CourtProvider>
+    </InboxProvider>
   );
 }
 

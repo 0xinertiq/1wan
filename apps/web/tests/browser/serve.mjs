@@ -14,6 +14,7 @@ const R = ver("react");
 const MAP = {
   react: `https://esm.sh/react@${R}`, "react/jsx-runtime": `https://esm.sh/react@${R}/jsx-runtime`,
   "react-dom": `https://esm.sh/react-dom@${R}?deps=react@${R}`, "react-dom/client": `https://esm.sh/react-dom@${R}/client?deps=react@${R}`,
+  "@supabase/ssr": "/tests/browser/supabase-stub.js",
   "astronomy-engine": `https://esm.sh/astronomy-engine@${ver("astronomy-engine")}`, "lightweight-charts": `https://esm.sh/lightweight-charts@${ver("lightweight-charts")}`,
 };
 
@@ -64,7 +65,7 @@ http.createServer(async (req, res) => {
       const css = ["src/components/pixel.css", "src/app/(court)/tokens.css", "src/app/(court)/dashboard.css", "src/app/(court)/kumo-tokens.css", "src/app/(court)/kumo-new.css"].map((c) => `<link rel="stylesheet" href="/${c}">`).join("");
       return send("text/html", `<!doctype html><html lang="en" data-ui="new" data-theme="${u.searchParams.get("theme") ?? "dark"}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${css}
 <script type="importmap">${JSON.stringify({ imports: MAP })}</script>
-<script>window.__errs=[];const ce=console.error;console.error=(...a)=>{window.__errs.push("console.error: "+a.map((x)=>x&&x.stack?x.stack.split("\\n").slice(0,3).join(" | "):String(x)).join(" ").slice(0,500));ce(...a)};
+<script>window.process={env:{}};window.__errs=[];const ce=console.error;console.error=(...a)=>{window.__errs.push("console.error: "+a.map((x)=>x&&x.stack?x.stack.split("\\n").slice(0,3).join(" | "):String(x)).join(" ").slice(0,500));ce(...a)};
 addEventListener("error",(e)=>window.__errs.push("uncaught: "+(e.error&&e.error.stack?e.error.stack.split("\\n").slice(0,4).join(" | "):e.message)));
 addEventListener("unhandledrejection",(e)=>window.__errs.push("unhandled rejection: "+(e.reason&&e.reason.stack?e.reason.stack.split("\\n").slice(0,3).join(" | "):String(e.reason))));
 ${u.searchParams.get("ls") ? `try{const o=JSON.parse(decodeURIComponent(${JSON.stringify(u.searchParams.get("ls"))}));for(const k in o)localStorage.setItem(k,o[k]);}catch(e){}` : "localStorage.clear();"}
@@ -86,6 +87,7 @@ setTimeout(()=>{document.getElementById("errs").textContent="ERRS:"+JSON.stringi
     const file = path.join(WEB, p);
     if (!file.startsWith(WEB) || !fs.existsSync(file)) return send("text/plain", "not found", 404);
     if (/\.(tsx?)$/.test(file)) return send("text/javascript", compile(file));
+    if (file.endsWith(".js")) return send("text/javascript", fs.readFileSync(file, "utf8"));
     if (file.endsWith(".json")) return send("text/javascript", "export default " + fs.readFileSync(file, "utf8"));
     if (file.endsWith(".css")) return send("text/css", fs.readFileSync(file, "utf8"));
     if (file.endsWith(".svg")) return send("image/svg+xml", fs.readFileSync(file));

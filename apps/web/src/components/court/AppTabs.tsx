@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useUi } from "@/components/kumo/useUi";
 import { useReview } from "@/components/kumo/reviewRead";
 import { Boundary } from "./Boundary";
+import { useCourt } from "./CourtState";
+import { hiddenTabs } from "./pages/Welcome";
 
 // Main tabs: bottom bar on phone, left rail on desktop. Every panel stays mounted so nothing she typed is lost
 // when she switches; the open tab lives in the address (#garden) so reload and back keep her place.
@@ -66,11 +68,15 @@ export function AppTabs({ panels, extra = {} }: { panels: Record<TabId, React.Re
   const [tab, setTab] = useState<PageId>("court");
   const [more, setMore] = useState(false);
   const ui = useUi();
+  const { st } = useCourt();
+  const hide = hiddenTabs(st.prefs.rooms);
   // A small dot on News while Kumo's newest weekly review is unread (New look).
   const review = useReview(null);
   const dot = (id: PageId) => (ui === "new" && id === "news" && review.unread ? <i className="nav-dot" aria-label="new weekly review" /> : null);
 
   useEffect(() => {
+    // A brand-new account (no history at all) starts on the welcome steps once; nobody else is redirected.
+    if (!window.location.hash && !st.prefs.onboarded && !Object.keys(st.days).length && !st.life.length && !st.xp && document.documentElement.getAttribute("data-ui") !== "classic") history.replaceState(null, "", "#welcome");
     setTab(fromHash());
     const on = () => { setTab(fromHash()); setMore(false); };
     window.addEventListener("hashchange", on);
@@ -85,7 +91,9 @@ export function AppTabs({ panels, extra = {} }: { panels: Record<TabId, React.Re
     window.scrollTo({ top: 0 });
   }
 
-  const nav: PageId[] = ui === "new" ? [...TABS, ...EXTRA.filter((id) => extra[id])] : [...TABS];
+  // New look: rooms she switched off in onboarding leave the nav (Settings can bring them back); the tour and
+  // Kingdom Mode live under More and Settings rather than the rail.
+  const nav: PageId[] = ui === "new" ? [...TABS, ...EXTRA.filter((id) => extra[id] && id !== "welcome")].filter((id) => !hide.includes(id)) : [...TABS];
   const inMore = nav.filter((id) => !PHONE_BAR.includes(id));
   return (
     <>

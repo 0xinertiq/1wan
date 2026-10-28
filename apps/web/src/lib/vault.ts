@@ -17,11 +17,35 @@ export type VStatus = "idle" | "saving" | "saved" | "error";
 export const vaultMode = (): "db" | "device" => (process.env.NEXT_PUBLIC_1WAN_TABLES === "on" ? "db" : "device");
 export const VAULT_LABEL = { db: "Saved to your account", device: "Preview storage, this device only" } as const;
 
-const isRows = (v: unknown): v is VRow[] => Array.isArray(v) && v.every((r) => r && typeof r === "object" && typeof (r as VRow).id === "string");
+// Every row is cleaned on read, per table: odd or missing fields get safe defaults and a row that cannot be
+// understood is dropped, so an old or broken record can never break a card.
+type Raw = Record<string, unknown>;
+const S = (v: unknown, max = 20000) => (typeof v === "string" ? v.slice(0, max) : "");
+const OS = (v: unknown) => (typeof v === "string" && v ? v : undefined);
+const SL = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : []);
+const N = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : null);
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+const CLEAN: Record<Table, (r: Raw) => Raw | null> = {
+  journal_entries: (r) => (typeof r.day === "string" && DAY.test(r.day) ? { day: r.day, text: S(r.text), tags: SL(r.tags), notes: SL(r.notes), mood: N(r.mood) != null && (r.mood as number) >= 1 && (r.mood as number) <= 5 ? r.mood : undefined, plan: S(r.plan, 1000), feel: S(r.feel, 1000), change: S(r.change, 1000), tradeId: OS(r.tradeId) } : null),
+  goals: (r) => ({ title: S(r.title, 80) || "Untitled goal", why: S(r.why, 300), target: typeof r.target === "string" && DAY.test(r.target) ? r.target : "", ms: (Array.isArray(r.ms) ? r.ms : []).filter((m) => m && typeof m === "object" && typeof (m as Raw).id === "string").map((m) => ({ id: (m as Raw).id as string, t: S((m as Raw).t, 100), done: (m as Raw).done === true })) }),
+  finance_entries: (r) => (r.kind !== "budget" && r.kind !== "entry") || N(r.amt) == null ? null : { kind: r.kind, cat: S(r.cat, 30) || "other", amt: N(r.amt), date: typeof r.date === "string" && DAY.test(r.date) ? r.date : undefined, type: r.type === "in" ? "in" : "out", note: S(r.note, 120) },
+  research_notes: (r) => ({ kind: r.kind === "macro" ? "macro" : "note", title: S(r.title, 120), text: S(r.text, 4000), tags: SL(r.tags), url: typeof r.url === "string" && /^https?:\/\//.test(r.url) ? r.url : undefined, pinned: r.pinned === true, lens: r.lens === "local" || r.lens === "any" ? r.lens : r.lens === "trading" ? "trading" : undefined, watch: OS(r.watch), week: OS(r.week) }),
+  longterm_watchlist: (r) => (typeof r.name === "string" && r.name ? { name: S(r.name, 60), sector: S(r.sector, 60), thesis: S(r.thesis, 1000), catalysts: S(r.catalysts, 300), status: r.status === "watching" || r.status === "owned" ? r.status : "studying", notes: S(r.notes, 500), links: S(r.links, 500) } : null),
+  tasks: (r) => (typeof r.title === "string" && r.title ? { title: S(r.title, 120), due: typeof r.due === "string" && DAY.test(r.due) ? r.due : undefined, pri: r.pri === "high" || r.pri === "low" ? r.pri : "normal", done: r.done === true } : null),
+  routines: (r) => (typeof r.name === "string" && r.name ? { name: S(r.name, 60), kind: r.kind === "pet" || r.kind === "self" ? r.kind : "custom", every: N(r.every) && (r.every as number) > 0 ? Math.round(r.every as number) : 7, last: typeof r.last === "string" && DAY.test(r.last) ? r.last : undefined, start: typeof r.start === "string" && DAY.test(r.start) ? r.start : undefined, paused: r.paused === true } : null),
+};
+export function cleanRows(t: Table, rows: unknown): VRow[] {
+  if (!Array.isArray(rows)) return [];
+  return rows.flatMap((r) => {
+    if (!r || typeof r !== "object" || typeof (r as Raw).id !== "string") return [];
+    const x = r as Raw, c = CLEAN[t](x);
+    return c ? [{ ...c, id: x.id as string, at: S(x.at, 40), up: S(x.up, 40) } as VRow] : [];
+  });
+}
 // Not under the settings prefix on purpose: "Reset saved settings on this device" must never delete records.
 const key = (t: Table) => "1wanvault.v1." + t;
 function readDevice(t: Table): VRow[] {
-  try { const v: unknown = JSON.parse(localStorage.getItem(key(t)) ?? "[]"); return isRows(v) ? v : []; } catch { return []; }
+  try { return cleanRows(t, JSON.parse(localStorage.getItem(key(t)) ?? "[]")); } catch { return []; }
 }
 const MAX = 2000;
 export const newId = (p: string) => p + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36);
@@ -48,7 +72,7 @@ function load(t: Table): Promise<void> {
     if (vaultMode() === "device") { cache.set(t, readDevice(t)); return; }
     try {
       const { data, error } = await createClient().from(t).select("*").order("updated_at", { ascending: false }).limit(MAX);
-      cache.set(t, error ? [] : (data ?? []).map(fromDb));
+      cache.set(t, error ? [] : cleanRows(t, (data ?? []).map(fromDb)));
     } catch { cache.set(t, []); }
   })().finally(() => { loading.delete(t); ping(t); });
   loading.set(t, p);

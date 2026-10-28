@@ -1021,3 +1021,4 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .klink-row[aria-pressed=true]{background:var(--k-tint-sakura)}
 :root[data-ui="new"] .kbell .ic-o{fill:var(--k-icon-fill);stroke:var(--k-icon-line)}
 :root[data-ui="new"] .kbell .ic-X{stroke:var(--k-icon-line)}
+:root[data-ui="new"] .kcat-art{display:block;width:48px;height:48px;image-rendering:pixelated}
