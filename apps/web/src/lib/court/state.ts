@@ -51,6 +51,10 @@ export type Money = { inc: MLine[]; fixed: MLine[]; funds: MFund[]; nw: MAsset[]
 export type Lens = "trading" | "local" | "any" | "off";
 export type Prefs = { lens?: Lens; rooms?: Record<string, boolean>; notif?: Record<string, boolean>; onboarded?: string; name?: string; tz?: string; companion?: string };
 export type Habit = { id: string; name: string; days: number[]; paused?: boolean; at: string };
+// Round 7 (new optional key lenses): the news lenses she follows, several at once. Absent in older documents, where
+// it is read from her old single market lens (prefs.lens) and nothing else changes. "any" and "off" stand alone.
+export const LENS_IDS = ["crypto", "macro", "markets", "world", "local", "tech", "any", "off"] as const;
+export type LensId = (typeof LENS_IDS)[number];
 export type Habits = { list: Habit[]; log: Record<string, string[]> };
 
 export type CourtState = {
@@ -67,6 +71,7 @@ export type CourtState = {
   birth: { date: string; time: string; place: string; lat: number; lon: number; tz: string } | null;   // private, never shared
   grid: Ticks; swins: Ticks & { log: Record<string, string[]> }; money: MoneyW; samsara: Samsara; defs: Defs;
   prefs: Prefs; hab: Habits; gridDefs: GridDefs;   // gridDefs: her own Grid & Wins chart (addendum 1); defs.grid stays the original
+  lenses: LensId[];   // round 7: the news lenses she follows (several at once)
   spr: { run: { at: string; tag: "study" | "other" } | null; log: { at: string; tag: "study" | "other"; min: number }[] };   // focus sprints, tagged
   last: Record<string, unknown>; prev: Record<string, unknown> | null;
 };
@@ -82,7 +87,7 @@ function lifeFlags(i: LifeItem): LifeItem {
   return o;
 }
 
-export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "news", "tg", "birth", "grid", "swins", "money", "samsara", "spr", "last", "prev", "prefs", "hab", "gridDefs"] as const;
+export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "news", "tg", "birth", "grid", "swins", "money", "samsara", "spr", "last", "prev", "prefs", "hab", "gridDefs", "lenses"] as const;
 export type OwnedKey = (typeof OWNED_KEYS)[number];
 
 export type Recap = { old: string; done: number; total: number; newWeek: boolean; lost: boolean; restY: boolean };
@@ -102,6 +107,15 @@ export function normPrefs(v: unknown): Prefs {
   if (p.notif !== undefined) o.notif = bools(p.notif);
   for (const k of ["onboarded", "name", "tz", "companion"] as const) if (typeof p[k] === "string") o[k] = (p[k] as string).slice(0, 60);
   return o;
+}
+const FROM_OLD: Record<string, LensId[]> = { trading: ["crypto", "macro", "markets"], local: ["local"], any: ["any"], off: ["off"] };
+/** Her lenses: known ids only, once each; "off" or "any" stand alone; empty falls back to her old single lens. */
+export function normLenses(v: unknown, old?: unknown): LensId[] {
+  const got = [...new Set(arr<unknown>(v).filter((x): x is LensId => typeof x === "string" && (LENS_IDS as readonly string[]).includes(x)))];
+  if (got.includes("off")) return ["off"];
+  if (got.includes("any")) return ["any"];
+  if (got.length) return LENS_IDS.filter((x) => got.includes(x));
+  return [...(FROM_OLD[typeof old === "string" ? old : "trading"] ?? FROM_OLD.trading)];
 }
 export function normHab(v: unknown): Habits {
   const h = obj<Record<string, unknown>>(v, {});
@@ -156,6 +170,7 @@ export function normalize(raw: unknown, today: string): CourtState {
       return { run: typeof run.at === "string" ? { at: run.at, tag: tag(run.tag) } : null,
         log: arr<Record<string, unknown>>(w.log).filter((x) => x && typeof x.at === "string" && typeof x.min === "number").map((x) => ({ at: x.at as string, tag: tag(x.tag), min: x.min as number })).slice(-200) }; })(),
     prefs: normPrefs(r.prefs), hab: normHab(r.hab), gridDefs: normGridDefs(r.gridDefs),
+    lenses: normLenses(r.lenses, obj<Record<string, unknown>>(r.prefs, {}).lens),
     last: obj(r.last, {}), prev: r.prev && typeof r.prev === "object" ? (r.prev as Record<string, unknown>) : null,
   };
 }

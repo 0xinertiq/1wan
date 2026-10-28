@@ -5,6 +5,7 @@ import { useCourt } from "../CourtState";
 import { DecorSprite } from "@/components/kumo/DecorSprite";
 import { stageFor, STAGES } from "@/components/kumo/kingdom";
 import type { Lens } from "@/lib/court/state";
+import { normLenses } from "@/lib/court/state";
 import { Btn, Callout, Card, Chip, PageHead, SectionLabel } from "../ui";
 
 // Onboarding for friends (round 6, basic flow): five skippable steps saved to her own prefs, replayable from
@@ -22,8 +23,9 @@ export function WelcomePage() {
   const { st, k, update } = useCourt();
   const p = st.prefs;
   const [step, setStep] = useState(0);
-  const [f, setF] = useState({ name: p.name ?? "", tz: p.tz ?? "Asia/Singapore", rooms: { ...Object.fromEntries(INTERESTS.map(([id]) => [id, true])), ...(p.rooms ?? {}) } as Record<string, boolean>, lens: (p.lens ?? "trading") as Lens, companion: p.companion ?? "fox", morning: p.notif?.morning ?? true });
-  const save = (done = false) => update((d) => { d.prefs = { ...d.prefs, name: f.name.trim().slice(0, 40) || undefined, tz: f.tz, rooms: f.rooms, lens: f.rooms.markets ? f.lens : "off", companion: f.companion, notif: { ...(d.prefs.notif ?? {}), morning: f.morning }, ...(done ? { onboarded: k } : {}) }; }, ["prefs"]);
+  const [f, setF] = useState({ name: p.name ?? "", tz: p.tz ?? "Asia/Singapore", rooms: { ...Object.fromEntries(INTERESTS.map(([id]) => [id, true])), ...(p.rooms ?? {}) } as Record<string, boolean>, lens: (st.lenses.includes("off") ? "off" : st.lenses.includes("any") ? "any" : st.lenses.length === 1 && st.lenses[0] === "local" ? "local" : "trading") as Lens, companion: p.companion ?? "fox", morning: p.notif?.morning ?? true });
+  // round 7: the tour's simple lens choice writes her lenses (Settings allows several); prefs.lens is kept in step
+  const save = (done = false) => update((d) => { const lens = f.rooms.markets ? f.lens : "off"; d.prefs = { ...d.prefs, name: f.name.trim().slice(0, 40) || undefined, tz: f.tz, rooms: f.rooms, lens, companion: f.companion, notif: { ...(d.prefs.notif ?? {}), morning: f.morning }, ...(done ? { onboarded: k } : {}) }; d.lenses = normLenses([], lens); }, ["prefs", "lenses"]);
   const next = () => { save(); setStep(Math.min(4, step + 1)); };
   const steps = ["Welcome", "Interests", "Connections", "Theme and companion", "Enter the kingdom"];
   return (
@@ -51,7 +53,7 @@ export function WelcomePage() {
           </>}
           {step === 3 && <>
             <SectionLabel>Your companion</SectionLabel>
-            <div className="kchips" role="group" aria-label="Companion">{[["fox", "The fox"], ["kumo", "Chief Kumo"], ["luna", "Luna"]].map(([v, l]) => <button key={v} type="button" className="chipb" aria-pressed={f.companion === v} onClick={() => setF({ ...f, companion: v })}>{l}</button>)}</div>
+            <div className="kchips" role="group" aria-label="Companion">{[["fox", "9-Tails"], ["kumo", "Chief Kumo"], ["luna", "Luna"]].map(([v, l]) => <button key={v} type="button" className="chipb" aria-pressed={f.companion === v} onClick={() => setF({ ...f, companion: v })}>{l}</button>)}</div>
             <label className="kcheck"><input type="checkbox" checked={f.morning} onChange={(e) => setF({ ...f, morning: e.target.checked })} />One calm morning summary (everything else stays off until you choose it)</label>
             <p className="note">Day or night and the look can be changed any time in Settings.</p>
           </>}
@@ -76,7 +78,7 @@ const CATALOGUE: { group: string; items: { id: string; name: string; art?: strin
   { group: "Structures", items: [{ id: "castle", name: "Castle", state: "PLACED" }, { id: "clock", name: "Clock tower", state: "PLACED" }, { id: "pagoda", name: "Pagoda", state: "LOCKED" }] },
   { group: "Nature", items: [{ id: "sakura", name: "Sakura tree", art: "sakura_4", state: "PLACED" }, { id: "flowers", name: "Flower patch", art: "flowers", state: "UNLOCKED_UNOWNED" }, { id: "mushroom", name: "Mushroom ring", art: "mushroom", state: "LOCKED" }] },
   { group: "Furniture", items: [{ id: "lantern", name: "Lantern", art: "lantern", state: "OWNED_UNPLACED" }, { id: "bench", name: "Garden bench", state: "LOCKED" }] },
-  { group: "Companions", items: [{ id: "fox", name: "The fox", state: "PLACED" }, { id: "goose", name: "Goose", state: "PLACED" }, { id: "cat", name: "Cottage cat", state: "LOCKED" }] },
+  { group: "Companions", items: [{ id: "fox", name: "9-Tails", state: "PLACED" }, { id: "goose", name: "Goose", state: "PLACED" }, { id: "cat", name: "Cottage cat", state: "LOCKED" }] },
   { group: "Themes", items: [{ id: "dusk", name: "Pastel dusk", art: "moon", state: "PLACED" }, { id: "snow", name: "Winter", state: "LOCKED" }] },
 ];
 const STATE_TXT: Record<State, string> = { LOCKED: "Locked", UNLOCKED_UNOWNED: "Unlocked", OWNED_UNPLACED: "Owned, not placed", PLACED: "Placed" };

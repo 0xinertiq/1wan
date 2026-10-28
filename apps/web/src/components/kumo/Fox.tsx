@@ -71,7 +71,7 @@ export function WorldFox({ perches, s, px, cheer }: { perches: [number, number][
   return (
     <>
       <div className="lw-fox-at" style={{ left: x * s, top: y * s }}>
-        <button ref={ref} type="button" className={"lw-fox" + (hop ? " hop" : "") + (joy ? " joy" : "") + (nap ? " nap" : "")} style={{ height: px }} aria-expanded={open} aria-label={`The fox, ${n} of 9 tails. Open what each tail means`} onClick={() => setOpen(!open)}>
+        <button ref={ref} type="button" className={"lw-fox" + (hop ? " hop" : "") + (joy ? " joy" : "") + (nap ? " nap" : "")} style={{ height: px }} aria-expanded={open} aria-label={`9-Tails, ${n} of 9 tails. Open what each tail means`} onClick={() => setOpen(!open)}>
           <FoxSvg tails={n} sleepy={nap} />
           <Flame glow={n / 9} />
           {nap && <span className="lw-zz" aria-hidden="true">z</span>}
@@ -79,8 +79,8 @@ export function WorldFox({ perches, s, px, cheer }: { perches: [number, number][
         </button>
       </div>
       {open && (
-        <div className="lw-fox-card" role="dialog" aria-label="The fox's tails">
-          <div className="lw-fox-h"><b>The fox · {n} of 9 tails</b><button className="btn sm ghost" type="button" onClick={() => setOpen(false)}>Close</button></div>
+        <div className="lw-fox-card" role="dialog" aria-label="9-Tails: the tails">
+          <div className="lw-fox-h"><b>9-Tails · {n} of 9 tails</b><button className="btn sm ghost" type="button" onClick={() => setOpen(false)}>Close</button></div>
           <ul>
             {TAILS.map((t, i) => <li key={t.n} className={on[i] ? "on" : ""}><span aria-hidden="true">{on[i] ? "✓" : "○"}</span><b>{t.n}</b> {t.h}{!on[i] && progress(i, st, k) && <span className="note"> · {progress(i, st, k)}</span>}</li>)}
           </ul>

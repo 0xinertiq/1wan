@@ -27,7 +27,7 @@ import { watchlistFrom } from "@/lib/prices";
 import { KumoPick, TodayLive } from "@/components/court/live/TodayLive";
 import { CourtLayout } from "@/components/court/live/KumoHome";
 import { CrewRoster, LivingWorld } from "@/components/court/live/LivingWorld";
-import { BriefsBlock, BriefsLibrary, MoversCard, ReviewCard, type DeskMem } from "@/components/court/CourtBriefs";
+import { BriefsBlock, BriefsLibrary, MoversCard, type DeskMem } from "@/components/court/CourtBriefs";
 import { noBigdata } from "@/lib/noBigdata";
 
 // Desk notes go through the same Bigdata scrubber; a note left empty is dropped.
@@ -125,12 +125,12 @@ export default async function Dashboard() {
               <TradesPage movers={<MoversCard list={history.filter((d) => d.key === "movers")} />} tech={<TechLive />} scan={scanDoc} intel={docOf("intel")} />
             </NewOnly>
           ),
-          settings: <NewOnly><SettingsPage /></NewOnly>,
+          settings: <NewOnly><SettingsPage review={<BriefsLibrary history={history} only={["review"]} />} /></NewOnly>,
           kingdom: <NewOnly><KingdomPage world={<LivingWorld filed={filed} />} /></NewOnly>,
           welcome: <NewOnly><WelcomePage /></NewOnly>,
           news: (
             <NewOnly>
-              <NewsPage headlines={<NewsLive top5={top5} />} library={<BriefsLibrary history={history} />} />
+              <NewsPage headlines={<NewsLive top5={top5} follow />} library={<BriefsLibrary history={history} only={["intel", "pulse"]} follow title="Briefs" />} />
             </NewOnly>
           ),
         }}
@@ -154,7 +154,6 @@ export default async function Dashboard() {
                 needs: <NeedsNow unrated={unrated} />,
                 status: <StatusLive />,
                 briefs: <BriefsBlock docs={{ pulse: docOf("pulse"), intel: docOf("intel"), scan: scanDoc }} mem={mem} />,
-                review: <ReviewCard d={docOf("review")} />,
                 world: <LivingWorld filed={filed} />,
                 roster: <CrewRoster filed={filed} />,
               }}

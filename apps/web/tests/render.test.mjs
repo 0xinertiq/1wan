@@ -13,7 +13,7 @@ import { CourtLayout } from "../src/components/court/live/KumoHome.tsx";
 import { resolveHash } from "../src/components/court/AppTabs.tsx";
 import { LivingWorld, CrewRoster } from "../src/components/court/live/LivingWorld.tsx";
 import { NeedsNow, WeekAhead } from "../src/components/court/live/CourtHome.tsx";
-import { BriefsBlock, BriefsLibrary, MoversCard, ReviewCard } from "../src/components/court/CourtBriefs.tsx";
+import { BriefsBlock, BriefsLibrary, MoversCard } from "../src/components/court/CourtBriefs.tsx";
 import { StatusLine } from "../src/components/court/StatusLine.tsx";
 import { EconLive, NextLiquidityLine } from "../src/components/court/live/EconLive.tsx";
 import { MomoCard, MomoIdeas, KumoPick, TodayLive } from "../src/components/court/live/TodayLive.tsx";
@@ -87,7 +87,7 @@ function screens(docs) {
     weather: null, today: h(TodayLive), todayBare: h(TodayLive, { bare: true }), stage: null, statusLine: h(StatusLine, { latest }), luna: h(LunaSky),
     brief: null, scan: null, tech: h(TechLive), weekStrip: null, weekAhead: h(WeekAhead), econ: h(EconLive), news: h(NewsLive), needs: h(NeedsNow, { unrated: ["Intel"] }),
     status: null, briefs: h(BriefsBlock, { docs: { pulse: docOf("pulse"), intel: docOf("intel"), scan: docOf("scan") }, mem: { intel: { lessons: ["Prefer primary sources", "Bigdata.com was down"], selfCheck: "ok", stats: { n: 2, up: 1, down: 1 } } } }),
-    review: h(ReviewCard, { d: docOf("review") }), world: h(LivingWorld, { filed }), roster: h(CrewRoster, { filed }),
+    world: h(LivingWorld, { filed }), roster: h(CrewRoster, { filed }),
   };
   return {
     header: h(Header),

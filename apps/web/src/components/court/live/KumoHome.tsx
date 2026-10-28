@@ -19,13 +19,14 @@ import { Boundary } from "../Boundary";
 
 // The Court tab. Classic: the v52 three columns, exactly as before. New look (COURT_SPEC): the world, Park a
 // thought, prices, the "Next:" liquidity line, Briefs (Pulse | Intelligence | Crypto scan) beside a rail
-// (Today | Week, Luna, Needs you now, Kumo's review while unread), and the crew roster. One home per item.
+// (Today | Week, Luna, Needs you now), and the crew roster. One home per item: Kumo's weekly review lives in
+// Settings (round 7), and Kumo's alert "!" on the roster points there on Sundays.
 // The pixel Living World replaces the Cloud Court and carries the level-up banner; level and EXP live in the header.
 export type CourtSlots = {
   weather: React.ReactNode; today: React.ReactNode; todayBare: React.ReactNode; stage: React.ReactNode; statusLine: React.ReactNode;
   luna: React.ReactNode; brief: React.ReactNode; scan: React.ReactNode; tech: React.ReactNode; weekStrip: React.ReactNode;
   weekAhead: React.ReactNode; econ: React.ReactNode; news: React.ReactNode; needs: React.ReactNode; status: React.ReactNode;
-  briefs: React.ReactNode; review: React.ReactNode; world: React.ReactNode; roster: React.ReactNode;
+  briefs: React.ReactNode; world: React.ReactNode; roster: React.ReactNode;
 };
 
 // Every card sits in its own error boundary, so one bad card shows "This card could not load" and the rest keeps working.
@@ -54,7 +55,6 @@ export function CourtLayout({ s }: { s: CourtSlots }) {
           <B n="Needs you now">{s.needs}</B>
           <B n="Today"><TodayCard /></B>
           <B n="Luna"><LunaCard /></B>
-          <B n="Weekly review">{s.review}</B>
         </div>
       </div>
       <B n="Crew roster">{s.roster}</B>

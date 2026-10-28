@@ -22,7 +22,7 @@ import { SettingsPage } from "@/components/court/pages/SettingsPage";
 import { KingdomPage, WelcomePage } from "@/components/court/pages/Welcome";
 import { CrewRoster, LivingWorld } from "@/components/court/live/LivingWorld";
 import { NeedsNow, WeekAhead } from "@/components/court/live/CourtHome";
-import { BriefsBlock, BriefsLibrary, MoversCard, ReviewCard, type DeskMem } from "@/components/court/CourtBriefs";
+import { BriefsBlock, BriefsLibrary, MoversCard, type DeskMem } from "@/components/court/CourtBriefs";
 import { StatusLine } from "@/components/court/StatusLine";
 import { EconLive } from "@/components/court/live/EconLive";
 import { TodayLive } from "@/components/court/live/TodayLive";
@@ -80,7 +80,7 @@ export function buildTree(d: Data) {
     weather: null, today: <TodayLive />, todayBare: <TodayLive bare />, stage: null, statusLine: <StatusLine latest={latest} />, luna: <LunaSky />,
     brief: null, scan: null, tech: <TechLive />, weekStrip: null, weekAhead: <WeekAhead />, econ: <EconLive />, news: <NewsLive />, needs: <NeedsNow unrated={["Intel"]} />,
     status: null, briefs: <BriefsBlock docs={{ pulse: docOf("pulse"), intel: docOf("intel"), scan: docOf("scan") }} mem={d.mem} />,
-    review: <ReviewCard d={docOf("review")} />, world: <LivingWorld filed={filed} />, roster: <CrewRoster filed={filed} />,
+    world: <LivingWorld filed={filed} />, roster: <CrewRoster filed={filed} />,
   };
   return (
     <InboxProvider briefs={docs.map((x) => ({ key: x.key, label: x.label, at: x.at }))} review={docOf("review")?.at ?? null}>

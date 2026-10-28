@@ -47,7 +47,7 @@ function CrewDetail({ id, latest }: { id: string; latest: Latest }) {
       {id === "luna" && (ui === "new" ? <p><a href="#luna-card">Luna&apos;s card on the Court →</a></p> : <LunaSky />)}
       {id === "kumo" && (() => {
         const on = earned(st, k), n = on.filter(Boolean).length, nx = TAILS.find((_, i) => !on[i]);
-        return <div className="tailrow">{ui === "new" ? <a className="btn sm" href="#news" onClick={() => openSheet(null)}>Weekly review packet</a> : <button className="btn sm" type="button" onClick={() => openSheet({ kind: "packet" })}>Weekly review packet</button>}<div dangerouslySetInnerHTML={{ __html: tailSvg(on) }} /><p className="note">Nine tails: {n} of 9.{nx ? ` Next, ${nx.n}: ${nx.h}.` : " All nine. Ascended."}</p></div>;
+        return <div className="tailrow">{ui === "new" ? <a className="btn sm" href="#review-card" onClick={() => openSheet(null)}>Weekly review packet</a> : <button className="btn sm" type="button" onClick={() => openSheet({ kind: "packet" })}>Weekly review packet</button>}<div dangerouslySetInnerHTML={{ __html: tailSvg(on) }} /><p className="note">Nine tails: {n} of 9.{nx ? ` Next, ${nx.n}: ${nx.h}.` : " All nine. Ascended."}</p></div>;
       })()}
     </div>
   );

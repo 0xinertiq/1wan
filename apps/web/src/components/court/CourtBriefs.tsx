@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { BriefFeedback } from "./BriefFeedback";
 import { SourcesLine, type BriefDoc } from "./BriefTabs";
-import { briefSections, isNoMovers, reviewParts, scanCourt, type Headline } from "@/components/kumo/briefParse";
+import { briefSections, isNoMovers, scanCourt, type Headline } from "@/components/kumo/briefParse";
 import { mdLite } from "./mdLite";
 import { useReview } from "@/components/kumo/reviewRead";
 import { clock } from "@/lib/court/time";
+import { useCourt } from "./CourtState";
+import { briefTabs } from "@/lib/court/lenses";
 
 // One uniform brief item, used by the Top 5 and by every block of a brief in News: bold numbered headline,
 // the why, then the source names as small links joined by a middle dot (no label, never also as a text tail).
@@ -92,28 +94,6 @@ function DeskLearned({ m }: { m?: DeskMem }) {
 // Chief Kumo's weekly review on the Court: only while unread ("New weekly review", Mark as read). Once read it
 // lives in News (Kumo reviews). The summary shows once, then the per-desk lines and suggestions; Show more
 // reveals the rest of them. Read state is per device (components/kumo/reviewRead.ts).
-export function ReviewCard({ d }: { d: BriefDoc | null }) {
-  const [open, setOpen] = useState(false);
-  const { ready, unread, markRead } = useReview(d?.at ?? null);
-  if (!d || !ready || !unread) return null;
-  const r = reviewParts(d.body ?? "");
-  const lines = [...r.desks, ...r.suggestions], shown = open ? lines : lines.slice(0, 3);
-  return (
-    <section className="win kreview" aria-labelledby="krvT">
-      <div className="win-title"><h2 id="krvT">New weekly review</h2>{d.when && <time className="sub ts">{d.when.split(" · ")[0]}</time>}</div>
-      <div className="win-body">
-        {r.summary && <p className="rv-sum">{r.summary}</p>}
-        {shown.length > 0 && <ul className="rv-sug">{shown.map((s, i) => <li key={i}>{s}</li>)}</ul>}
-        <div className="rep-act">
-          {lines.length > 3 && <button className="btn sm ghost" type="button" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? "Show less" : "Show more"}</button>}
-          <button className="btn sm" type="button" onClick={() => markRead(d.at)}>Mark as read</button>
-        </div>
-        <BriefFeedback key={d.key + d.at} kind={d.key} at={d.at} initial={d.vote} />
-      </div>
-    </section>
-  );
-}
-
 // "Mark as read" beside the newest review in News, while it is unread.
 function ReviewRead({ at }: { at: string }) {
   const { unread, markRead } = useReview(null);
@@ -163,19 +143,25 @@ const DESKS: { key: string; label: string }[] = [
   { key: "intel", label: "Intelligence" }, { key: "scan", label: "Watchlist scan" }, { key: "movers", label: "Midday movers" },
   { key: "review", label: "Kumo's weekly review" }, { key: "pulse", label: "Pulse (older)" },
 ];
-export function BriefsLibrary({ history }: { history: BriefDoc[] }) {
-  const desks = DESKS.filter((k) => history.some((d) => d.key === k.key));
-  const [desk, setDesk] = useState(desks[0]?.key ?? "intel");
+// only: the desks this copy shows (News: Intel | Pulse; Settings: Kumo's weekly review). follow: News follows her
+// lenses, so a desk her lenses hide is left out. A single desk shows no tab strip.
+const SHORT: Record<string, string> = { intel: "Intel", pulse: "Pulse" };
+export function BriefsLibrary({ history, only, follow = false, title = "Briefs and scans" }: { history: BriefDoc[]; only?: string[]; follow?: boolean; title?: string }) {
+  const { st } = useCourt();
+  const allow = follow ? (briefTabs(st.lenses) as string[]) : null;
+  const desks = DESKS.filter((k) => (!only || only.includes(k.key)) && (!allow || allow.includes(k.key)) && history.some((d) => d.key === k.key)).map((k) => (only && SHORT[k.key] ? { ...k, label: SHORT[k.key] } : k));
+  const [pick, setDesk] = useState(desks[0]?.key ?? "intel");
+  const desk = desks.some((k) => k.key === pick) ? pick : desks[0]?.key ?? "intel";
   const [all, setAll] = useState(false);
   const list = history.filter((d) => d.key === desk).slice(0, 14);
   return (
     <section className="win klib" aria-labelledby="klibT">
-      <div className="win-title"><h2 id="klibT">Briefs and scans</h2><span className="sub">full text, newest first</span></div>
+      <div className="win-title"><h2 id="klibT">{title}</h2><span className="sub">full text, newest first</span></div>
       <div className="win-body">
-        {!desks.length ? <p className="note">Nothing filed yet.</p> : <>
-          <div className="kseg" role="tablist" aria-label="Desks">
-            {desks.map((k) => <button key={k.key} type="button" role="tab" aria-selected={desk === k.key} className={desk === k.key ? "on" : ""} onClick={() => setDesk(k.key)}>{k.label}</button>)}
-          </div>
+        {!desks.length ? <p className="note">{allow && !allow.length ? "Your news lens is off. Turn a lens on in Settings." : "Nothing filed yet."}</p> : <>
+          {desks.length > 1 && <div className="kseg" role="group" aria-label="Desks">
+            {desks.map((k) => <button key={k.key} type="button" aria-pressed={desk === k.key} className={desk === k.key ? "on" : ""} onClick={() => setDesk(k.key)}>{k.label}</button>)}
+          </div>}
           <button className="btn sm ghost klib-all" type="button" onClick={() => setAll(!all)}>{all ? "Collapse all" : "Expand all"}</button>
           {list.map((d, i) => (
             <details key={d.at + all} className="klib-item" open={all || i === 0}>

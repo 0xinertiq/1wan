@@ -1103,3 +1103,9 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kresult .note,:root[data-ui="new"] .kresult-msg{margin:0}
 :root[data-ui="new"] .kresult-msg{font:700 var(--fs-body)/1.5 var(--k-font-body);color:var(--k-text)}
 :root[data-ui="new"] .kth-sub{display:block;font:400 var(--fs-cap)/1.3 var(--k-font-body);color:var(--k-text-muted)}
+/* Round 7: every button and button-link centres its label; button rows keep natural widths and line up */
+:root[data-ui="new"] .btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--sp-2);text-align:center;text-decoration:none}
+:root[data-ui="new"] .kbtn-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2);margin:0}
+:root[data-ui="new"] .kbtn-row>*{flex:0 0 auto}
+:root[data-ui="new"] .kform-row>.btn{flex:0 0 auto}
+:root[data-ui="new"] .kstep .kform-row>.btn{min-width:120px}

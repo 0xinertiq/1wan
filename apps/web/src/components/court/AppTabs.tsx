@@ -74,9 +74,9 @@ export function AppTabs({ panels, extra = {} }: { panels: Record<TabId, React.Re
   const ui = useUi();
   const { st } = useCourt();
   const hide = hiddenTabs(st.prefs.rooms);
-  // A small dot on News while Kumo's newest weekly review is unread (New look).
+  // A small dot on Settings while Kumo's newest weekly review is unread (New look; the review card lives there).
   const review = useReview(null);
-  const dot = (id: PageId) => (ui === "new" && id === "news" && review.unread ? <i className="nav-dot" aria-label="new weekly review" /> : null);
+  const dot = (id: PageId) => (ui === "new" && id === "settings" && review.unread ? <i className="nav-dot" aria-label="new weekly review" /> : null);
 
   useEffect(() => {
     // A brand-new account (no history at all) starts on the welcome steps once; nobody else is redirected.
@@ -110,7 +110,7 @@ export function AppTabs({ panels, extra = {} }: { panels: Record<TabId, React.Re
         ))}
         {ui === "new" && (
           <button type="button" className="nav-more" aria-expanded={more} aria-current={inMore.includes(tab) ? "page" : undefined} onClick={() => setMore(!more)}>
-            <Icon id="more" />{inMore.includes("news") && dot("news")}<span>More</span>
+            <Icon id="more" />{inMore.includes("settings") && dot("settings")}<span>More</span>
           </button>
         )}
         {ui === "new" && more && (

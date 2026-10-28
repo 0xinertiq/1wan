@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ageText } from "@/lib/court/time";
 import { COINGECKO_IDS } from "@/lib/prices";
 import { NEWS_GROUPS, REGIONS } from "@/lib/newsFeeds";
+import { headlineShown } from "@/lib/court/lenses";
 import { cluster } from "@/lib/cluster";
 import { useCourt } from "./CourtState";
 import { useEcon } from "./live/EconLive";
@@ -20,9 +21,12 @@ type Tg = { items: { channel: string; title: string; at: string | null; text: st
 // inflation news on a world feed files under Macro.
 const CRYPTO = /\b(crypto|bitcoin|btc|ether(?:eum)?|eth|stablecoins?|solana|xrp|defi|altcoins?|memecoins?|coinbase|binance|blockchain|tokens?)\b/i;
 const MACRO = /\b(fed|fomc|federal reserve|cpi|inflation|interest rates?|rate (?:cut|hike|decision)|central bank|ecb|boj|bank of japan|bank of england|payrolls|treasur(?:y|ies)|bond yields?)\b/i;
-export function topicOf(title: string, group: string) {
+// Round 7: technology stories on a world or markets feed file under Tech (a lens she can follow).
+const TECH = /\b(ai|artificial intelligence|openai|anthropic|nvidia|chips?|chipmakers?|semiconductors?|apple|alphabet|google|microsoft|amazon|meta|tesla|start-?ups?|venture capital|software|smartphones?)\b/i;
+export function topicOf(title: string, group: string): string {
   if (CRYPTO.test(title)) return "Crypto";
   if (group === "World" && MACRO.test(title)) return "Macro";
+  if ((group === "World" || group === "Markets") && TECH.test(title)) return "Tech";
   return group;
 }
 
@@ -33,7 +37,8 @@ function inTop5(title: string, top5: string[]) {
   return top5.some((t) => { const b = words(t); let n = 0; for (const w of b) if (a.has(w)) n++; return b.size > 0 && n >= Math.min(3, b.size); });
 }
 
-export function NewsLive({ top5 = [] }: { top5?: string[] }) {
+// follow: on the News tab the headlines follow her lenses (Settings); elsewhere every topic shows.
+export function NewsLive({ top5 = [], follow = false }: { top5?: string[]; follow?: boolean }) {
   const [data, setData] = useState<NewsResult | null>(null);
   const [tg, setTg] = useState<Tg | null>(null);
   const [why, setWhy] = useState("");
@@ -68,7 +73,10 @@ export function NewsLive({ top5 = [] }: { top5?: string[] }) {
   const rss = (data?.items ?? []).filter((h) => regions.includes(h.region)).map((h) => ({ ...h, group: topicOf(h.title, h.group) }));
   const watch = (prices?.prices ?? []).flatMap((p) => [p.sym, (COINGECKO_IDS[p.sym] ?? "").split("-")[0]]).filter(Boolean);
   const clusters = cluster([...rss, ...tgItems], { watch, releases: (econ?.items ?? []).filter((e) => e.top).map((e) => e.title) });
-  const items = clusters;
+  const seen = (c: (typeof clusters)[number]) => !follow || headlineShown(c.lead.group ?? "", st.lenses) || (!st.lenses.includes("off") && c.items.some((x) => x.group === "Telegram"));
+  const items = clusters.filter(seen);
+  const groups = [...NEWS_GROUPS, "Tech"].filter((g) => !follow || headlineShown(g, st.lenses));
+  const lensOff = follow && st.lenses.includes("off");
   // A Telegram post that clustered with a news story still shows under the Telegram chip (never lost to topic filing).
   const list = tab === "All" ? items : tab === "Telegram" ? items.filter((c) => c.items.some((x) => x.group === "Telegram")) : items.filter((c) => c.lead.group === tab);
   const shown = list.slice(0, more ? 40 : 8);
@@ -81,9 +89,10 @@ export function NewsLive({ top5 = [] }: { top5?: string[] }) {
         <div id="newsBox">
           {!data && !failed && <p className="note">Pip is fetching headlines...</p>}
           {failed && !data && <p className="note">Headlines are not reachable right now. I will try again shortly.</p>}
-          {data && <>
+          {lensOff && <p className="note">Your news lens is off. Turn a lens on in Settings.</p>}
+          {data && !lensOff && <>
             <div className="ntabs" role="group" aria-label="Headline topics">
-              {["All", ...NEWS_GROUPS, ...(tgItems.length ? ["Telegram"] : [])].map((g) => (
+              {["All", ...groups, ...(tgItems.length ? ["Telegram"] : [])].map((g) => (
                 <button key={g} className="chipb" type="button" aria-pressed={tab === g} onClick={() => { setTab(g); setMore(false); }}>
                   {g} {g === "All" ? items.length : items.filter((c) => c.lead.group === g).length}
                 </button>
