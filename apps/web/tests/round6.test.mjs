@@ -76,5 +76,5 @@ test("Small Wins ladder in the Garden keeps its ids and auto items", async () =>
   const html = renderToString(React.createElement(CourtCtx.Provider, { value: { ...ctx([]), st } }, React.createElement(WinsLadder)));
   assert.match(html, /auto: 0 of 14 days in a row from your d6 ticks/);
   assert.match(html, /self-report/);
-  assert.match(html, /1 \/ 3 milestones/);
+  assert.match(html.replace(/<!-- -->/g, ""), /1 \/ 3 milestones/);
 });
