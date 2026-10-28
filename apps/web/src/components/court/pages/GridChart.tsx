@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useCourt } from "../CourtState";
 import { useTick } from "../live/GridWins";
 import { SamsaraLive } from "../live/SamsaraLive";
-import { AROUND, LIMITS, chartOf, editCell, emptyGrid, fillEmpty, hasChart, resetToImported, tickId, undo, type Cell, type GridDef } from "@/lib/court/harada";
+import { AROUND, LIMITS, chartOf, editCell, emptyGrid, fillEmpty, hasChart, resetToImported, tickId, undo, type Cell, type GridDef, isDoublePress } from "@/lib/court/harada";
 import { stamp } from "@/lib/court/time";
 import { Btn, Card, EmptyState, TabPills } from "../ui";
 
@@ -20,7 +20,7 @@ export function GridAndWins() {
   const [tab, setTab] = useState<"chart" | "targets">("chart");
   return (
     <Card title="Grid & Wins" sub="one goal, eight pillars, sixty-four actions" className="kfull" id="grid-wins" actions={<TabPills label="Grid & Wins" value={tab} options={[["chart", "Chart"], ["targets", "Weekly targets"]] as const} onChange={setTab} />}>
-      {tab === "chart" ? <Chart /> : <SamsaraLive onWriteThesis={() => { window.location.hash = "trades"; }} />}
+      {tab === "chart" ? <Chart /> : <div className="kweekly"><SamsaraLive onWriteThesis={() => { window.location.hash = "trades"; }} /></div>}
     </Card>
   );
 }
@@ -35,6 +35,14 @@ function Chart() {
   const [wizard, setWizard] = useState(false);
   const done = st.grid.done;
   const pDone = (p: number) => Array.from({ length: 8 }, (_, a) => !!done[tickId(p, a)]).filter(Boolean).length;
+  // round 8: one press opens the editor; a double press on an action marks it done or not done (key "p.a")
+  const last = useRef<{ key: string; at: number } | null>(null);
+  const press = (c: Cell, key: string) => {
+    const now = Date.now();
+    if (c.kind === "act" && isDoublePress(last.current, key, now)) { last.current = null; const id = tickId(c.p, c.a); tick("grid", id, !done[id], "grid"); return; }
+    last.current = { key, at: now };
+    setSel(c);
+  };
 
   if (wizard || !hasChart(g)) {
     if (!wizard) return (
@@ -47,7 +55,7 @@ function Chart() {
   const chart = g!;
   const total = Object.keys(done).filter((id) => done[id] && /^[1-8]\.[1-8]$/.test(id)).length;
   const cellBtn = (c: Cell, text: string, cls: string, key: string) => (
-    <button key={key} type="button" className={"hcell " + cls + (sel && JSON.stringify(sel) === JSON.stringify(c) ? " sel" : "")} onClick={() => setSel(c)} aria-label={`${label(c)}: ${text || "empty"}${c.kind === "act" && done[tickId(c.p, c.a)] ? ", done" : ""}`}>
+    <button key={key} type="button" className={"hcell " + cls + (sel && JSON.stringify(sel) === JSON.stringify(c) ? " sel" : "")} onClick={() => press(c, key)} title={text || undefined} aria-label={`${label(c)}: ${text || "empty"}${c.kind === "act" && done[tickId(c.p, c.a)] ? ", done" : ""}${c.kind === "act" ? ". Double-press to mark done" : ""}`}>
       <span>{text || "+"}</span>
     </button>
   );

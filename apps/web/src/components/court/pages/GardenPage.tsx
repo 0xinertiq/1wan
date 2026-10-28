@@ -92,12 +92,12 @@ export { habitWeek };
 export function GardenPage() {
   return (
     <div className="kpage">
-      <PageHead scene="garden" title="Sakura Garden" sub="Habits and growth. Real activity waters the garden; nothing is ever lost." />
+      <PageHead title="Sakura Garden" sub="Habits and growth. Real activity waters the garden; nothing is ever lost." />
       <GardenLive slots={{
         pick: <div className="kpick-in"><div className="sec-h">Kumo&apos;s pick</div><KumoPick /></div>,
         habits: <Card title="My habits" sub="the one place to add or edit">{<HabitEditor />}</Card>,
         quests: <HabitQuests />,
-        wins: <Card title="Wins ladder"><WinsLadder /></Card>,
+        wins: <Card title="Wins ladder" className="kfull"><WinsLadder /></Card>,
       }} />
     </div>
   );

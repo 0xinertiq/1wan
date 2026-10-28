@@ -1102,3 +1102,59 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kbtn-row>*{flex:0 0 auto}
 :root[data-ui="new"] .kform-row>.btn{flex:0 0 auto}
 :root[data-ui="new"] .kstep .kform-row>.btn{min-width:120px}
+
+/* ---------- Round 8: tighter layouts ---------- */
+/* every page ends with a clear buffer above the footer and the screen edge (and the phone's safe area) */
+:root[data-ui="new"] .tabpanel{padding-bottom:calc(var(--sp-12) + env(safe-area-inset-bottom,0px))}
+/* card headers: the title and the right-hand label share one baseline */
+:root[data-ui="new"] .kcard .win-title{align-items:baseline}
+/* Garden: no banner; the pixel garden sits straight on the page (no box, border or white fill) */
+:root[data-ui="new"] .kgarden-hero{display:grid;gap:var(--sp-2);justify-items:center;padding:0;border:0;background:none;box-shadow:none}
+:root[data-ui="new"] .kgarden.bare{width:100%;max-width:760px;border:0;border-radius:0;background:none}
+:root[data-ui="new"] .kgarden-line{background:none}
+:root[data-ui="new"] .kgarden-cards{align-items:stretch}
+:root[data-ui="new"] .kgarden-cards>.kcard{height:100%}
+:root[data-ui="new"] .kgarden-cards .kempty{padding:var(--sp-2)}
+/* Dungeon: Your pages and Research notes keep their natural height */
+:root[data-ui="new"] .kpg.even>.kd-pages{display:grid;align-content:start}
+:root[data-ui="new"] .kpg.even>.kd-pages>:last-child{flex:none}
+/* Trades: movers then scan details in one card; a compact Macro desk */
+:root[data-ui="new"] .kscan{display:grid;gap:var(--sp-3);padding-top:var(--sp-3);border-top:var(--bw) solid var(--k-hairline)}
+:root[data-ui="new"] .kscan-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--sp-2)}
+:root[data-ui="new"] .kscan-h .sec-h{margin:0}
+:root[data-ui="new"] .kcompact .win-body{gap:var(--sp-1)}
+:root[data-ui="new"] .kcompact .krow{padding:var(--sp-1) 0;line-height:1.35}
+:root[data-ui="new"] .kcompact :is(p,ul,.sec-h){margin:0}
+:root[data-ui="new"] .kcompact .rv-sug li{margin:0;line-height:1.35}
+/* News: Today's briefing */
+:root[data-ui="new"] .kbrief{margin:0;padding-left:var(--sp-6);display:grid;gap:var(--sp-2)}
+:root[data-ui="new"] .kbrief li{display:grid;gap:var(--sp-1);font:400 var(--fs-body)/1.45 var(--k-font-body);color:var(--k-text)}
+:root[data-ui="new"] .kbrief a{font-weight:700}
+/* Settings: the Look card on one grid (label left, buttons in a row) */
+:root[data-ui="new"] .klook{display:grid;grid-template-columns:max-content minmax(0,1fr);align-items:center;gap:var(--sp-3) var(--sp-4)}
+:root[data-ui="new"] .klook-l{font:700 var(--fs-ui)/1.3 var(--k-font-body);color:var(--k-text)}
+:root[data-ui="new"] .klook .kchips{margin:0}
+:root[data-ui="new"] .klib-bare{display:grid;gap:var(--sp-2)}
+/* Grid & Wins chart: every cell the same size, clear gaps between cells and between the nine blocks */
+:root[data-ui="new"] .hgrid{gap:var(--sp-3)}
+:root[data-ui="new"] .hblock{gap:var(--sp-1);padding:var(--sp-1);grid-auto-rows:1fr}
+:root[data-ui="new"] .hcell{height:64px;min-height:0;display:flex;align-items:center;justify-content:center}
+:root[data-ui="new"] .hcell span{-webkit-line-clamp:3;text-overflow:ellipsis;word-break:break-word}
+:root[data-ui="new"] .hcell.act.on,:root[data-ui="new"] .hcell.full{background:var(--k-done-mint);color:var(--k-done-ink);border-color:var(--k-hairline)}
+@media (max-width:899px){:root[data-ui="new"] .hcell{height:80px}}
+/* Weekly targets: soft cards, plain text, slim bars, compact +/- buttons; same data and ids */
+:root[data-ui="new"] .kweekly .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-3);margin:0}
+@media (max-width:767px){:root[data-ui="new"] .kweekly .tiles{grid-template-columns:minmax(0,1fr)}}
+:root[data-ui="new"] .kweekly .tile{display:grid;gap:var(--sp-2);align-content:start;min-width:0;padding:var(--sp-3);border:var(--bw) solid var(--k-hairline);border-radius:var(--r-control);background:var(--k-soft);box-shadow:none;color:var(--k-text)}
+:root[data-ui="new"] .kweekly .tile b{font:700 var(--fs-h3)/1.2 var(--k-font-head)}
+:root[data-ui="new"] .kweekly .mbar{display:block;height:6px;border-radius:var(--r-pill);background:var(--k-track);overflow:hidden;border:0}
+:root[data-ui="new"] .kweekly .mbar i{display:block;height:100%;background:var(--k-btn-line);border-radius:var(--r-pill)}
+:root[data-ui="new"] .kweekly .rep-act{display:flex;flex-wrap:wrap;gap:var(--sp-1);margin:0}
+:root[data-ui="new"] .kweekly .tile .btn.sm{min-height:32px;padding:0 var(--sp-2);font-size:var(--fs-cap);white-space:nowrap}
+@media (pointer:coarse){:root[data-ui="new"] .kweekly .tile .btn.sm{min-height:var(--tap);min-width:var(--tap)}}
+:root[data-ui="new"] .kweekly details.pillar{margin:0 0 var(--sp-2);padding:var(--sp-2) var(--sp-3);border:var(--bw) solid var(--k-hairline);border-radius:var(--r-control);background:var(--k-soft)}
+:root[data-ui="new"] .kweekly details.pillar>summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--sp-2);cursor:pointer}
+:root[data-ui="new"] .kweekly .filed-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:var(--sp-1) var(--sp-3);margin:0;padding:var(--sp-2) 0;border:0;border-bottom:var(--bw) solid var(--k-hairline);border-radius:0;background:none;box-shadow:none}
+:root[data-ui="new"] .kweekly .filed-row.col{grid-template-columns:minmax(0,1fr)}
+:root[data-ui="new"] .kweekly .filed-row:last-child{border-bottom:0}
+:root[data-ui="new"] .kweekly .filed-row label{display:flex;align-items:baseline;gap:var(--sp-2)}

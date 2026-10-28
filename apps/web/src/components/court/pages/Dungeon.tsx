@@ -59,7 +59,8 @@ function Editor({ day, e, put, status, storeNote }: { day: string; e: Entry | un
   );
 }
 
-function Side({ day, e, put }: { day: string; e: Entry | undefined; put: (x: Partial<Entry> & { id: string }) => void }) {
+// part (round 8): "side" is mood, tags and trade reflection (right column); "notes" is Research notes (left column).
+function Side({ day, e, put, part }: { day: string; e: Entry | undefined; put: (x: Partial<Entry> & { id: string }) => void; part: "side" | "notes" }) {
   const { st } = useCourt();
   const notes = useVault<Note>("research_notes");
   const [tag, setTag] = useState("");
@@ -70,6 +71,7 @@ function Side({ day, e, put }: { day: string; e: Entry | undefined; put: (x: Par
   const old = st.mood[day];
   return (
     <>
+      {part === "side" && <>
       <Card title="Mood and tags">
         <div className="kmood" role="group" aria-label="Mood">
           {MOODS.map((m, i) => <button key={m} type="button" className="chipb" aria-pressed={(cur.mood ?? old?.m) === i + 1} onClick={() => put({ ...base, mood: i + 1 })}>{m}</button>)}
@@ -88,7 +90,8 @@ function Side({ day, e, put }: { day: string; e: Entry | undefined; put: (x: Par
         <label className="kform">How do you feel about it?<textarea key={day + "f"} maxLength={1000} defaultValue={cur.feel ?? ""} onBlur={(ev) => ev.target.value !== (cur.feel ?? "") && put({ ...base, feel: ev.target.value })} /></label>
         <label className="kform">After: what would you change?<textarea key={day + "c"} maxLength={1000} defaultValue={cur.change ?? ""} onBlur={(ev) => ev.target.value !== (cur.change ?? "") && put({ ...base, change: ev.target.value })} /></label>
       </Card>
-      <Card title="Research notes" sub="attach one to this page">
+      </>}
+      {part === "notes" && <Card title="Research notes" sub="attach one to this page">
         {!notes.rows.length ? <EmptyState who="tilly">No saved research notes. Notes you saved before are listed here to attach; nothing new is saved from News any more.</EmptyState>
           : notes.rows.slice(0, 20).map((n) => {
             const on = (cur.notes ?? []).includes(n.id);
@@ -100,7 +103,7 @@ function Side({ day, e, put }: { day: string; e: Entry | undefined; put: (x: Par
             );
           })}
         <p className="note">A note stays separate: attaching links it from this page only.</p>
-      </Card>
+      </Card>}
     </>
   );
 }
@@ -159,9 +162,10 @@ export function DungeonPage() {
             <Archive />
             {dayGap(day, k) < 0 && <p className="note">That day has not come yet; the page will wait for you.</p>}
           </Card>
+          <Side day={day} e={byDay.get(day)} put={put} part="notes" />
         </div>
         <div className="kcol kd-edit"><Editor day={day} e={byDay.get(day)} put={put} status={v.status} storeNote={<StoreNote status={v.status} failed={v.failed} />} /></div>
-        <div className="kcol kd-side"><WeeklyLookBack /><Side day={day} e={byDay.get(day)} put={put} /></div>
+        <div className="kcol kd-side"><WeeklyLookBack /><Side day={day} e={byDay.get(day)} put={put} part="side" /></div>
       </div>
     </div>
   );

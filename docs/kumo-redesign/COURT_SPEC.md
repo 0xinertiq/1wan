@@ -8,7 +8,8 @@ Tab roles: Court = overview (the Castle). Calendar (the Clock Tower) = time and 
 
 | Item | Home | Elsewhere (summary or link only) |
 |---|---|---|
-| Today's briefs (Pulse, Intelligence, Crypto scan) | Court, Briefs card | News: Briefs card (Intel, Pulse history, following her lenses) |
+| Today's briefs (Pulse, Intelligence, Crypto scan) | Court, Briefs card | |
+| Today's briefing (top five stories by rules from the scored headlines, following her lenses) | News, above Headlines | |
 | Kumo's weekly review and the weekly review packet (preview, sensitive toggles off, Copy for Claude) | Settings, one card (#review-card) | Kumo's Sunday alert; header packet button and fox card link there; Settings dot while unread |
 | Headlines, topic chips, Telegram posts | News (follow her lenses) | |
 | Saved research notes | no page (retired from News, round 7); records kept | Dungeon lists every note and attaches one to a page; Export my data |
@@ -18,7 +19,8 @@ Tab roles: Court = overview (the Castle). Calendar (the Clock Tower) = time and 
 | Ledger review, plans, rules, gamble and late-night ledger | hidden (round 7); records and the late-night flag logic kept | |
 | Macro desk (Olli): next releases summary, rates and yields, week notes | Trades | Calendar is the home of releases |
 | Long-term watchlist (Tilly) | Trades | |
-| Calendar events (Day, Week, Month, Agenda), economic calendar, My tasks, Month at a glance, Upcoming | Calendar | Court: Needs you now, Today, Week tab (opens ?day=), the Next: line |
+| Calendar events (Day, Week, Month, Agenda), economic calendar | Calendar | Court: Needs you now, Today, Week tab (opens ?day=), the Next: line |
+| Her tasks (saved records) | no page of their own since round 8; shown in Needs you now and Today's Coming up | |
 | Momo's ideas for your free time | Court, Today card | |
 | Astrology (astro feed, moon, transits) | Court only: Luna's card and the Week tab's Moon sign and tone | never on the Calendar (isAstro plus the Calendar-only isSkyItem) |
 | Grid & Wins: Harada 9x9 chart, Weekly targets | Life Hub, top | Garden look-back links to Weekly targets |

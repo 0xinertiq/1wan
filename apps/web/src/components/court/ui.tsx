@@ -13,10 +13,10 @@ import { VAULT_LABEL, vaultMode, type VStatus } from "@/lib/vault";
 // "Round 6 shared" block of kumo-new.css, on the tokens.
 
 /** Themed pixel scene (or a room banner, round 7 pilot), then the Playfair title, a one-line subtitle and the page actions. */
-export function PageHead({ scene, room, title, sub, actions }: { scene: SceneId; room?: React.ReactNode; title: string; sub: string; actions?: React.ReactNode }) {
+export function PageHead({ scene, room, title, sub, actions }: { scene?: SceneId; room?: React.ReactNode; title: string; sub: string; actions?: React.ReactNode }) {
   return (
     <header className="kpage-head">
-      {room ?? <Scene id={scene} />}
+      {room ?? (scene ? <Scene id={scene} /> : null)}
       <div className="kpage-title">
         <div><h1>{title}</h1><p>{sub}</p></div>
         {actions && <div className="kpage-act">{actions}</div>}

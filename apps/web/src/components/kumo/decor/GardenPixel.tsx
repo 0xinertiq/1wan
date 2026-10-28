@@ -27,16 +27,19 @@ function rects(rows: Sprite, x0: number, y0: number, pal: Record<string, string>
 
 // Round 7: petals drift down as the week fills (0 to 14, fixed spots so the picture never jumps).
 const PETALS: [number, number][] = [[44, 12], [12, 18], [40, 26], [8, 30], [50, 33], [28, 36], [66, 24], [36, 8], [58, 30], [22, 38], [70, 34], [4, 22], [46, 37], [32, 30]];
-export function GardenPixel({ stage, wilt, label, petals = 0 }: { stage: number; wilt: boolean; label: string; petals?: number }) {
+// bare (round 8): no sky and no box, so the tree, pond, lanterns, petals and ground sit on the page background.
+export function GardenPixel({ stage, wilt, label, petals = 0, bare = false }: { stage: number; wilt: boolean; label: string; petals?: number; bare?: boolean }) {
   const s = Math.max(0, Math.min(4, Math.round(stage)));
   const tree = DECOR["sakura_" + s]?.rows ?? [];
   return (
-    <div className={"kgarden" + (wilt ? " wilt" : "")}>
+    <div className={"kgarden" + (wilt ? " wilt" : "") + (bare ? " bare" : "")}>
       <svg viewBox={`0 0 ${W} ${H}`} shapeRendering="crispEdges" role="img" aria-label={label}>
+        {!bare && <>
         {/* pastel dusk sky in bands, pixel-art */}
         {["#FBE3F1", "#F4DDF6", "#EBDDFB", "#E3E0FF"].map((c, i) => <rect key={c} x={0} y={i * 10} width={W} height={10} fill={c} />)}
         <rect x={78} y={4} width={6} height={6} fill={SCENE_PAL.o} /><rect x={79} y={3} width={4} height={8} fill={SCENE_PAL.o} />
         {[[10, 6], [30, 3], [60, 8], [88, 14]].map(([x, y]) => <rect key={x} x={x} y={y} width={1} height={1} fill={SCENE_PAL.g} />)}
+        </>}
         <rect x={0} y={G} width={W} height={H - G} fill={SCENE_PAL.m} />
         <rect x={0} y={G} width={W} height={1} fill={SCENE_PAL.X} />
         <rect x={56} y={G + 1} width={28} height={5} fill={SCENE_PAL.w} />

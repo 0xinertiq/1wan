@@ -374,3 +374,47 @@ Checks after the fix round:
 - 140 tests pass.
 - Browser runs are clean.
 - The build passes.
+
+## Round 8: tighter layouts (on preview)
+
+Nothing protected was edited, and no records are deleted.
+
+### What changed, by tab
+- **Calendar:** the Calendar card, then the Economic calendar, both full width.
+  - My tasks, Month at a glance and Upcoming are off this tab. Tasks stay saved and still show in Needs you now and Today's Coming up.
+  - Coco's task alert now opens Needs you now.
+- **Garden:**
+  - No banner: the pixel garden sits straight on the page (no sky, box or border) and still grows with the week, with the progress line under it.
+  - Daily anchors and Branches, then My habits and Quests, share rows, so tops, bottoms and widths line up. The Wins ladder spans the width below.
+  - Card titles and labels sit on one baseline.
+- **Dungeon:** Your pages keeps its natural height, with Research notes under it in the left column.
+- **Life Hub:**
+  - Weekly targets are restyled: three even soft cards, slim bars, compact +/- buttons; the milestone groups and Weekly rhythm use the same soft style. Data and ids are unchanged.
+  - Grid cells: a double-click or double-tap marks an action done, using the same "p.a" key, `useTick` and `water()` as the editor's Done box, which stays. A single press opens the editor.
+  - Done cells are a soft pastel green, the same by day and night.
+  - All cells are the same height, with clear gaps between cells and between blocks. Text is clamped, and the full text shows on hover and in the editor.
+- **Trades:** one full-width card holds Midday movers, then Scan details. The Macro desk is compact.
+- **News:**
+  - The Briefs card is removed; the Intel and Pulse briefs live on the Court.
+  - New "Today's briefing" card, built by rules with no AI:
+    - Keeps stories in her lenses, leaving out social-only ones.
+    - Groups near-duplicate leads by title similarity and adds up their sources.
+    - Ranks by score, then by recency, and shows the top five with sources and age.
+    - Ends with a count line.
+- **Settings:**
+  - Kumo's weekly review card shows only the review list, then the packet. The "Briefs and scans" header and tabs are gone.
+  - Account is in the left column.
+  - The Look card uses a label grid.
+- **Every page:** ends with 48px plus the safe-area buffer.
+
+### Decisions made
+1. The near-duplicate threshold for the briefing is 0.35 trigram similarity. The feed clustering uses 0.45, so the briefing only merges stories the clustering kept apart.
+2. A double press is two presses on the same cell within 350 ms. The first press opens the editor, as a single press always did.
+3. Soft cards use the glass surface with a new hairline plum-tinted border token. The done-cell green is one new token, the same by day and night.
+
+### Checks
+- Typecheck is clean.
+- 148 tests pass, including 8 new ones in tests/round8.test.mjs.
+- All 56 browser runs are clean.
+- The build passes, with only the existing Supabase realtime warning.
+

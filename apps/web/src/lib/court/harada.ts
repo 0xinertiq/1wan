@@ -72,3 +72,8 @@ export function fillEmpty(base: GridDef | null, w: GridDef): GridDef {
 /** Block layout: 9 blocks in a 3x3; the centre block (4) holds the goal and the 8 pillars; block order around. */
 export const AROUND = [0, 1, 2, 3, 5, 6, 7, 8] as const;
 export const tickId = (p: number, a: number) => `${p + 1}.${a + 1}`;
+
+/** Round 8: a second press on the same cell within `ms` is a double press (double-click, or double-tap on touch). */
+export function isDoublePress(last: { key: string; at: number } | null, key: string, now: number, ms = 350) {
+  return !!last && last.key === key && now - last.at >= 0 && now - last.at < ms;
+}

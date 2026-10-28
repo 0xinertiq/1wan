@@ -222,7 +222,7 @@ export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode;
     <p className="note">Any real activity revives a branch at once. Weeding a bare branch regrows a sprout; blossoms and history are never lost.</p>
   </>;
 
-  // New look (round 7): the pixel sakura garden is the hero, growing through the week from real activity (quests,
+  // New look (round 7, round 8: no banner; the garden sits straight on the page, no box) the pixel sakura garden is the hero, growing through the week from real activity (quests,
   // anchors and her own habits: more blossoms and petals as the week fills), with one line of this week's progress
   // and any gentle nudge under it. Below, two columns of cards: Daily anchors and My habits; Branches, Quests (with
   // Kumo's pick and her habits for today) and the Wins ladder. The tails live with the fox in the world.
@@ -233,22 +233,20 @@ export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode;
     const thirsty = ["thirsty", "wilting", "withered", "dead"].includes(trunk.stage);
     return (
       <div id="gardenBox" className="kgarden-page">
-        <section className="win kcard kgarden-hero" aria-label="Sakura garden">
-          <GardenPixel stage={stage} petals={Math.round(fill * 14)} wilt={thirsty} label={`Sakura garden: the tree is a ${STAGES[stage].toLowerCase()} this week${thirsty ? ", a little thirsty" : ""}`} />
+        <section className="kgarden-hero" aria-label="Sakura garden">
+          <GardenPixel bare stage={stage} petals={Math.round(fill * 14)} wilt={thirsty} label={`Sakura garden: the tree is a ${STAGES[stage].toLowerCase()} this week${thirsty ? ", a little thirsty" : ""}`} />
           <p className="kgarden-line">This week: <b>{wkh.d}</b> of {wkh.t} quests · <b>{hw.anchors}</b> anchor tick{hw.anchors === 1 ? "" : "s"}{hw.planned ? <> · <b>{hw.done}</b> of {hw.planned} of your habits</> : null} · the tree is a {STAGES[stage].toLowerCase()}{trunk.resting ? " · resting today" : ""}</p>
           {evs == null && <p className="note">Reading your activity…</p>}
           {care.length > 0 && <div className="kgarden-nudge">{care.slice(0, 3).map((b) => <p className="note" key={b.n}><Mini name={NUDGE[b.n].crew} sm /> <span><b>{b.n ? b.name : "Trunk"}</b>: {NUDGE[b.n].t}</span></p>)}</div>}
         </section>
-        <div className="kpg two even">
-          <div className="kcol">
-            <GCard title="Daily anchors" sub={`${todayA.length}/${anchors.length || 8} today · waters the trunk`}>{anchorList}</GCard>
-            {slots.habits}
-          </div>
-          <div className="kcol">
-            <GCard title="Branches" sub={`${blossoms} of 64 blossoms`}>{branchList}<p className="note">Any real activity revives a branch at once. Weeding a bare branch regrows a sprout; blossoms and history are never lost.</p></GCard>
-            <GCard title="Quests">{slots.pick}<div id="gQuestSlot"><QuestLive /></div>{slots.quests}</GCard>
-            {slots.wins}
-          </div>
+        {/* round 8: one grid, so cards in a row share their top, bottom and width (left: anchors, habits; right:
+            branches, quests); the Wins ladder spans the width below */}
+        <div className="kpg two kgarden-cards">
+          <GCard title="Daily anchors" sub={`${todayA.length}/${anchors.length || 8} today · waters the trunk`}>{anchorList}</GCard>
+          <GCard title="Branches" sub={`${blossoms} of 64 blossoms`}>{branchList}<p className="note">Any real activity revives a branch at once. Weeding a bare branch regrows a sprout; blossoms and history are never lost.</p></GCard>
+          {slots.habits}
+          <GCard title="Quests">{slots.pick}<div id="gQuestSlot"><QuestLive /></div>{slots.quests}</GCard>
+          {slots.wins}
         </div>
       </div>
     );
