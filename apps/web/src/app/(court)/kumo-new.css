@@ -1267,3 +1267,12 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 }
 :root[data-ui="new"] .kdun .kgrat-read,:root[data-ui="new"] .kdun .klib-bare{max-height:240px;overflow-y:auto}
 :root[data-ui="new"] .kupload:focus-within{outline:var(--bw-2) solid var(--k-focus);outline-offset:2px}
+/* Dungeon: the three columns line up. Each column's last card stretches to the bottom of the row, so all three
+   end on the same line, and every card's title bar has the same height, so the tops line up too. */
+:root[data-ui="new"] .kpg.kdun>.kcol{display:flex;flex-direction:column}
+:root[data-ui="new"] .kpg.kdun>.kcol>*{flex:0 0 auto}
+:root[data-ui="new"] .kpg.kdun>.kcol>:last-child{flex:1 0 auto}
+:root[data-ui="new"] .kdun .kcard>.win-title{min-height:44px;align-items:center}
+@media (min-width:1200px) and (min-height:540px){
+  :root[data-ui="new"] .kdun-page.fit .kpg.kdun>.kcol>:last-child{flex:1 0 auto;min-height:0}
+}
