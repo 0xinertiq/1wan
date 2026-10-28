@@ -15,6 +15,7 @@ import { CalendarPage } from "@/components/court/pages/CalendarPage";
 import { LifeHub } from "@/components/court/pages/LifeHub";
 import { DungeonPage } from "@/components/court/pages/Dungeon";
 import { GardenPage } from "@/components/court/pages/GardenPage";
+import { NewsPage } from "@/components/court/pages/NewsPage";
 import { CrewRoster, LivingWorld } from "@/components/court/live/LivingWorld";
 import { NeedsNow, WeekAhead } from "@/components/court/live/CourtHome";
 import { BriefsBlock, BriefsLibrary, MoversCard, ReviewCard, type DeskMem } from "@/components/court/CourtBriefs";
@@ -87,7 +88,7 @@ export function buildTree(d: Data) {
         <AppTabs
           extra={{
             trades: <NewOnly><TradesPage left={<><LiveWatch /><MoversCard list={docs.filter((x) => x.key === "movers")} /><TechLive /></>} scan={docOf("scan")} intel={docOf("intel")} /></NewOnly>,
-            news: <div className="tgrid news"><div className="tcol"><BriefsLibrary history={docs} /></div><div className="tcol"><NewsLive top5={["The Fed holds."]} /></div></div>,
+            news: <NewOnly><NewsPage headlines={<NewsLive top5={["The Fed holds."]} />} library={<BriefsLibrary history={docs} />} /></NewOnly>,
           }}
           panels={{
             court: <CourtLayout s={s} />,

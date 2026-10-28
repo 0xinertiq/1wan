@@ -78,3 +78,13 @@ test("Small Wins ladder in the Garden keeps its ids and auto items", async () =>
   assert.match(html, /self-report/);
   assert.match(html.replace(/<!-- -->/g, ""), /1 \/ 3 milestones/);
 });
+
+test("Saved and research follows the market lens; macro notes stay on the Macro desk", async () => {
+  const { forLens } = await import("../src/components/court/pages/NewsPage.tsx");
+  const n = (id, lens, kind = "note") => ({ id, kind, lens, title: id, text: "", tags: [], at: "", up: "" });
+  const rows = [n("a", "trading"), n("b", "local"), n("c", undefined), n("m", "trading", "macro")];
+  assert.deepEqual(forLens(rows, "trading").map((r) => r.id), ["a", "c"]);
+  assert.deepEqual(forLens(rows, "local").map((r) => r.id), ["b"]);
+  assert.deepEqual(forLens(rows, "any").map((r) => r.id), ["a", "b", "c"]);
+  assert.deepEqual(forLens(rows, "off"), []);
+});

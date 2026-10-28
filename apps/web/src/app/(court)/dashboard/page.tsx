@@ -42,6 +42,7 @@ import { CalendarPage } from "@/components/court/pages/CalendarPage";
 import { LifeHub } from "@/components/court/pages/LifeHub";
 import { DungeonPage } from "@/components/court/pages/Dungeon";
 import { GardenPage } from "@/components/court/pages/GardenPage";
+import { NewsPage } from "@/components/court/pages/NewsPage";
 import { topFive } from "@/components/kumo/briefParse";
 import { DiaryLive, GardenLive, StatusLive, WinsButton } from "@/components/court/live/GrowLive";
 import { bootState } from "@/lib/court/actions";
@@ -121,10 +122,7 @@ export default async function Dashboard() {
           ),
           news: (
             <NewOnly>
-              <div className="tgrid news">
-                <div className="tcol"><BriefsLibrary history={history} /></div>
-                <div className="tcol"><NewsLive top5={top5} /></div>
-              </div>
+              <NewsPage headlines={<NewsLive top5={top5} />} library={<BriefsLibrary history={history} />} />
             </NewOnly>
           ),
         }}

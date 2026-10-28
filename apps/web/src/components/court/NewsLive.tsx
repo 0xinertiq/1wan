@@ -69,7 +69,8 @@ export function NewsLive({ top5 = [] }: { top5?: string[] }) {
   const watch = (prices?.prices ?? []).flatMap((p) => [p.sym, (COINGECKO_IDS[p.sym] ?? "").split("-")[0]]).filter(Boolean);
   const clusters = cluster([...rss, ...tgItems], { watch, releases: (econ?.items ?? []).filter((e) => e.top).map((e) => e.title) });
   const items = clusters;
-  const list = tab === "All" ? items : items.filter((c) => c.lead.group === tab);
+  // A Telegram post that clustered with a news story still shows under the Telegram chip (never lost to topic filing).
+  const list = tab === "All" ? items : tab === "Telegram" ? items.filter((c) => c.items.some((x) => x.group === "Telegram")) : items.filter((c) => c.lead.group === tab);
   const shown = list.slice(0, more ? 40 : 8);
   const down = (Array.isArray(data?.feeds) ? data.feeds : []).filter((f) => f && !f.ok).map((f) => f.name);
 
