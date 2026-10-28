@@ -1073,3 +1073,23 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kgarden-nudge .mini{flex:none;width:24px;height:24px;margin:0}
 :root[data-ui="new"] .kgarden-nudge .mini svg{display:block;width:100%;height:100%}
 :root[data-ui="new"] .kpick-in{display:grid;gap:var(--sp-2);padding-bottom:var(--sp-3);border-bottom:var(--bw) dashed var(--k-divider)}
+/* Round 7 Dungeon: Your pages | Today's page | look-back and the side cards; on a tablet the page sits left */
+@media (min-width:768px) and (max-width:1199px){
+  :root[data-ui="new"] .kpg.kdun{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);grid-template-areas:"edit pages" "edit side"}
+  :root[data-ui="new"] .kpg.kdun>.kd-pages{grid-area:pages}
+  :root[data-ui="new"] .kpg.kdun>.kd-edit{grid-area:edit}
+  :root[data-ui="new"] .kpg.kdun>.kd-side{grid-area:side}
+}
+@media (min-width:1200px){:root[data-ui="new"] .kpg.kdun{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr) minmax(0,1fr)}}
+:root[data-ui="new"] .kd-edit>.kjournal{display:flex;flex-direction:column}
+:root[data-ui="new"] .kd-edit>.kjournal>.win-body{flex:1 1 auto;display:flex;flex-direction:column;gap:var(--sp-3)}
+:root[data-ui="new"] .kd-edit>.kjournal textarea{flex:1 1 auto;min-height:360px}
+/* mini month heading: arrows and title centred over the grid; the selected day and today wear a pixel heart */
+:root[data-ui="new"] .kmini-head{display:grid;grid-template-columns:var(--tap) minmax(0,1fr) var(--tap);align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-2);text-align:center}
+:root[data-ui="new"] .kmini-head .btn{min-width:var(--tap);padding:0}
+:root[data-ui="new"] .kmini button>span{position:relative}
+:root[data-ui="new"] .kmini button.today{border-color:transparent}
+:root[data-ui="new"] .kmini button[aria-pressed=true]{background:transparent;border-color:transparent;color:var(--k-btn-ink)}
+:root[data-ui="new"] .kheart{position:absolute;inset:0;margin:auto;width:80%;height:80%;max-width:40px;image-rendering:pixelated}
+:root[data-ui="new"] .kheart .kh-x{fill:var(--k-btn-line)}
+:root[data-ui="new"] .kheart .kh-p{fill:var(--k-btn-fill-hover)}

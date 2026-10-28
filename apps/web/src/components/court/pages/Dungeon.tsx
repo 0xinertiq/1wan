@@ -36,7 +36,7 @@ export function lookBack(entries: Entry[], wins: Record<string, { w?: string; g?
   };
 }
 
-function Editor({ day, e, put, status }: { day: string; e: Entry | undefined; put: (x: Partial<Entry> & { id: string }) => void; status: string }) {
+function Editor({ day, e, put, status, storeNote }: { day: string; e: Entry | undefined; put: (x: Partial<Entry> & { id: string }) => void; status: string; storeNote?: React.ReactNode }) {
   const { st, k, openSheet } = useCourt();
   const [text, setText] = useState(e?.text ?? "");
   const timer = useRef<number | undefined>(undefined);
@@ -48,6 +48,7 @@ function Editor({ day, e, put, status }: { day: string; e: Entry | undefined; pu
     <Card title={day === k ? "Today's page" : prettyDay(day)} sub={status === "saving" ? "saving…" : status === "error" ? "not saved, try again" : status === "saved" ? "saved" : "autosaves as you write"} className="kjournal">
       <textarea aria-label={`Journal entry for ${prettyDay(day)}`} maxLength={20000} placeholder="Write freely. Nobody is reading but you." value={text} onChange={(ev) => change(ev.target.value)} />
       <span className="note">{text.length.toLocaleString("en-SG")} characters · private to you</span>
+      {storeNote}
       {w && (w.w || w.g || w.n) && (
         <div className="kcallout t-lav">
           {w.w && <p><b>Win</b> {w.w}</p>}{w.g && <p><b>Thanks</b> {w.g}</p>}{w.n && <p className="pre"><b>Notes</b> {w.n}</p>}
@@ -138,9 +139,11 @@ export function DungeonPage() {
   const put = (x: Partial<Entry> & { id: string }) => v.put((byDay.has(x.day ?? day) ? x : { tags: [], notes: [], text: "", ...x }) as Partial<Entry> & { id: string });
   return (
     <div className="kpage">
-      <PageHead scene="gate" title="Dungeon" sub="Your private journal. Never shown to friends; included in Export my data." actions={<a className="btn sm ghost" href="#dungeon-week">Weekly look-back</a>} />
-      <div className="kpg three">
-        <div className="kcol">
+      <PageHead scene="gate" title="Dungeon" sub="Your private journal. Never shown to friends; included in Export my data." />
+      {/* round 7: Your pages | Today's page (stretches to the row, the writing area fills it) | the weekly look-back,
+          then mood, tags, reflections and notes. On a tablet the page sits left with the other two stacked right. */}
+      <div className="kpg kdun even">
+        <div className="kcol kd-pages">
           <Card title="Your pages">
             <TabPills label="Pages" value={tab} options={[["month", "Month"], ["list", "List"]] as const} onChange={setTab} />
             {tab === "month" ? <MiniMonth marks={has} picked={day} onPick={(d) => setDay(d)} label="Journal month" /> : <>
@@ -157,8 +160,8 @@ export function DungeonPage() {
             {dayGap(day, k) < 0 && <p className="note">That day has not come yet; the page will wait for you.</p>}
           </Card>
         </div>
-        <div className="kcol"><Editor day={day} e={byDay.get(day)} put={put} status={v.status} /><StoreNote status={v.status} failed={v.failed} /></div>
-        <div className="kcol"><Side day={day} e={byDay.get(day)} put={put} /><WeeklyLookBack /></div>
+        <div className="kcol kd-edit"><Editor day={day} e={byDay.get(day)} put={put} status={v.status} storeNote={<StoreNote status={v.status} failed={v.failed} />} /></div>
+        <div className="kcol kd-side"><WeeklyLookBack /><Side day={day} e={byDay.get(day)} put={put} /></div>
       </div>
     </div>
   );
