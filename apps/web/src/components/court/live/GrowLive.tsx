@@ -14,6 +14,7 @@ import {
 import { addDays, prettyDay, weekKey, dayIdx, sgtKeyOf } from "@/lib/court/time";
 import { branches, needsCare, type Branch, type WaterEvt } from "@/lib/court/garden";
 import { DecorSprite } from "@/components/kumo/DecorSprite";
+import { GardenPixel } from "@/components/kumo/decor/GardenPixel";
 import { DungeonIcon } from "@/components/kumo/DungeonIcon";
 import { NUDGE } from "@/lib/gardenMap";
 import { water } from "@/lib/court/water";
@@ -139,13 +140,14 @@ function bonsaiSvg(items: { f: SeedInfo }[], nroots: number) {
 // Diary archive. Tone is gentle: the tree reflects habits, never her worth.
 const STAGE_TXT: Record<string, string> = { sprout: "sprout, waiting for its first activity", blooming: "blooming", thirsty: "thirsty", wilting: "wilting", withered: "withered", dead: "bare, ready to weed out" };
 
-export function GardenLive() {
+// extra: more segments for the New-look Garden page (wins ladder, her own habits, the week).
+export function GardenLive({ extra = [] }: { extra?: { id: string; label: string; node: React.ReactNode }[] }) {
   const { st, k, update, levelUp } = useCourt();
   const [evs, setEvs] = useState<WaterEvt[] | null>(null);
   const [ledger, setLedger] = useState<{ trades: Record<string, unknown>[]; plans: Record<string, unknown>[] } | null>(null);
   const [arm, setArm] = useState("");
   const ui = useUi();
-  const [seg, setSeg] = useState<"anchors" | "branches" | "quests">("anchors");
+  const [seg, setSeg] = useState<string>("anchors");
   useEffect(() => {
     getOnce<any>("/api/water?days=30").then((j) => setEvs(Array.isArray(j.events) ? j.events : [])).catch(() => setEvs([]));
     getOnce<any>("/api/ledger").then((j) => j.trades && setLedger(j)).catch(() => {});
@@ -191,6 +193,7 @@ export function GardenLive() {
   const items = list.map((b) => ({ f: { n: 0, run: 0, pts: 0, wet: false, idle: b.idle, stage: Math.min(4, Math.ceil(b.blossoms / 2)), mood: (b.stage === "blooming" || b.stage === "sprout" ? "ok" : b.stage === "thirsty" ? "thirsty" : "wilting") as SeedInfo["mood"] } }));
   const care = [trunk, ...list].filter(needsCare);
   const blossoms = list.reduce((a, b) => a + b.blossoms, 0);
+  const wkh = weekHab(st, k);
   const petals = ["swins", "money", "samsara"].reduce((a, key) => a + Object.values((st[key as "swins"]).done).filter(Boolean).length, 0);
 
   const head = <>
@@ -222,14 +225,22 @@ export function GardenLive() {
   // (Daily anchors | Branches | Quests). The tails live with the fox in the world, so they are not repeated here.
   if (ui === "new") return (
     <div id="gardenBox" className="ggrid">
-      <div className="gleft"><GardenScene list={list} /><div className="tcard garden">{head}{nudge}</div></div>
+      <div className="gleft">
+        <GardenPixel stage={wkh.t ? Math.min(4, Math.floor((wkh.d / wkh.t) * 5)) : 0} wilt={["thirsty", "wilting", "withered", "dead"].includes(trunk.stage)} label={`Sakura garden: the tree is a ${STAGES[wkh.t ? Math.min(4, Math.floor((wkh.d / wkh.t) * 5)) : 0].toLowerCase()} this week${trunk.stage === "blooming" || trunk.stage === "sprout" ? "" : ", a little thirsty"}`} />
+        <div className="tcard garden">
+          <p className="gtag">The tree grows with your habits this week. A thirsty garden droops a little and recovers with any activity; nothing is ever lost.</p>
+          <p className="gsum"><b>{blossoms}</b> of 64 blossoms · <b>{petals}</b> golden petals from ladder milestones{trunk.resting ? " · resting today, decay paused" : ""}</p>
+          {evs == null && <p className="note">Reading your activity…</p>}
+          {nudge}
+        </div>
+      </div>
       <div className="tcard gright">
         <div className="kseg" role="tablist" aria-label="Garden">
-          {([["anchors", `Daily anchors ${todayA.length}/${anchors.length || 8}`], ["branches", "Branches"], ["quests", "Quests"]] as const).map(([id, t]) => (
+          {([["anchors", `Daily anchors ${todayA.length}/${anchors.length || 8}`], ["branches", "Branches"], ["quests", "Quests"], ...extra.map((x) => [x.id, x.label])] as [string, string][]).map(([id, t]) => (
             <button key={id} type="button" role="tab" aria-selected={seg === id} className={seg === id ? "on" : ""} onClick={() => setSeg(id)}>{t}</button>
           ))}
         </div>
-        {seg === "anchors" ? anchorList : seg === "branches" ? branchList : <div id="gQuestSlot"><QuestLive /></div>}
+        {seg === "anchors" ? anchorList : seg === "branches" ? branchList : seg === "quests" ? <div id="gQuestSlot"><QuestLive /></div> : extra.find((x) => x.id === seg)?.node}
       </div>
     </div>
   );

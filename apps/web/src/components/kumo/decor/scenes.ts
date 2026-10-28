@@ -133,15 +133,15 @@ const castle: Sprite = [
   "XoooXoooXbbXoooXoooX",
   "XXXXXXXXXXXXXXXXXXXX",
 ];
-const bridge: Sprite = [
+export const bridge: Sprite = [
   "......XXXXXXXX......",
   "...XXXqqqqqqqqXXX...",
   "..XqqXXXXXXXXXXqqX..",
   ".XqX..X..X..X..XqX..",
   "XqX..............XqX",
 ];
-const heart: Sprite = [".X.X.", "XpXpX", "XpppX", ".XpX.", "..X.."];
-const lanternS: Sprite = ["..X..", ".XgX.", "XgogX", "XgggX", ".XXX.", "..X..", "..X.."];
+export const heart: Sprite = [".X.X.", "XpXpX", "XpppX", ".XpX.", "..X.."];
+export const lanternS: Sprite = ["..X..", ".XgX.", "XgogX", "XgggX", ".XXX.", "..X..", "..X.."];
 const coin: Sprite = [".XXX.", "XgggX", "XgXgX", "XgggX", ".XXX."];
 const rune: Sprite = ["XgX", "g.g", "XgX"];
 const sakura: Sprite = [
@@ -157,7 +157,7 @@ const sakura: Sprite = [
   ".......bb.......",
   "......XbbX......",
 ];
-const flower: Sprite = [".p.", "pgp", ".p.", ".l."];
+export const flower: Sprite = [".p.", "pgp", ".p.", ".l."];
 
 export type Place = { s: Sprite; x: number; y?: number; scale?: number };
 // Each scene: the landmark and its friends on a 160 x 40 pixel stage (ground at y 34).

@@ -61,3 +61,20 @@ test("Dungeon weekly look-back is rule-based: pages, moods, tags, wins, quests",
   assert.equal(L.days, 3); assert.equal(L.written, 3); assert.equal(L.avgMood, 3);
   assert.deepEqual(L.topTags, ["calm", "work"]); assert.equal(L.winsDays, 1); assert.equal(L.quests, 3);
 });
+
+test("Garden: own habits counted on scheduled days only; quests and XP untouched", async () => {
+  const { habitWeek } = await import("../src/components/court/pages/GardenPage.tsx");
+  const st = { hab: { list: [{ id: "h1", name: "Stretch", days: [1, 2, 3], at: "" }, { id: "h2", name: "Paused", days: [1], paused: true, at: "" }], log: { "2026-10-26": ["h1"], "2026-10-27": ["h1", "gone"] } }, swins: { log: { "2026-10-26": ["d1", "d6"] } } };
+  assert.deepEqual(habitWeek(st, "2026-10-28"), { days: 3, planned: 3, done: 2, anchors: 2 });
+});
+
+test("Small Wins ladder in the Garden keeps its ids and auto items", async () => {
+  const React = (await import("react")).default;
+  const { renderToString } = await import("react-dom/server");
+  const { WinsLadder } = await import("../src/components/court/pages/GardenPage.tsx");
+  const st = normalize({ defs: { swins: { phases: [{ id: "p1", title: "Phase 1", when: "Nov", why: "w", items: [["b3", "No late-night trades", "14 days"], ["b6", "Tea", "14 days"], ["a3", "Rules", "x"]] }] } }, swins: { done: { a3: true } } }, K);
+  const html = renderToString(React.createElement(CourtCtx.Provider, { value: { ...ctx([]), st } }, React.createElement(WinsLadder)));
+  assert.match(html, /auto: 0 of 14 days in a row from your d6 ticks/);
+  assert.match(html, /self-report/);
+  assert.match(html, /1 \/ 3 milestones/);
+});

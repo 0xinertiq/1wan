@@ -41,6 +41,7 @@ import { TradesPage } from "@/components/court/pages/TradesPage";
 import { CalendarPage } from "@/components/court/pages/CalendarPage";
 import { LifeHub } from "@/components/court/pages/LifeHub";
 import { DungeonPage } from "@/components/court/pages/Dungeon";
+import { GardenPage } from "@/components/court/pages/GardenPage";
 import { topFive } from "@/components/kumo/briefParse";
 import { DiaryLive, GardenLive, StatusLive, WinsButton } from "@/components/court/live/GrowLive";
 import { bootState } from "@/lib/court/actions";
@@ -155,7 +156,7 @@ export default async function Dashboard() {
             />
           ),
           calendar: <NewOnly classic={<CalendarTab />}><CalendarPage main={<CalendarTab noWeek />} econ={<EconLive />} momo={<MomoCard />} /></NewOnly>,
-          garden: <div className="tabcol"><NewOnly><section className="win kpick" aria-label="Chief Kumo's pick"><div className="win-body"><KumoPick /></div></section></NewOnly><GardenLive /></div>,
+          garden: <NewOnly classic={<div className="tabcol"><GardenLive /></div>}><GardenPage /></NewOnly>,
           diary: <NewOnly classic={<div className="tabcol"><WinsButton /><DiaryLive open /></div>}><DungeonPage /></NewOnly>,
           life: <NewOnly classic={<div className="tabcol"><LifeTabs /></div>}><LifeHub /></NewOnly>,
         }}
