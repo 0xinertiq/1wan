@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useCourt } from "../CourtState";
-import { eventsOn, isAstro } from "@/lib/court/state";
+import { eventsOn, isSkyItem } from "@/lib/court/state";
 import { addDays, hm, monthTitle, prettyDay, weekKey, wdName, wdOf } from "@/lib/court/time";
 import { openTab } from "@/lib/court/nav";
 import { useVault, type VRow } from "@/lib/vault";
@@ -90,7 +90,7 @@ function Upcoming() {
   const tasks = useVault<T>("tasks"), routines = useVault("routines");
   const due = dueSoon(tasks.rows, routines.rows as never, k, 7);
   const days = Array.from({ length: 7 }, (_, i) => addDays(k, i));
-  const rows = days.map((d) => ({ d, ev: eventsOn(events, d).filter((e) => !isAstro(e)), due: due.filter((x) => x.d === d || (d === k && x.dd < 0)) })).filter((x) => x.ev.length || x.due.length);
+  const rows = days.map((d) => ({ d, ev: eventsOn(events, d).filter((e) => !isSkyItem(e)), due: due.filter((x) => x.d === d || (d === k && x.dd < 0)) })).filter((x) => x.ev.length || x.due.length);
   return (
     <Card title="Upcoming" sub="next 7 days">
       {!rows.length ? <EmptyState who="momo">A clear week ahead.</EmptyState> : rows.map((x) => (
@@ -115,7 +115,7 @@ export function CalendarPage({ main, econ }: { main: React.ReactNode; econ: Reac
           <div id="econ-cal">{econ}</div>
           <Tasks />
           <Card title="Month at a glance">
-            <MiniMonth marks={(d) => eventsOn(events, d).some((e) => !isAstro(e)) || tasks.rows.some((t) => t.due === d && !t.done)} onPick={(d) => openTab("calendar", { day: d })} />
+            <MiniMonth marks={(d) => eventsOn(events, d).some((e) => !isSkyItem(e)) || tasks.rows.some((t) => t.due === d && !t.done)} onPick={(d) => openTab("calendar", { day: d })} />
           </Card>
         </div>
       </div>

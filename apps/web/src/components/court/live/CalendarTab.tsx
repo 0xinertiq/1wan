@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useCourt } from "../CourtState";
-import { eventsOn, isAstro, type DayEvent } from "@/lib/court/state";
+import { eventsOn, isSkyItem, type DayEvent } from "@/lib/court/state";
 import { addDays, hm, prettyDay, wdName, wdOf, weekKey, sgtKeyOf, monthTitle, clock } from "@/lib/court/time";
 import { readSaved, writeSaved } from "@/lib/court/store";
 import { isDayKey, takeParam } from "@/lib/court/nav";
@@ -53,10 +53,10 @@ export function CalendarTab({ noWeek = false }: { noWeek?: boolean }) {
   }, []);
   const pick = (v: View) => { setView(v); setDay(null); setAnchor(k); writeSaved("cal-view", v); };
 
-  const feeds = [...new Set(events.filter((e) => !isAstro(e)).map((e) => e.cal))];
+  const feeds = [...new Set(events.filter((e) => !isSkyItem(e)).map((e) => e.cal))];
   const itemsOn = (d: string): Item[] => {
     // Luna owns astrology (round 6 addendum 2): no astro event or sky layer on the Calendar, in any view.
-    const out: Item[] = eventsOn(events, d, true).filter((e) => !isAstro(e) && !off.includes(e.cal)).map((e: DayEvent) => ({ t: e.t, color: e.color, a: e.a, b: e.b, allDay: e.allDay, cal: e.cal }));
+    const out: Item[] = eventsOn(events, d, true).filter((e) => !isSkyItem(e) && !off.includes(e.cal)).map((e: DayEvent) => ({ t: e.t, color: e.color, a: e.a, b: e.b, allDay: e.allDay, cal: e.cal }));
     return out.sort((x, y) => Number(y.allDay) - Number(x.allDay) || x.a - y.a);
   };
 

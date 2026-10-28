@@ -310,6 +310,12 @@ export type DayEvent = { t: string; cal: string; color: string; loc?: string; de
 
 // The purchased "astro" feed (matched by its GCAL_NAME label) is Luna's layer, kept out of normal views.
 export const isAstro = (e: { cal: string }) => /astro/i.test(e.cal);
+// Round 7, Calendar tab only: also anything sky-shaped by its feed name or title (moon phases, retrogrades, signs),
+// so no astrology reaches the Calendar whatever the feed is called. Words alone like "Cancer" or "Mars" never hide
+// a real event; only sky phrasing does. isAstro above is unchanged.
+const SKY_CAL = /astro|luna|moon|zodiac|horoscope/i;
+const SKY_TITLE = /\b(moon|lunar|retrograde|zodiac|horoscope|natal|eclipse|astro\w*)\b|\b(sun|mercury|venus|mars|jupiter|saturn|uranus|neptune|pluto)\b.*\b(enters|ingress|trine|sextile|square|opposition|conjunct\w*|stations?)\b|\b(trine|sextile|conjunct\w*|opposition)\b.*\b(sun|mercury|venus|mars|jupiter|saturn|uranus|neptune|pluto)\b/i;
+export const isSkyItem = (e: { cal: string; title?: string; t?: string }) => isAstro(e) || SKY_CAL.test(e.cal) || SKY_TITLE.test(e.title ?? e.t ?? "");
 export function eventsOn(evs: CalEvent[], k: string, withAstro = false): DayEvent[] {
   return evs
     .filter((e) => withAstro || !isAstro(e))
