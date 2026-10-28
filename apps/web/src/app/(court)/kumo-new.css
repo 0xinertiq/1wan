@@ -1225,3 +1225,8 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kwhy{font-size:var(--fs-cap)}
 :root[data-ui="new"] .ktodo{display:grid;gap:var(--sp-1);padding-top:var(--sp-2);border-top:var(--bw) solid var(--k-hairline)}
 :root[data-ui="new"] .ktodo .krow{padding:var(--sp-1) 0}
+/* Round 10: the quote bubble sits in the court scene; a long quote is cut with "…" and opens in full on a tap */
+:root .lw-say.r5.inscene{width:var(--bw)!important;max-width:none!important;top:var(--top)!important;bottom:auto!important;max-height:none!important;transform:none}
+.lw-say.r5.clamp:not(.open) .lw-say-t{display:-webkit-box;-webkit-line-clamp:var(--lines,2);-webkit-box-orient:vertical;overflow:hidden}
+.lw-say.r5.clamp{cursor:pointer}
+.lw-say.r5.clamp.open{z-index:20;height:auto}

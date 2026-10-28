@@ -132,7 +132,7 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
         </div>
         <div className="lvl" id="lvlBanner" hidden><b id="lvlTxt">LEVEL UP</b><span id="lvlSub"></span></div>
       </div>
-      {L && <CloudSay text={quote} night={night} below={!L.bubble} tail={L.bubble ? Math.max(14, Math.min(L.bubble.w - 14, L.kumo.x + L.kumo.w / 2 - L.bubble.x)) : undefined} style={L.bubble ? { left: L.bubble.x, top: L.bubble.y, width: L.bubble.w } : {}} />}
+      {L && <CloudSay text={quote} night={night} below={!L.bubble} lines={L.bubble?.clamp ? L.bubble.lines : undefined} tail={L.bubble ? Math.max(14, Math.min(L.bubble.w - 14, L.kumo.x + L.kumo.w / 2 - L.bubble.x)) : undefined} style={L.bubble ? { left: L.bubble.x, top: L.bubble.y, width: L.bubble.w, "--bw": L.bubble.w + "px", "--top": L.bubble.y + "px", "--lines": L.bubble.lines } as React.CSSProperties : {}} />}
     </section>
   );
 }
@@ -185,7 +185,9 @@ export function CrewRoster({ filed }: { filed: Partial<Record<BriefKind, string>
 // The quote is always shown in full (no clamp, no tap to expand); the layout gives it a free spot in the scene,
 // or it sits under the strip (below) when no spot is free, as on the phone.
 // tail: where Kumo is, measured from the bubble's left edge; the tail puffs point down to him.
-function CloudSay({ text, night, below, style, tail: tx }: { text: string; night: boolean; below: boolean; style: React.CSSProperties; tail?: number }) {
+// lines: the quote is cut to this many lines with "…"; a tap (or Enter) opens it in full and closes it again.
+function CloudSay({ text, night, below, style, tail: tx, lines }: { text: string; night: boolean; below: boolean; style: React.CSSProperties; tail?: number; lines?: number }) {
+  const [open, setOpen] = useState(false);
   const ref = useRef<HTMLElement>(null);
   const [wh, setWh] = useState<[number, number]>([0, 0]);
   useLayoutEffect(() => {
@@ -208,7 +210,8 @@ function CloudSay({ text, night, below, style, tail: tx }: { text: string; night
     {w > 0 && <rect x={b - grow} y={b - grow} width={Math.max(0, w - 2 * b + 2 * grow)} height={Math.max(0, h - 2 * b + 2 * grow)} fill={col} />}
   </>;
   return (
-    <figure ref={ref} className={"lw-say r5" + (night ? " night" : "") + (below ? " below" : "")} style={style} aria-label="Quote of the day">
+    <figure ref={ref} className={"lw-say r5" + (night ? " night" : "") + (below ? " below" : " inscene") + (lines ? " clamp" : "") + (lines && open ? " open" : "")} style={style} aria-label="Quote of the day"
+      {...(lines ? { role: "button", tabIndex: 0, "aria-expanded": open, title: open ? undefined : text, onClick: () => setOpen(!open), onKeyDown: (e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(!open); } } } : {})}>
       <svg className="lw-cloud" width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden="true">
         <defs><mask id={"m" + id} maskUnits="userSpaceOnUse" x="-20" y="-20" width={w + 40} height={h + 40}>{shape(1, "white")}{shape(0, "black")}</mask></defs>
         <g className="lw-cloud-fill">{shape(0, "currentColor")}</g>

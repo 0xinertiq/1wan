@@ -134,7 +134,17 @@ test("quotes rotate: never the same one twice in a row, none repeated until all 
   assert.deepEqual([...shown.slice(0, 5)].sort(), [0, 1, 2, 3, 4], "the first five are all different");
   assert.deepEqual([...shown.slice(5, 10)].sort(), [0, 1, 2, 3, 4], "then the library starts again");
   assert.match(src("components/court/live/LivingWorld.tsx"), /window\.setInterval\(turn, 4 \* 60e3\)/);
-  assert.match(src("components/kumo/world/layout.ts"), /\[kumo\.x \+ kumo\.w \* 0\.5 - 18, kumo\.y - 14 - bh\]/, "the bubble rises from Kumo");
+  const { worldLayout } = await import("../src/components/kumo/world/layout.ts");
+  const { CREW_AT } = await import("../src/components/kumo/kingdom.ts");
+  const ALL = Object.entries(CREW_AT).flatMap(([place, ids]) => ids.map((id) => ({ id, place })));
+  for (const [w, hh] of [[390, 196], [820, 400], [1100, 520], [1400, 520]]) for (const q of [60, 220, 320]) {
+    const L = worldLayout(w, hh, ALL, q);
+    assert.ok(L.bubble, `${w}px, ${q} characters: the bubble sits inside the court scene, never under it`);
+    const b = L.bubble, k = L.kumo;
+    assert.ok(b.y >= L.hud.h && b.y + b.h <= hh, "inside the scene, below the top bar");
+    assert.ok(Math.abs(b.x + b.w / 2 - (k.x + k.w / 2)) < b.w / 2 + k.w + 16, "next to Kumo");
+    assert.ok(b.lines >= 1);
+  }
 });
 
 test("the garden grows on real activity this week, and past catalyst dates are flagged", async () => {

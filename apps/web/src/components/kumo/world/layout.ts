@@ -10,6 +10,8 @@ import { FIT_H, FIT_W, geometry } from "./draw";
 //   the HUD and the bubble.
 
 export type Box = { id: string; x: number; y: number; w: number; h: number };
+// The quote bubble: how many lines it shows, and whether the quote is cut short (a tap opens it in full).
+export type Bubble = Box & { lines: number; clamp: boolean };
 export const hit = (a: Box, b: Box, pad = 2) => a.x < b.x + b.w + pad && b.x < a.x + a.w + pad && a.y < b.y + b.h + pad && b.y < a.y + a.h + pad;
 
 export const PHONE = 768;
@@ -22,7 +24,7 @@ const labelBox = (id: string, text: string, x: number, y: number, w: number): Bo
 export type WorldLayout = {
   s: number; W: number; H: number; top: number; px: number; hud: Box;
   places: { id: string; label: string; href: string; box: Box; cx: number; bottom: number }[];
-  crew: Box[]; kumo: Box; bubble: Box | null; perches: [number, number][]; foxW: number; foxH: number;
+  crew: Box[]; kumo: Box; bubble: Bubble | null; perches: [number, number][]; foxW: number; foxH: number;
 };
 
 // null when the box is too small to hold the HUD band and the island (hidden tab, collapsed or still sizing):
@@ -67,24 +69,32 @@ export function worldLayout(w: number, h: number, crewOn: { id: string; place: s
   }
   const places = boxes.map((box, i) => ({ id: g.places[i].id, label: g.places[i].label, href: g.places[i].href, box, cx: box.x + box.w / 2, bottom: box.y + box.h }));
 
-  // quote bubble (desktop and tablet; on the phone it sits under the strip): rises from Kumo, up and right
-  // The quote is always shown in full: the bubble grows (up to about 320px wide, then taller) to fit it. It takes
-  // the first spot that touches nothing (rising from Kumo, the top-right sky, beside the castle label); when no
-  // spot in the scene is free it sits under the world strip instead (bubble = null), as on the phone.
-  let bubble: Box | null = null;
-  if (w >= PHONE) {
+  // quote bubble (round 10, every screen): it sits inside the court scene, rising from Kumo (above him, to either side
+  // of him, or beside him), clear of the HUD, every label and the crew. The whole quote shows when it fits; when it
+  // does not (a long quote on a short scene, the phone), the bubble keeps the most lines that fit and ends with "…",
+  // and a tap opens the full quote. Only if no spot at all is free does it sit under the strip.
+  let bubble: Bubble | null = null;
+  {
+    const phone = w < PHONE, cw = phone ? 6.9 : 7.9, lh = phone ? 19 : 22, pad = phone ? 22 : 30;
+    const kx = kumo.x + kumo.w / 2;
     const free = (b: Box) => b.x >= 0 && b.x + b.w <= w && b.y >= hud.h + 4 && b.y + b.h <= h - 4 &&
       ![...places.map((p) => p.box), ...crew, kumo].some((o) => hit(b, o));
-    // round 10: the bubble always comes out of Kumo (above him, to his right or to his left), never a corner of the sky
-    for (const bw of [Math.min(320, w * 0.46), Math.min(380, w * 0.46), Math.min(260, w * 0.4)]) {
-      const bh = Math.max(1, Math.ceil((quoteLen * 7.9) / (bw - 36))) * 22 + 30;
+    const at = (bw: number, lines: number): Box | null => {
+      const bh = lines * lh + pad, clampX = (x: number) => Math.max(0, Math.min(w - bw, x));
       const spots: [number, number][] = [
-        [kumo.x + kumo.w * 0.5 - 18, kumo.y - 14 - bh],
-        [kumo.x + kumo.w * 0.5 + 18 - bw, kumo.y - 14 - bh],
-        [kumo.x + kumo.w * 0.5 - bw / 2, kumo.y - 14 - bh],
+        [kx - 18, kumo.y - 14 - bh], [kx + 18 - bw, kumo.y - 14 - bh], [kx - bw / 2, kumo.y - 14 - bh],
+        [kumo.x + kumo.w + 8, kumo.y + kumo.h / 2 - bh], [kumo.x - 8 - bw, kumo.y + kumo.h / 2 - bh],
+        // beside Kumo at the top of the free band (the short phone strip)
+        [kumo.x - 8 - bw, hud.h + 4], [kumo.x + kumo.w + 8, hud.h + 4],
       ];
-      const ok = spots.map(([x, y]) => ({ id: "bubble", x, y, w: bw, h: bh })).find(free);
-      if (ok) { bubble = ok; break; }
+      return spots.map(([x, y]) => ({ id: "bubble", x: clampX(x), y, w: bw, h: bh })).find(free) ?? null;
+    };
+    const widths = phone ? [Math.min(260, w * 0.7), Math.min(200, w * 0.56)] : [Math.min(320, w * 0.46), Math.min(380, w * 0.46), Math.min(260, w * 0.4)];
+    const need = (bw: number) => Math.max(1, Math.ceil((quoteLen * cw) / (bw - pad - 6)));
+    for (const bw of widths) { const n = need(bw), b = at(bw, n); if (b) { bubble = { ...b, lines: n, clamp: false }; break; } }
+    for (let n = Math.max(...widths.map(need)) - 1; !bubble && n >= 1; n--) for (const bw of widths) {
+      if (n >= need(bw)) continue;
+      const b = at(bw, n); if (b) { bubble = { ...b, lines: n, clamp: true }; break; }
     }
   }
 
