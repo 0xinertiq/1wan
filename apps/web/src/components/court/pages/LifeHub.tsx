@@ -127,7 +127,7 @@ function Tasks() {
   const [f, setF] = useState({ title: "", due: "", pri: "normal" as T["pri"] });
   const [show, setShow] = useState<"open" | "done">("open");
   const rank = { high: 0, normal: 1, low: 2 } as const;
-  const list = v.rows.filter((t) => !!t.done === (show === "done"))
+  const list = v.rows.filter((t) => !t.todo && !!t.done === (show === "done"))
     .sort((a, b) => (a.due ?? "9999").localeCompare(b.due ?? "9999") || rank[a.pri ?? "normal"] - rank[b.pri ?? "normal"]);
   const when = (d?: string) => (!d ? "" : d === k ? "today" : d < k ? "overdue" : d === addDays(k, 1) ? "tomorrow" : prettyDay(d));
   return (

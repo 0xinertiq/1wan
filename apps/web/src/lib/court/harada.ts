@@ -77,3 +77,11 @@ export const tickId = (p: number, a: number) => `${p + 1}.${a + 1}`;
 export function isDoublePress(last: { key: string; at: number } | null, key: string, now: number, ms = 350) {
   return !!last && last.key === key && now - last.at >= 0 && now - last.at < ms;
 }
+
+/** Round 10: copy the words of one chart into another (the 2027 chart from 2026). Ticks are separate and never
+ *  copied; the target's current version, if any, goes into its history. */
+export function copyChart(gd: GridDefs, from: GridDef | null, at = new Date().toISOString()): GridDefs {
+  if (!from || !hasChart(from)) return gd;
+  const g: GridDef = JSON.parse(JSON.stringify(from));
+  return { cur: g, hist: gd.cur && hasChart(gd.cur) ? [{ at, g: gd.cur }, ...gd.hist].slice(0, HIST_MAX) : gd.hist, draft: null };
+}

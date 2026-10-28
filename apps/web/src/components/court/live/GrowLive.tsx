@@ -20,7 +20,7 @@ import { NUDGE } from "@/lib/gardenMap";
 import { water } from "@/lib/court/water";
 import { TAILS, earned } from "@/lib/court/tails";
 import { useUi } from "@/components/kumo/useUi";
-import { habitWeek } from "@/lib/court/habits";
+import { habitWeek, gardenStage, GROW_AT } from "@/lib/court/habits";
 import { Card as GCard } from "../ui";
 
 // Growth column from dashboard-v52: Sakura Garden (with Habit Quests inside), Tonight count your wins,
@@ -228,8 +228,10 @@ export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode;
   // Kumo's pick and her habits for today) and the Wins ladder. The tails live with the fox in the world.
   if (ui === "new") {
     const hw = habitWeek(st, k);
-    const want = wkh.t + hw.planned + anchors.length * hw.days, got = wkh.d + hw.done + Math.min(hw.anchors, anchors.length * hw.days);
-    const fill = want ? Math.min(1, got / want) : 0, stage = Math.min(4, Math.floor(fill * 5));
+    // round 10 (D1): grow on real activity counted this week, not on a share of everything possible (which kept
+    // the tree a seed in normal weeks): quests done, anchor ticks and her own habits ticked.
+    const got = wkh.d + hw.done + hw.anchors;
+    const stage = gardenStage(got), fill = Math.min(1, got / GROW_AT[4]);
     const thirsty = ["thirsty", "wilting", "withered", "dead"].includes(trunk.stage);
     return (
       <div id="gardenBox" className="kgarden-page">

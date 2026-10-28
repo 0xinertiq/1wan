@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCourt } from "../CourtState";
 import type { MoneyDefs } from "@/lib/court/state";
 import { useVault, type VRow } from "@/lib/vault";
-import { billsForMonth, cashflow, loanMath, type Repay } from "@/lib/court/finance";
+import { billsForMonth, cashflow, loanFix, loanMath, type Repay } from "@/lib/court/finance";
 import { addDays, prettyDay, stamp, sgtKeyOf } from "@/lib/court/time";
 import { Btn, StoreNote } from "../ui";
 import { fundStatus } from "./MoneyPorted";
@@ -15,9 +15,9 @@ import { fundStatus } from "./MoneyPorted";
 // (preview storage on this device until the new tables are switched on). Tracks and explains, never advises.
 
 type Edit = VRow & { kind: "edit"; fig: string; label: string; from: number; to: number; undo?: string };
-type LoanRow = VRow & { kind: "loan"; name: string; lent: number; date?: string; repaid: Repay[]; off: number; note?: string };
+type LoanRow = VRow & { kind: "loan"; name: string; lent: number; date?: string; repaid: Repay[]; off: number; note?: string; deleted?: boolean };
 type Income = VRow & { kind: "income"; month: string; amt: number };
-type Row = Edit | LoanRow | Income | (VRow & { kind: "budget" | "entry" });
+type Row = Edit | LoanRow | Income | (VRow & { kind: "budget" | "entry" }) | (VRow & { kind: "fix"; key: string });
 type Line = { at: string; amount: number; category: string };
 
 export const sgd = (n: number) => (n < 0 ? "−" : "") + "S$" + Math.round(Math.abs(n)).toLocaleString("en-SG");
@@ -63,7 +63,9 @@ export function FinanceTracker({ d: raw }: { d: MoneyDefs | undefined }) {
   const d = { cash: L(raw?.cash), steps: L(raw?.steps), funds: L(raw?.funds), nw: L(raw?.nw), up: L(raw?.up), open: L(raw?.open), routines: L(raw?.routines), k: raw?.k ?? { base: 0, ef: 0, sgdExp: 0, usdExp: 0 } };
   const v = useVault<Row>("finance_entries");
   const edits = v.rows.filter((r): r is Edit => r.kind === "edit");
-  const loans = v.rows.filter((r): r is LoanRow => r.kind === "loan");
+  const allLoans = v.rows.filter((r): r is LoanRow => r.kind === "loan");
+  const loans = allLoans.filter((l) => !l.deleted), removed = allLoans.filter((l) => l.deleted);
+  const fixed = v.rows.some((r) => r.kind === "fix" && (r as { key?: string }).key === "r10-loans");
   const s = st.money;
   const t: Record<string, number> = { free: 0, ef: 0, sgd: 0, usd: 0, ...s.t };
   const fund = (id: string) => s.f[id] ?? 0;
@@ -104,6 +106,17 @@ export function FinanceTracker({ d: raw }: { d: MoneyDefs | undefined }) {
   const held = d.funds.reduce((a, r) => a + fund(r[0]), 0);
   const [lf, setLf] = useState({ name: "", lent: "", date: "" });
   const [lmsg, setLmsg] = useState("");
+  // round 10, once: the USD 9,000 loan entry is removed (kept and restorable) and SGD loans come to S$40,000
+  const ran = useRef(false);
+  useEffect(() => {
+    if (!v.ready || fixed || ran.current) return;
+    ran.current = true;
+    const plan = loanFix(allLoans);
+    for (const id of plan.remove) { const l = allLoans.find((x) => x.id === id); v.put({ id, deleted: true } as Partial<Row>); log("loan." + id, `Removed loan ${l?.name ?? ""}`.trim(), 0, 1); }
+    if (plan.amend) { v.put({ id: plan.amend.id, lent: 40000 } as Partial<Row>); log("loan." + plan.amend.id + ".lent", "Amount lent", plan.amend.from, 40000); }
+    if (plan.add) v.put({ kind: "loan", name: plan.add.name, lent: plan.add.lent, repaid: [], off: 0 } as Partial<Row>);
+    v.put({ kind: "fix", key: "r10-loans" } as Partial<Row>);
+  }, [v.ready, fixed]); // eslint-disable-line react-hooks/exhaustive-deps
   const tick = (id: string, on: boolean) => update((x) => { x.money.done = { ...x.money.done, [id]: on }; if (!on) delete x.money.done[id]; }, ["money"]);
   const up = d.up.filter(([dt]) => dt >= addDays(k, -3) && dt <= addDays(k, 45));
 
@@ -145,7 +158,10 @@ export function FinanceTracker({ d: raw }: { d: MoneyDefs | undefined }) {
       </div>
 
       <div className="sec-h">Loans owed to me</div>
-      {loans.map((l) => <Loan key={l.id} l={l} put={(x) => v.put({ id: l.id, ...x } as Partial<Row>)} />)}
+      {loans.map((l) => <Loan key={l.id} l={l} put={(x) => v.put({ id: l.id, ...x } as Partial<Row>)} edits={edits} log={log}
+        onRemove={() => { if (!window.confirm(`Remove the loan “${l.name}”? It is kept under Removed loans and can be restored.`)) return; v.put({ id: l.id, deleted: true } as Partial<Row>); log("loan." + l.id, `Removed loan ${l.name}`, 0, 1); }} />)}
+      {removed.length > 0 && <details className="kfold"><summary className="note">Removed loans ({removed.length})</summary>
+        {removed.map((l) => <div className="krow" key={l.id}><span className="krow-main">{l.name} · {sgd(l.lent)}</span><Btn kind="sm ghost" onClick={() => { v.put({ id: l.id, deleted: false } as Partial<Row>); log("loan." + l.id, `Restored loan ${l.name}`, 1, 0); }}>Restore</Btn></div>)}</details>}
       <form className="kform" aria-label="Add a loan owed to you" onSubmit={(e) => { e.preventDefault(); const lent = +lf.lent; if (!lf.name.trim() || !(lent > 0)) return setLmsg("Give the loan a name and an amount above 0."); v.put({ kind: "loan", name: lf.name.trim().slice(0, 60), lent, date: lf.date || undefined, repaid: [], off: 0 } as Partial<Row>); setLf({ name: "", lent: "", date: "" }); setLmsg("Loan added."); }}>
         <div className="kform-row">
           <input aria-label="Who or what (no account numbers)" placeholder="Who or what, e.g. Loan to a friend" maxLength={60} value={lf.name} onChange={(e) => setLf({ ...lf, name: e.target.value })} />
@@ -155,10 +171,10 @@ export function FinanceTracker({ d: raw }: { d: MoneyDefs | undefined }) {
         </div>
         {lmsg && <p className="note" role="status">{lmsg}</p>}
       </form>
-      {(d.k.sgdExp > 0 || d.k.usdExp > 0) && <>
+      {(d.k.sgdExp > 0 || d.k.usdExp > 0) && <details className="kfold" open={!fixed}><summary className="note">Loans back figures from your import{fixed ? " (kept; your loan entry above replaces them)" : ""}</summary>
         <Fig id="t.sgd" label="Loans back from your import, SGD received" value={t.sgd ?? 0} onSave={(x) => setNum("t", "sgd", x)} edits={edits} log={log} hint={`of ${sgd(d.k.sgdExp)} expected`} />
         <Fig id="t.usd" label="Loans back from your import, USD received" value={t.usd ?? 0} money={false} onSave={(x) => setNum("t", "usd", x)} edits={edits} log={log} hint={`of USD ${d.k.usdExp.toLocaleString("en-SG")} expected`} />
-      </>}
+      </details>}
       <StoreNote status={v.status} failed={v.failed} />
 
       <div className="sec-h">Routines</div>
@@ -172,14 +188,15 @@ export function FinanceTracker({ d: raw }: { d: MoneyDefs | undefined }) {
   );
 }
 
-function Loan({ l, put }: { l: LoanRow; put: (x: Partial<LoanRow>) => void }) {
+function Loan({ l, put, edits, log, onRemove }: { l: LoanRow; put: (x: Partial<LoanRow>) => void; edits: Edit[]; log: (fig: string, label: string, from: number, to: number, undo?: string) => void; onRemove: () => void }) {
   const m = loanMath(l);
   const [r, setR] = useState({ date: "", amt: "" });
   const [off, setOff] = useState<string | null>(null);
   const [msg, setMsg] = useState("");
   return (
     <div className="kloan">
-      <div className="kloan-h"><b>{l.name}</b>{l.date && <span className="note"> · lent {l.date}</span>}</div>
+      <div className="kloan-h"><b>{l.name}</b>{l.date && <span className="note"> · lent {l.date}</span>} <Btn kind="sm ghost" aria-label={`Remove the loan ${l.name}`} onClick={onRemove}>Remove</Btn></div>
+      <Fig id={"loan." + l.id + ".lent"} label="Amount lent" value={l.lent} onSave={(x) => put({ lent: x })} edits={edits} log={log} />
       <div className="kloan-m">
         <span><span className="note">Lent</span> <b>{sgd(m.lent)}</b></span>
         <span><span className="note">Repaid</span> <b>{sgd(m.repaid)}</b></span>

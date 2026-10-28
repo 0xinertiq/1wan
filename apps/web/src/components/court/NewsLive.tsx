@@ -97,6 +97,7 @@ export function NewsLive({ top5 = [], follow = false }: { top5?: string[]; follo
                 <li key={x.link}>
                   <a href={x.link} target="_blank" rel="noopener noreferrer">{x.title}</a>
                   <span className="note">{x.source}{x.at ? " · " + ago(x.at) : ""}{x.also.length ? ` · also reported by ${x.also.slice(0, 3).join(", ")}${x.also.length > 3 ? ` and ${x.also.length - 3} more` : ""}` : ""}</span>
+                  <span className="note kwhy">Why this story: {x.why}</span>
                 </li>
               ))}
             </ol>

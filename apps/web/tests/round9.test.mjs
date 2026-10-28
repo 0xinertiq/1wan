@@ -115,12 +115,12 @@ test("finance records persist through a reload, keep no account numbers, and are
 
 test("position size calculator: every field labelled with a hint, no bare pre-filled numbers, plain checks", async () => {
   const { SIZER_FIELDS, sizeCheck } = await import("../src/components/court/pages/TradesPage.tsx");
-  assert.deepEqual(SIZER_FIELDS.map((f) => f[1]), ["Account equity", "Risk per trade %", "Entry price", "Stop price", "Target price (optional)"]);
+  assert.deepEqual(SIZER_FIELDS.map((f) => f[1]), ["Account equity", "Risk per trade %", "Entry price", "Stop price", "Target price (optional)", "Leverage (x)"]);
   assert.ok(SIZER_FIELDS.every((f) => f[2].length > 10));
   const t = src("components/court/pages/TradesPage.tsx");
   assert.match(t, /Works out how many coins to buy so a stopped-out trade loses only the % you choose\./);
-  assert.match(t, /useState\(\{ dir: "long" as "long" \| "short", equity: "", risk: "", entry: "", stop: "", target: "" \}\)/);
-  assert.match(t, /position size \(coins\)[\s\S]*amount at risk[\s\S]*risk : reward/);
+  assert.match(t, /useState\(\{ dir: "long" as "long" \| "short", equity: "", risk: "", entry: "", stop: "", target: "", lev: "" \}\)/);
+  assert.match(t, /position size \(coins\)[\s\S]*margin required[\s\S]*amount at risk[\s\S]*risk : reward/);
   assert.equal(sizeCheck("long", 1000, 1, 100, 110), "Enter a stop below your entry for a long.");
   assert.equal(sizeCheck("long", 1000, 0, 100, 90), "Enter a risk percent between 0 and 100.");
 });

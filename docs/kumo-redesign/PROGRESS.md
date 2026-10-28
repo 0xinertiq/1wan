@@ -533,3 +533,59 @@ Checks after the fix round:
 - 159 tests pass.
 - All 56 browser runs are clean.
 - The build passes.
+
+## Round 10: fixes and additions (on preview)
+
+Nothing protected was edited and nothing was deleted. Scheduled tasks were read, not changed.
+
+### Diagnoses
+- **D1, the garden never sprouts.**
+  - Cause: the stage was the share of everything possible this week (quests, all 8 anchors every day, and her habits). It needed 20% to leave Seed, so normal weeks stayed a seed.
+  - Fix: the stage now comes from real ticks this week. 1 tick sprouts it, 5 give leaves, 12 a young tree, 20 blossoms (`gardenStage`). Decay and recovery are unchanged.
+- **D2, catalysts look stale.**
+  - Cause: there is no separate store. Trades shows the "Catalysts" section of the newest scan brief. The reading side was correct, so the cause is on the writing side: the scan task's text, or scans not arriving.
+  - Reading-side fix: Catalysts now shows the scan's date and how many of its dates have already passed.
+  - Writing side: the scan prompt lives only in the cloud task. Not changed; needs her.
+- **D3, Kumo's review judges the old 0.5 ATR stop.**
+  - Cause: 0.5 ATR appears nowhere in the repo; the app and prompts/ already use 1 ATR. crew/kumo.md had no stop rule, and the review prompt lives only in the cloud task.
+  - Fix: crew/kumo.md now states the 1 ATR / 1:2 rule.
+  - Still needed: the cloud task needs its prompt re-pasted. A re-run alone is not enough. Not done; needs her approval.
+- **D4, how the briefing ranks.** Each story has a cluster score (source type, freshness, watchlist +20, release +10, independent wordings +5 each, up to 100). The briefing keeps her lenses, merges same-meaning stories, ranks by score then recency, and takes the top five. Each item now has a "Why this story" line: score, sources, and the biggest lift.
+
+### Items
+- **Calendar:**
+  - Back, the label (with Today) and Next sit on one aligned row.
+  - Mini month cells are fixed. The cause was a clash with Classic's `.today` grid rule; the class is now `is-today`, with one number per cell and the heart behind it.
+- **Dungeon:** the reflection selector has no "Not about a trade" option and is hidden when there are no trades.
+- **Life Hub:** Chart 2026 | Chart 2027 | Weekly targets.
+  - 2027 uses new optional keys `gridDefs2027` and `grid2027done`. It starts blank with the wizard, with "Copy from 2026" (words only), its own ticks, history, undo and "Reset to blank".
+  - 2026 is unchanged.
+- **Loans:**
+  - Loans can be removed (kept, restorable, logged in history) and the amount lent edited with history and undo.
+  - One-time change, as asked:
+    - the USD 9,000 loan entry is removed;
+    - SGD loans come to S$40,000 as one entry (no answer came, so one entry);
+    - the imported loans-back figures are kept but folded away.
+- **Trades:**
+  - No "Read the alert".
+  - The Style Map is always open.
+  - Leverage (x) adds notional, margin required, and an estimated liquidation price, with a warning if it comes before the stop. Labelled "approximate; fees and maintenance margin not included".
+- **News:**
+  - Dedupe by meaning now also compares direction (rebounds vs drops).
+  - A final check across all items guarantees no two items are the same story.
+- **Court:**
+  - Briefs open expanded.
+  - The Today card has a to-do list (tasks table with `todo: true`, or preview storage) that carries unfinished items over ("from yesterday"); done items clear after their day and stay as history. To-dos stay off My tasks and Needs you now.
+  - The Mercury line is smaller.
+  - Quotes rotate on each load and every 4 minutes, none repeated until all have had a turn.
+  - The quote bubble rises from Kumo with its tail pointing at him.
+
+### NEEDS OWNER APPROVAL
+- New optional keys `gridDefs2027` and `grid2027done` (diff in lib/court/state.ts: CourtState fields, OWNED_KEYS entries, normalize lines; tests in tests/round10.test.mjs).
+- Re-paste the chief-kumo-weekly-review prompt with the 1 ATR rule. Optionally paste the scan prompt into prompts/ so the catalysts writing can be checked.
+
+### Checks
+- Typecheck is clean.
+- 169 tests pass, including 10 new ones.
+- All 56 browser runs are clean.
+- The build passes.

@@ -35,3 +35,8 @@ export function habitPhase(hab: Hab, k: string): { phase: Phase; done: Record<st
     done: Object.fromEntries(live.map((h) => [HAB_PREFIX + h.id, today.includes(h.id)])),
   };
 }
+
+/** Round 10 (D1): the garden's stage from real activity ticked this week (quests done, anchor ticks, her habits).
+ *  1 tick sprouts it, 5 give leaves, 12 a young tree, 20 blossoms. Decay and recovery (branches) are unchanged. */
+export const GROW_AT = [0, 1, 5, 12, 20] as const;
+export const gardenStage = (ticks: number) => GROW_AT.reduce<number>((s, at, i) => (ticks >= at ? i : s), 0);

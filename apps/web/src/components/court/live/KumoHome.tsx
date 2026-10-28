@@ -1,5 +1,7 @@
 "use client";
 
+import { useVault, type VRow } from "@/lib/vault";
+import { todayTodos, type Todo } from "@/lib/court/todo";
 import { openTab } from "@/lib/court/nav";
 import { useState } from "react";
 import { useUi } from "@/components/kumo/useUi";
@@ -116,6 +118,7 @@ function TodayCard() {
         <RecapBox />
         <TodayChips />
         <ParkedList />
+        <TodoList />
         </>}
       </div>
     </section>
@@ -186,12 +189,45 @@ function LunaCard() {
               <ul>{w.items.slice(0, 3).map((e, i) => <li key={i}>{explain(e)} <span>{e.back ? `(in orb, ${e.o}°)` : `(${e.t} SGT)`}</span></li>)}</ul>
             </div>
           )}
-          {w.merc && <p className="kluna-call">{w.merc}</p>}
+          {w.merc && <p className="kluna-call kluna-merc">{w.merc}</p>}
           <h3 className="kluna-h">Self-care for today</h3>
           <ul className="kluna-l">{w.care.slice(0, 5).map((x) => <li key={x}>{x}</li>)}</ul>
           <p className="kluna-sm">Traditional meanings applied to your own chart: a mood forecast, not a prediction. Gentle ideas, not medical advice.</p>
         </>}
       </div>
     </section>
+  );
+}
+
+// Round 10: the Today to-do list, under Park a thought. Add, edit, tick, delete. Unfinished items carry over by
+// themselves; done ones clear after the day and stay in the table as history.
+function TodoList() {
+  const { k } = useCourt();
+  const v = useVault<VRow & Todo>("tasks");
+  const [t, setT] = useState("");
+  const [edit, setEdit] = useState<{ id: string; title: string } | null>(null);
+  const L = todayTodos(v.rows, k);
+  const from = (d: string) => (d === addDays(k, -1) ? "from yesterday" : "from " + prettyDay(d));
+  return (
+    <div className="ktodo">
+      <div className="sec-h">To do today</div>
+      <form className="kform-row" aria-label="Add a to-do" onSubmit={(e) => { e.preventDefault(); const title = t.trim().slice(0, 120); if (!title) return; v.put({ title, todo: true, day: k, done: false } as Partial<VRow & Todo>); setT(""); }}>
+        <input aria-label="New to-do" placeholder="Add a to-do" maxLength={120} value={t} onChange={(e) => setT(e.target.value)} />
+        <button className="btn sm" type="submit">Add</button>
+      </form>
+      {!L.open.length && !L.done.length ? <p className="note">Nothing on today&apos;s list.</p> : null}
+      {[...L.open, ...L.done].map((x) => (
+        <div className={"krow" + (x.done ? " done" : "")} key={x.id}>
+          <label className="kcheck"><input type="checkbox" checked={!!x.done} onChange={(e) => v.put({ id: x.id, done: e.target.checked, doneOn: e.target.checked ? k : undefined } as Partial<VRow & Todo>)} /><span className="sr">Done: {x.title}</span></label>
+          {edit?.id === x.id
+            ? <form className="kform-row krow-main" onSubmit={(e) => { e.preventDefault(); const title = edit.title.trim().slice(0, 120); if (title) v.put({ id: x.id, title } as Partial<VRow & Todo>); setEdit(null); }}><input aria-label="Edit to-do" value={edit.title} maxLength={120} onChange={(e) => setEdit({ ...edit, title: e.target.value })} autoFocus /><button className="btn sm" type="submit">Save</button></form>
+            : <span className="krow-main">{x.title}{typeof (x as { from?: unknown }).from === "string" ? <span className="note"> · {from((x as unknown as { from: string }).from)}</span> : null}</span>}
+          <span className="krow-act">
+            {edit?.id !== x.id && <button className="btn sm ghost" type="button" aria-label={`Edit ${x.title}`} onClick={() => setEdit({ id: x.id, title: x.title })}>Edit</button>}
+            <button className="btn sm ghost" type="button" aria-label={`Delete ${x.title}`} onClick={() => window.confirm(`Delete “${x.title}”?`) && v.remove(x.id)}>Delete</button>
+          </span>
+        </div>
+      ))}
+    </div>
   );
 }

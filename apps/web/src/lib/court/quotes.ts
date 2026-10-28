@@ -25,3 +25,14 @@ export function quoteOfDay(k: string, own: string[]) {
   const q = all[dayIdx(k) % all.length];
   return q.length > 240 ? q.slice(0, 237) + "..." : q;
 }
+
+/** Round 10: the next quote to show: never the one just shown, and none twice until every quote has had a turn. */
+export function nextQuote(count: number, seen: number[], last: number | null, rnd = Math.random) {
+  if (count <= 0) return { i: -1, seen: [] as number[] };
+  let pool = Array.from({ length: count }, (_, i) => i).filter((i) => !seen.includes(i));
+  let used = seen.filter((i) => i < count);
+  if (!pool.length) { used = []; pool = Array.from({ length: count }, (_, i) => i).filter((i) => i !== last || count === 1); }
+  const i = pool[Math.floor(rnd() * pool.length) % pool.length];
+  return { i, seen: [...used, i] };
+}
+export const trimQuote = (q: string) => (q.length > 240 ? q.slice(0, 237) + "..." : q);

@@ -18,7 +18,8 @@ export function routineNext(r: Routine, today: string): string {
 /** Open tasks and active routines due within `within` days (overdue included), soonest first. */
 export function dueSoon(tasks: Task[], routines: Routine[], today: string, within = 3): DueThing[] {
   const out: DueThing[] = [];
-  for (const t of tasks) if (t && !t.done && isDay(t.due) && typeof t.title === "string") out.push({ id: "task" + t.id, name: t.title, d: t.due, dd: dayGap(today, t.due), kind: "task", high: t.pri === "high" });
+  // Today to-dos (round 10) live on the Today card only
+  for (const t of tasks) if (t && !t.done && !t.todo && isDay(t.due) && typeof t.title === "string") out.push({ id: "task" + t.id, name: t.title, d: t.due, dd: dayGap(today, t.due), kind: "task", high: t.pri === "high" });
   for (const r of routines) if (r && !r.paused && typeof r.name === "string") { const d = routineNext(r, today); out.push({ id: "rt" + r.id + d, name: r.name, d, dd: dayGap(today, d), kind: "routine", high: false }); }
   return out.filter((x) => x.dd <= within).sort((a, b) => a.dd - b.dd || Number(b.high) - Number(a.high));
 }

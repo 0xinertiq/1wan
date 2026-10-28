@@ -953,7 +953,7 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kmini>span{font:400 var(--fs-cap)/1.2 var(--k-font-label);color:var(--k-text-muted)}
 :root[data-ui="new"] .kmini button{min-height:var(--tap);min-width:0;padding:0;border:var(--bw) solid transparent;border-radius:var(--r-chip);background:transparent;color:var(--k-text);font:700 var(--fs-ui)/1 var(--k-font-body);cursor:pointer;position:relative}
 :root[data-ui="new"] .kmini button.out{color:var(--k-text-muted)}
-:root[data-ui="new"] .kmini button.today{border-color:var(--k-outline)}
+:root[data-ui="new"] .kmini button.is-today{border-color:var(--k-outline)}
 :root[data-ui="new"] .kmini button[aria-pressed=true]{background:var(--k-btn-fill-hover);border-color:var(--k-btn-line);color:var(--k-btn-ink)}
 :root[data-ui="new"] .kmini button.has::after{content:"";position:absolute;left:50%;bottom:6px;width:6px;height:6px;margin-left:-3px;border-radius:var(--r-pill);background:var(--k-accent)}
 :root[data-ui="new"] .kmini button[aria-pressed=true].has::after{background:var(--k-btn-line)}
@@ -1081,7 +1081,7 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kmini-head{display:grid;grid-template-columns:var(--tap) minmax(0,1fr) var(--tap);align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-2);text-align:center}
 :root[data-ui="new"] .kmini-head .btn{min-width:var(--tap);padding:0}
 :root[data-ui="new"] .kmini button>span{position:relative}
-:root[data-ui="new"] .kmini button.today{border-color:transparent}
+:root[data-ui="new"] .kmini button.is-today{border-color:transparent}
 :root[data-ui="new"] .kmini button[aria-pressed=true]{background:transparent;border-color:transparent;color:var(--k-btn-ink)}
 :root[data-ui="new"] .kheart{position:absolute;inset:0;margin:auto;width:80%;height:80%;max-width:40px;image-rendering:pixelated}
 :root[data-ui="new"] .kheart .kh-x{fill:var(--k-btn-line)}
@@ -1211,3 +1211,17 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kfield{display:grid;gap:var(--sp-1);align-content:start}
 :root[data-ui="new"] .kfield-l{font:700 var(--fs-ui)/1.3 var(--k-font-body);color:var(--k-text)}
 :root[data-ui="new"] .ksizer .kbtn-row{grid-column:1/-1}
+
+/* ---------- Round 10 ---------- */
+/* Calendar nav: Back left, the label centred, Next right, one row, equal heights */
+:root[data-ui="new"] .kcal-nav{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--sp-2);margin:var(--sp-2) 0}
+:root[data-ui="new"] .kcal-nav .btn{min-height:var(--tap)}
+:root[data-ui="new"] .kcal-nav-l{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:var(--sp-2);text-align:center}
+/* Luna: the Mercury line smaller */
+:root[data-ui="new"] .kluna-merc{font-size:var(--fs-cap);line-height:1.35;padding:var(--sp-1) var(--sp-2)}
+/* Trades: the Style Map always open */
+:root[data-ui="new"] .kstyle{display:grid;gap:var(--sp-1)}
+/* News: why this story; Today: the to-do list */
+:root[data-ui="new"] .kwhy{font-size:var(--fs-cap)}
+:root[data-ui="new"] .ktodo{display:grid;gap:var(--sp-1);padding-top:var(--sp-2);border-top:var(--bw) solid var(--k-hairline)}
+:root[data-ui="new"] .ktodo .krow{padding:var(--sp-1) 0}

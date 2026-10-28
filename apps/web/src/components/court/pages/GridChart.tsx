@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useCourt } from "../CourtState";
 import { useTick } from "../live/GridWins";
 import { SamsaraLive } from "../live/SamsaraLive";
-import { AROUND, LIMITS, chartOf, editCell, emptyGrid, fillEmpty, hasChart, resetToImported, tickId, undo, type Cell, type GridDef, isDoublePress } from "@/lib/court/harada";
+import { AROUND, LIMITS, chartOf, copyChart, editCell, emptyGrid, fillEmpty, hasChart, resetToImported, tickId, undo, type Cell, type GridDef, isDoublePress } from "@/lib/court/harada";
 import { stamp } from "@/lib/court/time";
+import { water } from "@/lib/court/water";
+import type { CourtState } from "@/lib/court/state";
 import { Btn, Card, EmptyState, TabPills } from "../ui";
 
 // Grid & Wins (Life Hub, full width): Chart | Weekly targets. The chart is the Harada "Open Window 64": nine 3x3
@@ -14,32 +16,49 @@ import { Btn, Card, EmptyState, TabPills } from "../ui";
 // the existing grid ticks by position (1.1 to 8.8); every tick waters the garden and undo takes it back.
 
 type Sel = Cell | null;
+
+// Round 10: one chart component, two years. 2026 is her chart as before (defs.grid imported, gridDefs edits, grid
+// ticks, unchanged). 2027 is a separate chart (gridDefs2027, its own ticks in grid2027done) that starts blank.
+type YearId = "2026" | "2027";
+type Year = { y: YearId; key: "gridDefs" | "gridDefs2027"; base: (d: CourtState) => unknown; done: Record<string, boolean>; tick: (id: string, on: boolean) => void };
+const YearCtx = createContext<YearId>("2026");
+function useYear(): Year {
+  const y = useContext(YearCtx);
+  const { st, update } = useCourt();
+  const tick26 = useTick();
+  if (y === "2026") return { y, key: "gridDefs", base: (d) => d.defs.grid, done: st.grid.done, tick: (id, on) => tick26("grid", id, on, "grid") };
+  return { y, key: "gridDefs2027", base: () => null, done: st.grid2027done,
+    tick: (id, on) => { update((d) => { const x = { ...d.grid2027done }; if (on) x[id] = true; else delete x[id]; d.grid2027done = x; }, ["grid2027done"]); water("grid", "grid2027:" + id, on, 1); } };
+}
 const label = (c: Cell) => (c.kind === "goal" ? "Main goal" : c.kind === "pillar" ? `Sub-goal ${c.p + 1}` : `Action ${tickId(c.p, c.a)}`);
 
 export function GridAndWins() {
-  const [tab, setTab] = useState<"chart" | "targets">("chart");
+  const [tab, setTab] = useState<"chart" | "c2027" | "targets">("chart");
   return (
-    <Card title="Grid & Wins" sub="one goal, eight pillars, sixty-four actions" className="kfull" id="grid-wins" actions={<TabPills label="Grid & Wins" value={tab} options={[["chart", "Chart"], ["targets", "Weekly targets"]] as const} onChange={setTab} />}>
-      {tab === "chart" ? <Chart /> : <div className="kweekly"><SamsaraLive onWriteThesis={() => { window.location.hash = "trades"; }} /></div>}
+    <Card title="Grid & Wins" sub="one goal, eight pillars, sixty-four actions" className="kfull" id="grid-wins" actions={<TabPills label="Grid & Wins" value={tab} options={[["chart", "Chart 2026"], ["c2027", "Chart 2027"], ["targets", "Weekly targets"]] as const} onChange={setTab} />}>
+      {tab === "chart" ? <YearCtx.Provider value="2026"><Chart key="2026" /></YearCtx.Provider>
+        : tab === "c2027" ? <YearCtx.Provider value="2027"><Chart key="2027" /></YearCtx.Provider>
+        : <div className="kweekly"><SamsaraLive onWriteThesis={() => { window.location.hash = "trades"; }} /></div>}
     </Card>
   );
 }
 
 function Chart() {
   const { st, update, save } = useCourt();
-  const tick = useTick();
-  const g = chartOf(st.defs.grid, st.gridDefs);
+  const Y = useYear();
+  const gd = st[Y.key];
+  const g = chartOf(Y.base(st), gd);
   const [sel, setSel] = useState<Sel>(null);
   const [view, setView] = useState<"chart" | "list">("chart");
   const [focus, setFocus] = useState(4);
   const [wizard, setWizard] = useState(false);
-  const done = st.grid.done;
+  const done = Y.done;
   const pDone = (p: number) => Array.from({ length: 8 }, (_, a) => !!done[tickId(p, a)]).filter(Boolean).length;
   // round 8: one press opens the editor; a double press on an action marks it done or not done (key "p.a")
   const last = useRef<{ key: string; at: number } | null>(null);
   const press = (c: Cell, key: string) => {
     const now = Date.now();
-    if (c.kind === "act" && isDoublePress(last.current, key, now)) { last.current = null; const id = tickId(c.p, c.a); tick("grid", id, !done[id], "grid"); setSel(null); return; }
+    if (c.kind === "act" && isDoublePress(last.current, key, now)) { last.current = null; const id = tickId(c.p, c.a); Y.tick(id, !done[id]); setSel(null); return; }
     last.current = { key, at: now };
     setSel(c);
   };
@@ -47,7 +66,8 @@ function Chart() {
   if (wizard || !hasChart(g)) {
     if (!wizard) return (
       <EmptyState who="kumo">
-        No chart yet. Build one goal, eight sub-goals and sixty-four small actions, one step at a time. <Btn kind="sm" onClick={() => setWizard(true)}>Start the guided wizard</Btn>
+        {Y.y === "2027" ? "Your 2027 chart is blank." : "No chart yet."} Build one goal, eight sub-goals and sixty-four small actions, one step at a time. <Btn kind="sm" onClick={() => setWizard(true)}>Start the guided wizard</Btn>
+        {Y.y === "2027" && hasChart(chartOf(st.defs.grid, st.gridDefs)) && <Btn kind="sm ghost" onClick={() => window.confirm("Copy the words of your 2026 chart into 2027? Ticks are not copied; 2026 stays as it is.") && update((d) => { d.gridDefs2027 = copyChart(d.gridDefs2027, chartOf(d.defs.grid, d.gridDefs)); }, ["gridDefs2027"])}>Copy from 2026</Btn>}
       </EmptyState>
     );
     return <HaradaWizard base={hasChart(g) ? g : null} onClose={() => setWizard(false)} />;
@@ -92,7 +112,7 @@ function Chart() {
             <details key={pi} className="pillar"><summary><b>{pi + 1}. {p.name || "(empty sub-goal)"}</b> <span className="note">{pDone(pi)}/8</span></summary>
               {p.acts.map((a, ai) => (
                 <div className="krow" key={ai}>
-                  <label className="kcheck"><input type="checkbox" aria-label={`Done: ${tickId(pi, ai)} ${a.t}`} checked={!!done[tickId(pi, ai)]} onChange={(e) => tick("grid", tickId(pi, ai), e.target.checked, "grid")} /><span className="note">{tickId(pi, ai)}</span></label>
+                  <label className="kcheck"><input type="checkbox" aria-label={`Done: ${tickId(pi, ai)} ${a.t}`} checked={!!done[tickId(pi, ai)]} onChange={(e) => Y.tick(tickId(pi, ai), e.target.checked)} /><span className="note">{tickId(pi, ai)}</span></label>
                   <span className="krow-main">{a.t || "(empty)"}{(a.when || a.why) && <><br /><span className="note">{[a.when, a.why].filter(Boolean).join(" · ")}</span></>}</span>
                   <Btn kind="sm ghost" onClick={() => setSel({ kind: "act", p: pi, a: ai })}>Edit</Btn>
                 </div>
@@ -103,15 +123,17 @@ function Chart() {
       )}
       {sel && <Editor key={JSON.stringify(sel)} cell={sel} chart={chart} onClose={() => setSel(null)} />}
       <div className="kform-row">
-        <Btn kind="sm ghost" disabled={!st.gridDefs.hist.length} onClick={() => update((d) => { d.gridDefs = undo(d.gridDefs, d.defs.grid); }, ["gridDefs"])}>Undo last edit</Btn>
-        <Btn kind="sm ghost" disabled={!st.gridDefs.cur || !st.defs.grid} onClick={() => window.confirm("Go back to your imported chart? Your current version is kept in the history.") && update((d) => { d.gridDefs = resetToImported(d.gridDefs, chartOf(d.defs.grid, d.gridDefs), new Date().toISOString()); }, ["gridDefs"])}>Reset to my imported chart</Btn>
+        <Btn kind="sm ghost" disabled={!gd.hist.length} onClick={() => update((d) => { d[Y.key] = undo(d[Y.key], Y.base(d)); }, [Y.key])}>Undo last edit</Btn>
+        {Y.y === "2026"
+          ? <Btn kind="sm ghost" disabled={!gd.cur || !st.defs.grid} onClick={() => window.confirm("Go back to your imported chart? Your current version is kept in the history.") && update((d) => { d.gridDefs = resetToImported(d.gridDefs, chartOf(d.defs.grid, d.gridDefs), new Date().toISOString()); }, ["gridDefs"])}>Reset to my imported chart</Btn>
+          : <Btn kind="sm ghost" disabled={!gd.cur} onClick={() => window.confirm("Clear the 2027 chart's words back to blank? Your current version is kept in the history; ticks stay.") && update((d) => { d.gridDefs2027 = resetToImported(d.gridDefs2027, chartOf(null, d.gridDefs2027), new Date().toISOString()); }, ["gridDefs2027"])}>Reset to blank</Btn>}
         <Btn kind="sm ghost" onClick={() => setWizard(true)}>Rebuild with the guided wizard</Btn>
       </div>
-      {st.gridDefs.hist.length > 0 && (
-        <details><summary className="note">Version history (last {st.gridDefs.hist.length})</summary>
-          {st.gridDefs.hist.map((h, i) => (
+      {gd.hist.length > 0 && (
+        <details><summary className="note">Version history (last {gd.hist.length})</summary>
+          {gd.hist.map((h, i) => (
             <div className="krow" key={h.at + i}><span className="krow-main"><time className="ts">{stamp(h.at)}</time> · {h.g.goal || "(no goal)"}</span>
-              <Btn kind="sm ghost" onClick={() => update((d) => { const base = chartOf(d.defs.grid, d.gridDefs) ?? emptyGrid(); d.gridDefs = { ...d.gridDefs, cur: h.g, hist: [{ at: new Date().toISOString(), g: base }, ...d.gridDefs.hist.filter((_, j) => j !== i)].slice(0, 5) }; }, ["gridDefs"])}>Restore</Btn></div>
+              <Btn kind="sm ghost" onClick={() => update((d) => { const base = chartOf(Y.base(d), d[Y.key]) ?? emptyGrid(); d[Y.key] = { ...d[Y.key], cur: h.g, hist: [{ at: new Date().toISOString(), g: base }, ...d[Y.key].hist.filter((_, j) => j !== i)].slice(0, 5) }; }, [Y.key])}>Restore</Btn></div>
           ))}
         </details>
       )}
@@ -122,8 +144,8 @@ function Chart() {
 
 /** The editor sheet for one cell: autosaves after a short pause; the version before the first change goes into history. */
 function Editor({ cell, chart, onClose }: { cell: Cell; chart: GridDef; onClose: () => void }) {
-  const { st, update } = useCourt();
-  const tick = useTick();
+  const { update } = useCourt();
+  const Y = useYear();
   const a = cell.kind === "act" ? chart.pillars[cell.p].acts[cell.a] : null;
   const [f, setF] = useState({ text: cell.kind === "goal" ? chart.goal : cell.kind === "pillar" ? chart.pillars[cell.p].name : a!.t, why: a?.why ?? "", when: a?.when ?? "" });
   const first = useRef(true), timer = useRef<number | undefined>(undefined), pending = useRef<typeof f | null>(null);
@@ -139,7 +161,7 @@ function Editor({ cell, chart, onClose }: { cell: Cell; chart: GridDef; onClose:
     if (!next) return;
     pending.current = null;
     const snap = first.current; first.current = false;
-    update((d) => { d.gridDefs = editCell(d.gridDefs, chartOf(d.defs.grid, d.gridDefs) ?? emptyGrid(), cell, next, new Date().toISOString(), snap); }, ["gridDefs"]);
+    update((d) => { d[Y.key] = editCell(d[Y.key], chartOf(Y.base(d), d[Y.key]) ?? emptyGrid(), cell, next, new Date().toISOString(), snap); }, [Y.key]);
   }
   // closing the editor or tapping another cell saves what was typed, never drops it
   useEffect(() => () => { window.clearTimeout(timer.current); flush(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -153,7 +175,7 @@ function Editor({ cell, chart, onClose }: { cell: Cell; chart: GridDef; onClose:
       {a && <>
         <input aria-label="When" placeholder="When (e.g. weekly, Sundays)" maxLength={LIMITS.when} value={f.when} onChange={(e) => change({ ...f, when: e.target.value })} />
         <textarea aria-label="Why" placeholder="Why it matters" maxLength={LIMITS.why} value={f.why} onChange={(e) => change({ ...f, why: e.target.value })} />
-        <label className="kcheck"><input type="checkbox" checked={!!st.grid.done[id!]} onChange={(e) => tick("grid", id!, e.target.checked, "grid")} />Done ({id})</label>
+        <label className="kcheck"><input type="checkbox" checked={!!Y.done[id!]} onChange={(e) => Y.tick(id!, e.target.checked)} />Done ({id})</label>
       </>}
     </div>
   );
@@ -163,16 +185,17 @@ function Editor({ cell, chart, onClose }: { cell: Cell; chart: GridDef; onClose:
  *  is saved as she goes. On an existing chart it fills empty cells only, so a ticked action never changes meaning. */
 export function HaradaWizard({ base, onClose }: { base: GridDef | null; onClose: () => void }) {
   const { st, update } = useCourt();
-  const start = st.gridDefs.draft ?? { step: 0, g: base ?? emptyGrid() };
+  const Y = useYear();
+  const start = st[Y.key].draft ?? { step: 0, g: base ?? emptyGrid() };
   // on an existing chart the cells that already have text are shown but locked: the wizard fills empty cells only
   const locked = (t?: string) => !!base && !!t?.trim();
   const [w, setW] = useState(start);
-  const saveDraft = (next: typeof w) => { setW(next); update((d) => { d.gridDefs = { ...d.gridDefs, draft: next }; }, ["gridDefs"]); };
+  const saveDraft = (next: typeof w) => { setW(next); update((d) => { d[Y.key] = { ...d[Y.key], draft: next }; }, [Y.key]); };
   const finish = () => update((d) => {
-    const cur = chartOf(d.defs.grid, d.gridDefs);
+    const cur = chartOf(Y.base(d), d[Y.key]);
     const g = fillEmpty(hasChart(cur) ? cur : null, w.g);
-    d.gridDefs = { cur: g, hist: cur && hasChart(cur) ? [{ at: new Date().toISOString(), g: cur }, ...d.gridDefs.hist].slice(0, 5) : d.gridDefs.hist, draft: null };
-  }, ["gridDefs"]);
+    d[Y.key] = { cur: g, hist: cur && hasChart(cur) ? [{ at: new Date().toISOString(), g: cur }, ...d[Y.key].hist].slice(0, 5) : d[Y.key].hist, draft: null };
+  }, [Y.key]);
   const set = (fn: (g: GridDef) => void) => { const g: GridDef = JSON.parse(JSON.stringify(w.g)); fn(g); setW({ ...w, g }); };
   const step = w.step, p = step - 2;
   return (

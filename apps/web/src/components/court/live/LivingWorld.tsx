@@ -11,7 +11,8 @@ import type { WaterEvt } from "@/lib/court/garden";
 import { getOnce } from "@/lib/court/once";
 import { greetWord, clock } from "@/lib/court/time";
 import { WorldFox } from "@/components/kumo/Fox";
-import { quoteOfDay } from "@/lib/court/quotes";
+import { QUOTES, nextQuote, quoteOfDay, trimQuote } from "@/lib/court/quotes";
+import { readSaved, writeSaved } from "@/lib/court/store";
 import { useCourt } from "../CourtState";
 import { AlertMark } from "../Alerts";
 import { useSprint } from "./SprintLive";
@@ -28,6 +29,8 @@ const PLACE_DESC: Record<string, string> = {
   garden: "Sakura Garden: habits and growth", life: "Life Hub: life admin and money", diary: "Dungeon: reflection, your diary",
 };
 const CREW = ["olli", "pip", "fenn", "tilly", "luna", "momo", "coco", "poppy", "dundun"];
+
+const isNums = (v: unknown): v is number[] => Array.isArray(v) && v.every((n) => Number.isInteger(n) && n >= 0);
 
 export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string>> }) {
   const { st, k, nm } = useCourt();
@@ -48,7 +51,17 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
   // HUD and the crew, crew about 15% of the scene height (20% on the phone strip) on the ground in front.
   const duty = crewDuty({ k, filed, water, st, sky: true });
   const crewOn = CREW.filter((id) => duty[id]?.on).map((id) => ({ id, place: Object.entries(CREW_AT).find(([, ids]) => ids.includes(id))?.[0] ?? "castle" }));
-  const quote = quoteOfDay(k, st.uq);
+  // round 10: a new quote on each load and every few minutes, none repeated until the library has been used up
+  const all = useMemo(() => QUOTES.concat(st.uq), [st.uq]);
+  const [qi, setQi] = useState<number | null>(null);
+  const lastQ = useRef<number | null>(null);
+  useEffect(() => {
+    const turn = () => { const r = nextQuote(all.length, readSaved("quotes.seen", isNums, []), lastQ.current); lastQ.current = r.i; writeSaved("quotes.seen", r.seen); setQi(r.i); };
+    turn();
+    const t = window.setInterval(turn, 4 * 60e3);
+    return () => window.clearInterval(t);
+  }, [all.length]);
+  const quote = qi != null && qi >= 0 && all[qi] ? trimQuote(all[qi]) : quoteOfDay(k, st.uq);
   const crewKey = crewOn.map((c) => c.id).join();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const L = useMemo(() => (wh ? worldLayout(wh[0], wh[1], crewOn, quote.length) : null), [wh, crewKey, quote.length]);
@@ -119,7 +132,7 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
         </div>
         <div className="lvl" id="lvlBanner" hidden><b id="lvlTxt">LEVEL UP</b><span id="lvlSub"></span></div>
       </div>
-      {L && <CloudSay text={quote} night={night} below={!L.bubble} style={L.bubble ? { left: L.bubble.x, top: L.bubble.y, width: L.bubble.w } : {}} />}
+      {L && <CloudSay text={quote} night={night} below={!L.bubble} tail={L.bubble ? Math.max(14, Math.min(L.bubble.w - 14, L.kumo.x + L.kumo.w / 2 - L.bubble.x)) : undefined} style={L.bubble ? { left: L.bubble.x, top: L.bubble.y, width: L.bubble.w } : {}} />}
     </section>
   );
 }
@@ -171,7 +184,8 @@ export function CrewRoster({ filed }: { filed: Partial<Record<BriefKind, string>
 // Only the quote text; tap or focus to read a long one in full. Lavender cloud with light text at night.
 // The quote is always shown in full (no clamp, no tap to expand); the layout gives it a free spot in the scene,
 // or it sits under the strip (below) when no spot is free, as on the phone.
-function CloudSay({ text, night, below, style }: { text: string; night: boolean; below: boolean; style: React.CSSProperties }) {
+// tail: where Kumo is, measured from the bubble's left edge; the tail puffs point down to him.
+function CloudSay({ text, night, below, style, tail: tx }: { text: string; night: boolean; below: boolean; style: React.CSSProperties; tail?: number }) {
   const ref = useRef<HTMLElement>(null);
   const [wh, setWh] = useState<[number, number]>([0, 0]);
   useLayoutEffect(() => {
@@ -187,7 +201,7 @@ function CloudSay({ text, night, below, style }: { text: string; night: boolean;
   // Kumo sits below-left of the bubble, so the tail puffs trail down-left to him. A clear glass cloud: the
   // fill is a light token tint (cream by day, lavender at night, set in CSS) under the button's backdrop blur,
   // and the outline is a 1px plum ring cut from the shape with a mask, so nothing dark shows through the glass.
-  const tail: [number, number, number][] = [[4, h + 3, 5], [-5, h + 10, 3]];
+  const tail: [number, number, number][] = tx != null ? [[tx, h + 4, 5], [tx, h + 12, 3]] : [[4, h + 3, 5], [-5, h + 10, 3]];
   const all = [...puffs, ...tail], id = useId().replace(/:/g, "");
   const shape = (grow: number, col: string) => <>
     {all.map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r + grow} fill={col} />)}

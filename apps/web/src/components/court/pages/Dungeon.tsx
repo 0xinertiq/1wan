@@ -109,9 +109,9 @@ function Side({ day, e, put, part }: { day: string; e: Entry | undefined; put: (
         </form>
       </Card>
       <Card title="Trade reflection" sub="before and after a trade">
-        <select aria-label="Link a trade" value={cur.tradeId ?? ""} onChange={(ev) => put({ ...base, tradeId: ev.target.value || undefined })}>
-          <option value="">Not about a trade</option>{trades.map((t) => <option key={t.id} value={t.id}>{String(t.inst ?? "")} {t.date ? prettyDay(String(t.date)) : ""}</option>)}
-        </select>
+        {trades.length > 0 && <select aria-label="Link a trade" value={cur.tradeId ?? trades[0].id} onChange={(ev) => put({ ...base, tradeId: ev.target.value })}>
+          {trades.map((t) => <option key={t.id} value={t.id}>{String(t.inst ?? "")} {t.date ? prettyDay(String(t.date)) : ""}</option>)}
+        </select>}
         <label className="kform">Before: what is the plan?<textarea key={day + "p"} maxLength={1000} defaultValue={cur.plan ?? ""} onBlur={(ev) => ev.target.value !== (cur.plan ?? "") && put({ ...base, plan: ev.target.value })} /></label>
         <label className="kform">How do you feel about it?<textarea key={day + "f"} maxLength={1000} defaultValue={cur.feel ?? ""} onBlur={(ev) => ev.target.value !== (cur.feel ?? "") && put({ ...base, feel: ev.target.value })} /></label>
         <label className="kform">After: what would you change?<textarea key={day + "c"} maxLength={1000} defaultValue={cur.change ?? ""} onBlur={(ev) => ev.target.value !== (cur.change ?? "") && put({ ...base, change: ev.target.value })} /></label>

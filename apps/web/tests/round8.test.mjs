@@ -38,9 +38,10 @@ test("grid: a double press marks an action done with the same key and watering a
   assert.ok(!isDoublePress({ key: "a2", at: 1000 }, "a3", 1100), "a different cell");
   assert.ok(!isDoublePress(null, "a3", 1100));
   const g = src("components/court/pages/GridChart.tsx");
-  assert.match(g, /isDoublePress\(last\.current, key, now\)\) \{ last\.current = null; const id = tickId\(c\.p, c\.a\); tick\("grid", id, !done\[id\], "grid"\); setSel\(null\); return; \}/, "a double press ticks and closes the editor");
+  assert.match(g, /isDoublePress\(last\.current, key, now\)\) \{ last\.current = null; const id = tickId\(c\.p, c\.a\); Y\.tick\(id, !done\[id\]\); setSel\(null\); return; \}/, "a double press ticks and closes the editor");
+  assert.match(g, /if \(y === "2026"\) return \{ y, key: "gridDefs", base: \(d\) => d\.defs\.grid, done: st\.grid\.done, tick: \(id, on\) => tick26\("grid", id, on, "grid"\) \};/, "2026 ticks use the same key and watering as before");
   assert.match(g, /last\.current = \{ key, at: now \};\n\s+setSel\(c\);/);
-  assert.match(g, /tick\("grid", id!, e\.target\.checked, "grid"\)/, "the editor's Done box is still there");
+  assert.match(g, /Y\.tick\(id!, e\.target\.checked\)\} \/>Done/, "the editor's Done box is still there");
 });
 
 test("useTick stores a grid tick under its p.a key and waters the garden", async () => {

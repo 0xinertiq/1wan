@@ -76,12 +76,14 @@ export function worldLayout(w: number, h: number, crewOn: { id: string; place: s
     const free = (b: Box) => b.x >= 0 && b.x + b.w <= w && b.y >= hud.h + 4 && b.y + b.h <= h - 4 &&
       ![...places.map((p) => p.box), ...crew, kumo].some((o) => hit(b, o));
     const castle = places.find((p) => p.id === "castle")?.box;
-    for (const bw of [Math.min(320, w * 0.46), Math.min(380, w * 0.46)]) {
+    // round 10: the bubble always comes out of Kumo (above him, to his right or to his left), never a corner of the sky
+    void castle;
+    for (const bw of [Math.min(320, w * 0.46), Math.min(380, w * 0.46), Math.min(260, w * 0.4)]) {
       const bh = Math.max(1, Math.ceil((quoteLen * 7.9) / (bw - 36))) * 22 + 30;
       const spots: [number, number][] = [
-        [(g.cx + 68) * s, kumo.y - 4 - bh],
-        [w - bw - 12, hud.h + 4],
-        ...(castle ? [[castle.x + castle.w + 12, hud.h + 4] as [number, number]] : []),
+        [kumo.x + kumo.w * 0.5 - 18, kumo.y - 14 - bh],
+        [kumo.x + kumo.w * 0.5 + 18 - bw, kumo.y - 14 - bh],
+        [kumo.x + kumo.w * 0.5 - bw / 2, kumo.y - 14 - bh],
       ];
       const ok = spots.map(([x, y]) => ({ id: "bubble", x, y, w: bw, h: bh })).find(free);
       if (ok) { bubble = ok; break; }

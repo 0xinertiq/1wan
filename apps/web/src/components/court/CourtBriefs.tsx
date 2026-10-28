@@ -59,7 +59,8 @@ function Head({ d }: { d: BriefDoc }) {
 
 
 function BriefPane({ d, mem }: { d: BriefDoc; mem?: DeskMem }) {
-  const [open, setOpen] = useState(false);
+  // round 10: briefs on the Court open expanded; Show less folds one away
+  const [open, setOpen] = useState(true);
   // The Crypto scan shows only the read-through and Movers here, plus the three strongest coins; the full scan
   // (style map, trade plan, catalysts, gaps) stays in News.
   const scan = d.key === "scan" ? scanCourt(d.body ?? "") : null;
@@ -108,7 +109,6 @@ function Wrap({ bare, children }: { bare: boolean; children: React.ReactNode }) 
 }
 // bare (round 8): the body only, for the Trades card that shares one header with the scan details.
 export function MoversCard({ list, bare = false }: { list: BriefDoc[]; bare?: boolean }) {
-  const [open, setOpen] = useState(false);
   const latest = list[0] ?? null;
   const quiet = latest ? isNoMovers(latest.body ?? "") : false;
   const lastReal = list.find((d) => !isNoMovers(d.body ?? ""));
@@ -119,8 +119,7 @@ export function MoversCard({ list, bare = false }: { list: BriefDoc[]; bare?: bo
       <div className="win-body">
         {!latest ? <p className="note">No movers note yet. The 14:30 run lands here.</p>
           : quiet ? <p>No movers today (checked {checked}).</p>
-          : <><Head d={latest} />{open ? <div className="brb open" dangerouslySetInnerHTML={{ __html: latest.html }} /> : latest.top.length > 0 && <ul className="rv-sug">{latest.top.map((t) => <li key={t}>{t}</li>)}</ul>}
-            <button className="btn sm ghost" type="button" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? "Show less" : "Read the alert"}</button></>}
+          : <><Head d={latest} />{latest.top.length > 0 ? <ul className="rv-sug">{latest.top.map((t) => <li key={t}>{t}</li>)}</ul> : <div className="brb open" dangerouslySetInnerHTML={{ __html: latest.html }} />}</>}
         {lastReal && (quiet || lastReal !== latest) && <p className="note">Last real alert: {daysAgo(lastReal.at) === 0 ? "today" : `${daysAgo(lastReal.at)} day${daysAgo(lastReal.at) === 1 ? "" : "s"} ago`}.</p>}
         {latest && <BriefFeedback key={latest.key + latest.at} kind={latest.key} at={latest.at} initial={latest.vote} />}
         <p className="note xd">Tracking only. The crew never places trades or tells you what to buy.</p>

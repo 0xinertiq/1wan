@@ -35,7 +35,7 @@ export function MiniMonth({ marks, onPick, picked, label = "Mini month" }: { mar
       <div className="kmini">
         {["M", "T", "W", "T", "F", "S", "S"].map((w, i) => <span key={i} aria-hidden="true">{w}</span>)}
         {days.map((d) => (
-          <button key={d} type="button" className={(d.slice(0, 7) !== m.slice(0, 7) ? "out " : "") + (d === k ? "today " : "") + (marks(d) ? "has" : "")} aria-pressed={picked === d} aria-label={prettyDay(d) + (d === k ? ", today" : "") + (marks(d) ? ", has items" : "")} onClick={() => onPick(d)}>
+          <button key={d} type="button" className={(d.slice(0, 7) !== m.slice(0, 7) ? "out " : "") + (d === k ? "is-today " : "") + (marks(d) ? "has" : "")} aria-pressed={picked === d} aria-label={prettyDay(d) + (d === k ? ", today" : "") + (marks(d) ? ", has items" : "")} onClick={() => onPick(d)}>
             {(picked === d || d === k) && <Heart filled={picked === d} />}<span>{+d.slice(8)}</span>
           </button>
         ))}

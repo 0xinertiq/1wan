@@ -72,6 +72,7 @@ export type CourtState = {
   grid: Ticks; swins: Ticks & { log: Record<string, string[]> }; money: MoneyW; samsara: Samsara; defs: Defs;
   prefs: Prefs; hab: Habits; gridDefs: GridDefs;   // gridDefs: her own Grid & Wins chart (addendum 1); defs.grid stays the original
   lenses: LensId[];   // round 7: the news lenses she follows (several at once)
+  gridDefs2027: GridDefs; grid2027done: Record<string, boolean>;   // round 10: her separate 2027 chart and its own ticks
   spr: { run: { at: string; tag: "study" | "other" } | null; log: { at: string; tag: "study" | "other"; min: number }[] };   // focus sprints, tagged
   last: Record<string, unknown>; prev: Record<string, unknown> | null;
 };
@@ -87,7 +88,7 @@ function lifeFlags(i: LifeItem): LifeItem {
   return o;
 }
 
-export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "news", "tg", "birth", "grid", "swins", "money", "samsara", "spr", "last", "prev", "prefs", "hab", "gridDefs", "lenses"] as const;
+export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "news", "tg", "birth", "grid", "swins", "money", "samsara", "spr", "last", "prev", "prefs", "hab", "gridDefs", "lenses", "gridDefs2027", "grid2027done"] as const;
 export type OwnedKey = (typeof OWNED_KEYS)[number];
 
 export type Recap = { old: string; done: number; total: number; newWeek: boolean; lost: boolean; restY: boolean };
@@ -171,6 +172,8 @@ export function normalize(raw: unknown, today: string): CourtState {
         log: arr<Record<string, unknown>>(w.log).filter((x) => x && typeof x.at === "string" && typeof x.min === "number").map((x) => ({ at: x.at as string, tag: tag(x.tag), min: x.min as number })).slice(-200) }; })(),
     prefs: normPrefs(r.prefs), hab: normHab(r.hab), gridDefs: normGridDefs(r.gridDefs),
     lenses: normLenses(r.lenses, obj<Record<string, unknown>>(r.prefs, {}).lens),
+    gridDefs2027: normGridDefs(r.gridDefs2027),
+    grid2027done: Object.fromEntries(Object.entries(obj<Record<string, unknown>>(r.grid2027done, {})).filter(([id, on]) => /^[1-8]\.[1-8]$/.test(id) && on === true)) as Record<string, boolean>,
     last: obj(r.last, {}), prev: r.prev && typeof r.prev === "object" ? (r.prev as Record<string, unknown>) : null,
   };
 }

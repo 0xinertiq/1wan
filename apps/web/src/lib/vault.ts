@@ -34,14 +34,15 @@ const CLEAN: Record<Table, (r: Raw) => Raw | null> = {
     // round 9: loans owed to her, income typed once a month, and a small history of figure edits
     if (r.kind === "loan") return typeof r.name === "string" && r.name && N(r.lent) != null ? { kind: "loan", name: NOACC(S(r.name, 60)), lent: Math.max(0, N(r.lent) as number), date: typeof r.date === "string" && DAY.test(r.date) ? r.date : undefined,
       repaid: (Array.isArray(r.repaid) ? r.repaid : []).filter((x) => x && typeof x === "object" && DAY.test(String((x as Raw).date)) && (N((x as Raw).amt) ?? 0) > 0).map((x) => ({ date: (x as Raw).date as string, amt: N((x as Raw).amt) as number })),
-      off: Math.max(0, N(r.off) ?? 0), note: NOACC(S(r.note, 120)) } : null;
+      off: Math.max(0, N(r.off) ?? 0), note: NOACC(S(r.note, 120)), deleted: r.deleted === true } : null;
+    if (r.kind === "fix") return typeof r.key === "string" ? { kind: "fix", key: S(r.key, 40) } : null;
     if (r.kind === "income") return typeof r.month === "string" && /^\d{4}-\d{2}$/.test(r.month) && N(r.amt) != null ? { kind: "income", month: r.month, amt: Math.max(0, N(r.amt) as number) } : null;
     if (r.kind === "edit") return typeof r.fig === "string" && N(r.to) != null ? { kind: "edit", fig: S(r.fig, 60), label: NOACC(S(r.label, 60)), from: N(r.from) ?? 0, to: N(r.to), undo: OS(r.undo) } : null;
     return (r.kind !== "budget" && r.kind !== "entry") || N(r.amt) == null ? null : { kind: r.kind, cat: S(r.cat, 30) || "other", amt: N(r.amt), date: typeof r.date === "string" && DAY.test(r.date) ? r.date : undefined, type: r.type === "in" ? "in" : "out", note: NOACC(S(r.note, 120)) };
   },
   research_notes: (r) => ({ kind: r.kind === "macro" ? "macro" : "note", title: S(r.title, 120), text: S(r.text, 4000), tags: SL(r.tags), url: typeof r.url === "string" && /^https?:\/\//.test(r.url) ? r.url : undefined, pinned: r.pinned === true, lens: r.lens === "local" || r.lens === "any" ? r.lens : r.lens === "trading" ? "trading" : undefined, watch: OS(r.watch), week: OS(r.week) }),
   longterm_watchlist: (r) => (typeof r.name === "string" && r.name ? { name: S(r.name, 60), sector: S(r.sector, 60), thesis: S(r.thesis, 1000), catalysts: S(r.catalysts, 300), status: r.status === "watching" || r.status === "owned" ? r.status : "studying", notes: S(r.notes, 500), links: S(r.links, 500) } : null),
-  tasks: (r) => (typeof r.title === "string" && r.title ? { title: S(r.title, 120), due: typeof r.due === "string" && DAY.test(r.due) ? r.due : undefined, pri: r.pri === "high" || r.pri === "low" ? r.pri : "normal", done: r.done === true } : null),
+  tasks: (r) => (typeof r.title === "string" && r.title ? { title: S(r.title, 120), due: typeof r.due === "string" && DAY.test(r.due) ? r.due : undefined, pri: r.pri === "high" || r.pri === "low" ? r.pri : "normal", done: r.done === true, ...(r.todo === true ? { todo: true, day: typeof r.day === "string" && DAY.test(r.day) ? r.day : undefined, doneOn: typeof r.doneOn === "string" && DAY.test(r.doneOn) ? r.doneOn : undefined } : {}) } : null),
   routines: (r) => (typeof r.name === "string" && r.name ? { name: S(r.name, 60), kind: r.kind === "pet" || r.kind === "self" ? r.kind : "custom", every: N(r.every) && (r.every as number) > 0 ? Math.round(r.every as number) : 7, last: typeof r.last === "string" && DAY.test(r.last) ? r.last : undefined, start: typeof r.start === "string" && DAY.test(r.start) ? r.start : undefined, paused: r.paused === true } : null),
 };
 export function cleanRows(t: Table, rows: unknown): VRow[] {

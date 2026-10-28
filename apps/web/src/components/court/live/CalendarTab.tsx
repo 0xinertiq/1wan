@@ -90,11 +90,11 @@ export function CalendarTab({ noWeek = false }: { noWeek?: boolean }) {
           </div>
 
           {view !== "agenda" && (
-            <div className="rep-act">
+            <div className="kcal-nav">
               <button className="btn sm ghost" type="button" onClick={() => setAnchor(view === "day" ? addDays(anchor, -1) : view === "week" ? addDays(anchor, -7) : addDays(mStart, -1).slice(0, 8) + "01")}>‹ Back</button>
-              <b>{view === "day" ? (anchor === k ? "Today, " : "") + prettyDay(anchor) : view === "week" ? `${prettyDay(wk)} to ${prettyDay(addDays(wk, 6))}` : monthTitle(mStart)}</b>
+              <span className="kcal-nav-l"><b>{view === "day" ? (anchor === k ? "Today, " : "") + prettyDay(anchor) : view === "week" ? `${prettyDay(wk)} to ${prettyDay(addDays(wk, 6))}` : monthTitle(mStart)}</b>
+                {anchor !== k && <button className="btn sm ghost" type="button" onClick={() => setAnchor(k)}>Today</button>}</span>
               <button className="btn sm ghost" type="button" onClick={() => setAnchor(view === "day" ? addDays(anchor, 1) : view === "week" ? addDays(anchor, 7) : addDays(mStart, 32).slice(0, 8) + "01")}>Next ›</button>
-              {anchor !== k && <button className="btn sm ghost" type="button" onClick={() => setAnchor(k)}>Today</button>}
             </div>
           )}
 
