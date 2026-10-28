@@ -81,9 +81,11 @@ export function MacroDesk({ intel }: { intel: BriefDoc | null }) {
 /* ---------- Ledger (the existing trades table, /api/ledger) ---------- */
 function useLedger() {
   const [rows, setRows] = useState<Row[]>([]);
+  const [plans, setPlans] = useState<Row[]>([]);
   const [state, setState] = useState<"loading" | "ok" | "setup" | "error">("loading");
   useEffect(() => {
-    getOnce<{ setup?: boolean; trades?: Row[] }>("/api/ledger").then((j) => {
+    getOnce<{ setup?: boolean; trades?: Row[]; plans?: Row[] }>("/api/ledger").then((j) => {
+      if (Array.isArray(j?.plans)) setPlans(j.plans.filter((p) => p && typeof p.id === "string"));
       if (j?.setup) setState("setup"); else if (Array.isArray(j?.trades)) { setRows(j.trades.filter((t) => t && typeof t.id === "string")); setState("ok"); } else setState("error");
     }).catch(() => setState("error"));
   }, []);
@@ -92,21 +94,25 @@ function useLedger() {
     const j = r ? await r.json().catch(() => ({})) : {};
     if (!r?.ok || !j.row) return false;
     setRows((l) => [j.row, ...l.filter((x) => x.id !== j.row.id)]);
+    // logging a trade from a plan marks the plan as reached and placed, exactly as the ledger did
+    const p = row.plan_id ? plans.find((x) => x.id === row.plan_id) : null;
+    if (p && !(p.triggered && p.placed)) await fetch("/api/ledger", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ table: "plans", row: { ...p, triggered: true, placed: true } }) }).catch(() => null);
+    window.dispatchEvent(new Event("1wan:ledger-changed"));
     return true;
   }
   async function remove(id: string) {
     const r = await fetch(`/api/ledger?table=trades&id=${encodeURIComponent(id)}`, { method: "DELETE" }).catch(() => null);
-    if (r?.ok) setRows((l) => l.filter((x) => x.id !== id));
+    if (r?.ok) { setRows((l) => l.filter((x) => x.id !== id)); window.dispatchEvent(new Event("1wan:ledger-changed")); }
   }
-  return { rows, state, save, remove };
+  return { rows, plans, state, save, remove };
 }
 const targetOf = (t: Row) => { const c = t.checks as Record<string, unknown> | null; return n(c && typeof c === "object" ? c.target : null); };
 const SETUPS = ["Pullback", "Breakout", "Range", "Trend continuation", "Reversal"];
 
-type Form = { id?: string; date: string; inst: string; setup: string; dir: string; entry: string; stop: string; target: string; size: string; exit: string; lesson: string };
+type Form = { id?: string; date: string; inst: string; setup: string; dir: string; entry: string; stop: string; target: string; size: string; exit: string; lesson: string; plan_id: string };
 function TradeLog({ L }: { L: ReturnType<typeof useLedger> }) {
   const { k } = useCourt();
-  const blank: Form = { date: k, inst: "", setup: "", dir: "long", entry: "", stop: "", target: "", size: "", exit: "", lesson: "" };
+  const blank: Form = { date: k, inst: "", setup: "", dir: "long", entry: "", stop: "", target: "", size: "", exit: "", lesson: "", plan_id: "" };
   const [f, setF] = useState<Form | null>(null);
   const [msg, setMsg] = useState("");
   const [flt, setFlt] = useState({ setup: "", month: "", status: "all" });
@@ -117,13 +123,13 @@ function TradeLog({ L }: { L: ReturnType<typeof useLedger> }) {
     window.addEventListener("1wan:log-trade", on);
     return () => window.removeEventListener("1wan:log-trade", on);
   }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
-  const edit = (t: Row): Form => ({ id: t.id, date: String(t.date ?? k), inst: String(t.inst ?? ""), setup: String(t.setup ?? ""), dir: t.dir === "short" ? "short" : "long", entry: String(t.entry ?? ""), stop: String(t.stop ?? ""), target: String(targetOf(t) ?? ""), size: String(t.size ?? ""), exit: String(t.exit ?? ""), lesson: String(t.lesson ?? "") });
+  const edit = (t: Row): Form => ({ id: t.id, date: String(t.date ?? k), inst: String(t.inst ?? ""), setup: String(t.setup ?? ""), dir: t.dir === "short" ? "short" : "long", entry: String(t.entry ?? ""), stop: String(t.stop ?? ""), target: String(targetOf(t) ?? ""), size: String(t.size ?? ""), exit: String(t.exit ?? ""), lesson: String(t.lesson ?? ""), plan_id: String(t.plan_id ?? "") });
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!f || !f.inst.trim() || n(f.entry) == null) return setMsg("A ticker and an entry are needed.");
     const old = f.id ? L.rows.find((x) => x.id === f.id) : null;
     const checks = { ...((old?.checks as Record<string, unknown>) ?? {}), target: n(f.target) };
-    const ok = await L.save({ ...(old ?? {}), id: f.id ?? "t" + Date.now().toString(36), date: f.date, inst: f.inst.trim().toUpperCase().slice(0, 20), setup: f.setup.trim().slice(0, 120), dir: f.dir, entry: n(f.entry), stop: n(f.stop), size: n(f.size), exit: n(f.exit), lesson: f.lesson.trim().slice(0, 400), checks, at: (old?.at as string) ?? new Date().toISOString() });
+    const ok = await L.save({ ...(old ?? {}), id: f.id ?? "t" + Date.now().toString(36), date: f.date, inst: f.inst.trim().toUpperCase().slice(0, 20), setup: f.setup.trim().slice(0, 120), dir: f.dir, entry: n(f.entry), stop: n(f.stop), size: n(f.size), exit: n(f.exit), lesson: f.lesson.trim().slice(0, 400), plan_id: f.plan_id || (old?.plan_id as string) || null, checks, at: (old?.at as string) ?? new Date().toISOString() });
     setMsg(ok ? "Saved." : "Could not save. Try again.");
     if (ok) setF(null);
   }
@@ -154,6 +160,7 @@ function TradeLog({ L }: { L: ReturnType<typeof useLedger> }) {
             <input type="number" step="any" placeholder="Target" aria-label="Target" value={f.target} onChange={set("target")} />
             <input type="number" step="any" placeholder="Exit (blank while open)" aria-label="Exit" value={f.exit} onChange={set("exit")} />
           </div>
+          {!f.id && L.plans.length > 0 && <select aria-label="From a plan" value={f.plan_id} onChange={set("plan_id")}><option value="">Not from a plan</option>{L.plans.slice(0, 40).map((p) => <option key={p.id} value={p.id}>{String(p.inst ?? "")} {String(p.dir ?? "")} {/^\d{4}-\d{2}-\d{2}$/.test(String(p.date)) ? prettyDay(String(p.date)) : ""}</option>)}</select>}
           <textarea placeholder="Notes" aria-label="Notes" maxLength={400} value={f.lesson} onChange={set("lesson")} />
           <div className="kform-row"><button className="btn" type="submit">{f.id ? "Save changes" : "Save trade"}</button><Btn kind="ghost" onClick={() => setF(null)}>Cancel</Btn></div>
         </form>
@@ -170,7 +177,7 @@ function TradeLog({ L }: { L: ReturnType<typeof useLedger> }) {
             const d = derive(t), tg = targetOf(t);
             return (
               <div className="krow" key={t.id}>
-                <span className="krow-main"><b>{String(t.inst ?? "")}</b> {t.dir === "short" ? "Short" : "Long"}{t.setup ? <> · {String(t.setup)}</> : null} <Chip tone={d.status === "open" ? "sky" : d.status === "win" ? "mint" : d.status === "loss" ? "peach" : "lav"}>{d.status === "open" ? "Open" : rTxt(d.R)}</Chip>
+                <span className="krow-main"><b>{String(t.inst ?? "")}</b> {t.dir === "short" ? "Short" : "Long"}{t.setup ? <> · {String(t.setup)}</> : null} <Chip tone={d.status === "open" ? "peach" : d.status === "win" ? "mint" : d.status === "loss" ? "peach" : "lav"}>{d.status === "open" ? "Open" : rTxt(d.R)}</Chip>
                   <br /><span className="note"><time className="ts">{/^\d{4}-\d{2}-\d{2}$/.test(String(t.date)) ? prettyDay(String(t.date)) : ""}</time> · entry {fx(n(t.entry), 4)} · stop {fx(n(t.stop), 4)}{tg != null ? ` · target ${fx(tg, 4)}` : ""}{n(t.size) != null ? ` · size ${fx(n(t.size), 4)}` : ""}{n(t.exit) != null ? ` · exit ${fx(n(t.exit), 4)}` : ""}</span>
                   {t.lesson ? <><br /><span className="note">{noBigdata(String(t.lesson))}</span></> : null}</span>
                 <span className="krow-act">
@@ -279,7 +286,7 @@ export function LongTerm() {
         : !list.length ? <EmptyState who="tilly">{v.rows.length ? "Nothing with this status." : "Nothing here yet. Add a name you want to study slowly."}</EmptyState>
         : list.map((r) => (
           <div className="krow" key={r.id}>
-            <span className="krow-main"><b>{r.name}</b>{r.sector ? <> · {r.sector}</> : null} <Chip tone={r.status === "owned" ? "mint" : r.status === "watching" ? "sky" : "lav"}>{r.status}</Chip>
+            <span className="krow-main"><b>{r.name}</b>{r.sector ? <> · {r.sector}</> : null} <Chip tone={r.status === "owned" ? "mint" : r.status === "watching" ? "lav" : "lav"}>{r.status}</Chip>
               {r.thesis && <><br /><span>{noBigdata(r.thesis)}</span></>}
               {r.catalysts && <><br /><span className="note">Catalysts: {noBigdata(r.catalysts)}</span></>}
               {r.links && <><br />{r.links.split(/\s+/).filter((u) => /^https?:\/\//.test(u)).slice(0, 4).map((u) => <a key={u} href={u} target="_blank" rel="noreferrer" className="brsrc-line">{u.replace(/^https?:\/\/(www\.)?/, "").split("/")[0]} </a>)}</>}</span>

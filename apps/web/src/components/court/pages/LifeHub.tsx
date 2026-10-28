@@ -94,7 +94,7 @@ function Routines() {
           const next = routineNext(r, k), dd = dayGap(k, next);
           return (
             <div className="krow" key={r.id}>
-              <span className="krow-main"><b>{r.name}</b> <Chip tone={r.kind === "pet" ? "peach" : "lav"}>{KINDS[r.kind ?? "custom"]}</Chip>{r.paused && <Chip tone="sky">paused</Chip>}
+              <span className="krow-main"><b>{r.name}</b> <Chip tone={r.kind === "pet" ? "peach" : "lav"}>{KINDS[r.kind ?? "custom"]}</Chip>{r.paused && <Chip tone="peach">paused</Chip>}
                 <br /><span className="note">every {r.every} days · next {dd < 0 ? "was " + prettyDay(next) : dd === 0 ? "today" : prettyDay(next)}</span></span>
               <span className="krow-act">
                 <Btn kind="sm" onClick={() => v.put({ id: r.id, last: k })}>Done today</Btn>
@@ -116,7 +116,7 @@ const CATS = ["food", "transport", "home", "bills", "health", "pets", "fun", "sh
 type Line = { at: string; amount: number; category: string };
 /** CSV rows "date,amount,category,note" (a header row is skipped); negative or "out" amounts are spending. */
 export function parseCsv(text: string): { date: string; amt: number; cat: string; note: string; type: "in" | "out" }[] {
-  return text.split(/\r?\n/).map((l) => l.split(",").map((c) => c.trim().replace(/^"|"$/g, ""))).filter((c) => c.length >= 2 && /^\d{4}-\d{2}-\d{2}$/.test(c[0]) && Number.isFinite(parseFloat(c[1])))
+  return text.split(/\r?\n/).map((l) => (l.match(/("([^"]|"")*"|[^,]*)(,|$)/g) ?? []).map((c) => c.replace(/,$/, "").trim().replace(/^"|"$/g, "").replace(/""/g, "\""))).filter((c) => c.length >= 2 && /^\d{4}-\d{2}-\d{2}$/.test(c[0]) && Number.isFinite(parseFloat(c[1])))
     .slice(0, 500).map(([date, a, cat = "other", note = ""]) => ({ date, amt: Math.abs(parseFloat(a)), cat: CATS.includes(cat.toLowerCase()) ? cat.toLowerCase() : cat.toLowerCase() === "income" ? "income" : "other", note: note.slice(0, 120), type: parseFloat(a) < 0 || cat.toLowerCase() !== "income" ? "out" : "in" }));
 }
 function Budgets() {

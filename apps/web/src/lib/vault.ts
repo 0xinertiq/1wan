@@ -54,6 +54,7 @@ export const newId = (p: string) => p + Date.now().toString(36) + Math.floor(Mat
 const cache = new Map<Table, VRow[]>();
 const subs = new Map<Table, Set<() => void>>();
 const loading = new Map<Table, Promise<void>>();
+const failed = new Set<Table>();
 const ping = (t: Table) => subs.get(t)?.forEach((f) => f());
 
 // Real columns kept alongside data (see 0006): research_notes.kind, journal_entries.day.
@@ -72,8 +73,9 @@ function load(t: Table): Promise<void> {
     if (vaultMode() === "device") { cache.set(t, readDevice(t)); return; }
     try {
       const { data, error } = await createClient().from(t).select("*").order("updated_at", { ascending: false }).limit(MAX);
+      if (error) failed.add(t); else failed.delete(t);
       cache.set(t, error ? [] : cleanRows(t, (data ?? []).map(fromDb)));
-    } catch { cache.set(t, []); }
+    } catch { failed.add(t); cache.set(t, []); }
   })().finally(() => { loading.delete(t); ping(t); });
   loading.set(t, p);
   return p;
@@ -124,7 +126,7 @@ export function useVault<T extends VRow = VRow>(t: Table) {
     persist(t, next, null, id).then((ok) => setStatus(ok ? "saved" : "error"));
   }, [t]);
 
-  return { rows: (cache.get(t) ?? []) as T[], ready: cache.has(t), status, put, remove, mode: vaultMode() };
+  return { rows: (cache.get(t) ?? []) as T[], ready: cache.has(t), failed: failed.has(t), status, put, remove, mode: vaultMode() };
 }
 
 /** For tests and "Reset saved settings": forget the in-memory copies. */

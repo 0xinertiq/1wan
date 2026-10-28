@@ -42,7 +42,7 @@ export function HabitEditor() {
               {today ? <label className="kcheck"><input type="checkbox" checked={on} onChange={(e) => save((_, log) => { const cur = new Set(log[k] ?? []); if (e.target.checked) cur.add(h.id); else cur.delete(h.id); log[k] = [...cur]; })} /><span className="sr">Done today: {h.name}</span></label> : <span className="note">rest</span>}
               <span className="krow-main">{edit === h.id
                 ? <form className="kform-row" onSubmit={(e) => { e.preventDefault(); save((list) => { const x = list.find((y) => y.id === h.id); if (x && name.trim()) x.name = name.trim().slice(0, 60); }); setEdit(null); }}><input aria-label="Habit name" value={name} maxLength={60} onChange={(e) => setName(e.target.value)} /><button className="btn sm" type="submit">Save</button></form>
-                : <><b>{h.name}</b> {h.paused && <Chip tone="sky">paused</Chip>}<br /><span className="note">{h.days.length === 7 ? "every day" : h.days.map((d) => wdName(d).slice(0, 3)).join(" · ") || "no days yet"}</span></>}
+                : <><b>{h.name}</b> {h.paused && <Chip tone="peach">paused</Chip>}<br /><span className="note">{h.days.length === 7 ? "every day" : h.days.map((d) => wdName(d).slice(0, 3)).join(" · ") || "no days yet"}</span></>}
                 {edit === h.id && dayChips(h.days, (days) => save((list) => { const x = list.find((y) => y.id === h.id); if (x) x.days = days.sort(); }))}</span>
               <span className="krow-act">
                 <Btn kind="sm ghost" onClick={() => { setEdit(edit === h.id ? null : h.id); setName(h.name); }}>{edit === h.id ? "Done" : "Edit"}</Btn>

@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { resetDevice } from "@/lib/court/store";
 import { TABLES, VAULT_LABEL, vaultMode } from "@/lib/vault";
 import type { Lens } from "@/lib/court/state";
+import { INTERESTS } from "./Welcome";
 import { Btn, Callout, Card, Chip, EmptyState, PageHead, SectionLabel } from "../ui";
 
 // Settings (round 6): sections in a grid, never one long column. No place to paste keys or passwords: keys live in
@@ -70,6 +71,10 @@ export function SettingsPage() {
               {([["trading", "Trading"], ["local", "Local news"], ["any", "Any topic"], ["off", "Off"]] as const).map(([v, l]) => <button key={v} type="button" className="chipb" aria-pressed={lens === v} onClick={() => setPrefs((p) => { p.lens = v; })}>{l}</button>)}
             </div>
             <p className="note">Off hides the Saved and research strip in News. Trading is the default.</p>
+          </Card>
+          <Card title="Rooms" sub="what the kingdom helps with">
+            <div className="kgrid-opts">{INTERESTS.map(([id, l]) => <label className="kcheck" key={id}><input type="checkbox" checked={st.prefs.rooms?.[id] !== false} onChange={(e) => setPrefs((p) => { p.rooms = { ...(p.rooms ?? {}), [id]: e.target.checked }; })} />{l}</label>)}</div>
+            <p className="note">Switching a room off hides its tab (Garden, Dungeon, Trades and News); nothing is deleted.</p>
           </Card>
           <Card title="Connections" sub="read-only">
             <div className="krow"><span className="krow-main"><b>Google Calendar</b><br /><span className="note">One private calendar link, read-only. Nothing is ever written to Google.</span></span><Chip tone={cal.state === "live" ? "mint" : "peach"}>{cal.state === "live" ? "connected" : cal.state === "loading" ? "checking" : cal.state === "off" ? "not connected" : "not reachable"}</Chip></div>

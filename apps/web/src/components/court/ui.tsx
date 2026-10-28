@@ -50,8 +50,8 @@ export function Btn({ children, kind = "", ...p }: React.ButtonHTMLAttributes<HT
 /** Segmented tabs (the Court's Today | Week style). */
 export function TabPills<T extends string>({ value, options, onChange, label }: { value: T; options: readonly (readonly [T, string])[]; onChange: (v: T) => void; label: string }) {
   return (
-    <div className="kseg" role="tablist" aria-label={label}>
-      {options.map(([v, l]) => <button key={v} type="button" role="tab" aria-selected={value === v} className={value === v ? "on" : ""} onClick={() => onChange(v)}>{l}</button>)}
+    <div className="kseg" role="group" aria-label={label}>
+      {options.map(([v, l]) => <button key={v} type="button" aria-pressed={value === v} className={value === v ? "on" : ""} onClick={() => onChange(v)}>{l}</button>)}
     </div>
   );
 }
@@ -72,7 +72,7 @@ export function Table({ head, rows, caption }: { head: string[]; rows: React.Rea
 /** Empty, loading or error state with a little pixel friend (the fox by default, or a crew member). */
 export function EmptyState({ children, who, kind = "empty" }: { children: React.ReactNode; who?: SpriteName; kind?: "empty" | "loading" | "error" }) {
   return (
-    <div className={"kempty k-" + kind} role={kind === "error" ? "alert" : "status"}>
+    <div className={"kempty k-" + kind} role={kind === "error" ? "alert" : undefined}>
       <span className="kempty-art" aria-hidden="true">{who ? <PixelSprite name={who} /> : <FoxSvg tails={3} sleepy={kind === "loading"} />}</span>
       <p>{children}</p>
     </div>
@@ -80,8 +80,9 @@ export function EmptyState({ children, who, kind = "empty" }: { children: React.
 }
 
 /** Small honest label for where round 6 records are kept, and their save status. */
-export function StoreNote({ status }: { status?: VStatus }) {
+export function StoreNote({ status, failed }: { status?: VStatus; failed?: boolean }) {
   const m = vaultMode();
+  if (failed) return <p className="kstore" role="alert">Could not load your saved records. Try again later; nothing was changed.</p>;
   return (
     <p className={"kstore" + (m === "device" ? " dev" : "")}>
       {VAULT_LABEL[m]}{status === "saving" ? " · saving…" : status === "saved" ? " · saved" : status === "error" ? " · not saved, try again" : ""}

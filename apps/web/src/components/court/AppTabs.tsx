@@ -49,18 +49,21 @@ function Icon({ id }: { id: PageId | "more" }) {
 }
 
 // Old or retired places and where they live now.
+// Cards on a page that links point to (their tab opens, then the page scrolls to them).
+const ANCHOR: Record<string, PageId> = { "grid-wins": "life", "econ-cal": "calendar", "dungeon-week": "diary", research: "news", tlog: "trades", "luna-card": "court" };
 const ALIAS: Record<string, PageId> = { observatory: "court", sky: "court", samsara: "life", money: "life", trade: "trades", grid: "life", notifications: "inbox", more: "settings", onboarding: "welcome" };
 /** The tab for an address hash, and whether the address should be rewritten (a retired link). */
 export function resolveHash(h: string): { tab: PageId; rewrite: boolean } {
   if (([...TABS, ...EXTRA] as readonly string[]).includes(h)) return { tab: h as PageId, rewrite: false };
   if (h in ALIAS) return { tab: ALIAS[h], rewrite: true };
+  if (h in ANCHOR) return { tab: ANCHOR[h], rewrite: false };
   return { tab: "court", rewrite: false };
 }
 const fromHash = (): PageId => {
   const h = window.location.hash.slice(1), r = resolveHash(h);
   if (r.rewrite) history.replaceState(null, "", window.location.pathname + window.location.search + (r.tab === "court" ? "" : "#" + r.tab));
   // a card on a page (for example #luna-card on the Court): show its tab, then scroll to it
-  else if (h && !([...TABS, ...EXTRA] as readonly string[]).includes(h)) window.requestAnimationFrame(() => document.getElementById(h)?.scrollIntoView({ block: "start" }));
+  else if (h && !([...TABS, ...EXTRA] as readonly string[]).includes(h)) window.requestAnimationFrame(() => window.requestAnimationFrame(() => document.getElementById(h)?.scrollIntoView({ block: "start" })));
   return r.tab;
 };
 
@@ -99,7 +102,7 @@ export function AppTabs({ panels, extra = {} }: { panels: Record<TabId, React.Re
     <>
       <nav className={"tabnav" + (ui === "new" ? " tabnav-new" : "")} aria-label="Main">
         {nav.map((id) => (
-          <button key={id} type="button" className={ui === "new" && !PHONE_BAR.includes(id) ? "nav-more-item" : undefined} aria-current={tab === id ? "page" : undefined} onClick={() => go(id)}>
+          <button key={id} type="button" style={ui === "new" && PHONE_BAR.includes(id) ? ({ "--ord": PHONE_BAR.indexOf(id) } as React.CSSProperties) : undefined} className={ui === "new" && !PHONE_BAR.includes(id) ? "nav-more-item" : undefined} aria-current={tab === id ? "page" : undefined} onClick={() => go(id)}>
             <Icon id={id} />{dot(id)}
             <span>{ui === "new" && id === "life" ? <><span className="nl-desk">Life Hub</span><span className="nl-phone">Hub</span></> : ui === "new" && id === "diary" ? <><span className="nl-desk">Dungeon</span><span className="nl-phone">Diary</span></> : LABEL[id]}</span>
           </button>

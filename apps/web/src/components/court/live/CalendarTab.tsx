@@ -10,9 +10,8 @@ import { WeekAhead } from "./CourtHome";
 import { AstroText } from "./AstroText";
 
 // Calendar tab (docs/build-dashboard-v2.md section 3): Agenda (14 days), Week (default), Month, day detail
-// with free 45-minute gaps. One chip per Google calendar (astro included, with its descriptions) plus
-// Luna's computed sky as the only extra layer, off by default. Money, plans, thesis, macro and grid
-// layers came off the calendar on 27 Oct; those features live on in their own tabs.
+// with free 45-minute gaps, and a Day view (round 6). One chip per Google calendar. No astrology on the
+// Calendar (Luna owns it, on the Court). Money, plans, thesis, macro and grid layers live in their own tabs.
 type View = "day" | "week" | "month" | "agenda";
 const isView = (v: unknown): v is View => v === "day" || v === "week" || v === "month" || v === "agenda";
 type Item = { t: string; color: string; a: number; b: number; allDay: boolean; cal?: string; desc?: string };

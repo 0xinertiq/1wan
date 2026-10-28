@@ -21,8 +21,12 @@ export function buildInbox(x: InboxIn): Note[] {
   const when = (dd: number) => (dd < 0 ? "overdue" : dd === 0 ? "due today" : dd === 1 ? "due tomorrow" : `due in ${dd} days`);
   for (const d of x.due) out.push({ id: "life:" + d.id + ":" + d.d, src: "needs", title: `${d.name} ${when(d.dd)}`, at: x.nowIso, day: d.d < x.k ? x.k : d.d, high: d.dd <= 0 || !!d.important, go: "life" });
   if (x.notif("routines")) for (const d of x.vdue) out.push({ id: d.kind + ":" + d.id, src: "routine", title: `${d.name} ${when(d.dd)}`, at: x.nowIso, day: x.k, high: d.dd <= 0, go: d.kind === "task" ? "calendar" : "life" });
-  if (x.notif("briefs") || x.notif("morning")) for (const b of x.briefs) out.push({ id: "brief:" + b.key + ":" + b.at, src: "brief", title: `New ${b.label} brief`, at: b.at, day: sgtKeyOf(b.at), high: false, go: "court" });
-  if (x.review?.unread) out.push({ id: "review:" + x.review.at, src: "review", title: "Kumo's weekly review is ready", at: x.review.at, day: x.k, high: true, go: "news" });
+  if (x.notif("briefs")) for (const b of x.briefs) out.push({ id: "brief:" + b.key + ":" + b.at, src: "brief", title: `New ${b.label} brief`, at: b.at, day: sgtKeyOf(b.at), high: false, go: "court" });
+  else if (x.notif("morning") && (x.briefs.length || x.review?.unread)) {
+    const parts = [x.briefs.length ? `${x.briefs.length} new brief${x.briefs.length === 1 ? "" : "s"}` : "", x.review?.unread && !x.notif("review") ? "your weekly review is ready" : ""].filter(Boolean);
+    out.push({ id: "morning:" + x.k, src: "brief", title: "Morning summary: " + parts.join(", "), detail: x.briefs.map((b) => b.label).join(" · "), at: x.nowIso, day: x.k, high: false, go: "court" });
+  }
+  if (x.review?.unread && x.notif("review")) out.push({ id: "review:" + x.review.at, src: "review", title: "Kumo's weekly review is ready", at: x.review.at, day: x.k, high: true, go: "news" });
   if (x.notif("liquidity")) for (const r of x.releases) out.push({ id: "liq:" + r.name + ":" + r.at, src: "liquidity", title: `${r.name} within 48 hours`, at: r.at, day: x.k, high: false, go: "calendar" });
   if (x.notif("habits")) for (const h of x.habits) out.push({ id: "habit:" + h.id + ":" + x.k, src: "habit", title: `${h.name} is on today's list`, detail: "A gentle reminder; rest days count too.", at: x.nowIso, day: x.k, high: false, go: "garden" });
   if ([7, 14, 21, 30, 50, 100].includes(x.streak)) out.push({ id: "kingdom:streak:" + x.streak, src: "kingdom", title: `${x.streak} days in a row`, detail: "A quiet Kingdom moment. Nothing to do.", at: x.nowIso, day: x.k, high: false, go: "kingdom" });

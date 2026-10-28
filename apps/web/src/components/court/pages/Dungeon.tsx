@@ -83,9 +83,9 @@ function Side({ day, e, put }: { day: string; e: Entry | undefined; put: (x: Par
         <select aria-label="Link a trade" value={cur.tradeId ?? ""} onChange={(ev) => put({ ...base, tradeId: ev.target.value || undefined })}>
           <option value="">Not about a trade</option>{trades.map((t) => <option key={t.id} value={t.id}>{String(t.inst ?? "")} {t.date ? prettyDay(String(t.date)) : ""}</option>)}
         </select>
-        <label className="kform">Before: what is the plan?<textarea maxLength={1000} value={cur.plan ?? ""} onChange={(ev) => put({ ...base, plan: ev.target.value })} /></label>
-        <label className="kform">How do you feel about it?<textarea maxLength={1000} value={cur.feel ?? ""} onChange={(ev) => put({ ...base, feel: ev.target.value })} /></label>
-        <label className="kform">After: what would you change?<textarea maxLength={1000} value={cur.change ?? ""} onChange={(ev) => put({ ...base, change: ev.target.value })} /></label>
+        <label className="kform">Before: what is the plan?<textarea key={day + "p"} maxLength={1000} defaultValue={cur.plan ?? ""} onBlur={(ev) => ev.target.value !== (cur.plan ?? "") && put({ ...base, plan: ev.target.value })} /></label>
+        <label className="kform">How do you feel about it?<textarea key={day + "f"} maxLength={1000} defaultValue={cur.feel ?? ""} onBlur={(ev) => ev.target.value !== (cur.feel ?? "") && put({ ...base, feel: ev.target.value })} /></label>
+        <label className="kform">After: what would you change?<textarea key={day + "c"} maxLength={1000} defaultValue={cur.change ?? ""} onBlur={(ev) => ev.target.value !== (cur.change ?? "") && put({ ...base, change: ev.target.value })} /></label>
       </Card>
       <Card title="Research notes" sub="attach one to this page">
         {!notes.rows.length ? <EmptyState who="tilly">No research notes yet. Save them in News, under Saved and research.</EmptyState>
@@ -134,7 +134,8 @@ export function DungeonPage() {
   const days = [...new Set([...v.rows.map((e) => e.day), ...Object.keys(st.wins)])].filter(has).sort().reverse();
   const needle = q.trim().toLowerCase();
   const hits = days.filter((d) => !needle || [byDay.get(d)?.text, ...(byDay.get(d)?.tags ?? []), st.wins[d]?.w, st.wins[d]?.g, st.wins[d]?.n].some((x) => String(x ?? "").toLowerCase().includes(needle)));
-  const put = (x: Partial<Entry> & { id: string }) => v.put({ tags: [], notes: [], text: "", ...(byDay.get(x.day ?? day) ?? {}), ...x } as Partial<Entry> & { id: string });
+  // only the changed fields are sent; the storage layer merges them into the latest copy of the page
+  const put = (x: Partial<Entry> & { id: string }) => v.put((byDay.has(x.day ?? day) ? x : { tags: [], notes: [], text: "", ...x }) as Partial<Entry> & { id: string });
   return (
     <div className="kpage">
       <PageHead scene="gate" title="Dungeon" sub="Your private journal. Never shown to friends; included in Export my data." actions={<a className="btn sm ghost" href="#dungeon-week">Weekly look-back</a>} />
@@ -156,7 +157,7 @@ export function DungeonPage() {
             {dayGap(day, k) < 0 && <p className="note">That day has not come yet; the page will wait for you.</p>}
           </Card>
         </div>
-        <div className="kcol"><Editor day={day} e={byDay.get(day)} put={put} status={v.status} /><StoreNote status={v.status} /></div>
+        <div className="kcol"><Editor day={day} e={byDay.get(day)} put={put} status={v.status} /><StoreNote status={v.status} failed={v.failed} /></div>
         <div className="kcol"><Side day={day} e={byDay.get(day)} put={put} /><WeeklyLookBack /></div>
       </div>
     </div>

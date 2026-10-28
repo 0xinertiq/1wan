@@ -77,6 +77,10 @@ export function TradeLive({ extras = false }: { extras?: boolean }) {
       if (j.trades) setL(j);
       else setMsg("Could not load the ledger. Try again later.");
     }).catch(() => setMsg("Could not load the ledger. Try again later."));
+    // the New-look trade log saved or deleted a trade: read the ledger again so the review stays current
+    const again = () => fetch("/api/ledger").then((r) => r.json()).then((j) => { if (j?.trades) setL(j); }).catch(() => {});
+    window.addEventListener("1wan:ledger-changed", again);
+    return () => window.removeEventListener("1wan:ledger-changed", again);
   }, []);
 
   async function save(table: "trades" | "plans" | "gamble" | "ledger_settings", row: Record<string, unknown>, quiet = false) {

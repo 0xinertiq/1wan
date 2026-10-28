@@ -74,8 +74,8 @@ function Chart() {
         <span className="note">{total} of 64 done · {save === "saving" ? "saving…" : save === "offline" ? "not saved yet, retrying" : "all changes saved"}</span>
       </div>
       {view === "chart" ? <>
-        <div className="hpick" role="tablist" aria-label="Show one block">
-          {[4, ...AROUND].map((b) => <button key={b} type="button" role="tab" aria-selected={focus === b} className={focus === b ? "on" : ""} onClick={() => setFocus(b)}>{b === 4 ? "Goal" : AROUND.indexOf(b as never) + 1}</button>)}
+        <div className="hpick" role="group" aria-label="Show one block">
+          {[4, ...AROUND].map((b) => <button key={b} type="button" aria-pressed={focus === b} aria-label={b === 4 ? "Main goal block" : `Sub-goal ${AROUND.indexOf(b as never) + 1}: ${chart.pillars[AROUND.indexOf(b as never)].name}`} className={focus === b ? "on" : ""} onClick={() => setFocus(b)}>{b === 4 ? "Goal" : AROUND.indexOf(b as never) + 1}</button>)}
         </div>
         <div className="hgrid">{Array.from({ length: 9 }, (_, b) => block(b))}</div>
       </> : (
@@ -85,7 +85,7 @@ function Chart() {
             <details key={pi} className="pillar"><summary><b>{pi + 1}. {p.name || "(empty sub-goal)"}</b> <span className="note">{pDone(pi)}/8</span></summary>
               {p.acts.map((a, ai) => (
                 <div className="krow" key={ai}>
-                  <label className="kcheck"><input type="checkbox" checked={!!done[tickId(pi, ai)]} onChange={(e) => tick("grid", tickId(pi, ai), e.target.checked, "grid")} /><span className="note">{tickId(pi, ai)}</span></label>
+                  <label className="kcheck"><input type="checkbox" aria-label={`Done: ${tickId(pi, ai)} ${a.t}`} checked={!!done[tickId(pi, ai)]} onChange={(e) => tick("grid", tickId(pi, ai), e.target.checked, "grid")} /><span className="note">{tickId(pi, ai)}</span></label>
                   <span className="krow-main">{a.t || "(empty)"}{(a.when || a.why) && <><br /><span className="note">{[a.when, a.why].filter(Boolean).join(" · ")}</span></>}</span>
                   <Btn kind="sm ghost" onClick={() => setSel({ kind: "act", p: pi, a: ai })}>Edit</Btn>
                 </div>
@@ -119,17 +119,23 @@ function Editor({ cell, chart, onClose }: { cell: Cell; chart: GridDef; onClose:
   const tick = useTick();
   const a = cell.kind === "act" ? chart.pillars[cell.p].acts[cell.a] : null;
   const [f, setF] = useState({ text: cell.kind === "goal" ? chart.goal : cell.kind === "pillar" ? chart.pillars[cell.p].name : a!.t, why: a?.why ?? "", when: a?.when ?? "" });
-  const first = useRef(true), timer = useRef<number | undefined>(undefined);
+  const first = useRef(true), timer = useRef<number | undefined>(undefined), pending = useRef<typeof f | null>(null);
   const max = cell.kind === "goal" ? LIMITS.goal : cell.kind === "pillar" ? LIMITS.name : LIMITS.t;
   function change(next: typeof f) {
     setF(next);
+    pending.current = next;
     window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => {
-      const snap = first.current; first.current = false;
-      update((d) => { d.gridDefs = editCell(d.gridDefs, chartOf(d.defs.grid, d.gridDefs) ?? emptyGrid(), cell, next, new Date().toISOString(), snap); }, ["gridDefs"]);
-    }, 600);
+    timer.current = window.setTimeout(flush, 600);
   }
-  useEffect(() => () => window.clearTimeout(timer.current), []);
+  function flush() {
+    const next = pending.current;
+    if (!next) return;
+    pending.current = null;
+    const snap = first.current; first.current = false;
+    update((d) => { d.gridDefs = editCell(d.gridDefs, chartOf(d.defs.grid, d.gridDefs) ?? emptyGrid(), cell, next, new Date().toISOString(), snap); }, ["gridDefs"]);
+  }
+  // closing the editor or tapping another cell saves what was typed, never drops it
+  useEffect(() => () => { window.clearTimeout(timer.current); flush(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const id = cell.kind === "act" ? tickId(cell.p, cell.a) : null;
   return (
     <div className="kform hedit" role="dialog" aria-label={"Edit " + label(cell)}>
@@ -151,6 +157,8 @@ function Editor({ cell, chart, onClose }: { cell: Cell; chart: GridDef; onClose:
 export function HaradaWizard({ base, onClose }: { base: GridDef | null; onClose: () => void }) {
   const { st, update } = useCourt();
   const start = st.gridDefs.draft ?? { step: 0, g: base ?? emptyGrid() };
+  // on an existing chart the cells that already have text are shown but locked: the wizard fills empty cells only
+  const locked = (t?: string) => !!base && !!t?.trim();
   const [w, setW] = useState(start);
   const saveDraft = (next: typeof w) => { setW(next); update((d) => { d.gridDefs = { ...d.gridDefs, draft: next }; }, ["gridDefs"]); };
   const finish = () => update((d) => {
@@ -164,9 +172,9 @@ export function HaradaWizard({ base, onClose }: { base: GridDef | null; onClose:
     <div className="kstep" aria-label="Guided chart wizard">
       <div className="kstep-dots" aria-hidden="true">{Array.from({ length: 10 }, (_, i) => <i key={i} className={i <= step ? "on" : ""} />)}</div>
       <p className="note">Step {step + 1} of 10 · saved as a draft as you go{base ? " · fills only the cells that are still empty" : ""}</p>
-      {step === 0 && <label className="kform">Your main goal<input maxLength={LIMITS.goal} value={w.g.goal} onChange={(e) => set((g) => { g.goal = e.target.value; })} placeholder="For example: a calm, funded life by 2030" /></label>}
-      {step === 1 && <div className="kform">Eight sub-goals (pillars){w.g.pillars.map((x, i) => <input key={i} aria-label={`Sub-goal ${i + 1}`} maxLength={LIMITS.name} value={x.name} onChange={(e) => set((g) => { g.pillars[i].name = e.target.value; })} placeholder={`Sub-goal ${i + 1}`} />)}</div>}
-      {step >= 2 && <div className="kform">Eight actions for “{w.g.pillars[p].name || `sub-goal ${p + 1}`}”{w.g.pillars[p].acts.map((x, i) => <input key={i} aria-label={`Action ${tickId(p, i)}`} maxLength={LIMITS.t} value={x.t} onChange={(e) => set((g) => { g.pillars[p].acts[i].t = e.target.value; })} placeholder={`Action ${tickId(p, i)}`} />)}</div>}
+      {step === 0 && <label className="kform">Your main goal<input maxLength={LIMITS.goal} readOnly={locked(base?.goal)} value={locked(base?.goal) ? base!.goal : w.g.goal} onChange={(e) => set((g) => { g.goal = e.target.value; })} placeholder="For example: a calm, funded life by 2030" /></label>}
+      {step === 1 && <div className="kform">Eight sub-goals (pillars){w.g.pillars.map((x, i) => <input key={i} aria-label={`Sub-goal ${i + 1}`} maxLength={LIMITS.name} readOnly={locked(base?.pillars[i].name)} value={locked(base?.pillars[i].name) ? base!.pillars[i].name : x.name} onChange={(e) => set((g) => { g.pillars[i].name = e.target.value; })} placeholder={`Sub-goal ${i + 1}`} />)}</div>}
+      {step >= 2 && <div className="kform">Eight actions for “{w.g.pillars[p].name || `sub-goal ${p + 1}`}”{w.g.pillars[p].acts.map((x, i) => <input key={i} aria-label={`Action ${tickId(p, i)}`} maxLength={LIMITS.t} readOnly={locked(base?.pillars[p].acts[i].t)} value={locked(base?.pillars[p].acts[i].t) ? base!.pillars[p].acts[i].t : x.t} onChange={(e) => set((g) => { g.pillars[p].acts[i].t = e.target.value; })} placeholder={`Action ${tickId(p, i)}`} />)}</div>}
       <div className="kform-row">
         <Btn kind="ghost" disabled={step === 0} onClick={() => saveDraft({ ...w, step: step - 1 })}>Back</Btn>
         {step < 9 ? <Btn onClick={() => saveDraft({ ...w, step: step + 1 })}>Next (or skip)</Btn> : <Btn onClick={() => { finish(); onClose(); }}>Finish</Btn>}

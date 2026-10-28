@@ -96,7 +96,8 @@ test("inbox: rules only, de-duplicated, grouped, and quiet by default", async ()
     vdue: [{ id: "t1", name: "Call bank", d: K, dd: 0, kind: "task" }], briefs: [{ key: "intel", label: "Intelligence", at: "2026-10-27T23:52:00Z" }],
     review: { at: "2026-10-25T00:50:00Z", unread: true }, releases: [{ at: "2026-10-29T18:00:00Z", name: "FOMC decision" }], habits: [{ id: "h", name: "Stretch" }], streak: 7 };
   const quiet = buildInbox({ ...base, notif: (id) => notifOn(undefined, id) });
-  assert.deepEqual(quiet.map((n) => n.src), ["needs", "needs", "brief", "review", "kingdom"], "only the morning summary is on by default; duplicates dropped");
+  assert.deepEqual(quiet.map((n) => n.src), ["needs", "needs", "brief", "kingdom"], "only the morning summary is on by default; duplicates dropped");
+  assert.match(quiet[2].title, /^Morning summary: 1 new brief, your weekly review is ready$/);
   assert.equal(groupOf(quiet[0], K), "High priority");
   assert.equal(groupOf(quiet[1], K), "Today");
   const all = buildInbox({ ...base, notif: () => true });
@@ -121,4 +122,22 @@ test("stored records are cleaned on read: odd fields get defaults, unreadable ro
   assert.deepEqual(cleanRows("finance_entries", [{ id: "f", kind: "budget", cat: "food", amt: "x" }]), []);
   assert.deepEqual(cleanRows("research_notes", [{ id: "n", tags: null, url: "javascript:x" }])[0].tags, []);
   assert.equal(cleanRows("research_notes", [{ id: "n", url: "javascript:x" }])[0].url, undefined);
+});
+
+test("each notification switch does what it says", async () => {
+  const { buildInbox } = await import("../src/lib/court/inbox.ts");
+  const base = { k: K, nowIso: "2026-10-28T02:00:00Z", due: [], vdue: [], briefs: [{ key: "intel", label: "Intelligence", at: "2026-10-27T23:52:00Z" }], review: { at: "x", unread: true }, releases: [], habits: [], streak: 2 };
+  assert.deepEqual(buildInbox({ ...base, notif: () => false }), []);
+  assert.deepEqual(buildInbox({ ...base, notif: (id) => id === "review" }).map((n) => n.src), ["review"]);
+  assert.deepEqual(buildInbox({ ...base, notif: (id) => id === "briefs" }).map((n) => n.title), ["New Intelligence brief"]);
+});
+
+test("links to cards on other pages open that page", async () => {
+  const { resolveHash } = await import("../src/components/court/AppTabs.tsx");
+  for (const [h, tab] of [["grid-wins", "life"], ["econ-cal", "calendar"], ["dungeon-week", "diary"], ["research", "news"], ["tlog", "trades"]]) assert.deepEqual(resolveHash(h), { tab, rewrite: false });
+});
+
+test("finance CSV keeps quoted commas inside a note", async () => {
+  const { parseCsv } = await import("../src/components/court/pages/LifeHub.tsx");
+  assert.deepEqual(parseCsv('2026-10-01,-8,food,"tea, cake"').map((r) => r.note), ["tea, cake"]);
 });

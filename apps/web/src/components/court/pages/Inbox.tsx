@@ -37,7 +37,12 @@ export function useInbox() {
   const econ = useEcon();
   const tasks = useVault("tasks"), routines = useVault("routines");
   const [read, setRead] = useState<string[]>([]);
-  useEffect(() => { setRead(readSaved("inbox.read", isStringList, [])); }, []);
+  useEffect(() => {
+    const load = () => setRead(readSaved("inbox.read", isStringList, []));
+    load();
+    window.addEventListener("1wan:inbox-read", load);
+    return () => window.removeEventListener("1wan:inbox-read", load);
+  }, []);
   const list = useMemo(() => buildInbox({
     k, nowIso: new Date().toISOString(),
     due: dueList(st, k, events).filter((x) => !isAutoPaid(x.it) && (x.dd <= 3 || x.it.important === true)).map((x) => ({ id: x.it.id, name: x.it.name, d: x.d, dd: x.dd, important: x.it.important })),
@@ -47,7 +52,7 @@ export function useInbox() {
     releases: liquidityList(econ?.items ?? [], Date.now(), Date.now() + 2 * 86400e3).map((r) => ({ at: r.at, name: r.name })),
     habits: habitsToday(st, k), streak: st.streak, notif: (id) => notifOn(st.prefs.notif, id),
   }), [st, k, events, briefs, review, rv.unread, econ, tasks.rows, routines.rows]);
-  const mark = (ids: string[]) => { const next = [...new Set([...read, ...ids])].slice(-400); setRead(next); writeSaved("inbox.read", next); };
+  const mark = (ids: string[]) => { const next = [...new Set([...read, ...ids])].slice(-400); setRead(next); writeSaved("inbox.read", next); window.dispatchEvent(new Event("1wan:inbox-read")); };
   return { list, read, mark, unread: list.filter((n) => !read.includes(n.id)) };
 }
 

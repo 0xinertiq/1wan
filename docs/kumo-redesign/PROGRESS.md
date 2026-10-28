@@ -280,3 +280,23 @@ Typecheck, build, 130 unit tests (tokens, fonts, contrast, overlap, dates, Bigda
 - The Supabase backend was not run against a real database (the migration is not applied); the device backend was.
 - The RLS SQL test was written but not run (no local database here).
 - Real calendar, ledger and spending responses inside the new pages were only checked with fixture data this round.
+
+### Independent review (fresh reviewer, read-only) and the one fix round
+Passed: placement map (each feature has one New-look home), protected list untouched (only export gained the new tables; three optional state keys), no migration applied, no Bigdata text, privacy, no advice language, Observatory removed with a working redirect, Garden is pixel art, the Harada layout and tick ids, no astrology on the Calendar, 130 of 130 tests.
+Fixed:
+- Page-header and cross-page links (#grid-wins, #econ-cal, #dungeon-week, #research, #tlog) now open their tab and scroll; tested.
+- The chart editor saves what was typed when it is closed.
+- The wizard locks cells that already have text, instead of silently ignoring edits.
+- The trade log can link a plan and marks it reached and placed, as the ledger did. The ledger review refreshes after a save.
+- The bell and the inbox share read state.
+- Each notification switch does what it says. Morning means one summary item; the review switch is honoured.
+- Room switches are in Settings.
+- Dungeon reflections save when you leave the box and only send changed fields.
+- The phone bar order is Home, Calendar, Hub, Diary, More.
+- The pale-blue chips are now peach and lavender.
+- Segmented tabs are pressed buttons. Clearer labels on chart ticks and the block picker. Fewer live regions.
+- Dead Observatory styles and an old comment are gone.
+- A load error from the account storage shows as an error, not as empty.
+- CSV import handles quoted commas.
+Kept as is: "Astrology gives timing, not outcomes." on the chart (addendum 1 asks to keep it). The new size calculator uses its own equity box, not the ledger's account setting (the ledger sizer is still in the ledger section).
+After the fixes: typecheck, build, 133 tests and 58 browser runs clean.
