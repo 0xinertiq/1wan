@@ -1,6 +1,7 @@
 import { PixelSprite } from "@/components/PixelSprite";
 import { HeaderMenu } from "./HeaderMenu";
-import { HeaderDate, HeaderProgress, HeaderStats } from "./live/SettingsLive";
+import { HeaderClock, HeaderProgress, HeaderStats } from "./live/SettingsLive";
+import { clock } from "@/lib/court/time";
 
 // Pixel clock icon from dashboard-v52 pxClock(): X outline, o face, H hands.
 const CLOCK_GRID = ["XX.XXXXX.XX", ".XoooooooX.", "XooooHooooX", "XooooHooooX", "XooooHooooX", "XooooHHHooX", "XoooooooooX", "XoooooooooX", ".XoooooooX.", "..XXXXXXX..", ".X.......X."];
@@ -12,9 +13,7 @@ const CLOCK_ICON = CLOCK_GRID.flatMap((row, y) =>
 
 // Header from dashboard-v52. Streak and stars are live; the clock shows render time.
 export function Header() {
-  const [hh, mm] = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Singapore" })
-    .format(new Date())
-    .split(":");
+  const [hh, mm] = clock(Date.now()).split(":");
   return (
     <header className="top">
       <div className="brand">
@@ -25,8 +24,8 @@ export function Header() {
         </div>
       </div>
       <div className="pills">
-        <HeaderDate />
-        <div className="pill clockpill" title="Time in Singapore"><svg id="clkIcon" width="22" height="22" viewBox="0 0 11 11" shapeRendering="crispEdges" aria-hidden="true">{CLOCK_ICON}</svg><b id="clk" aria-label={`Time in Singapore, ${hh}:${mm}`}>{hh}<i>:</i>{mm}</b></div>
+        <HeaderClock icon={CLOCK_ICON} />
+        <div className="pill clockpill hclock-classic" title="Time in Singapore"><svg id="clkIcon" width="22" height="22" viewBox="0 0 11 11" shapeRendering="crispEdges" aria-hidden="true">{CLOCK_ICON}</svg><b id="clk" aria-label={`Time in Singapore, ${hh}:${mm}`}>{hh}<i>:</i>{mm}</b></div>
         <HeaderProgress />
         <HeaderStats />
         <HeaderMenu />

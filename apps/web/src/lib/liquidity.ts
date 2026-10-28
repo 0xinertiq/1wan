@@ -38,8 +38,5 @@ export function liquidityList(items: EconEvent[], fromMs: number, toMs: number):
 // The next one within 48 hours (Singapore time is only formatting), or null.
 export const nextLiquidity = (items: EconEvent[], now = Date.now()) => liquidityList(items, now - 10 * 60e3, now + 48 * 3600e3)[0] ?? null;
 
-export const sgtShort = (iso: string) => new Date(iso).toLocaleString("en-SG", { timeZone: "Asia/Singapore", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false }).replace(",", "");
-export const inText = (iso: string, now = Date.now()) => {
-  const m = Math.round((Date.parse(iso) - now) / 60000);
-  return m <= 0 ? "now" : m < 60 ? `in ${m} min` : `in ${Math.round(m / 60)}h`;
-};
+// Times are formatted by the shared formatter (lib/court/time.ts).
+export { inText } from "./court/time";

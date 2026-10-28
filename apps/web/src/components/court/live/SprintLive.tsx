@@ -5,7 +5,7 @@ import { useCourt } from "../CourtState";
 import { logQuest } from "@/lib/court/actions";
 import { isDone } from "@/lib/court/state";
 import { SPRINT_MIN, sprintHours, type SprintTag } from "@/lib/court/sprint";
-import { weekKey } from "@/lib/court/time";
+import { weekKey, sgtKeyOf } from "@/lib/court/time";
 
 // One 25-minute focus sprint with a tag (Study or Other). The running sprint is saved, so a reload keeps it.
 // A sprint that reaches 25 minutes is logged, counts quest k7, and study sprints add to Samsara's hours.
@@ -51,7 +51,7 @@ export function SprintLive() {
   const { st, k } = useCourt();
   const [tag, setTag] = useState<SprintTag>("study");
   const { run, left, finish, start } = useSprint();
-  const today = st.spr.log.filter((s) => new Date(Date.parse(s.at) + 8 * 3600000).toISOString().slice(0, 10) === k);
+  const today = st.spr.log.filter((s) => sgtKeyOf(s.at) === k);
   const mm = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
   return (
     <div className="sprint">

@@ -4,12 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { useCourt } from "../CourtState";
 import { ema, fmt, type Candle, type Snapshot } from "@/lib/ta";
 import type { ChartLine } from "@/lib/court/state";
+import { stamp, SGT_OFFSET_S } from "@/lib/court/time";
 
 // Watchlist technicals (docs/build-intel.md K): plain-words state per coin, a chart with EMAs, auto lines
 // and her own lines. A chart description of her own watchlist, never advice, signals or targets.
 type Item = { sym: string; ok: boolean; reason?: string; tf: string; source: string; fetched: string; lastCandle: string; snap: (Omit<Snapshot, "lines"> & { lines: Omit<Snapshot["lines"][number], "at">[] }) | null; candles?: Candle[] };
 const TFS = ["1h", "4h", "1d"] as const;
-const sgt = (iso: string) => new Date(iso).toLocaleString("en-SG", { timeZone: "Asia/Singapore", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+const sgt = (iso: string) => stamp(iso);
 
 export function TechLive() {
   const { prices } = useCourt();
@@ -70,7 +71,7 @@ function Chart({ sym, tf }: { sym: string; tf: string }) {
       const tok = (n: string) => css.getPropertyValue(n).trim();
       const ink = tok("--ink") || tok("--k-chart-ink");
       chart = createChart(box.current, { height: 300, layout: { background: { color: "transparent" }, textColor: ink }, grid: { vertLines: { visible: false }, horzLines: { color: tok("--k-chart-grid") } }, timeScale: { timeVisible: tf !== "1d" } });
-      const cs = data.candles!, T = (t: number) => (Math.floor(t / 1000) + 8 * 3600) as import("lightweight-charts").UTCTimestamp;
+      const cs = data.candles!, T = (t: number) => (Math.floor(t / 1000) + SGT_OFFSET_S) as import("lightweight-charts").UTCTimestamp;
       const s = chart.addCandlestickSeries({ upColor: tok("--k-chart-up"), downColor: tok("--k-chart-down"), borderVisible: false, wickUpColor: tok("--k-chart-up"), wickDownColor: tok("--k-chart-down") });
       s.setData(cs.map((c) => ({ time: T(c.t), open: c.o, high: c.h, low: c.l, close: c.c })));
       const vol = chart.addHistogramSeries({ priceScaleId: "vol", color: tok("--k-chart-vol"), priceFormat: { type: "volume" } });
@@ -96,7 +97,7 @@ function Chart({ sym, tf }: { sym: string; tf: string }) {
         if (modeRef.current === "none" || !pt.point || pt.time == null) return;
         const p = s.coordinateToPrice(pt.point.y);
         if (p == null) return;
-        const t = ((pt.time as number) - 8 * 3600) * 1000;
+        const t = ((pt.time as number) - SGT_OFFSET_S) * 1000;
         if (modeRef.current === "level") { save({ kind: "level", p1: { t, p } }); setMode("none"); }
         else if (!firstRef.current) setFirst({ t, p });
         else { save({ kind: "line", p1: firstRef.current, p2: { t, p } }); setFirst(null); setMode("none"); }

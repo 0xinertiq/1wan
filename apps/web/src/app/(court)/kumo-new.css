@@ -842,3 +842,34 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 @media (max-width:767px){:root[data-ui="new"] .khome .kneed-wrap{order:3}}
 :root[data-ui="new"] .bstrong{margin:0;padding:var(--sp-2) var(--sp-3);border-radius:var(--r-control);background:var(--k-tint-lav);font:500 var(--fs-ui)/1.4 var(--kumo-font-body);color:var(--k-text)}
 :root[data-ui="new"] .lflag{display:inline-flex;align-items:center;gap:var(--sp-1);min-height:var(--tap);font:600 var(--fs-cap) var(--kumo-font-body);color:var(--k-text)}
+
+/* Round 5d: briefs one type step up, sources as links only, pixel timestamps, the header date-and-time badge */
+:root[data-ui="new"] :is(.kbrb,.read,.bitems){font-size:var(--fs-read);line-height:var(--lh-read)}
+:root[data-ui="new"] .kbrb p.lead,:root[data-ui="new"] .kreview .rv-sum{font-size:var(--fs-lead);line-height:var(--lh-read)}
+:root[data-ui="new"] .kreview .rv-sug{font-size:var(--fs-body);line-height:1.6}
+:root[data-ui="new"] .read :is(h1,h2,h3){font-size:var(--fs-brief-h)}
+:root[data-ui="new"] .bhead b{font:700 var(--fs-lead)/1.4 var(--kumo-font-body)}
+:root[data-ui="new"] .kbrb h4{font-size:var(--fs-cap)}
+:root[data-ui="new"] :is(.kbrb,.read) :is(table){font-size:var(--fs-body)}
+:root[data-ui="new"] .brsrc-line{display:block;margin-top:var(--sp-1);font:600 var(--fs-cap)/1.4 var(--kumo-font-body);color:var(--k-text-muted)}
+:root[data-ui="new"] .brsrc-line a:not(.btn):not(.lw-place):not(.icon-btn):not(.wday){color:var(--k-link);text-decoration:underline;text-decoration-style:solid}
+:root[data-ui="new"] .brsrc-line a:not(.btn):not(.lw-place):not(.icon-btn):not(.wday):hover{color:var(--k-link-hover)}
+:root[data-ui="new"] :is(.kbrb,.read) .brsrc{display:none}
+/* timestamps as small pixel labels (running text stays in Nunito) */
+:root[data-ui="new"] .ts{font:400 12px/1.4 var(--k-font-label);letter-spacing:0;font-variant-numeric:tabular-nums;white-space:nowrap}
+:root[data-ui="new"] .kneed-s.ts{white-space:normal}
+/* the header badge: one pixel pill with stepped corners, plum outline, the clock with its gold hand */
+.hbadge-wrap,.hbadge{display:none}
+:root[data-ui="new"] .hclock-classic{display:none}
+:root[data-ui="new"] .hbadge-wrap{display:inline-flex;flex-direction:column;align-items:center;gap:0}
+:root[data-ui="new"] .hbadge{display:inline-block;padding:var(--bw-2);background:var(--k-icon-line);clip-path:polygon(0 6px,2px 6px,2px 4px,4px 4px,4px 2px,6px 2px,6px 0,calc(100% - 6px) 0,calc(100% - 6px) 2px,calc(100% - 4px) 2px,calc(100% - 4px) 4px,calc(100% - 2px) 4px,calc(100% - 2px) 6px,100% 6px,100% calc(100% - 6px),calc(100% - 2px) calc(100% - 6px),calc(100% - 2px) calc(100% - 4px),calc(100% - 4px) calc(100% - 4px),calc(100% - 4px) calc(100% - 2px),calc(100% - 6px) calc(100% - 2px),calc(100% - 6px) 100%,6px 100%,6px calc(100% - 2px),4px calc(100% - 2px),4px calc(100% - 4px),2px calc(100% - 4px),2px calc(100% - 6px),0 calc(100% - 6px))}
+:root[data-ui="new"] .hbadge-in{display:flex;align-items:center;gap:var(--sp-2);min-height:32px;padding:0 var(--sp-3);background:var(--k-surface);clip-path:inherit;color:var(--k-text)}
+:root[data-ui="new"] .hbadge-ic{width:18px;height:18px;flex:none;filter:var(--k-icon-glow)}
+:root[data-ui="new"] .hbadge-ic .px-o{fill:var(--k-icon-line)}
+:root[data-ui="new"] .hbadge-ic .px-f{fill:var(--k-surface-2)}
+:root[data-ui="new"] .hbadge-ic .px-h{fill:var(--k-gold-500)}
+:root[data-ui="new"] .hbadge-t{font:400 12px/1 var(--k-font-label);font-variant-numeric:tabular-nums;white-space:nowrap}
+:root[data-ui="new"] .hbadge-colon{font-style:normal;animation:hblink 1s steps(1,end) infinite}
+@keyframes hblink{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){:root[data-ui="new"] .hbadge-colon{animation:none}}
+@media (max-width:767px){:root[data-ui="new"] .hbadge-t{font-size:12px}:root[data-ui="new"] .hbadge-in{padding:0 var(--sp-2)}}

@@ -10,7 +10,7 @@ function mdInline(t: string) {
   return t.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>");
 }
 
-// New-look options: srcLine shows a source tail as one small "Sources: A · B" line instead of "— A, B";
+// New-look options: srcLine shows a source tail as small links joined by a middle dot ("A · B") instead of "— A, B";
 // numberTop5 renders the items under a "Top 5" heading as one numbered list (one item per paragraph).
 export function mdLite(src: string, opt: { srcLine?: boolean; numberTop5?: boolean } = {}) {
   const L = String(src || "").replace(/\r/g, "").split("\n");
@@ -49,8 +49,9 @@ export function mdLite(src: string, opt: { srcLine?: boolean; numberTop5?: boole
     let tail = "", bodyT = tr;
     const sp = bodyT.lastIndexOf(" — [");
     if (sp > 0 && /\)\s*$/.test(bodyT)) { tail = bodyT.slice(sp + 3); bodyT = bodyT.slice(0, sp); }
+    const srcLinks = [...tail.matchAll(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g)];
     const src = !tail ? "" : opt.srcLine
-      ? '<span class="brsrc-line">Sources: ' + [...tail.matchAll(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g)].map((m) => '<a href="' + esc(m[2]) + '" target="_blank" rel="noopener noreferrer">' + esc(m[1]) + "</a>").join(" · ") + "</span>"
+      ? srcLinks.length ? '<span class="brsrc-line">' + srcLinks.map((m) => '<a href="' + esc(m[2]) + '" target="_blank" rel="noopener noreferrer">' + esc(m[1]) + "</a>").join(" · ") + "</span>" : ""
       : ' <span class="brsrc">— ' + mdInline(tail) + "</span>";
     const html = (lb ? '<b class="pl">' + esc(lb[1]) + "</b> " + mdInline(lb[2]) : mdInline(bodyT)) + src;
     if (top5) { if (!ol) { o.push('<ol class="bitems">'); ol = true; } o.push("<li>" + html + "</li>"); }

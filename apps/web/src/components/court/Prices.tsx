@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useCourt } from "./CourtState";
 import type { Price } from "@/lib/prices";
+import { ageText } from "@/lib/court/time";
 
 // Live prices (display only). One request feeds both the stage chip and the Scan window.
 
@@ -31,7 +32,7 @@ export function PricesLoader({ symbols }: { symbols: string[] }) {
 
 const fmt = (n: number) => (n >= 1000 ? n.toLocaleString("en-US", { maximumFractionDigits: 0 }) : n >= 1 ? n.toFixed(2) : n.toPrecision(3));
 const pct = (c: number | null) => (c == null ? "" : (c >= 0 ? "+" : "") + c.toFixed(1) + "%");
-const ago = (iso: string) => { const m = Math.round((Date.now() - Date.parse(iso)) / 60000); return m < 1 ? "just now" : m < 60 ? m + " min ago" : Math.round(m / 60) + "h ago"; };
+const ago = (iso: string) => ageText(iso);
 
 export function StagePrices() {
   const { prices } = useCourt();

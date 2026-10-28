@@ -28,7 +28,7 @@ Consolidated on 28 Oct 2026 from every Court prompt (R1 to round 5). This file i
 | Journal (private, exportable, Inter) | Dungeon | |
 | Focus sprint (tap to pause and resume, small stop) | World, the hourglass in the HUD | |
 | Quote of the day (always in full) | World, Kumo's glass cloud bubble, or under the strip when no spot in the scene is free | |
-| Level, EXP, streak, stars, date, rest day | Header | World HUD: level chip |
+| Date and time (one pixel badge), level, EXP, streak, stars, rest day | Header | World HUD: level chip |
 | Tails (0 to 9, read-only) | World, the fox and his card | Classic: header chip |
 | Weather | World HUD chip | |
 | Crew at work | World (crew at their places), roster line under the columns | World HUD: "n at work" chip |
@@ -46,9 +46,12 @@ Consolidated on 28 Oct 2026 from every Court prompt (R1 to round 5). This file i
 - Night: deep plum with the same structure (panels #2A2340 / #30294A, text #ECE8F5, secondary #BDB4D6, dark lavender title bars). Every icon has a night variant: light fill #ECE8F5, lavender outline #B9A6FF or a soft glow; the active tab in sakura with a highlight pill.
 - Links: one colour everywhere, deep sakura (#AD1457 day, #F7A8CC night), underlined, same hover and visited. No blue anywhere (focus ring, selection, accent-color, scrollbars are sakura and plum).
 - One card, row, chip, button, input and heading style; one column gap (24px desktop, 16px phone); 44px tap targets; visible focus rings; reduced motion respected.
+- Dates and times: one formatter (lib/court/time.ts) for every date and time in the app: 24-hour Singapore time with a leading zero and "SGT"; "Today 05:40 SGT" for today, otherwise "27 Oct 07:45 SGT"; weekdays as three letters with the date ("Thu 29 Oct"); ages after a middle dot ("· 3h ago"). Timestamps are small pixel labels (Silkscreen, 12px, tabular); running text stays in Nunito. tests/tokens.test.mjs fails if a component formats a date or time by hand.
+- Brief reading sizes: body 18px (line height 1.65), lead lines 17px, section titles 22px, uppercase section labels and source links 13px; the same in the Briefs card, News and Kumo's review. Brief body stays 7:1 or better in night mode.
+- Sources: under each item only the source names as small links joined by a middle dot ("TechCrunch · DealStreetAsia"), deep sakura and underlined, no label, no pills; nothing when an item has none. The Bigdata scrubber runs on every sources line.
 
 ## Header
-Date (left of the clock), clock, the Queen's progress (level badge, EXP bar), streak, stars, menu. On a rest day one small line under the date: "Rest day, streak protected". No tails chip in the New look.
+One pixel date-and-time badge ("WED 28 OCT · 10:12 SGT": the pixel clock with its gold hand, Silkscreen, stepped corners, plum outline (lavender at night), blinking colon, still under reduced motion), then the Queen's progress (level badge, EXP bar), streak, stars, menu. On a rest day one small line under the badge: "Rest day, streak protected". No tails chip in the New look. Classic keeps its clock chip.
 
 ## Court (desktop)
 1. The world (below).
@@ -60,7 +63,7 @@ Date (left of the clock), clock, the Queen's progress (level badge, EXP bar), st
 Phone: the world strip, Park a thought, Needs you now, Today, Briefs, Luna, review, prices, roster; bottom bar Home, Calendar, Hub, Dungeon, More.
 
 ### Briefs card (the old dashboard's full brief style)
-Header "Briefs", small right label "Your scheduled tasks". Pill tabs Pulse | Intelligence | Crypto scan. Each tab: title, date and age; the summary as a soft pink callout; then the whole stored brief (uppercase small section labels, dashed dividers, bold-lead items with detail, tables, quotes) and under each item one small muted line "Sources: A · B" (no chips, no "— A, B" tail). Intelligence: Top 5 headlines as a numbered list of five items (bold headline, why it matters, sources), then the other sections as the brief gives them. Crypto scan: only the snapshot label ("Snapshot · Scan hh:mm SGT"), the read-through callout, Movers and one line "Strongest now" (the top 3 coins by score from the Style Map: ticker, score, bucket), with "Open in Trades →". The style map, trade plan, watch line, alerts, thesis log, catalysts and gaps stay in News (full text); later the Trades tab will host the Style Map, Trade Plan and Catalysts. Pulse: deals, shifts, social listening, content radar. Show more / Show less. Under it: Useful / Needs work, the one-line change box, and a collapsible "What this desk has learned" (her agent memory, read-only). Full column width.
+Header "Briefs", small right label "Your scheduled tasks". Pill tabs Pulse | Intelligence | Crypto scan. Each tab: title, date and age; the summary as a soft pink callout; then the whole stored brief (uppercase small section labels, dashed dividers, bold-lead items with detail, tables, quotes) and under each item only its source names as small links ("A · B", no label, no chips, no "— A, B" tail). Intelligence: Top 5 headlines as a numbered list of five items (bold headline, why it matters, sources), then the other sections as the brief gives them. Crypto scan: only the snapshot label ("Snapshot · Scan hh:mm SGT"), the read-through callout, Movers and one line "Strongest now" (the top 3 coins by score from the Style Map: ticker, score, bucket), with "Open in Trades →". The style map, trade plan, watch line, alerts, thesis log, catalysts and gaps stay in News (full text); later the Trades tab will host the Style Map, Trade Plan and Catalysts. Pulse: deals, shifts, social listening, content radar. Show more / Show less. Under it: Useful / Needs work, the one-line change box, and a collapsible "What this desk has learned" (her agent memory, read-only). Full column width.
 
 ### Today | Week
 - Today: Now / Next / Later from the calendar, the stat strip (Due soon as a count, Streak, Habits this week, Yesterday), parked thoughts with Done. No Luna, weather, focus sprint or macro events.

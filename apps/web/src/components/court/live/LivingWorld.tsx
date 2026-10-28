@@ -9,7 +9,7 @@ import type { BriefKind } from "@/lib/briefKinds";
 import { crewDuty } from "@/lib/court/duty";
 import type { WaterEvt } from "@/lib/court/garden";
 import { getOnce } from "@/lib/court/once";
-import { greetWord } from "@/lib/court/time";
+import { greetWord, clock } from "@/lib/court/time";
 import { WorldFox } from "@/components/kumo/Fox";
 import { quoteOfDay } from "@/lib/court/quotes";
 import { useCourt } from "../CourtState";
@@ -132,11 +132,11 @@ export function PricesStrip() {
   if (!prices) return <div className="kprices" role="status"><span className="note">Prices loading…</span></div>;
   if (!prices.prices.length) return <div className="kprices" role="status"><span className="note">Prices are not reachable right now.</span></div>;
   const order = ["BTC", "SOL"], list = [...prices.prices].sort((a, b) => (order.indexOf(a.sym) + 1 || 9) - (order.indexOf(b.sym) + 1 || 9));
-  const asOf = new Date(Date.parse(prices.at) + 8 * 3600000).toISOString().slice(11, 16);
+  const asOf = clock(prices.at);
   return (
     <div className="kprices" aria-label="Live prices">
       <ul tabIndex={0}>{list.map((p) => <li key={p.sym}><b>{p.sym}</b> {fmt(p.usd)} <i className={p.ch24 != null && p.ch24 < 0 ? "dn" : "up"}>{pct(p.ch24)}</i></li>)}</ul>
-      <span className="kprices-at">as of {asOf}{prices.stale ? " · stale" : ""}</span>
+      <span className="kprices-at">as of <time className="ts">{asOf} SGT</time>{prices.stale ? " · stale" : ""}</span>
     </div>
   );
 }

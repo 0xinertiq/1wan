@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useUi } from "@/components/kumo/useUi";
 import { useCourt } from "../CourtState";
 import { eventsOn, isAstro, type DayEvent } from "@/lib/court/state";
-import { hm, prettyDay } from "@/lib/court/time";
+import { hm, prettyDay, sgtKeyOf } from "@/lib/court/time";
 import { ParkedList, RecapBox, TodayChips, isAutoPaid } from "./TodayLive";
 import { PricesStrip } from "./LivingWorld";
 import { NextLiquidityLine, useEcon } from "./EconLive";
@@ -97,7 +97,7 @@ function TodayCard() {
   const later = evs.filter((e) => e.a > nm);
   const next = later.slice(0, 1), rest = later.slice(1, 4);
   const row = (e: DayEvent, i: number) => (
-    <div className="knl-row" key={i}><span className="knl-t">{hm(e.a)}</span><span className="knl-dot" style={{ background: e.color }} aria-hidden="true" /><span>{e.t}</span></div>
+    <div className="knl-row" key={i}><time className="knl-t ts">{hm(e.a)}</time><span className="knl-dot" style={{ background: e.color }} aria-hidden="true" /><span>{e.t}</span></div>
   );
   const [tab, setTab] = useState<"today" | "week">("today");
   return (
@@ -137,7 +137,7 @@ function WeekView() {
   const days = Array.from({ length: 7 }, (_, i) => addDays(k, i));
   const liq = liquidityList(econ?.items ?? [], Date.now() - 3 * 3600e3, Date.now() + 8 * 86400e3);
   const due = dueList(st, k, events).filter((x) => !isAutoPaid(x.it));
-  const sgtDay = (iso: string) => new Date(Date.parse(iso) + 8 * 3600e3).toISOString().slice(0, 10);
+  const sgtDay = sgtKeyOf;
   const sky = days.map((d) => lunaDay(d));
   const scored = sky.filter((x): x is NonNullable<typeof x> => !!x);
   const best = scored.length ? scored.reduce((a, b) => (b.score > a.score ? b : a)) : null;

@@ -11,7 +11,7 @@ import {
   STAGES, activeQ, dayQ, eventsOn, gardenWeek, isDone, manualOpen, openQuests, progOf, qScore, seedInfo, weekHab, winTally,
   type CourtState, type SeedInfo,
 } from "@/lib/court/state";
-import { addDays, prettyDay, weekKey, dayIdx } from "@/lib/court/time";
+import { addDays, prettyDay, weekKey, dayIdx, sgtKeyOf } from "@/lib/court/time";
 import { branches, needsCare, type Branch, type WaterEvt } from "@/lib/court/garden";
 import { DecorSprite } from "@/components/kumo/DecorSprite";
 import { DungeonIcon } from "@/components/kumo/DungeonIcon";
@@ -158,7 +158,7 @@ export function GardenLive() {
   // Merged quests, AUTO from real records (docs/build-trackers.md, duplicates 1 to 3).
   useEffect(() => {
     if (!evs) return;
-    const today = (src: string) => evs.some((e) => e.source === src && new Date(Date.parse(e.at) + 8 * 3600000).toISOString().slice(0, 10) === k);
+    const today = (src: string) => evs.some((e) => e.source === src && sgtKeyOf(e.at) === k);
     const wk = weekKey(k);
     const want: string[] = [];
     if (today("spending") && !isDone(st, "c1")) want.push("c1");
@@ -273,7 +273,7 @@ export function WinsLive({ onDone }: { onDone?: () => void }) {
   const [evs, setEvs] = useState<WaterEvt[] | null>(null);
   useEffect(() => { fetch("/api/water?days=1").then((r) => r.json()).then((j) => setEvs(Array.isArray(j.events) ? j.events : [])).catch(() => setEvs([])); }, []);
   const late = nm >= 1080, T = winTally(st, k), sug = winLines(st, k);
-  const today = (evs ?? []).filter((e) => new Date(Date.parse(e.at) + 8 * 3600000).toISOString().slice(0, 10) === k);
+  const today = (evs ?? []).filter((e) => sgtKeyOf(e.at) === k);
   const cnt = (src: string) => today.filter((e) => e.source === src).length;
   const rows: [string, string][] = [
     ["Daily quests", `${T.td} of ${T.tt}`],

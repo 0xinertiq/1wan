@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ageText } from "@/lib/court/time";
 import { COINGECKO_IDS } from "@/lib/prices";
 import { NEWS_GROUPS, REGIONS } from "@/lib/newsFeeds";
 import { cluster } from "@/lib/cluster";
@@ -10,11 +11,7 @@ import type { NewsResult } from "@/lib/news";
 
 // Headlines window (v52 newsWin) from free RSS feeds. Works without Bigdata.
 
-function ago(iso: string | null) {
-  if (!iso) return "";
-  const m = Math.round((Date.now() - Date.parse(iso)) / 60000);
-  return m < 1 ? "just now" : m < 60 ? m + " min ago" : m < 1440 ? Math.round(m / 60) + "h ago" : Math.round(m / 1440) + "d ago";
-}
+const ago = (iso: string | null) => (iso ? ageText(iso) : "");
 
 type Tg = { items: { channel: string; title: string; at: string | null; text: string; link: string }[]; health: { handle: string; ok: boolean }[]; at: string };
 

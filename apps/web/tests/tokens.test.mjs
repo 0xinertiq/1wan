@@ -123,3 +123,17 @@ test("world HUD and place labels are readable over the real sky, whatever the th
   assert.ok(Object.keys(sky).length === 4, "sky colours not found in draw.ts");
   assert.deepEqual(bad, []);
 });
+
+// Dates and times: components and pages use the one formatter in lib/court/time.ts (round 5d). Fails on
+// hand-made date or time formatting: locale date strings, Intl date formats, ISO slicing for days or times,
+// hand-applied Singapore offsets. Number formatting (money, prices) is fine. The world's clock face (pixel art)
+// reads the time itself and is listed.
+test("no hand-made date or time formatting outside lib/court/time.ts", () => {
+  const ALLOW = ["components/kumo/world/draw.ts"];
+  const BAD = /toLocale(?:Date|Time)String|Intl\.DateTimeFormat|toLocaleString\([^)]*timeZone|new Date\([^)]*\)\.toLocaleString|toISOString\(\)\.slice\(\s*(?:0,\s*10|11)|getUTC(?:Hours|Minutes)|8 \* 3600/;
+  const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? (e.name === "api" ? [] : walk(path.join(d, e.name))) : [path.join(d, e.name)]));
+  const files = [...walk(path.join(root, "components")), ...walk(path.join(root, "app"))].filter((f) => /\.tsx?$/.test(f)).map((f) => path.relative(root, f).split(path.sep).join("/")).filter((f) => !ALLOW.includes(f));
+  const bad = [];
+  for (const f of files) fs.readFileSync(path.join(root, f), "utf8").split(/\r?\n/).forEach((l, i) => { if (BAD.test(l)) bad.push(`${f}:${i + 1}`); });
+  assert.deepEqual(bad, []);
+});

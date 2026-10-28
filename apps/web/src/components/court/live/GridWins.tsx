@@ -4,7 +4,7 @@ import { getOnce } from "@/lib/court/once";
 import { useEffect, useState } from "react";
 import { useCourt } from "../CourtState";
 import type { CourtState, Phase } from "@/lib/court/state";
-import { addDays } from "@/lib/court/time";
+import { addDays, sgtKeyOf } from "@/lib/court/time";
 import { water } from "@/lib/court/water";
 import { lateNight } from "./TradeLive";
 
@@ -28,7 +28,7 @@ export function GridWins() {
   // Derived (AUTO) Small Wins: b3 from trade times, b6 from the d6 log, both "14 days in a row".
   const run = (ok: (day: string) => boolean) => { let c = 0; for (let i = 0; i < 60 && ok(addDays(k, -i)); i++) c++; return c; };
   const teaRun = run((day) => (st.swins.log[day] || []).includes("d6"));
-  const lastLate = (trades ?? []).filter((t) => lateNight(t.at)).map((t) => new Date(Date.parse(t.at!) + 8 * 3600000).toISOString().slice(0, 10)).sort().pop();
+  const lastLate = (trades ?? []).filter((t) => lateNight(t.at)).map((t) => sgtKeyOf(t.at!)).sort().pop();
   const cleanDays = lastLate ? Math.max(0, Math.round((Date.parse(k) - Date.parse(lastLate)) / 86400000) - 1) : null;
   const auto: Record<string, string> = {
     b6: `auto: ${Math.min(teaRun, 14)} of 14 days in a row from your d6 ticks`,

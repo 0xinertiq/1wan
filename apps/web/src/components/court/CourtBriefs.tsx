@@ -6,9 +6,10 @@ import { SourcesLine, type BriefDoc } from "./BriefTabs";
 import { briefSections, isNoMovers, reviewParts, scanCourt, type Headline } from "@/components/kumo/briefParse";
 import { mdLite } from "./mdLite";
 import { useReview } from "@/components/kumo/reviewRead";
+import { clock } from "@/lib/court/time";
 
 // One uniform brief item, used by the Top 5 and by every block of a brief in News: bold numbered headline,
-// the why, then one small "Sources: A · B" line (never also as a text tail).
+// the why, then the source names as small links joined by a middle dot (no label, never also as a text tail).
 function Items({ items }: { items: Headline[] }) {
   return (
     <ol className="bitems">
@@ -17,7 +18,7 @@ function Items({ items }: { items: Headline[] }) {
           {h.topic && <span className="bitem-topic">{h.topic}</span>}
           {h.title && <b className="bitem-t">{h.title}</b>}
           {h.why && <span className="bitem-w">{h.why}</span>}
-          {h.links.length > 0 && <span className="brsrc-line">Sources: {h.links.map((l, j) => <span key={j}>{j > 0 && " · "}<a href={l.url} target="_blank" rel="noopener noreferrer">{l.text}</a></span>)}</span>}
+          {h.links.length > 0 && <span className="brsrc-line">{h.links.map((l, j) => <span key={j}>{j > 0 && " · "}<a href={l.url} target="_blank" rel="noopener noreferrer">{l.text}</a></span>)}</span>}
         </li>
       ))}
     </ol>
@@ -50,10 +51,10 @@ export function BriefsBlock({ docs, mem }: { docs: Partial<Record<"pulse" | "int
 }
 
 function Head({ d }: { d: BriefDoc }) {
-  return <p className="bhead"><b>{d.title}</b>{d.when && <span className="note"> · {d.when}</span>}</p>;
+  return <p className="bhead"><b>{d.title}</b>{d.when && <> <time className="ts">{d.when}</time></>}</p>;
 }
 
-const hmSgt = (iso: string) => new Date(Date.parse(iso) + 8 * 3600e3).toISOString().slice(11, 16);
+
 
 function BriefPane({ d, mem }: { d: BriefDoc; mem?: DeskMem }) {
   const [open, setOpen] = useState(false);
@@ -64,7 +65,7 @@ function BriefPane({ d, mem }: { d: BriefDoc; mem?: DeskMem }) {
   return (
     <div className="bpane">
       <Head d={d} />
-      {scan && <p className="bsnap"><span>Snapshot · Scan {hmSgt(d.at)} SGT</span><a href="#trades">Open in Trades →</a></p>}
+      {scan && <p className="bsnap"><span>Snapshot · Scan <time className="ts">{clock(d.at)} SGT</time></span><a href="#trades">Open in Trades →</a></p>}
       {scan && scan.strongest.length > 0 && <p className="bstrong"><b>Strongest now:</b> {scan.strongest.map((x) => `${x.ticker} ${x.score} (${x.bucket})`).join(" · ")}</p>}
       <div className={"brb kbrb" + (open ? " open" : "")} dangerouslySetInnerHTML={{ __html: html }} />
       <button className="btn sm ghost" type="button" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? "Show less" : "Show more"}</button>
@@ -99,7 +100,7 @@ export function ReviewCard({ d }: { d: BriefDoc | null }) {
   const lines = [...r.desks, ...r.suggestions], shown = open ? lines : lines.slice(0, 3);
   return (
     <section className="win kreview" aria-labelledby="krvT">
-      <div className="win-title"><h2 id="krvT">New weekly review</h2>{d.when && <span className="sub">{d.when.split(" (")[0]}</span>}</div>
+      <div className="win-title"><h2 id="krvT">New weekly review</h2>{d.when && <time className="sub ts">{d.when.split(" · ")[0]}</time>}</div>
       <div className="win-body">
         {r.summary && <p className="rv-sum">{r.summary}</p>}
         {shown.length > 0 && <ul className="rv-sug">{shown.map((s, i) => <li key={i}>{s}</li>)}</ul>}
@@ -127,7 +128,7 @@ export function MoversCard({ list }: { list: BriefDoc[] }) {
   const quiet = latest ? isNoMovers(latest.body ?? "") : false;
   const lastReal = list.find((d) => !isNoMovers(d.body ?? ""));
   const daysAgo = (iso: string) => Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 86400000));
-  const checked = latest ? new Date(Date.parse(latest.at) + 8 * 3600000).toISOString().slice(11, 16) : "";
+  const checked = latest ? clock(latest.at) : "";
   return (
     <section className="win kmovers" aria-labelledby="kmvT">
       <div className="win-title"><h2 id="kmvT">Midday movers</h2><span className="sub">Fenn</span></div>
@@ -178,7 +179,7 @@ export function BriefsLibrary({ history }: { history: BriefDoc[] }) {
           <button className="btn sm ghost klib-all" type="button" onClick={() => setAll(!all)}>{all ? "Collapse all" : "Expand all"}</button>
           {list.map((d, i) => (
             <details key={d.at + all} className="klib-item" open={all || i === 0}>
-              <summary><b>{d.title}</b> <span className="note">{d.when.split(" (")[0]}</span></summary>
+              <summary><b>{d.title}</b> <time className="ts">{d.when.split(" · ")[0]}</time></summary>
               <BriefBody d={d} />
               <SourcesLine s={d.sources} />
               {i === 0 && d.key === "review" && <ReviewRead at={d.at} />}

@@ -3,7 +3,7 @@
 import { getOnce } from "@/lib/court/once";
 import { useEffect, useState } from "react";
 import { useCourt } from "../CourtState";
-import { prettyDay, weekKey } from "@/lib/court/time";
+import { prettyDay, weekKey, sgtHourOf, stamp } from "@/lib/court/time";
 import { water } from "@/lib/court/water";
 import { contextAt, nearest, type Level } from "@/lib/ta";
 
@@ -31,7 +31,7 @@ const fmt = (v: number | null, d = 2) => (v == null ? "–" : (Math.round(v * 10
 const usd = (v: number, sign = false) => (sign && v > 0 ? "+" : v < 0 ? "−" : "") + "$" + Math.abs(v).toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const pct = (v: number) => (v * 100).toFixed(1) + "%";
 const uid = (p: string) => p + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
-const sgtHour = (iso: string) => new Date(Date.parse(iso) + 8 * 3600000).getUTCHours();
+const sgtHour = (iso: string) => sgtHourOf(iso);
 export const lateNight = (iso?: string) => !!iso && (sgtHour(iso) >= 23 || sgtHour(iso) < 6);
 
 // The ledger's own trade maths: P&L from exit and size when not typed, R from the stop.
@@ -294,7 +294,7 @@ function PlanFlags({ p }: { p: Row }) {
       {rr != null && <>Risk/reward {fmt(rr)} : 1. </>}
       {rrNext != null && <>Risk/reward to the next {long ? "resistance" : "support"} is {fmt(rrNext)} : 1. </>}
       {a != null && <>Daily ATR(14) {fmt(a)}. </>}
-      <>{ta.source}, last candle {ta.lastCandle ? new Date(ta.lastCandle).toLocaleString("en-SG", { timeZone: "Asia/Singapore" }) : ""}. </>
+      <>{ta.source}, last candle {ta.lastCandle ? stamp(ta.lastCandle) : ""}. </>
       {flags.map((f) => <span key={f} className="flag"> ⚑ {f}</span>)}
       <> Review prompts from the chart, not advice; thresholds, not rules.</>
     </div>

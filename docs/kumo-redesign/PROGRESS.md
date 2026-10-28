@@ -201,3 +201,12 @@ Honest notes:
 - Full-page screenshots still need your login; the world, the layout boxes and the fox were rendered and checked in headless Chrome.
 
 Not built (as asked): synced review read state, a paid AI rewrite of Luna's text, new kingdom thresholds (placeholders kept).
+
+## Round 5d (on preview)
+Done:
+- Sources: the word "Sources:" is gone everywhere. Under each item only the source names as small links joined by a middle dot (13px, deep sakura, underlined, no pills); nothing when an item has none (including a tail with no links). Covers the Briefs card (all three tabs), the Intel Top 5, News, Kumo's review, Trades movers and the brief-level sources line (SourcesLine, which now shows nothing instead of "not recorded"). Every line still goes through the Bigdata scrubber (bodies at the page, sources through cleanSources).
+- Briefs one type step up: body 17 to 18px (1.65), lead lines 15 to 17px, section titles 20 to 22px, labels and source links 13px; Briefs card, News and Kumo's review. Night contrast for brief body stays 7:1 or better (the contrast check passes); tables keep their own scroll box, so nothing forces the page to scroll sideways.
+- One date and time style: a shared formatter in lib/court/time.ts (stamp, dayStamp, stampAge, ageText, inText, clock, sgtKeyOf, badgeParts, monthTitle; tests/time.test.mjs). 25 hand-made date and time formats in 18 component and page files now use it (brief titles and ages, "as of", the "Next:" line, Today and Week, Needs you now, News, Trades, Calendar, Luna's sky, Source health, the old progress page). The token check now fails on any hand-made date or time formatting in components and pages (the world's clock face, pixel art, is the one listed exception). Timestamps show as small pixel labels (Silkscreen 12px).
+- Header: one pixel badge "WED 28 OCT · 10:12 SGT" (pixel clock with a gold hand, Silkscreen, stepped corners, plum outline by day and lavender at night, blinking colon that stops under reduced motion), same height as the neighbouring chips; the rest-day line sits under it. Classic keeps its clock chip.
+
+Checks: typecheck, build, 62 tests (tokens, fonts, contrast, overlap, dates, Bigdata, flags, parsers). The badge and a brief item were rendered with the real stylesheets in day and night at 1000px and 390px: no overflow; the night badge outline was too dark and now uses the lavender icon outline. Full-page screenshots still need your login.

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useCourt } from "../CourtState";
 import { eventsOn, isAstro } from "@/lib/court/state";
-import { addDays, hm, prettyDay } from "@/lib/court/time";
+import { addDays, hm, prettyDay, sgtKeyOf, clock } from "@/lib/court/time";
 import { OBS_BANNER, PaintedBanner } from "@/components/kumo/PaintedBanner";
 import { AstroText } from "./AstroText";
 import { astroParts } from "@/components/kumo/astroParts";
@@ -12,7 +12,7 @@ import { GLYPH, SIGNS, birthMoment, fmtDeg, houses, moonPhase, positions, signOf
 // Luna's sky: "From your astro calendar" first (the astrologer's title and description, quoted as written,
 // private), then Luna's own calculated sky beneath it, labelled as a cross-check only. Never overrides one
 // with the other, never predicts outcomes.
-const sgtKey = (d: Date) => new Date(d.getTime() + 8 * 3600000).toISOString().slice(0, 10);
+const sgtKey = (d: Date) => sgtKeyOf(d);
 const noon = (k: string) => new Date(k + "T04:00:00Z");   // 12:00 SGT
 
 export function useSky() {
@@ -143,7 +143,7 @@ function Obs7({ k, astro, ev }: { k: string; astro: AstroRow[]; ev: SkyEvent[] }
             ))}
             {calc.map((e, j) => (
               <div className="obs-ev obs-calc" key={"c" + j}>
-                <div><b>{e.t}</b> <span className="note">{hm(Math.round((e.at.getTime() + 8 * 3600000) % 86400000 / 60000))} SGT</span></div>
+                <div><b>{e.t}</b> <span className="note"><time className="ts">{clock(e.at)} SGT</time></span></div>
                 <p className="note obs-src">Calculated by Luna (cross-check, not a reading).</p>
               </div>
             ))}

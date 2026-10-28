@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { earned } from "@/lib/court/tails";
 import { useCourt } from "../CourtState";
 import { LCATS, LEADS, money, ruleText, type LifeRule } from "@/lib/court/state";
-import { prettyDay } from "@/lib/court/time";
+import { badgeParts, prettyDay, stamp } from "@/lib/court/time";
 import { needFor } from "@/lib/court/quests";
 import { weekHab } from "@/lib/court/state";
 import { stageFor } from "@/components/kumo/kingdom";
@@ -37,14 +37,24 @@ export function HeaderStats() {
   );
 }
 
-// New look: the date sits to the left of the clock chip; on a rest day one small line says so.
-export function HeaderDate() {
+// New look: ONE pixel badge for the date and time ("WED 28 OCT · 10:12 SGT", Silkscreen, stepped corners, the
+// pixel clock with its gold hand, a blinking colon), from the shared formatter; on a rest day one small line
+// under it. Classic keeps its clock chip.
+export function HeaderClock({ icon }: { icon: React.ReactNode }) {
   const ui = useUi();
   const { st, k } = useCourt();
+  const [t, setT] = useState(() => Date.now());
+  useEffect(() => { const id = window.setInterval(() => setT(Date.now()), 15000); return () => window.clearInterval(id); }, []);
   if (ui !== "new") return null;
+  const b = badgeParts(t);
   return (
-    <span className="hdate">
-      {prettyDay(k)}
+    <span className="hbadge-wrap">
+      <span className="hbadge" role="timer" aria-label={`${b.day}, ${b.hh}:${b.mm} Singapore time`}>
+        <span className="hbadge-in">
+          <svg className="hbadge-ic" viewBox="0 0 11 11" shapeRendering="crispEdges" aria-hidden="true">{icon}</svg>
+          <span className="hbadge-t" aria-hidden="true" suppressHydrationWarning>{b.day} · {b.hh}<i className="hbadge-colon">:</i>{b.mm} SGT</span>
+        </span>
+      </span>
       {st.restDay === k && <span className="hrest">Rest day, streak protected</span>}
     </span>
   );
@@ -294,7 +304,7 @@ function SourceHealth() {
   const [open, setOpen] = useState(false);
   useEffect(() => { if (open && !rows) fetch("/api/health").then((r) => r.json()).then((j) => setRows(j.rows ?? [])).catch(() => setRows([])); }, [open, rows]);
   const bad = rows?.filter((r) => r.status !== "ok").length ?? 0;
-  const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString("en-SG", { timeZone: "Asia/Singapore", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "never");
+  const when = (iso: string | null) => (iso ? stamp(iso) : "never");
   return (
     <details className="pillar" onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
       <summary><b>Source health</b> <span className="note">{rows ? `${rows.length - bad} of ${rows.length} ok` : "tap to check"}</span></summary>

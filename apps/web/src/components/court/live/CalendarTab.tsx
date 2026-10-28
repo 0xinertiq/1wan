@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useCourt } from "../CourtState";
 import { eventsOn, isAstro, type DayEvent } from "@/lib/court/state";
-import { addDays, hm, prettyDay, wdName, wdOf, weekKey } from "@/lib/court/time";
+import { addDays, hm, prettyDay, wdName, wdOf, weekKey, sgtKeyOf, monthTitle } from "@/lib/court/time";
 import { WeekAhead } from "./CourtHome";
 import { useSky } from "./LunaSky";
 import { AstroText } from "./AstroText";
@@ -51,7 +51,7 @@ export function CalendarTab({ noWeek = false }: { noWeek?: boolean }) {
   const feeds = [...new Set(events.map((e) => e.cal))];
   const itemsOn = (d: string): Item[] => {
     const out: Item[] = eventsOn(events, d, true).filter((e) => !off.includes(e.cal)).map((e: DayEvent) => ({ t: e.t, color: e.color, a: e.a, b: e.b, allDay: e.allDay, cal: e.cal, desc: e.desc }));
-    if (layers.includes("sky")) for (const e of sky.ev) if (new Date(e.at.getTime() + 8 * 3600000).toISOString().slice(0, 10) === d) out.push({ t: e.t, color: LCOL.sky, a: 0, b: 0, allDay: true, layer: "sky" });
+    if (layers.includes("sky")) for (const e of sky.ev) if (sgtKeyOf(e.at) === d) out.push({ t: e.t, color: LCOL.sky, a: 0, b: 0, allDay: true, layer: "sky" });
     return out.sort((x, y) => Number(y.allDay) - Number(x.allDay) || x.a - y.a);
   };
 
@@ -88,7 +88,7 @@ export function CalendarTab({ noWeek = false }: { noWeek?: boolean }) {
           {view !== "agenda" && (
             <div className="rep-act">
               <button className="btn sm ghost" type="button" onClick={() => setAnchor(view === "week" ? addDays(anchor, -7) : addDays(mStart, -1).slice(0, 8) + "01")}>‹ Back</button>
-              <b>{view === "week" ? `${prettyDay(wk)} to ${prettyDay(addDays(wk, 6))}` : new Date(mStart + "T00:00:00Z").toLocaleDateString("en-SG", { month: "long", year: "numeric", timeZone: "UTC" })}</b>
+              <b>{view === "week" ? `${prettyDay(wk)} to ${prettyDay(addDays(wk, 6))}` : monthTitle(mStart)}</b>
               <button className="btn sm ghost" type="button" onClick={() => setAnchor(view === "week" ? addDays(anchor, 7) : addDays(mStart, 32).slice(0, 8) + "01")}>Next ›</button>
               {anchor !== k && <button className="btn sm ghost" type="button" onClick={() => setAnchor(k)}>Today</button>}
             </div>

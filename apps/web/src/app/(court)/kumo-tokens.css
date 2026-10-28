@@ -40,7 +40,7 @@
   --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-6:24px; --sp-8:32px; --sp-12:48px;
   --r-chip:8px; --r-control:12px; --r-card:16px; --r-modal:24px; --r-pill:999px;
   --bw:1px; --bw-2:2px;
-  --fs-cap:13px; --fs-ui:14px; --fs-body:15px; --fs-read:17px; --fs-h3:20px; --fs-h2:24px; --fs-h1:32px;
+  --fs-cap:13px; --fs-ui:14px; --fs-body:15px; --fs-lead:17px; --fs-read:18px; --fs-brief-h:22px; --fs-h3:20px; --fs-h2:24px; --fs-h1:32px;
   --lh-ui:1.45; --lh-read:1.65;
   --tap:44px;
 

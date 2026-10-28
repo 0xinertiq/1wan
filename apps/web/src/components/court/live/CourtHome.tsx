@@ -97,7 +97,7 @@ export function NeedsNow({ unrated = [] }: { unrated?: string[] }) {
             <Mini name={x.crew} />
             <div className="kneed-b">
               <b className="kneed-t">{x.t}</b>
-              {x.sub && <span className="kneed-s">{x.sub}</span>}
+              {x.sub && <span className="kneed-s ts">{x.sub}</span>}
               {x.rows && x.rows.map((r) => <span className="kneed-r" key={r}>{r}</span>)}
             </div>
             <div className="kneed-a">{x.go && <a className="btn sm ghost kneed-btn" href={"#" + x.go}>Open</a>}<button className="btn sm ghost kneed-btn" type="button" onClick={() => hide(x.id)}>Seen</button></div>

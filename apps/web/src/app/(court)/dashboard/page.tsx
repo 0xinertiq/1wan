@@ -42,31 +42,22 @@ import { topFive } from "@/components/kumo/briefParse";
 import { DiaryLive, GardenLive, StatusLive, WinsButton } from "@/components/court/live/GrowLive";
 import { bootState } from "@/lib/court/actions";
 import { normalize } from "@/lib/court/state";
+import { sgtKeyOf, stampAge } from "@/lib/court/time";
 
 export const dynamic = "force-dynamic";
 
-const SGT = "Asia/Singapore";
-const dayKey = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: SGT }).format(d);
-const prettyDay = (d: Date) =>
-  new Intl.DateTimeFormat("en-GB", { timeZone: SGT, weekday: "short", day: "numeric", month: "short" }).format(d).replace(",", "");
-const hm = (d: Date) => new Intl.DateTimeFormat("en-GB", { timeZone: SGT, hour: "2-digit", minute: "2-digit", hour12: false }).format(d);
-
-function agoTxt(ms: number, now: number) {
-  const m = Math.round((now - ms) / 60000);
-  return m < 1 ? "just now" : m < 60 ? m + " min ago" : m < 1440 ? Math.round(m / 60) + "h ago" : Math.round(m / 1440) + "d ago";
-}
+const dayKey = (d: Date) => sgtKeyOf(d);
 
 function toDoc(b: BriefRow, now: Date, vote: Vote): BriefDoc {
   const at = new Date(b.at);
   const ok = !isNaN(at.getTime());
-  const day = ok ? (dayKey(at) === dayKey(now) ? "Today" : prettyDay(at)) : "";
   // Every brief, review and scan is shown through the Bigdata scrubber (display only; stored data untouched).
   const body = noBigdata(b.body);
   return {
     key: b.kind,
     label: kindLabel(b.kind),
     title: noBigdata((b.title || kindLabel(b.kind)).slice(0, 120)),
-    when: ok ? `${day} ${hm(at)} (${agoTxt(at.getTime(), now.getTime())})` : "",
+    when: ok ? stampAge(at, now) : "",   // "Today 07:52 SGT · 5h ago" (lib/court/time.ts)
     html: mdLite(body),
     top: topThree(body),
     body,
