@@ -32,7 +32,6 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
   const { st, k, nm } = useCourt();
   const box = useRef<HTMLDivElement>(null), cvRef = useRef<HTMLCanvasElement>(null);
   const [wh, setWh] = useState<[number, number] | null>(null);
-  const [qOpen, setQOpen] = useState(false);
   const [wx, setWx] = useState<{ now: number | null; sky?: string } | null>(null);
   const [water, setWater] = useState<WaterEvt[]>([]);
   useEffect(() => { fetch("/api/weather").then((r) => r.json()).then(setWx).catch(() => setWx({ now: null })); }, []);
@@ -119,7 +118,7 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
         </div>
         <div className="lvl" id="lvlBanner" hidden><b id="lvlTxt">LEVEL UP</b><span id="lvlSub"></span></div>
       </div>
-      {L && <CloudSay text={quote} open={qOpen} onToggle={() => setQOpen(!qOpen)} night={night} style={L.bubble ? { left: L.bubble.x, top: L.bubble.y, width: L.bubble.w } : {}} />}
+      {L && <CloudSay text={quote} night={night} below={!L.bubble} style={L.bubble ? { left: L.bubble.x, top: L.bubble.y, width: L.bubble.w } : {}} />}
     </section>
   );
 }
@@ -167,8 +166,10 @@ export function CrewRoster({ filed }: { filed: Partial<Record<BriefKind, string>
 // Kumo's quote of the day in a cloud-shaped speech bubble: a scalloped outline drawn in SVG to fit the text
 // (puffs along the edge, plum outline, cream fill), small puffs as the tail up to Kumo, two gold sparkles.
 // Only the quote text; tap or focus to read a long one in full. Lavender cloud with light text at night.
-function CloudSay({ text, open, onToggle, night, style }: { text: string; open: boolean; onToggle: () => void; night: boolean; style: React.CSSProperties }) {
-  const ref = useRef<HTMLButtonElement>(null);
+// The quote is always shown in full (no clamp, no tap to expand); the layout gives it a free spot in the scene,
+// or it sits under the strip (below) when no spot is free, as on the phone.
+function CloudSay({ text, night, below, style }: { text: string; night: boolean; below: boolean; style: React.CSSProperties }) {
+  const ref = useRef<HTMLElement>(null);
   const [wh, setWh] = useState<[number, number]>([0, 0]);
   useLayoutEffect(() => {
     const el = ref.current; if (!el) return;
@@ -190,14 +191,14 @@ function CloudSay({ text, open, onToggle, night, style }: { text: string; open: 
     {w > 0 && <rect x={b - grow} y={b - grow} width={Math.max(0, w - 2 * b + 2 * grow)} height={Math.max(0, h - 2 * b + 2 * grow)} fill={col} />}
   </>;
   return (
-    <button ref={ref} type="button" className={"lw-say r5" + (open ? " open" : "") + (night ? " night" : "")} style={style} aria-expanded={open} onClick={onToggle} title="Quote of the day">
+    <figure ref={ref} className={"lw-say r5" + (night ? " night" : "") + (below ? " below" : "")} style={style} aria-label="Quote of the day">
       <svg className="lw-cloud" width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden="true">
         <defs><mask id={"m" + id} maskUnits="userSpaceOnUse" x="-20" y="-20" width={w + 40} height={h + 40}>{shape(1, "white")}{shape(0, "black")}</mask></defs>
         <g className="lw-cloud-fill">{shape(0, "currentColor")}</g>
         <rect className="lw-cloud-line" x="-20" y="-20" width={w + 40} height={h + 40} mask={`url(#m${id})`} />
       </svg>
-      <span className="lw-say-t">{text}</span>
-    </button>
+      <blockquote className="lw-say-t">{text}</blockquote>
+    </figure>
   );
 }
 
@@ -207,27 +208,25 @@ const HG = ["XXXXXXXXX", ".XgggggX.", ".XoooooX.", "..XoXoX..", "..XoooX..", "..
 // pixel-art palette (the hourglass sprite)
 const HGF: Record<string, string> = { X: "#4a2538", o: "#FFF8EE", g: "#FFD95E", c: "#FF9DBF" };
 function SprintIcon() {
-  const { run, left, finish, start } = useSprint();
+  const { run, left, start, paused, pause, resume, stop } = useSprint();
   const [open, setOpen] = useState(false);
   const total = SPRINT_MIN * 60, frac = run ? 1 - left / total : 0, mins = Math.ceil(left / 60);
+  // Not running: tap to choose Study or Other. Running: tap to pause, tap again to resume; a small stop beside it.
+  const label = !run ? "Start a 25-minute focus sprint" : paused ? `Focus sprint paused, ${mins} minutes left. Tap to resume` : `Focus sprint running, ${mins} minutes left. Tap to pause`;
   return (
     <div className="lw-sprint">
-      <button type="button" className={"lw-sprint-btn" + (run ? " on" : "")} aria-expanded={open} aria-label={run ? `Focus sprint running, ${mins} minutes left` : "Start a 25-minute focus sprint"} onClick={() => setOpen(!open)}>
+      <button type="button" className={"lw-sprint-btn" + (run ? " on" : "") + (paused ? " paused" : "")} aria-expanded={run ? undefined : open} aria-label={label} onClick={() => (!run ? setOpen(!open) : paused ? resume() : pause())}>
         {run && <svg className="lw-ring" viewBox="0 0 36 36" aria-hidden="true"><circle className="lw-ring-bg" cx="18" cy="18" r="16" fill="none" strokeWidth="3" /><circle className="lw-ring-fg" cx="18" cy="18" r="16" fill="none" strokeWidth="3" strokeDasharray={`${frac * 100.5} 100.5`} transform="rotate(-90 18 18)" /></svg>}
         <svg className="lw-hg" viewBox="0 0 9 10" shapeRendering="crispEdges" aria-hidden="true">
           {HG.flatMap((row, y) => row.split("").map((ch, x) => (ch === "." ? null : <rect key={x + "-" + y} x={x} y={y} width="1" height="1" fill={HGF[ch]} />)))}
         </svg>
-        {run && <span className="lw-min">{mins}m</span>}
+        {run && <span className="lw-min">{paused ? "II " : ""}{mins}m</span>}
       </button>
-      {open && (
+      {run && <button type="button" className="lw-sprint-stop" aria-label="Stop the focus sprint (not counted)" onClick={() => stop()}>×</button>}
+      {open && !run && (
         <div className="lw-sprint-pop" role="dialog" aria-label="Focus sprint">
-          {run ? <>
-            <p><b>{mins} min left</b> · {run.tag === "study" ? "Study" : "Other"}</p>
-            <button className="btn sm ghost" type="button" onClick={() => { finish(false); setOpen(false); }}>Stop (not counted)</button>
-          </> : <>
-            <p><b>Focus sprint, {SPRINT_MIN} min</b></p>
-            <div className="rep-act">{(["study", "other"] as SprintTag[]).map((t) => <button key={t} className="btn sm" type="button" onClick={() => { start(t); setOpen(false); }}>{t === "study" ? "Study" : "Other"}</button>)}</div>
-          </>}
+          <p><b>Focus sprint, {SPRINT_MIN} min</b></p>
+          <div className="rep-act">{(["study", "other"] as SprintTag[]).map((t) => <button key={t} className="btn sm" type="button" onClick={() => { start(t); setOpen(false); }}>{t === "study" ? "Study" : "Other"}</button>)}</div>
         </div>
       )}
     </div>

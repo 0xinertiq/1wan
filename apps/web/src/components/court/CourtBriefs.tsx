@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { BriefFeedback } from "./BriefFeedback";
 import { SourcesLine, type BriefDoc } from "./BriefTabs";
-import { briefSections, isNoMovers, reviewParts, type Headline } from "@/components/kumo/briefParse";
+import { briefSections, isNoMovers, reviewParts, scanCourt, type Headline } from "@/components/kumo/briefParse";
 import { mdLite } from "./mdLite";
 import { useReview } from "@/components/kumo/reviewRead";
 
@@ -57,11 +57,15 @@ const hmSgt = (iso: string) => new Date(Date.parse(iso) + 8 * 3600e3).toISOStrin
 
 function BriefPane({ d, mem }: { d: BriefDoc; mem?: DeskMem }) {
   const [open, setOpen] = useState(false);
-  const html = mdLite(d.body ?? "", { srcLine: true, numberTop5: true });
+  // The Crypto scan shows only the read-through and Movers here, plus the three strongest coins; the full scan
+  // (style map, trade plan, catalysts, gaps) stays in News.
+  const scan = d.key === "scan" ? scanCourt(d.body ?? "") : null;
+  const html = mdLite(scan ? scan.md : d.body ?? "", { srcLine: true, numberTop5: true });
   return (
     <div className="bpane">
       <Head d={d} />
-      {d.key === "scan" && <p className="bsnap"><span>Snapshot · Scan {hmSgt(d.at)} SGT</span><a href="#trades">Open in Trades for live technicals</a></p>}
+      {scan && <p className="bsnap"><span>Snapshot · Scan {hmSgt(d.at)} SGT</span><a href="#trades">Open in Trades →</a></p>}
+      {scan && scan.strongest.length > 0 && <p className="bstrong"><b>Strongest now:</b> {scan.strongest.map((x) => `${x.ticker} ${x.score} (${x.bucket})`).join(" · ")}</p>}
       <div className={"brb kbrb" + (open ? " open" : "")} dangerouslySetInnerHTML={{ __html: html }} />
       <button className="btn sm ghost" type="button" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? "Show less" : "Show more"}</button>
       <BriefFeedback key={d.key + d.at} kind={d.key} at={d.at} initial={d.vote} />

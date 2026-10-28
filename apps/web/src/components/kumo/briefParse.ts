@@ -122,9 +122,22 @@ export function reviewParts(body: string): { summary: string; desks: string[]; s
   return { summary: summary.slice(0, 400), desks, suggestions };
 }
 
-// Sources line without any mention of Bigdata (permanently disconnected).
-export function cleanSources(s: string | null): string | null {
-  if (!s) return s;
-  const kept = s.split(/[,;]\s*/).map((p) => p.trim()).filter((p) => p && !/big\s*data/i.test(p)).join(", ");
-  return kept || null;
+// Sources line without any mention of Bigdata: the shared display scrubber (lib/noBigdata.ts).
+export { noBigdataSources as cleanSources } from "@/lib/noBigdata";
+
+// The Crypto scan on the Court (owner, round 5b): only the opening read-through and the Movers section, plus the
+// top three coins by score from the Style Map table ("| A Pullback now | ZRO 75, NEAR 75 |"). The full scan
+// (style map, trade plan, catalysts, gaps) stays complete in News.
+export function scanCourt(body: string): { md: string; strongest: { ticker: string; score: number; bucket: string }[] } {
+  const parts = body.split(/\r?\n(?=##\s)/);
+  const movers = parts.slice(1).filter((p) => /^##\s*movers\b/i.test(p));
+  const style = parts.slice(1).find((p) => /^##\s*style\s*map\b/i.test(p)) ?? "";
+  const strongest: { ticker: string; score: number; bucket: string }[] = [];
+  for (const row of style.split(/\r?\n/).filter((l) => /^\s*\|/.test(l) && !/^\s*\|[\s:|-]+\|?\s*$/.test(l))) {
+    const [bucket, coins] = row.split("|").slice(1, 3).map((c) => strip(c ?? ""));
+    if (!coins || /^bucket$/i.test(bucket)) continue;
+    for (const m of coins.matchAll(/\b([A-Z0-9]{2,10})\s+(\d{1,3})\b/g)) strongest.push({ ticker: m[1], score: +m[2], bucket: bucket.replace(/^[A-Z]\s+/, "") });
+  }
+  strongest.sort((a, b) => b.score - a.score);
+  return { md: [parts[0], ...movers].join("\n"), strongest: strongest.slice(0, 3) };
 }

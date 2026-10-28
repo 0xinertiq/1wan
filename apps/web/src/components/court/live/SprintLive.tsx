@@ -10,12 +10,27 @@ import { weekKey } from "@/lib/court/time";
 // One 25-minute focus sprint with a tag (Study or Other). The running sprint is saved, so a reload keeps it.
 // A sprint that reaches 25 minutes is logged, counts quest k7, and study sprints add to Samsara's hours.
 // The sprint's state and actions, shared by this window (Classic) and the hourglass in the New-look world.
+const PAUSE = "1wan-sprint-pause";
+
 export function useSprint() {
   const { st, update, levelUp } = useCourt();
   const [now, setNow] = useState(() => Date.now());
   const run = st.spr.run;
-  useEffect(() => { if (!run) return; const t = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(t); }, [run]);
-  const left = run ? Math.max(0, SPRINT_MIN * 60 - Math.floor((now - Date.parse(run.at)) / 1000)) : SPRINT_MIN * 60;
+  // Pause (owner approved, round 5b): the remaining seconds are kept on this device while paused; resuming
+  // moves the saved start time forward by the paused stretch, so the saved state keeps its shape.
+  const [pz, setPz] = useState<{ at: string; left: number } | null>(null);
+  useEffect(() => { try { const p = JSON.parse(localStorage.getItem(PAUSE) ?? "null"); setPz(p && run && p.at === run.at ? p : null); } catch {} }, [run]);
+  const paused = !!(pz && run && pz.at === run.at);
+  useEffect(() => { if (!run || paused) return; const t = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(t); }, [run, paused]);
+  const left = run ? (paused ? pz!.left : Math.max(0, SPRINT_MIN * 60 - Math.floor((now - Date.parse(run.at)) / 1000))) : SPRINT_MIN * 60;
+  const pause = () => { if (!run) return; const p = { at: run.at, left }; setPz(p); try { localStorage.setItem(PAUSE, JSON.stringify(p)); } catch {} };
+  const resume = () => {
+    if (!run || !pz) return;
+    const at = new Date(Date.now() - (SPRINT_MIN * 60 - pz.left) * 1000).toISOString();
+    try { localStorage.removeItem(PAUSE); } catch {}
+    setPz(null); setNow(Date.now());
+    update((d) => { if (d.spr.run) d.spr.run = { ...d.spr.run, at }; }, ["spr"]);
+  };
 
   const finish = (keep: boolean) => update((d) => {
     const r = d.spr.run; if (!r) return;
@@ -26,9 +41,10 @@ export function useSprint() {
       if (!isDone(d, "k7")) { const q = logQuest(d, "k7"); if (q.leveled) levelUp(q.leveled); }
     }
   }, ["spr", "q", "stars", "streak", "xp", "lvl"]);
-  useEffect(() => { if (run && left === 0) finish(true); });  // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (run && !paused && left === 0) finish(true); });  // eslint-disable-line react-hooks/exhaustive-deps
   const start = (tag: SprintTag) => update((d) => { d.spr.run = { at: new Date().toISOString(), tag }; }, ["spr"]);
-  return { run, left, finish, start };
+  const stop = () => { try { localStorage.removeItem(PAUSE); } catch {} setPz(null); finish(false); };
+  return { run, left, finish, start, paused, pause, resume, stop };
 }
 
 export function SprintLive() {

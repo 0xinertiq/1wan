@@ -12,7 +12,7 @@ import path from "node:path";
 const root = path.resolve(import.meta.dirname, "../src");
 const ART = [
   "components/spriteDefs.ts", "components/PixelSprite.tsx", "components/kumo/world/draw.ts", "components/kumo/Fox.tsx",
-  "components/kumo/DungeonIcon.tsx", "components/kumo/decor/", "components/court/HeaderMenu.tsx", "components/court/live/GrowLive.tsx",
+  "components/kumo/DungeonIcon.tsx", "components/kumo/foxArt.ts", "components/kumo/decor/", "components/court/HeaderMenu.tsx", "components/court/live/GrowLive.tsx",
   "components/court/Stage.tsx", "components/court/StageSky.tsx", "components/court/StageActors.tsx", "components/court/CourtDefs.tsx",
   "components/court/agents.ts", "lib/court/tails.ts", "lib/calendar.ts", "app/manifest.ts", "app/(court)/layout.tsx", "app/(app)/layout.tsx",
 ];

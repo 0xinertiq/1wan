@@ -10,7 +10,7 @@ import { CREW_AT } from "../src/components/kumo/kingdom.ts";
 
 const SIZES = [{ name: "phone", w: 390, h: 196 }, { name: "tablet", w: 820, h: 400 }, { name: "desktop", w: 1100, h: 520 }, { name: "wide", w: 1400, h: 520 }];
 const ALL = Object.entries(CREW_AT).flatMap(([place, ids]) => ids.map((id) => ({ id, place })));
-const CASES = [{ crew: ALL, q: 60 }, { crew: ALL, q: 220 }, { crew: [], q: 120 }];
+const CASES = [{ crew: ALL, q: 60 }, { crew: ALL, q: 220 }, { crew: ALL, q: 320 }, { crew: [], q: 120 }];
 
 for (const phase of ["day", "night"]) for (const sz of SIZES) test(`no overlaps: ${sz.name} ${phase}`, () => {
   for (const c of CASES) {

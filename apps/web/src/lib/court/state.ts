@@ -15,6 +15,7 @@ export type LifeRule =
 export type LifeItem = {
   id: string; name: string; cat: string; amt: number | null; rule: LifeRule; lead: number;
   note?: string; sched?: string; paid?: string | number;
+  autoPaid?: boolean; important?: boolean;   // optional flags (owner approved, round 5b); absent = derived default
 };
 export type Seed = { id: string; name: string; pk?: string; q?: string; auto?: string; at: string; w: Record<string, number> };
 export type Garden = { seeds: Seed[]; roots: { id: string; name: string; at: string }[]; gone: { name: string; kind: string; on: string }[]; init?: number; v17?: number; weed?: Record<string, string> };
@@ -62,6 +63,16 @@ export type CourtState = {
 };
 
 // Keys this UI owns. Saves send only these; the server refuses anything else.
+// The two optional life-admin flags are kept only when they are true or false; any other value is dropped, so
+// existing items load exactly as before (no migration, no rewrite).
+function lifeFlags(i: LifeItem): LifeItem {
+  if (!("autoPaid" in i) && !("important" in i)) return i;
+  const o = { ...i };
+  if ("autoPaid" in o && typeof o.autoPaid !== "boolean") delete o.autoPaid;
+  if ("important" in o && typeof o.important !== "boolean") delete o.important;
+  return o;
+}
+
 export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "news", "tg", "birth", "grid", "swins", "money", "samsara", "spr", "last", "prev"] as const;
 export type OwnedKey = (typeof OWNED_KEYS)[number];
 
@@ -90,7 +101,7 @@ export function normalize(raw: unknown, today: string): CourtState {
     streak: num(r.streak, 0), stars: num(r.stars, 0), lvl: num(r.lvl, 1), xp: num(r.xp, 0),
     q: obj(r.q, {}), days: obj(r.days, {}), wins: obj(r.wins, {}),
     dump: arr<Dump>(r.dump).filter((d) => d && typeof d.t === "string"),
-    life: arr<LifeItem>(r.life).filter((i) => i && i.rule && typeof i.name === "string"),
+    life: arr<LifeItem>(r.life).filter((i) => i && i.rule && typeof i.name === "string").map(lifeFlags),
     gd: { ...gd, seeds: arr(gd.seeds), roots: arr(gd.roots), gone: arr(gd.gone) } as Garden,
     cad: obj(r.cad, { wk: weekKey(today), ig: 0, x: 0 }),
     mood: obj(r.mood, {}),

@@ -814,3 +814,31 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kwatch td{padding:var(--sp-2);border-bottom:var(--bw) dashed var(--k-divider)}
 :root[data-ui="new"] .krange{position:relative;display:block;min-width:80px;height:8px;border-radius:var(--r-pill);background:var(--k-track)}
 :root[data-ui="new"] .krange i{position:absolute;top:-3px;width:14px;height:14px;margin-left:-7px;border-radius:var(--r-pill);background:var(--k-accent);border:var(--bw-2) solid var(--k-surface)}
+
+/* Round 5b / 5c: full quote, the fox at crew scale, sprint pause, Needs you now buttons and closing, scan line */
+.lw-say.r5 .lw-say-t{display:block;margin:0;-webkit-line-clamp:unset;overflow:visible;white-space:normal}
+.lw-say.r5{cursor:default;margin:0}
+.lw-say.r5.below{position:relative!important;left:auto!important;top:auto!important;width:auto!important;max-width:min(560px,calc(100% - 24px))!important;margin:var(--sp-3) 0 0 var(--sp-3);animation:none!important}
+.lw-fox{aspect-ratio:40/32}
+.lw-fox .fox-tails{animation:px-swl 1.8s steps(1,end) infinite}
+.lw-fox.hop{transform-origin:50% 100%;animation:foxsquash 1.8s cubic-bezier(.45,0,.55,1)}
+@keyframes foxsquash{0%{transform:translate(-50%,-100%) scale(1,1)}12%{transform:translate(-50%,-100%) scale(1.12,.86)}40%{transform:translate(-50%,calc(-100% - 28px)) scale(.92,1.1)}78%{transform:translate(-50%,-100%) scale(1.1,.9)}100%{transform:translate(-50%,-100%) scale(1,1)}}
+.lw-fox.joy{transform-origin:50% 100%;animation:foxjoy2 .5s ease-out 3}
+@keyframes foxjoy2{0%,100%{transform:translate(-50%,-100%) scale(1,1)}20%{transform:translate(-50%,-100%) scale(1.08,.9)}55%{transform:translate(-50%,calc(-100% - 12px)) scale(.95,1.06)}}
+@media (prefers-reduced-motion:reduce){.lw-fox .fox-tails,.lw-fox.hop,.lw-fox.joy{animation:none!important}}
+.lw-sprint{display:flex;align-items:center;gap:var(--sp-1)}
+.lw-sprint-btn.paused .lw-ring-fg{stroke:var(--k-plum-soft);stroke-dasharray:3 3}
+.lw-sprint-stop{width:28px;height:28px;border-radius:var(--r-pill);border:var(--bw) solid var(--k-glass-line);background:var(--k-hud-light);color:var(--k-plum-text);font:800 var(--fs-ui)/1 var(--kumo-font-body);cursor:pointer}
+.lw-sprint-stop::before{content:"";position:absolute;inset:-8px}
+.lw-sprint-stop{position:relative}
+.scene-dark .lw-sprint-stop{background:var(--k-hud-dark);color:var(--k-night-text)}
+:root[data-ui="new"] .kneed{grid-template-columns:auto minmax(0,1fr) auto;align-items:center}
+:root[data-ui="new"] .kneed-a{display:flex;align-items:center;justify-content:flex-end;gap:var(--sp-2)}
+:root[data-ui="new"] .kneed-btn{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:var(--tap);min-width:72px;padding:0 var(--sp-3);line-height:1;text-decoration:none;font:700 var(--fs-ui)/1 var(--kumo-font-body)}
+@media (max-width:420px){:root[data-ui="new"] .kneed{grid-template-columns:auto minmax(0,1fr)}:root[data-ui="new"] .kneed-a{grid-column:2;justify-content:flex-start}}
+:root[data-ui="new"] .kneed-wrap{display:grid;grid-template-rows:1fr;transition:grid-template-rows .3s ease,opacity .3s ease}
+:root[data-ui="new"] .kneed-wrap>*{min-height:0;overflow:hidden}
+:root[data-ui="new"] .kneed-wrap.closing{grid-template-rows:0fr;opacity:0}
+@media (max-width:767px){:root[data-ui="new"] .khome .kneed-wrap{order:3}}
+:root[data-ui="new"] .bstrong{margin:0;padding:var(--sp-2) var(--sp-3);border-radius:var(--r-control);background:var(--k-tint-lav);font:500 var(--fs-ui)/1.4 var(--kumo-font-body);color:var(--k-text)}
+:root[data-ui="new"] .lflag{display:inline-flex;align-items:center;gap:var(--sp-1);min-height:var(--tap);font:600 var(--fs-cap) var(--kumo-font-body);color:var(--k-text)}

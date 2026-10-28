@@ -4,62 +4,29 @@ import { useEffect, useRef, useState } from "react";
 import { useCourt } from "@/components/court/CourtState";
 import { TAILS, anchorStreak, earned } from "@/lib/court/tails";
 
-// The fox (crew/fox.md): an original code-drawn pixel kitsune who hops around the world. White fur, red
-// markings on ears, cheeks and tail tips, plum outline, blush cheeks, dot eyes, one gold accent (a tiny bell).
-// He shows the existing tails value read-only (lib/court/tails.ts): one fluffy tail per earned tail, the next
-// one as a faint ghost. A little spirit flame floats beside him and glows brighter as tails grow.
+// The fox (crew/fox.md, v2): an original code-drawn pixel kitsune drawn on the crew's 32-pixel grid so he
+// matches them: chibi proportions (a big round head, a tiny round body, short stubby legs), big pointed ears
+// with soft pink insides and red tips, the crew's face language (2x3 dark eyes with a one-pixel highlight, blush,
+// a tiny nose and a happy mouth), red cheek stripes as his signature, soft white fur with lavender-pink shading,
+// one gold accent (a tiny bell on a red collar), and a 1px plum outline traced round every shape like the crew.
+// Plump round tails fan out behind him; how many comes from the existing tails value (read-only), with the
+// next one as a faint ghost. The tails are their own layer so they can wag.
 
-const BODY = [
-  "..........X...X..",
-  ".........XrX.XrX.",
-  ".........XrwwwrX.",
-  "........XwwwwwwwX",
-  "........XwwwwwwwX",
-  "........XwkwwwkwX",
-  "........XrpwnwprX",
-  ".........XwwwwwX.",
-  "......XXXwwgwwX..",
-  ".....XwwwwwwwwX..",
-  "....XwwwwwwwwwX..",
-  "....XwwwwwwwwwX..",
-  "....XwwwwwXwwwX..",
-  "....XwwwwXwXwwX..",
-  "....XwwwXrX.XrX..",
-  ".....XXXX.X..X...",
-];
-// Three plume shapes (red tip at the far end) so the tails fan out on an arc behind him: upright, diagonal, sideways.
-// b is the plume's base pixel, which sits on the arc.
-const PLUMES = {
-  U: { g: ["..XX..", ".XrrX.", "XrrrwX", "XwwwwX", "XwwwwX", "XwwwwX", ".XwwwX", "..XwwX", "...XX."], b: [3, 8] },
-  D: { g: ["XX......", "XrrX....", "XrrwX...", ".XwwwX..", "..XwwwX.", "...XwwwX", "....XwwX", ".....XX."], b: [6, 7] },
-  F: { g: [".XX......", "XrrXXXX..", "XrrwwwwXX", "XrwwwwwwX", ".XXwwwwX.", "...XXXX.."], b: [8, 3] },
-} as const;
-const COL: Record<string, string> = { X: "#4a2538", w: "#FFFFFF", r: "#E2574C", p: "#FF9DBF", k: "#4a2538", n: "#4a2538", g: "#FFD95E" };
-function tailAt(i: number) {
-  const a = ((95 + i * 12) * Math.PI) / 180, v = i < 2 ? PLUMES.U : i < 6 ? PLUMES.D : PLUMES.F;
-  const bx = 5 + Math.round(Math.cos(a) * 5), by = 11 - Math.round(Math.sin(a) * 5);
-  return { g: v.g as readonly string[], x: bx - v.b[0], y: by - v.b[1] };
-}
+import { FOX_COLOURS as C, H, W, bodyMap, tailsMap, type Px } from "./foxArt";
 
-function grid(rows: readonly string[], ox: number, oy: number, key: string) {
-  return rows.flatMap((row, y) => row.split("").map((ch, x) => (ch === "." ? null : <rect key={`${key}${x}-${y}`} x={ox + x} y={oy + y} width="1" height="1" fill={COL[ch]} />)));
-}
+const rects = (m: Px[][], key: string) => m.flatMap((row, y) => row.map((c, x) => (c ? <rect key={key + x + "-" + y} x={x} y={y} width="1" height="1" fill={C[c]} /> : null)));
 
-export function FoxSvg({ tails }: { tails: number }) {
+export function FoxSvg({ tails, sleepy = false }: { tails: number; sleepy?: boolean }) {
   const shown = Math.min(9, tails + (tails < 9 ? 1 : 0));
-  const parts = [];
-  for (let i = shown - 1; i >= 0; i--) {
-    const t = tailAt(i);
-    parts.push(<g key={i} opacity={i < tails ? 1 : 0.35}>{grid(t.g, t.x, t.y, "t" + i)}</g>);
-  }
   return (
-    <svg viewBox="-12 -4 29 20" shapeRendering="crispEdges" aria-hidden="true" className="fox-svg">
-      {parts}
-      {grid(BODY, 0, 0, "b")}
-      <rect x="10" y="4" width="1" height="1" fill="#FFFFFF" opacity=".9" />
+    <svg viewBox={`0 -1 ${W} ${H}`} shapeRendering="crispEdges" aria-hidden="true" className="fox-svg">
+      {shown > tails && <g opacity=".35">{rects(tailsMap(shown), "g")}</g>}
+      {tails > 0 && <g className="fox-tails">{rects(tailsMap(tails), "t")}</g>}
+      {rects(bodyMap(sleepy), "b")}
     </svg>
   );
 }
+export const FOX_ASPECT = W / H;
 
 const FLAME = [".X.", "XwX", "XlX", ".X."];
 function Flame({ glow }: { glow: number }) {
@@ -105,7 +72,7 @@ export function WorldFox({ perches, s, px, cheer }: { perches: [number, number][
     <>
       <div className="lw-fox-at" style={{ left: x * s, top: y * s }}>
         <button ref={ref} type="button" className={"lw-fox" + (hop ? " hop" : "") + (joy ? " joy" : "") + (nap ? " nap" : "")} style={{ height: px }} aria-expanded={open} aria-label={`The fox, ${n} of 9 tails. Open what each tail means`} onClick={() => setOpen(!open)}>
-          <FoxSvg tails={n} />
+          <FoxSvg tails={n} sleepy={nap} />
           <Flame glow={n / 9} />
           {nap && <span className="lw-zz" aria-hidden="true">z</span>}
           {joy && <span className="lw-spark" aria-hidden="true">✦</span>}

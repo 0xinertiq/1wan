@@ -67,3 +67,23 @@ test("every table with user rows has RLS and an own-rows policy", () => {
     assert.ok(pols.some((p) => /user_id = auth\.uid\(\)/.test(p)), `${t}: own-rows policy`);
   }
 });
+
+// Optional life-admin flags (owner approved, round 5b): backwards compatible, no rewrite of existing items.
+test("normalize keeps life items without flags exactly as they were", async () => {
+  const { normalize } = await import("../src/lib/court/state.ts");
+  const it = { id: "a", name: "Dog grooming", cat: "pet", amt: null, rule: { type: "dom", d: 3 }, lead: 2 };
+  const st = normalize({ life: [it] }, "2026-10-28");
+  assert.deepEqual(st.life[0], it);
+  assert.equal("autoPaid" in st.life[0], false);
+  assert.equal("important" in st.life[0], false);
+});
+
+test("normalize keeps true/false flags and drops anything else", async () => {
+  const { normalize } = await import("../src/lib/court/state.ts");
+  const base = { cat: "bill", amt: 10, rule: { type: "dom", d: 1 }, lead: 0 };
+  const st = normalize({ life: [{ ...base, id: "a", name: "Spotify", autoPaid: false, important: true }, { ...base, id: "b", name: "Rent", autoPaid: "yes", important: 1 }] }, "2026-10-28");
+  assert.equal(st.life[0].autoPaid, false);
+  assert.equal(st.life[0].important, true);
+  assert.equal("autoPaid" in st.life[1], false);
+  assert.equal("important" in st.life[1], false);
+});

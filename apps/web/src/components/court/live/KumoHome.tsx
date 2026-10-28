@@ -46,9 +46,9 @@ export function CourtLayout({ s }: { s: CourtSlots }) {
       <div className="kmain">
         {s.briefs}
         <div className="krail">
+          {s.needs}
           <TodayCard />
           <LunaCard />
-          {s.needs}
           {s.review}
         </div>
       </div>

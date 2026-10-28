@@ -29,6 +29,13 @@ import { CourtLayout, Observatory } from "@/components/court/live/KumoHome";
 import { CrewRoster, LivingWorld } from "@/components/court/live/LivingWorld";
 import { BriefsBlock, BriefsLibrary, MoversCard, ReviewCard, type DeskMem } from "@/components/court/CourtBriefs";
 import { LiveWatch } from "@/components/court/live/LiveWatch";
+import { noBigdata } from "@/lib/noBigdata";
+
+// Desk notes go through the same Bigdata scrubber; a note left empty is dropped.
+const cleanMem = (m: DeskMem): DeskMem => {
+  const list = (a?: string[]) => (a ?? []).map((x) => noBigdata(String(x))).filter(Boolean);
+  return { ...m, lessons: list(m.lessons), sourceNotes: list(m.sourceNotes), selfCheck: m.selfCheck ? noBigdata(String(m.selfCheck)) || undefined : undefined };
+};
 import { NewOnly } from "@/components/kumo/NewOnly";
 import { TradeLive } from "@/components/court/live/TradeLive";
 import { topFive } from "@/components/kumo/briefParse";
@@ -53,16 +60,18 @@ function toDoc(b: BriefRow, now: Date, vote: Vote): BriefDoc {
   const at = new Date(b.at);
   const ok = !isNaN(at.getTime());
   const day = ok ? (dayKey(at) === dayKey(now) ? "Today" : prettyDay(at)) : "";
+  // Every brief, review and scan is shown through the Bigdata scrubber (display only; stored data untouched).
+  const body = noBigdata(b.body);
   return {
     key: b.kind,
     label: kindLabel(b.kind),
-    title: (b.title || kindLabel(b.kind)).slice(0, 120),
+    title: noBigdata((b.title || kindLabel(b.kind)).slice(0, 120)),
     when: ok ? `${day} ${hm(at)} (${agoTxt(at.getTime(), now.getTime())})` : "",
-    html: mdLite(b.body),
-    top: topThree(b.body),
-    body: b.body,
+    html: mdLite(body),
+    top: topThree(body),
+    body,
     at: b.at,
-    sources: b.sources,
+    sources: noBigdata(b.sources),
     vote,
   };
 }
@@ -95,7 +104,7 @@ export default async function Dashboard() {
   const boot = bootState(normalize(row?.data ?? {}, today), today);
   // What each desk has learned (her agent memory, read-only under RLS), for the Briefs card.
   const { data: memRows } = await supabase.from("agent_memory").select("key, data");
-  const mem: Record<string, DeskMem> = Object.fromEntries((memRows ?? []).map((m) => [m.key, (m.data ?? {}) as DeskMem]));
+  const mem: Record<string, DeskMem> = Object.fromEntries((memRows ?? []).map((m) => [m.key, cleanMem((m.data ?? {}) as DeskMem)]));
   // Today's briefs still waiting for a rating: one line in Needs you now.
   const unrated = docs.filter((d) => ["pulse", "intel", "scan"].includes(d.key) && !d.vote && dayKey(new Date(d.at)) === today).map((d) => d.label);
 

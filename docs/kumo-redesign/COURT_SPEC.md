@@ -13,20 +13,21 @@ Consolidated on 28 Oct 2026 from every Court prompt (R1 to round 5). This file i
 | Midday movers | Trades (left) | |
 | Live prices | Court prices strip (one line) | Trades: Live watchlist |
 | Live watchlist (price, day change, 1-month range), technicals | Trades (left), labelled Live | Court Briefs: "Open in Trades" from the dated scan |
+| Full Crypto scan (style map, trade plan, catalysts, gaps) | News, brief history (full text) | Court Briefs: snapshot, read-through, Movers, "Strongest now" (top 3 by score); Trades will later host the Style Map, Trade Plan and Catalysts (not built yet) |
 | Trade log and tools | Trades (right) | |
 | Liquidity releases (FOMC, NFP, CPI, PPI, PCE, GDP, ECB, BoJ, BoE, refunding) | Calendar, Economic calendar ("Moves liquidity" default, "All releases" toggle) | Court: one "Next:" line within 48h; Week tab: small tags |
 | Calendar events (day, week, month views) | Calendar | Court Today: Now / Next / Later; Week tab: top 3 a day |
 | Momo's day ideas | Calendar (left) | |
 | The next 7 days at a glance | Court, Today card, Week tab | |
-| Due bills, bookings, life admin | Life Hub, Life admin (every item) | Needs you now when due within 3 days or overdue (not auto-paid); Week tab rows |
+| Due bills, bookings, life admin, with the Auto-paid and Important toggles | Life Hub, Life admin (every item) | Needs you now when overdue, due within 3 days or marked Important (never auto-paid); Week tab rows |
 | Parked thoughts (Park a thought) | Court: the one-line input under the world; the list under Today's stat strip | |
 | Luna's daily reading | Court, Luna's card | Week tab: Moon sign and tone tag |
 | Luna's 7-day sky, astro calendar text with attribution | Observatory | |
 | Habits, daily anchors, branches, quests | Sakura Garden | Today stat strip: counts only |
 | Kumo's pick | Sakura Garden (top) | |
 | Journal (private, exportable, Inter) | Dungeon | |
-| Focus sprint | World, the hourglass in the HUD | |
-| Quote of the day | World, Kumo's glass cloud bubble | |
+| Focus sprint (tap to pause and resume, small stop) | World, the hourglass in the HUD | |
+| Quote of the day (always in full) | World, Kumo's glass cloud bubble, or under the strip when no spot in the scene is free | |
 | Level, EXP, streak, stars, date, rest day | Header | World HUD: level chip |
 | Tails (0 to 9, read-only) | World, the fox and his card | Classic: header chip |
 | Weather | World HUD chip | |
@@ -34,7 +35,7 @@ Consolidated on 28 Oct 2026 from every Court prompt (R1 to round 5). This file i
 | Settings, Look switch, Export my data | Header menu | |
 
 ## Global rules
-- One canonical home per item; other places show a summary and link. The app tracks, never advises. No Bigdata wording in the UI. Protected paths and the tails, XP, stars and streak logic are never changed.
+- One canonical home per item; other places show a summary and link. The app tracks, never advises. No Bigdata wording in the UI: every brief, review, desk note and sources line is shown through one display scrubber (lib/noBigdata.ts); stored data and the ingest / export routes are untouched. Protected paths and the tails, XP, stars and streak logic are never changed.
 - Visual slices go to the preview first; production only after she says "ship it".
 - No single-column pages that need long scrolling: grids, two columns, segmented controls. When a section is crowded, reduce (fewer items, "+n more", collapsed details) rather than shrink. No section scrolls sideways (the phone prices strip may).
 
@@ -54,12 +55,12 @@ Date (left of the clock), clock, the Queen's progress (level badge, EXP bar), st
 2. "Park a thought": one line, the only entry point on the Court.
 3. Prices strip: one line (BTC, SOL, the scan's tickers, "as of" time); extra tickers become "+n" or scroll sideways on the phone.
 4. "Next: FOMC decision Thu 02:00 SGT, in 16h": the next liquidity release within 48 hours; hidden when there is none.
-5. Two columns. Left 2/3: Briefs. Right 1/3, in order: Today (Today | Week), Luna's card, Needs you now, Kumo's weekly review (only while unread).
+5. Two columns. Left 2/3: Briefs. Right 1/3, in order: Needs you now (only when something waits), Today (Today | Week), Luna's card, Kumo's weekly review (only while unread).
 6. Crew roster: one wrapping line under the columns.
 Phone: the world strip, Park a thought, Needs you now, Today, Briefs, Luna, review, prices, roster; bottom bar Home, Calendar, Hub, Dungeon, More.
 
 ### Briefs card (the old dashboard's full brief style)
-Header "Briefs", small right label "Your scheduled tasks". Pill tabs Pulse | Intelligence | Crypto scan. Each tab: title, date and age; the summary as a soft pink callout; then the whole stored brief (uppercase small section labels, dashed dividers, bold-lead items with detail, tables, quotes) and under each item one small muted line "Sources: A · B" (no chips, no "— A, B" tail). Intelligence: Top 5 headlines as a numbered list of five items (bold headline, why it matters, sources), then the other sections as the brief gives them. Crypto scan: read-through, movers, style map, trade plan or "No trade today", watch line, alerts, thesis log, catalysts, gaps; labelled "Snapshot · Scan hh:mm SGT" with "Open in Trades for live technicals". Pulse: deals, shifts, social listening, content radar. Show more / Show less. Under it: Useful / Needs work, the one-line change box, and a collapsible "What this desk has learned" (her agent memory, read-only). Full column width.
+Header "Briefs", small right label "Your scheduled tasks". Pill tabs Pulse | Intelligence | Crypto scan. Each tab: title, date and age; the summary as a soft pink callout; then the whole stored brief (uppercase small section labels, dashed dividers, bold-lead items with detail, tables, quotes) and under each item one small muted line "Sources: A · B" (no chips, no "— A, B" tail). Intelligence: Top 5 headlines as a numbered list of five items (bold headline, why it matters, sources), then the other sections as the brief gives them. Crypto scan: only the snapshot label ("Snapshot · Scan hh:mm SGT"), the read-through callout, Movers and one line "Strongest now" (the top 3 coins by score from the Style Map: ticker, score, bucket), with "Open in Trades →". The style map, trade plan, watch line, alerts, thesis log, catalysts and gaps stay in News (full text); later the Trades tab will host the Style Map, Trade Plan and Catalysts. Pulse: deals, shifts, social listening, content radar. Show more / Show less. Under it: Useful / Needs work, the one-line change box, and a collapsible "What this desk has learned" (her agent memory, read-only). Full column width.
 
 ### Today | Week
 - Today: Now / Next / Later from the calendar, the stat strip (Due soon as a count, Streak, Habits this week, Yesterday), parked thoughts with Done. No Luna, weather, focus sprint or macro events.
@@ -69,14 +70,14 @@ Header "Briefs", small right label "Your scheduled tasks". Pill tabs Pulse | Int
 Luna's sprite and "Luna · the stars align for you"; chips (Moon sign, element, phase, tone, any retrograde); one summary; the next Moon sign change in SGT; "The day leans toward" and "Be gentle with" as two slim stacked strips (bold label left, phrases joined by dots; lavender then sakura; dark tints at night); "Today in your chart" small and quiet (13px, secondary); a care callout when needed; self-care for today (4-5 bullets). From the v52 sky table and logic (lib/court/luna.ts, table to 7 Jan 2027); the astro calendar only adds Luna's own phrases. No green or red, no advice.
 
 ### Needs you now
-Only (a) life admin, reminders and bookings due today, overdue or within 3 days, and calendar bookings starting within 2 hours; (b) agents waiting on her (today's briefs to rate, as one line). Auto-paid bills, GIRO, tax instalments and subscriptions stay hidden. No macro releases, habits or price alerts. At most 3, then "+n more". Same day or same time items share one card with one Seen; left-aligned with time in SGT and "in n min". Nothing waiting: "All clear".
+First in the right column. Only (a) life admin, reminders and bookings due today, overdue, within 3 days or marked Important, and calendar bookings starting within 2 hours; (b) agents waiting on her (today's briefs to rate, as one line). Items marked Auto-paid stay hidden (until she sets the toggle, GIRO, auto-deducted tax and subscriptions count as auto-paid). No macro releases, habits or price alerts. At most 3, then "+n more". Same day or same time items share one card with one Seen; left-aligned with time in SGT and "in n min". One button style on every row (same height and width pattern, right-aligned, 44px). When nothing waits the card animates away and leaves no space; it returns when something is due.
 
 ### The world
 Code-drawn pixel kingdom, chibi storybook style: pastel sky by Singapore time, big soft moon at dusk and night, faceted floating island with roots and crystals, gnarled sakura, waterfall pool, castle, clock tower with real SGT time, ribbed observatory, timber Life Hub cottage, pagoda, mossy Dungeon gate, picnic, goose, hearts, square petals. Weather from Open-Meteo. Growth by level (cosmetic, density cap).
 - Layout (components/kumo/world/layout.ts, checked by tests/world-layout.test.mjs): a HUD band across the top holds the focus hourglass, the greeting (no date) and three chips (level, at work, weather); the whole island is fitted snugly below it with no cut-off spires. Place labels sit above their buildings, never in the HUD and never under the crew; on the phone strip there are no place hotspots (the bottom bar goes to the same places).
 - HUD and labels are glass chosen by the scene (cream with plum text over a light scene, plum with light text over dusk and night), so they read whatever the interface theme is.
-- Crew about 15% of the scene height (20% on the phone), standing on the ground in front, idle bob and working poses. Kumo stands on his own cloud right of the castle; his quote rises from him in a clear glass cloud (about 40% cream by day, 45% lavender at night, 1px plum outline).
-- The fox (crew/fox.md): original pixel kitsune with the tails value (read-only), a gentle hop every 16 s, naps, a tails card; only on perches clear of labels, the HUD and the bubble.
+- Crew about 15% of the scene height (20% on the phone), standing on the ground in front, idle bob and working poses. Kumo stands on his own cloud right of the castle; his quote is always shown in full (no clamp, no tap to expand) in a clear glass cloud (about 40% cream by day, 45% lavender at night, 1px plum outline, up to about 320px wide and as tall as it needs), in the first free spot (rising from Kumo, the top-right sky, beside the castle label) or under the strip when none is free.
+- The fox (crew/fox.md v2): an original chibi kitsune on the crew's pixel grid and scale (about 15% of the scene height), plump fanned tails from the tails value (read-only), a squash-and-stretch hop every 16 s, naps, a happy bounce, a tail wag, a tails card; only on perches clear of labels, the HUD and the bubble.
 - Performance: pause off-screen and in hidden tabs; reduced motion shows a still scene.
 
 ## Tabs

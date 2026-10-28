@@ -179,3 +179,25 @@ Honest notes:
 - "Agents waiting on me" covers briefs to rate; there is no agent yes / no suggestion feature in this app yet (FEATURE GAP).
 
 NEEDS OWNER APPROVAL (open): focus sprint pause (new saved field); "auto-paid" and "important" flags for life items; synced weekly-review read state; an AI rewrite of the astro calendar in Luna's voice; Kingdom stage thresholds.
+
+## Round 5b and 5c (on preview)
+Done:
+- Bigdata hidden in the UI through one display scrubber, lib/noBigdata.ts (tests/noBigdata.test.mjs, made-up text): it drops headings, list items and table rows that mention Bigdata, link chips and list entries ("Sources: Bigdata.com, CNBC" becomes "Sources: CNBC"), parentheticals, and any sentence that mentions it (such as "Bigdata.com was unavailable, so ..."). Places covered: every brief, scan, movers note and Kumo review (the page passes each brief's title, body, rendered text, top lines and sources line through it once, so the Briefs card, News, Trades movers, the review card and Classic's brief windows all get the cleaned text); the "Sources:" line (cleanSources now comes from the same module); "What this desk has learned" (lessons, source notes, self-check). Stored data and the ingest / export routes are untouched.
+- Crypto scan tab on the Court: snapshot label, read-through, Movers, one "Strongest now" line (top 3 by score from the Style Map), "Open in Trades →". The full scan stays in News; Trades will host the Style Map, Trade Plan and Catalysts later (not built).
+- Needs you now: first in the right column; one button style (same 44px height and width pattern, right-aligned, centred with the text); the card animates away and leaves no space when nothing waits.
+- Auto-paid and Important flags (approved): optional fields on life items. normalize() keeps them only when true or false (anything else is dropped) and leaves existing items exactly as they were; OWNED_KEYS unchanged; no migration. Tests in tests/state.test.mjs. Until she sets the toggle, GIRO, auto-deducted tax and subscriptions count as auto-paid. Life Hub > Life admin has "Auto-paid" and "Important" toggles per item (New look). Court: auto-paid hidden; shown when overdue, due within 3 days or Important.
+  Exact diff of state.ts:
+  + type LifeItem: autoPaid?: boolean; important?: boolean;
+  + function lifeFlags(i): keep the two flags only when boolean (unchanged object when neither is present)
+  - life: arr<LifeItem>(r.life).filter((i) => i && i.rule && typeof i.name === "string"),
+  + life: arr<LifeItem>(r.life).filter((i) => i && i.rule && typeof i.name === "string").map(lifeFlags),
+- Focus sprint pause (approved): tap the hourglass while running to pause (dashed ring, "II 12m"), tap again to resume; a small × stops it (not counted). The remaining time is kept on this device while paused; resuming moves the saved start time forward, so the saved state keeps its shape. Default stays 25 minutes.
+- Quote of the day always in full: no clamp, no ellipsis, no tap to expand; the glass cloud grows (up to about 320px wide, then taller). The layout puts it in the first free spot in the scene (rising from Kumo, the top-right sky, beside the castle label) and under the strip when no spot is free. The overlap test now also runs 320-character quotes at phone, tablet, desktop and wide, day and night: no overlaps.
+- The fox, v2 (crew/fox.md): redrawn on the crew's 32-pixel grid with the same 1px plum outline, eyes, blush and chibi proportions (big round head, tiny body, stubby legs, big ears with pink insides and red tips, red cheek stripes, gold bell on a red collar, soft lavender-pink shading), plump round tails fanned behind him from the tails value (read-only). Same scale as the crew (about 15% of the scene height). Squash-and-stretch hop, nap pose with closed eyes and "z", happy bounce with sparkle, idle tail wag; still under reduced motion. Checked side by side with Kumo, Pip, Olli and Momo at 32, 64 and 96px on day and night skies; the first tails hid behind his head and looked like red balls, so they were made longer, plumper and fanned wider.
+
+Honest notes:
+- On the tablet width (820px) quotes longer than about 60 characters, and on desktop the longest quotes (over about 200 characters), sit under the world strip rather than in the sky, because no free spot in the scene is big enough.
+- The pause lives on this device: on another device the same sprint shows as running.
+- Full-page screenshots still need your login; the world, the layout boxes and the fox were rendered and checked in headless Chrome.
+
+Not built (as asked): synced review read state, a paid AI rewrite of Luna's text, new kingdom thresholds (placeholders kept).

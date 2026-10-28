@@ -65,18 +65,28 @@ export function worldLayout(w: number, h: number, crewOn: { id: string; place: s
   const places = boxes.map((box, i) => ({ id: g.places[i].id, label: g.places[i].label, href: g.places[i].href, box, cx: box.x + box.w / 2, bottom: box.y + box.h }));
 
   // quote bubble (desktop and tablet; on the phone it sits under the strip): rises from Kumo, up and right
+  // The quote is always shown in full: the bubble grows (up to about 320px wide, then taller) to fit it. It takes
+  // the first spot that touches nothing (rising from Kumo, the top-right sky, beside the castle label); when no
+  // spot in the scene is free it sits under the world strip instead (bubble = null), as on the phone.
   let bubble: Box | null = null;
   if (w >= PHONE) {
-    const bw = Math.min(300, w * 0.46), lines = Math.min(3, Math.max(1, Math.ceil((quoteLen * 7.6) / (bw - 36))));
-    const bh = lines * 21 + 28;
-    const left = (g.cx + 68) * s, bottom = kumo.y - 4;
-    bubble = { id: "bubble", x: left, y: Math.max(hud.h + 4, bottom - bh), w: bw, h: bh };
-    // if it would cover a label, slide it right of that label (or up to the HUD edge)
-    for (const p of places) if (hit(bubble, p.box)) bubble = { ...bubble, x: Math.min(w - bw - 8, p.box.x + p.box.w + 8) };
+    const free = (b: Box) => b.x >= 0 && b.x + b.w <= w && b.y >= hud.h + 4 && b.y + b.h <= h - 4 &&
+      ![...places.map((p) => p.box), ...crew, kumo].some((o) => hit(b, o));
+    const castle = places.find((p) => p.id === "castle")?.box;
+    for (const bw of [Math.min(320, w * 0.46), Math.min(380, w * 0.46)]) {
+      const bh = Math.max(1, Math.ceil((quoteLen * 7.9) / (bw - 36))) * 22 + 30;
+      const spots: [number, number][] = [
+        [(g.cx + 68) * s, kumo.y - 4 - bh],
+        [w - bw - 12, hud.h + 4],
+        ...(castle ? [[castle.x + castle.w + 12, hud.h + 4] as [number, number]] : []),
+      ];
+      const ok = spots.map(([x, y]) => ({ id: "bubble", x, y, w: bw, h: bh })).find(free);
+      if (ok) { bubble = ok; break; }
+    }
   }
 
   // fox: only perches whose box stays clear of labels, the HUD and the bubble
-  const foxH = Math.round(px * 0.7), foxW = Math.round((foxH * 29) / 20);
+  const foxH = px, foxW = Math.round((px * 40) / 32);   // the same pixel scale as the crew (40 x 32 grid)
   const foxBox = ([x, y]: [number, number]): Box => ({ id: "fox", x: x * s - foxW / 2, y: y * s - foxH, w: foxW, h: foxH });
   const blockers = [hud, ...places.map((p) => p.box), ...(bubble ? [bubble] : [])];
   const perches = g.perches.filter((pt) => !blockers.some((b) => hit(foxBox(pt), b)));

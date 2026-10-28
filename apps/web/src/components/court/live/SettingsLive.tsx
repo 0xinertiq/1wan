@@ -9,6 +9,7 @@ import { needFor } from "@/lib/court/quests";
 import { weekHab } from "@/lib/court/state";
 import { stageFor } from "@/components/kumo/kingdom";
 import { useUi } from "@/components/kumo/useUi";
+import { isAutoPaid } from "./TodayLive";
 
 // Header numbers (streak, stars) from her state.
 export function HeaderStats() {
@@ -91,6 +92,7 @@ const WDS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 // Settings from dashboard-v52 (moreDet), life admin part: Coco's list behind Coming up.
 export function SettingsLive({ open = false }: { open?: boolean }) {
+  const ui = useUi();
   const { st, k, update } = useCourt();
   const [f, setF] = useState({ name: "", amt: "", kind: "dom", num: "", date: "", cat: "bill", lead: "", wk: [] as number[] });
   const [msg, setMsg] = useState("");
@@ -132,6 +134,10 @@ export function SettingsLive({ open = false }: { open?: boolean }) {
             <div className="filed-row" key={it.id}>
               <span>{it.name}{it.amt != null && <> <span className="note">{money(it.amt)}</span></>} <span className="note">{LCATS[it.cat] ?? it.cat} · {ruleText(it.rule)}{it.lead ? ` · remind ${it.lead}d ahead` : ""}{it.sched && it.sched >= k ? ` · booked ${prettyDay(it.sched)}` : ""}</span></span>
               <span className="rep-act">
+                {ui === "new" && (["autoPaid", "important"] as const).map((flag) => {
+                  const on = flag === "autoPaid" ? isAutoPaid(it) : it.important === true;
+                  return <label className="lflag" key={flag}><input type="checkbox" checked={on} onChange={(e) => update((d) => { const x = d.life.find((i) => i.id === it.id); if (x) x[flag] = e.target.checked; }, ["life"])} />{flag === "autoPaid" ? "Auto-paid" : "Important"}</label>;
+                })}
                 {(it.cat === "care" || it.cat === "pet") && <input type="date" className="lsd" value={it.sched ?? ""} aria-label={`Booked for ${it.name}`} onChange={(e) => update((d) => { const x = d.life.find((i) => i.id === it.id); if (x) x.sched = e.target.value; }, ["life"])} />}
                 <button className="btn sm ghost" type="button" onClick={() => update((d) => { d.life = d.life.filter((i) => i.id !== it.id); }, ["life"])}>Remove</button>
               </span>

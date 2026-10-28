@@ -46,7 +46,7 @@ function useRecords() {
 type Need = { id: string; crew: SpriteName; t: string; sub?: string; rows?: string[]; go?: string; rank: number };
 function needs(st: CourtState, k: string, nm: number, events: CalEvent[], unrated: string[]): Need[] {
   const out: Need[] = [];
-  const due = dueList(st, k, events).filter((x) => x.dd <= 3 && !isAutoPaid(x.it));
+  const due = dueList(st, k, events).filter((x) => !isAutoPaid(x.it) && (x.dd <= 3 || x.it.important === true));
   const byDay = new Map<string, typeof due>();
   for (const x of due) byDay.set(x.d, [...(byDay.get(x.d) ?? []), x]);
   for (const [d, xs] of byDay) {
@@ -80,9 +80,18 @@ export function NeedsNow({ unrated = [] }: { unrated?: string[] }) {
   const hide = (id: string) => { const x = [...seen, id]; setSeen(x); try { localStorage.setItem("1wan-seen-" + k, JSON.stringify(x)); } catch {} };
   const list = needs(st, k, nm, events, unrated).filter((x) => !seen.includes(x.id));
   const shown = all ? list : list.slice(0, 3);
+  // When nothing is waiting the card animates away and leaves no space; it returns when something is due.
+  const [gone, setGone] = useState(false);
+  useEffect(() => {
+    if (list.length) { setGone(false); return; }
+    const t = window.setTimeout(() => setGone(true), 320);
+    return () => window.clearTimeout(t);
+  }, [list.length]);
+  if (gone) return null;
   return (
-    <Card id="needWin" title="Needs you now" sub={list.length ? `${list.length} waiting` : undefined}>
-      {list.length ? <>
+    <div className={"kneed-wrap" + (list.length ? "" : " closing")}>
+    <Card id="needWin" title="Needs you now" sub={`${list.length} waiting`}>
+      {list.length > 0 && <>
         {shown.map((x) => (
           <div className="kneed" key={x.id}>
             <Mini name={x.crew} />
@@ -91,12 +100,13 @@ export function NeedsNow({ unrated = [] }: { unrated?: string[] }) {
               {x.sub && <span className="kneed-s">{x.sub}</span>}
               {x.rows && x.rows.map((r) => <span className="kneed-r" key={r}>{r}</span>)}
             </div>
-            <div className="kneed-a">{x.go && <a className="btn sm ghost" href={"#" + x.go}>Open</a>}<button className="btn sm ghost" type="button" onClick={() => hide(x.id)}>Seen</button></div>
+            <div className="kneed-a">{x.go && <a className="btn sm ghost kneed-btn" href={"#" + x.go}>Open</a>}<button className="btn sm ghost kneed-btn" type="button" onClick={() => hide(x.id)}>Seen</button></div>
           </div>
         ))}
-        {list.length > 3 && <button className="btn sm ghost" type="button" aria-expanded={all} onClick={() => setAll(!all)}>{all ? "Show fewer" : `+${list.length - 3} more`}</button>}
-      </> : <p className="note">All clear</p>}
+        {list.length > 3 && <button className="btn sm ghost kneed-btn" type="button" aria-expanded={all} onClick={() => setAll(!all)}>{all ? "Show fewer" : `+${list.length - 3} more`}</button>}
+      </>}
     </Card>
+    </div>
   );
 }
 

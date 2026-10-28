@@ -60,3 +60,12 @@ test("movers, review and sources", () => {
   assert.equal(cleanSources("Bigdata unavailable, used web search and RSS"), "used web search and RSS");
   assert.equal(cleanSources("RSS; Bigdata.com"), "RSS");
 });
+
+test("Crypto scan on the Court: read-through, Movers and the three strongest from the Style Map", async () => {
+  const { scanCourt } = await import("../src/components/kumo/briefParse.ts");
+  const body = "Crypto Watchlist Scan\n\nMajors hold, alts mixed.\n\n## Movers\n\n**ZRO +12% day, +20% week** unlock news.\n\n## Style Map\n\n| Bucket | Coins (score) |\n|---|---|\n| A Pullback now | ZRO 75, NEAR 75 |\n| B Breakout | none |\n| C Pullback wait | GRASS 65 |\n| T Testing EMA50 | UNI 50, SOL 35 |\n| E Skip | ENA (chop ADX 19) |\n\n## Trade Plan\n\n| Ticker | Grade |\n|---|---|\n| NEAR | Good |\n\n## Catalysts\n\nNone.";
+  const s = scanCourt(body);
+  assert.deepEqual(s.strongest, [{ ticker: "ZRO", score: 75, bucket: "Pullback now" }, { ticker: "NEAR", score: 75, bucket: "Pullback now" }, { ticker: "GRASS", score: 65, bucket: "Pullback wait" }]);
+  assert.ok(s.md.includes("Majors hold") && s.md.includes("## Movers"));
+  assert.ok(!/Style Map|Trade Plan|Catalysts/.test(s.md));
+});
