@@ -30,6 +30,7 @@ import { SettingsLive } from "../src/components/court/live/SettingsLive.tsx";
 import { TradesPage } from "../src/components/court/pages/TradesPage.tsx";
 import { CalendarPage } from "../src/components/court/pages/CalendarPage.tsx";
 import { LifeHub } from "../src/components/court/pages/LifeHub.tsx";
+import { DungeonPage } from "../src/components/court/pages/Dungeon.tsx";
 
 const K = "2026-10-28", NOW = "2026-10-28T03:02:00Z";
 const h = React.createElement;
@@ -89,7 +90,7 @@ function screens(docs) {
     news: h("div", null, h(BriefsLibrary, { history: docs }), h(NewsLive, { top5: ["The Fed holds."] })),
     garden: h("div", null, h(KumoPick), h(GardenLive)),
     diary: h("div", null, h(WinsButton), h(DiaryLive, { open: true })),
-    life: h(LifeTabs), lifeHub: h(LifeHub), settings: h(SettingsLive, { open: true }),
+    life: h(LifeTabs), lifeHub: h(LifeHub), dungeon: h(DungeonPage), settings: h(SettingsLive, { open: true }),
     observatory: h(Observatory, { luna: h(LunaSky) }),
     tabs: h(AppTabs, { panels: { court: h("p", null, "c"), calendar: null, garden: null, diary: null, life: null }, extra: { trades: h("p"), news: h("p"), observatory: h("p") } }),
   };

@@ -52,3 +52,12 @@ test("finance CSV: dated rows only, spending and income told apart", async () =>
   const rows = parseCsv("date,amount,category,note\n2026-10-01,-12.5,food,lunch\n2026-10-02,3000,income,salary\nbad,1,food\n2026-10-03,9,weird,x");
   assert.deepEqual(rows.map((r) => [r.cat, r.type, r.amt]), [["food", "out", 12.5], ["income", "in", 3000], ["other", "out", 9]]);
 });
+
+test("Dungeon weekly look-back is rule-based: pages, moods, tags, wins, quests", async () => {
+  const { lookBack } = await import("../src/components/court/pages/Dungeon.tsx");
+  const e = (day, text, mood, tags = []) => ({ id: "j" + day, day, text, mood, tags, notes: [], at: "", up: "" });
+  // 2026-10-28 is a Wednesday; the week starts Monday 26 Oct
+  const L = lookBack([e("2026-10-26", "a", 4, ["calm"]), e("2026-10-27", "", 2, ["calm", "work"]), e("2026-10-20", "old", 5)], { "2026-10-28": { w: "a win" } }, { "2026-10-28": { m: 3 } }, "2026-10-28", 4, { "2026-10-26": { d: 3, t: 5 } });
+  assert.equal(L.days, 3); assert.equal(L.written, 3); assert.equal(L.avgMood, 3);
+  assert.deepEqual(L.topTags, ["calm", "work"]); assert.equal(L.winsDays, 1); assert.equal(L.quests, 3);
+});

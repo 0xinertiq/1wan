@@ -337,7 +337,7 @@ function diaryDays(st: CourtState, k: string) {
     .filter((d) => (seen.has(d) ? false : (seen.add(d), true))).sort().reverse();
 }
 
-function downloadDiary(st: CourtState, k: string) {
+export function downloadDiary(st: CourtState, k: string) {
   const lines = ["# Dungeon", "", `Exported ${k}. Private to you.`, ""];
   for (const d of diaryDays(st, k)) {
     const w = st.wins[d] ?? {}, m = st.mood[d];
@@ -459,7 +459,7 @@ export function DiaryLive({ open }: { open?: boolean }) {
 }
 
 // Read-only archive of the old typed habits and weeds (removed from the Garden; nothing deleted).
-function Archive() {
+export function Archive() {
   const { st } = useCourt();
   const g = st.gd, habits = g.seeds.filter((s) => !s.q);
   if (!habits.length && !g.roots.length && !g.gone.length) return null;
