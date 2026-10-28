@@ -365,8 +365,8 @@ export function downloadDiary(st: CourtState, k: string) {
     if (!w.w && !w.g && !w.n && !m) continue;
     lines.push(`## ${prettyDay(d)} (${d})`);
     if (m) lines.push(`Feeling: ${MOODS[(m.m || 3) - 1]}${m.n ? ", " + m.n : ""}`);
-    if (w.w) lines.push(`Win: ${w.w}`);
-    if (w.g) lines.push(`Thanks: ${w.g}`);
+    if (w.w) lines.push(`Went well: ${w.w}`);
+    if (w.g) lines.push(`Grateful for: ${w.g}`);
     if (w.n) lines.push("", w.n);
     lines.push("");
   }
@@ -381,8 +381,8 @@ function DiaryEdit({ day, onDone }: { day: string; onDone: () => void }) {
   const [w, setW] = useState(e0.w ?? ""), [g, setG] = useState(e0.g ?? ""), [n, setN] = useState(e0.n ?? "");
   return (
     <form className="field wr" onSubmit={(e) => { e.preventDefault(); update((d) => { d.wins[day] = { w: w.slice(0, 2000), g: g.slice(0, 2000), n: n.slice(0, 6000) }; }, ["wins"]); onDone(); }}>
-      <label>Win<textarea rows={2} maxLength={2000} value={w} onChange={(e) => setW(e.target.value)} /></label>
-      <label>Thanks<textarea rows={2} maxLength={2000} value={g} onChange={(e) => setG(e.target.value)} /></label>
+      <label>What went well<textarea rows={2} maxLength={2000} value={w} onChange={(e) => setW(e.target.value)} /></label>
+      <label>What I&apos;m grateful for<textarea rows={2} maxLength={2000} value={g} onChange={(e) => setG(e.target.value)} /></label>
       <label>Notes<textarea rows={5} maxLength={6000} value={n} onChange={(e) => setN(e.target.value)} /></label>
       <div className="rep-act"><button className="btn sm" type="submit">Save</button><button className="btn sm ghost" type="button" onClick={onDone}>Cancel</button></div>
     </form>
@@ -443,10 +443,10 @@ export function DiaryLive({ open }: { open?: boolean }) {
         <div className="jp" id="recapWeek"><ul className="jwk">
           <li>{done} of {tot} daily quests done over {days} day{days === 1 ? "" : "s"}</li>
           {bestN > 0 && <li>Best day: {prettyDay(bestK)} with {bestN}</li>}
-          {wd > 0 && <li>{wd} day{wd === 1 ? "" : "s"} with a win or a thank-you written</li>}
+          {wd > 0 && <li>{wd} day{wd === 1 ? "" : "s"} with gratitude written</li>}
           {gw.water > 0 && <li>{gw.water} seed watering{gw.water === 1 ? "" : "s"} in the garden</li>}
           {gw.rel > 0 && <li>{gw.rel} thing{gw.rel === 1 ? "" : "s"} let go. That is progress too.</li>}
-          <li>{st.streak}-day streak · {wn} wins and {gn} thank-yous logged so far</li>
+          <li>{st.streak}-day streak · {wn} things that went well and {gn} things you are grateful for, logged so far</li>
           {T.posts > 0 && <li>{T.posts} post{T.posts === 1 ? "" : "s"} counted</li>}
           {ms.length > 0 && <li>Average mood {(ms.reduce((a, b) => a + b, 0) / ms.length).toFixed(1)} of 5</li>}
         </ul><p><b>{say}</b></p></div>

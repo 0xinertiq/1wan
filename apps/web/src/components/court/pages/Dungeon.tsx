@@ -147,13 +147,14 @@ function GratitudeLog() {
   const { st, update } = useCourt();
   const list = gratitudeLog(st.wins);
   const [open, setOpen] = useState<string | null>(null);
+  const [all, setAll] = useState(false);
   const [f, setF] = useState<{ day: string; w: string; g: string; n: string } | null>(null);
   // editing changes the words only: no quest, XP or streak logic runs here
   const save = () => { if (!f) return; update((d) => { d.wins = { ...d.wins, [f.day]: { w: f.w.slice(0, 2000), g: f.g.slice(0, 2000), n: f.n.slice(0, 6000) } }; }, ["wins"]); setF(null); };
   return (
     <Card title="Gratitude log" sub="private, newest first">
       {!list.length ? <EmptyState who="coco">Nothing yet. The Gratitude sheet opens at 21:30, or tap Gratitude on today&apos;s page.</EmptyState>
-        : list.slice(0, 60).map((x) => (
+        : (all ? list : list.slice(0, 30)).map((x) => (
           <div className="krow kgrat" key={x.day}>
             <span className="krow-main">
               <button type="button" className="klink-row" aria-expanded={open === x.day} onClick={() => { setOpen(open === x.day ? null : x.day); setF(null); }}><b>{prettyDay(x.day)}</b><br /><span className="note">{(x.w || x.g || x.n).slice(0, 80)}</span></button>
@@ -171,6 +172,7 @@ function GratitudeLog() {
             </span>
           </div>
         ))}
+      {list.length > 30 && <Btn kind="sm ghost" aria-expanded={all} onClick={() => setAll(!all)}>{all ? "Show fewer" : `Show all (${list.length})`}</Btn>}
     </Card>
   );
 }

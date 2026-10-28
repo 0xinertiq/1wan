@@ -627,3 +627,11 @@ Checks:
 - 174 tests pass.
 - All 56 browser runs are clean.
 - The build passes.
+Review (fresh, read-only): no protected file touched and nothing must-fix.
+
+Fixed:
+- The Classic diary editor, the diary download and the weekly recap now use the gratitude wording.
+- The Gratitude log shows 30 entries with "Show all" for the rest.
+
+Noted, not changed:
+- The Gratitude log is New look only. Classic has the renamed button and its diary.
