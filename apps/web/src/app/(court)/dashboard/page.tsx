@@ -37,7 +37,7 @@ const cleanMem = (m: DeskMem): DeskMem => {
   return { ...m, lessons: list(m.lessons), sourceNotes: list(m.sourceNotes), selfCheck: m.selfCheck ? noBigdata(String(m.selfCheck)) || undefined : undefined };
 };
 import { NewOnly } from "@/components/kumo/NewOnly";
-import { TradeLive } from "@/components/court/live/TradeLive";
+import { TradesPage } from "@/components/court/pages/TradesPage";
 import { topFive } from "@/components/kumo/briefParse";
 import { DiaryLive, GardenLive, StatusLive, WinsButton } from "@/components/court/live/GrowLive";
 import { bootState } from "@/lib/court/actions";
@@ -112,10 +112,7 @@ export default async function Dashboard() {
         extra={{
           trades: (
             <NewOnly>
-              <div className="tgrid">
-                <div className="tcol"><LiveWatch /><MoversCard list={history.filter((d) => d.key === "movers")} /><TechLive /></div>
-                <div className="tcol"><TradeLive /></div>
-              </div>
+              <TradesPage left={<><LiveWatch /><MoversCard list={history.filter((d) => d.key === "movers")} /><TechLive /></>} scan={scanDoc} intel={docOf("intel")} />
             </NewOnly>
           ),
           news: (

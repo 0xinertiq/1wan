@@ -87,3 +87,20 @@ test("normalize keeps true/false flags and drops anything else", async () => {
   assert.equal("autoPaid" in st.life[1], false);
   assert.equal("important" in st.life[1], false);
 });
+
+// Round 6: two new optional keys. Older documents (no prefs, no hab) load with safe empty defaults; odd values are dropped.
+test("normalize: prefs and hab default safely and keep only well-formed values", async () => {
+  const { normalize, OWNED_KEYS } = await import("../src/lib/court/state.ts");
+  const old = normalize({ streak: 2 }, "2026-10-28");
+  assert.deepEqual(old.prefs, {});
+  assert.deepEqual(old.hab, { list: [], log: {} });
+  const st = normalize({
+    prefs: { lens: "weird", rooms: { journal: true, money: "yes" }, notif: { morning: true }, name: 7, onboarded: "2026-10-28" },
+    hab: { list: [{ id: "h1", name: "Stretch", days: [1, 3, 9, "x"], paused: "no" }, { name: "no id" }], log: { "2026-10-28": ["h1", 3], bad: ["h1"] } },
+  }, "2026-10-28");
+  assert.deepEqual(st.prefs, { rooms: { journal: true }, notif: { morning: true }, onboarded: "2026-10-28" });
+  assert.deepEqual(st.hab.list, [{ id: "h1", name: "Stretch", days: [1, 3], at: "" }]);
+  assert.deepEqual(st.hab.log, { "2026-10-28": ["h1"] });
+  assert.equal(normalize({ prefs: { lens: "off" } }, "2026-10-28").prefs.lens, "off");
+  assert.ok(OWNED_KEYS.includes("prefs") && OWNED_KEYS.includes("hab"));
+});

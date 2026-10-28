@@ -13,9 +13,12 @@ export async function GET() {
   const tables = [
     "profiles", "user_state", "agent_memory", "feedback", "briefs", "usage",
     "trades", "plans", "gamble", "ledger_settings", "spending", "watering_events",
+    "journal_entries", "goals", "finance_entries", "research_notes", "longterm_watchlist", "tasks", "routines",
   ] as const;
-  // Tracker tables arrive with migration 0004; until it is run they are skipped, not a failed export.
-  const optional = new Set<string>(["trades", "plans", "gamble", "ledger_settings", "spending", "watering_events"]);
+  // Tracker tables arrive with migration 0004 and the round 6 tables (journal, goals, finance, research notes,
+  // long-term watchlist, tasks, routines) with 0006; until one is run its tables are skipped, not a failed export.
+  const optional = new Set<string>(["trades", "plans", "gamble", "ledger_settings", "spending", "watering_events",
+    "journal_entries", "goals", "finance_entries", "research_notes", "longterm_watchlist", "tasks", "routines"]);
   const out: Record<string, unknown> = {
     app: "1wan",
     exportedAt: new Date().toISOString(),

@@ -27,6 +27,7 @@ import { LunaSky } from "../src/components/court/live/LunaSky.tsx";
 import { Header } from "../src/components/court/Header.tsx";
 import { AppTabs } from "../src/components/court/AppTabs.tsx";
 import { SettingsLive } from "../src/components/court/live/SettingsLive.tsx";
+import { TradesPage } from "../src/components/court/pages/TradesPage.tsx";
 
 const K = "2026-10-28", NOW = "2026-10-28T03:02:00Z";
 const h = React.createElement;
@@ -80,7 +81,7 @@ function screens(docs) {
     header: h(Header),
     court: h(CourtLayout, { s: slots }),
     calendar: h("div", null, h(EconLive), h(NextLiquidityLine), h(MomoCard), h(CalendarTab, { noWeek: true })),
-    trades: h("div", null, h(LiveWatch), h(MoversCard, { list: docs.filter((d) => d.key === "movers") }), h(TechLive), h(TradeLive)),
+    trades: h("div", null, h(TradeLive), h(TradesPage, { left: h("div", null, h(LiveWatch), h(MoversCard, { list: docs.filter((d) => d.key === "movers") }), h(TechLive)), scan: docOf("scan"), intel: docOf("intel") })),
     news: h("div", null, h(BriefsLibrary, { history: docs }), h(NewsLive, { top5: ["The Fed holds."] })),
     garden: h("div", null, h(KumoPick), h(GardenLive)),
     diary: h("div", null, h(WinsButton), h(DiaryLive, { open: true })),

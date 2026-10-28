@@ -44,6 +44,13 @@ export type Samsara = Ticks & { t: { hours: number; entries: number; posts: numb
 // Her own chart levels and lines (Technicals), per coin and timeframe. t is a candle time in ms.
 export type ChartLine = { id: string; sym: string; tf: string; kind: "level" | "line"; p1: { t: number; p: number }; p2?: { t: number; p: number }; label: string };
 export type Money = { inc: MLine[]; fixed: MLine[]; funds: MFund[]; nw: MAsset[]; goals: MItem[]; open: MItem[]; upd?: string; hideNw?: boolean };
+// Round 6 (new optional keys; absent in older documents, which load exactly as before):
+// prefs: market lens, rooms switched on in onboarding, notification choices, onboarding done, name and timezone.
+// hab: her own habits from the Garden's habit editor (separate from the fixed quests, XP and streak logic).
+export type Lens = "trading" | "local" | "any" | "off";
+export type Prefs = { lens?: Lens; rooms?: Record<string, boolean>; notif?: Record<string, boolean>; onboarded?: string; name?: string; tz?: string; companion?: string };
+export type Habit = { id: string; name: string; days: number[]; paused?: boolean; at: string };
+export type Habits = { list: Habit[]; log: Record<string, string[]> };
 
 export type CourtState = {
   v: 1; day: string; week: string; streak: number; stars: number; lvl: number; xp: number;
@@ -58,6 +65,7 @@ export type CourtState = {
   tg: { channels: { handle: string; enabled: boolean; title?: string }[] };   // public Telegram channels she follows
   birth: { date: string; time: string; place: string; lat: number; lon: number; tz: string } | null;   // private, never shared
   grid: Ticks; swins: Ticks & { log: Record<string, string[]> }; money: MoneyW; samsara: Samsara; defs: Defs;
+  prefs: Prefs; hab: Habits;
   spr: { run: { at: string; tag: "study" | "other" } | null; log: { at: string; tag: "study" | "other"; min: number }[] };   // focus sprints, tagged
   last: Record<string, unknown>; prev: Record<string, unknown> | null;
 };
@@ -73,7 +81,7 @@ function lifeFlags(i: LifeItem): LifeItem {
   return o;
 }
 
-export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "news", "tg", "birth", "grid", "swins", "money", "samsara", "spr", "last", "prev"] as const;
+export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "news", "tg", "birth", "grid", "swins", "money", "samsara", "spr", "last", "prev", "prefs", "hab"] as const;
 export type OwnedKey = (typeof OWNED_KEYS)[number];
 
 export type Recap = { old: string; done: number; total: number; newWeek: boolean; lost: boolean; restY: boolean };
@@ -82,6 +90,25 @@ const obj = <T,>(v: unknown, d: T): T => (v && typeof v === "object" && !Array.i
 const arr = <T,>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : []);
 const num = (v: unknown, d: number) => (typeof v === "number" && isFinite(v) ? v : d);
 const str = (v: unknown, d: string) => (typeof v === "string" ? v : d);
+
+const LENSES = ["trading", "local", "any", "off"];
+const bools = (v: unknown) => Object.fromEntries(Object.entries(obj<Record<string, unknown>>(v, {})).filter(([, x]) => typeof x === "boolean")) as Record<string, boolean>;
+// Only well-formed values are kept; anything odd is dropped, so a bad save can never break a page.
+export function normPrefs(v: unknown): Prefs {
+  const p = obj<Record<string, unknown>>(v, {}), o: Prefs = {};
+  if (typeof p.lens === "string" && LENSES.includes(p.lens)) o.lens = p.lens as Lens;
+  if (p.rooms !== undefined) o.rooms = bools(p.rooms);
+  if (p.notif !== undefined) o.notif = bools(p.notif);
+  for (const k of ["onboarded", "name", "tz", "companion"] as const) if (typeof p[k] === "string") o[k] = (p[k] as string).slice(0, 60);
+  return o;
+}
+export function normHab(v: unknown): Habits {
+  const h = obj<Record<string, unknown>>(v, {});
+  const list = arr<Habit>(h.list).filter((x) => x && typeof x.id === "string" && typeof x.name === "string")
+    .map((x) => ({ id: x.id, name: x.name.slice(0, 60), days: arr<number>(x.days).filter((d) => Number.isInteger(d) && d >= 0 && d < 7), at: str(x.at, ""), ...(x.paused === true ? { paused: true } : {}) })).slice(0, 40);
+  const log = Object.fromEntries(Object.entries(obj<Record<string, unknown>>(h.log, {})).filter(([d, ids]) => /^\d{4}-\d{2}-\d{2}$/.test(d) && Array.isArray(ids)).map(([d, ids]) => [d, (ids as unknown[]).filter((x): x is string => typeof x === "string")]));
+  return { list, log };
+}
 
 function normMoney(v: unknown): Money {
   const m = obj<Partial<Money>>(v, {});
@@ -127,6 +154,7 @@ export function normalize(raw: unknown, today: string): CourtState {
       const run = obj<Record<string, unknown>>(w.run, {});
       return { run: typeof run.at === "string" ? { at: run.at, tag: tag(run.tag) } : null,
         log: arr<Record<string, unknown>>(w.log).filter((x) => x && typeof x.at === "string" && typeof x.min === "number").map((x) => ({ at: x.at as string, tag: tag(x.tag), min: x.min as number })).slice(-200) }; })(),
+    prefs: normPrefs(r.prefs), hab: normHab(r.hab),
     last: obj(r.last, {}), prev: r.prev && typeof r.prev === "object" ? (r.prev as Record<string, unknown>) : null,
   };
 }

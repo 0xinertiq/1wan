@@ -80,7 +80,7 @@ export function briefSections(body: string): { intro: string; sections: { title:
   return { intro, sections, structured };
 }
 
-export type PlanRow = { ticker: string; grade: string; entry: string; stop: string; target: string; rr: string };
+export type PlanRow = { ticker: string; grade: string; entry: string; stop: string; target: string; rr: string; atr?: string };
 
 // Scan's plan: the read-through sentence and the trade-plan table rows, or a "no trade" line.
 export function todaysPlan(body: string): { readThrough: string | null; rows: PlanRow[]; noTrade: boolean } {
@@ -92,13 +92,13 @@ export function todaysPlan(body: string): { readThrough: string | null; rows: Pl
     if (!/^\s*\|/.test(lines[i]) || !/^\s*\|[\s:|-]+\|\s*$/.test(lines[i + 1] ?? "")) continue;
     const head = lines[i].split("|").slice(1, -1).map((c) => strip(c).toLowerCase());
     const col = (re: RegExp) => head.findIndex((h) => re.test(h));
-    const c = { ticker: col(/ticker|coin|symbol|asset|pair/), grade: col(/grade|setup|quality/), entry: col(/entry/), stop: col(/stop|sl\b|invalidation/), target: col(/target|tp\b|take/), rr: col(/r\s*:\s*r|r\/r|reward|rr\b/) };
+    const c = { ticker: col(/ticker|coin|symbol|asset|pair/), grade: col(/grade|setup|quality/), entry: col(/entry/), stop: col(/stop|sl\b|invalidation/), target: col(/target|tp\b|take/), rr: col(/r\s*:\s*r|r\/r|reward|rr\b/), atr: col(/atr/) };
     if (c.ticker < 0 || c.entry < 0 || c.stop < 0) continue;
     for (const l of lines.slice(i + 2)) {
       if (!/^\s*\|/.test(l)) break;
       const cells = l.split("|").slice(1, -1).map(strip);
       const g = (n: number) => (n >= 0 ? cells[n] ?? "" : "");
-      rows.push({ ticker: g(c.ticker), grade: g(c.grade), entry: g(c.entry), stop: g(c.stop), target: g(c.target), rr: g(c.rr) });
+      rows.push({ ticker: g(c.ticker), grade: g(c.grade), entry: g(c.entry), stop: g(c.stop), target: g(c.target), rr: g(c.rr), ...(c.atr >= 0 ? { atr: g(c.atr) } : {}) });
     }
     break;
   }

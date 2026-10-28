@@ -35,7 +35,7 @@ const sgtHour = (iso: string) => sgtHourOf(iso);
 export const lateNight = (iso?: string) => !!iso && (sgtHour(iso) >= 23 || sgtHour(iso) < 6);
 
 // The ledger's own trade maths: P&L from exit and size when not typed, R from the stop.
-function derive(t: Row) {
+export function derive(t: Row) {
   const sgn = t.dir === "short" ? -1 : 1;
   const entry = n(t.entry), exit = n(t.exit), stop = n(t.stop), size = n(t.size);
   const pnl = n(t.pnl) ?? (exit != null && size != null && entry != null ? sgn * (exit - entry) * size : null);
@@ -62,7 +62,8 @@ export function planStats(list: Row[]) {
   return { n: list.length, trig, placed, froze: trig - placed, freeze: trig ? (trig - placed) / trig : null, right, wrong, resolved: right + wrong, open: list.length - right - wrong };
 }
 
-export function TradeLive() {
+// extras: the New-look Trades tab has its own log, sizer and stats, so it shows only the rules, plans and gamble log.
+export function TradeLive({ extras = false }: { extras?: boolean }) {
   const { k, update } = useCourt();
   const [L, setL] = useState<Ledger | null>(null);
   const [setup, setSetup] = useState(false);
@@ -119,13 +120,13 @@ export function TradeLive() {
         if (ok) { water("milestone", "swins:a3", !!full, 2); water("grid", "grid:1.2", !!full); }
         return ok;
       }} />
-      <Sizer s={L.settings} />
+      {!extras && <><Sizer s={L.settings} />
       <div className="ntabs" role="group" aria-label="Period">
         {(["all", "month", "week"] as const).map((p) => <button key={p} type="button" className="chipb" aria-pressed={period === p} onClick={() => setPeriod(p)}>{p === "all" ? "All trades" : p === "month" ? "This month" : "This week"}</button>)}
       </div>
-      <Review trades={L.trades.filter(inPeriod)} plans={L.plans.filter(inPeriod)} account={L.settings?.account ?? null} />
+      <Review trades={L.trades.filter(inPeriod)} plans={L.plans.filter(inPeriod)} account={L.settings?.account ?? null} /></>}
       <Plans plans={L.plans} k={k} onSave={(r) => save("plans", r)} onRemove={(id) => remove("plans", id)} />
-      <Trades trades={L.trades.filter(inPeriod)} plans={L.plans} k={k} onSave={saveTrade} onRemove={(id) => remove("trades", id)} />
+      {!extras && <Trades trades={L.trades.filter(inPeriod)} plans={L.plans} k={k} onSave={saveTrade} onRemove={(id) => remove("trades", id)} />}
       <Gamble rows={L.gamble ?? []} k={k} onSave={(r) => save("gamble", r)} onRemove={(id) => remove("gamble", id)} />
     </div>
   );
