@@ -16,7 +16,33 @@ import { Btn, Card, Chip, EmptyState, PageHead, SectionLabel, StoreNote, TabPill
 // the link is stored on the entry only.
 
 export type Entry = VRow & { day: string; text: string; mood?: number; tags: string[]; plan?: string; feel?: string; change?: string; tradeId?: string; notes: string[] };
-type Note = VRow & { kind?: string; title?: string; text?: string; tags?: string[] };
+type Note = VRow & { kind?: string; title?: string; text?: string; tags?: string[]; url?: string };
+
+/** Round 9: a research note from the New note form (title or text needed; link only http(s); one optional tag). */
+export function noteFromForm(f: { title: string; text: string; url: string; tag: string }) {
+  const title = f.title.trim().slice(0, 120), text = f.text.trim().slice(0, 4000);
+  if (!title && !text) return null;
+  const url = /^https?:\/\/\S+$/.test(f.url.trim()) ? f.url.trim().slice(0, 500) : undefined;
+  const tag = f.tag.trim().replace(/^#/, "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 24);
+  return { kind: "note" as const, title, text, ...(url ? { url } : {}), tags: tag ? [tag] : [] };
+}
+
+function NewNote({ onSave }: { onSave: (n: NonNullable<ReturnType<typeof noteFromForm>>) => void }) {
+  const [f, setF] = useState({ title: "", text: "", url: "", tag: "" });
+  const [msg, setMsg] = useState("");
+  return (
+    <form className="kform knote-form" aria-label="New note" onSubmit={(e) => { e.preventDefault(); const n = noteFromForm(f); if (!n) return setMsg("Give the note a title or some text."); onSave(n); setF({ title: "", text: "", url: "", tag: "" }); setMsg("Saved."); }}>
+      <div className="sec-h">New note</div>
+      <input aria-label="Note title" placeholder="Title" maxLength={120} value={f.title} onChange={(e) => { setF({ ...f, title: e.target.value }); setMsg(""); }} />
+      <textarea aria-label="Note text" placeholder="What you found, in your words" maxLength={4000} value={f.text} onChange={(e) => setF({ ...f, text: e.target.value })} />
+      <div className="kform-row">
+        <input aria-label="Link (optional)" placeholder="Link, optional (https://…)" value={f.url} onChange={(e) => setF({ ...f, url: e.target.value })} />
+        <input aria-label="Tag (optional)" placeholder="Tag, optional" maxLength={24} value={f.tag} onChange={(e) => setF({ ...f, tag: e.target.value })} />
+      </div>
+      <div className="kbtn-row"><button className="btn" type="submit">Save note</button>{msg && <span className="note" role="status">{msg}</span>}</div>
+    </form>
+  );
+}
 const MOODS = ["Low", "Flat", "Okay", "Good", "Bright"];
 const idOf = (day: string) => "j" + day;
 
@@ -91,13 +117,16 @@ function Side({ day, e, put, part }: { day: string; e: Entry | undefined; put: (
         <label className="kform">After: what would you change?<textarea key={day + "c"} maxLength={1000} defaultValue={cur.change ?? ""} onBlur={(ev) => ev.target.value !== (cur.change ?? "") && put({ ...base, change: ev.target.value })} /></label>
       </Card>
       </>}
-      {part === "notes" && <Card title="Research notes" sub="attach one to this page">
-        {!notes.rows.length ? <EmptyState who="tilly">No saved research notes. Notes you saved before are listed here to attach; nothing new is saved from News any more.</EmptyState>
-          : notes.rows.slice(0, 20).map((n) => {
+      {part === "notes" && <Card title="Research notes" sub="write one, attach it to this page">
+        <NewNote onSave={(n) => notes.put(n as Partial<Note>)} />
+        {!notes.rows.length ? <EmptyState who="tilly">No research notes yet. Write your first one above.</EmptyState>
+          : [...notes.rows].sort((a, b) => b.up.localeCompare(a.up)).slice(0, 20).map((n) => {
             const on = (cur.notes ?? []).includes(n.id);
             return (
               <div className="krow" key={n.id}>
-                <span className="krow-main">{n.title || (n.text ?? "").slice(0, 60) || "Untitled note"} {n.kind === "macro" && <Chip>macro</Chip>}</span>
+                <span className="krow-main"><b>{n.title || (n.text ?? "").slice(0, 60) || "Untitled note"}</b> {n.kind === "macro" && <Chip>macro</Chip>}{(n.tags ?? []).map((t) => <Chip key={t}>#{t}</Chip>)}
+                  {n.title && n.text && <><br /><span className="note">{n.text.slice(0, 140)}</span></>}
+                  {n.url && <><br /><a href={n.url} target="_blank" rel="noreferrer">{n.url.replace(/^https?:\/\/(www\.)?/, "").split("/")[0]}</a></>}</span>
                 <Btn kind="sm ghost" aria-pressed={on} onClick={() => put({ ...base, notes: on ? cur.notes.filter((x) => x !== n.id) : [...(cur.notes ?? []), n.id] })}>{on ? "Attached ✓" : "Attach"}</Btn>
               </div>
             );

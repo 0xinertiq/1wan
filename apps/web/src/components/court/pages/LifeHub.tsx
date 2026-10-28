@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useCourt } from "../CourtState";
 import { LifeAdmin } from "../live/SettingsLive";
 import { MoneyLive } from "../live/MoneyLive";
+import { FinanceTracker } from "../live/FinanceTracker";
 import { Ladder, useTick } from "../live/GridWins";
 import { GridAndWins } from "./GridChart";
 
@@ -156,7 +157,8 @@ function Tasks() {
 
 /** Life admin and the Finance overview in one full-width card, side by side (stacked on the phone). */
 function AdminAndMoney() {
-  const [tab, setTab] = useState<"month" | "budgets" | "wins">("month");
+  const { st } = useCourt();
+  const [tab, setTab] = useState<"overview" | "spend" | "budgets">("overview");
   return (
     <Card title="Life admin and money" sub="Coco · bills, bookings, renewals and spending, manual only" className="kfull">
       <div className="ksplit">
@@ -166,8 +168,9 @@ function AdminAndMoney() {
         </div>
         <div className="ksplit-col">
           <div className="sec-h">Finance overview</div>
-          <TabPills label="Finance" value={tab} options={[["month", "This month"], ["budgets", "Budgets and CSV"], ["wins", "Money Wins"]] as const} onChange={setTab} />
-          {tab === "month" ? <MoneyLive /> : tab === "budgets" ? <Budgets /> : <MoneyWins />}
+          {/* round 9: Money Wins on top of the first tab, then the editable overview figures, cash flow and loans */}
+          <TabPills label="Finance" value={tab} options={[["overview", "Overview"], ["spend", "Log a spend"], ["budgets", "Budgets and CSV"]] as const} onChange={setTab} />
+          {tab === "overview" ? <><MoneyWins /><FinanceTracker d={st.defs.money} /></> : tab === "spend" ? <MoneyLive only="spend" /> : <Budgets />}
         </div>
       </div>
       <Callout tone="lav">Private to you. No bank link and no account numbers: everything here is typed or imported by you. Tracking only, not advice.</Callout>

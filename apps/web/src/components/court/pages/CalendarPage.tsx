@@ -48,8 +48,11 @@ export function CalendarPage({ main, econ }: { main: React.ReactNode; econ: Reac
   return (
     <div className="kpage">
       <PageHead scene="clock" room={<ClockRoom />} title="Calendar" sub="Your time and scheduling: events and the releases that move liquidity." />
-      {main}
-      <div id="econ-cal">{econ}</div>
+      {/* round 9: one stack, so both cards share the same width, edges and header line */}
+      <div className="kcal-stack">
+        {main}
+        <div id="econ-cal">{econ}</div>
+      </div>
     </div>
   );
 }

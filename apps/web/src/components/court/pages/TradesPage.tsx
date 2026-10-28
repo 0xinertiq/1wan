@@ -13,7 +13,7 @@ import { derive } from "../live/TradeLive";
 import { readSaved, writeSaved } from "@/lib/court/store";
 import { useVault, type VRow } from "@/lib/vault";
 import { dayStamp, inText, monthTitle, prettyDay, stamp, weekKey } from "@/lib/court/time";
-import { Bar, Btn, Card, Chip, EmptyState, PageHead, SectionLabel, StoreNote, Table, TabPills, confirmDelete } from "../ui";
+import { Bar, Btn, Card, Clamp, Chip, EmptyState, PageHead, SectionLabel, StoreNote, Table, TabPills, confirmDelete } from "../ui";
 
 // Trades (round 6): left, the live watchlist, Midday movers, the latest scan's details and the Macro desk; right,
 // the trade log, the position size calculator, performance stats and Tilly's long-term watchlist. Tracking only:
@@ -44,7 +44,7 @@ export function ScanDetails({ doc }: { doc: BriefDoc | null }) {
       {SECTIONS.map(([re, label]) => {
         const sec = parts.find((p) => re.test(p.split(/\r?\n/)[0]) && !/trade\s*plan/i.test(p.split(/\r?\n/)[0]));
         if (!sec) return null;
-        return <details key={label} className="klib-item" open={label === "Style Map"}><summary><b>{label}</b></summary><article className="read" dangerouslySetInnerHTML={{ __html: mdLite(sec.replace(/^##[^\n]*\n/, "")) }} /></details>;
+        return <details key={label} className="klib-item" open={label === "Style Map"}><summary><b>{label}</b></summary><Clamp label={label} lines={5}><article className="read" dangerouslySetInnerHTML={{ __html: mdLite(sec.replace(/^##[^\n]*\n/, "")) }} /></Clamp></details>;
       })}
       <p className="note xd">The morning scan itself is in Briefs on the Court. Tracking only, not advice.</p>
     </div>
@@ -216,8 +216,16 @@ export function sizeCheck(dir: "long" | "short", equity: number, riskPct: number
   if (target != null && target <= 0) return "Enter a target above zero, or leave it empty.";
   return null;
 }
+// Round 9: every field labelled with its meaning and a hint; no pre-filled numbers.
+export const SIZER_FIELDS = [
+  ["equity", "Account equity", "What the account holds now, e.g. 1000"],
+  ["risk", "Risk per trade %", "How much of the account one losing trade may cost, e.g. 1"],
+  ["entry", "Entry price", "The price you plan to buy (or sell short) at"],
+  ["stop", "Stop price", "Where you would get out if it goes wrong"],
+  ["target", "Target price (optional)", "Where you would take profit"],
+] as const;
 function Sizer() {
-  const [f, setF] = useState({ dir: "long" as "long" | "short", equity: "", risk: "1", entry: "", stop: "", target: "" });
+  const [f, setF] = useState({ dir: "long" as "long" | "short", equity: "", risk: "", entry: "", stop: "", target: "" });
   const [out, setOut] = useState<{ msg: string } | { size: number; risk: number; rr: number | null } | null>(null);
   useEffect(() => { const e = readSaved("calc.equity", isNum, 0); if (e) setF((x) => ({ ...x, equity: String(e) })); }, []);
   const set = (key: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => { setF({ ...f, [key]: e.target.value }); setOut(null); if (key === "equity" && +e.target.value > 0) writeSaved("calc.equity", +e.target.value); };
@@ -229,23 +237,21 @@ function Sizer() {
   };
   return (
     <Card title="Position size calculator" sub="calculator, not advice">
-      <form className="kform" aria-label="Position size" onSubmit={(e) => { e.preventDefault(); calc(); }}>
-        <div className="kform-row">
-          <select aria-label="Direction" value={f.dir} onChange={set("dir")}><option value="long">Long</option><option value="short">Short</option></select>
-          <input type="number" step="any" min="0" placeholder="Equity" aria-label="Equity" value={f.equity} onChange={set("equity")} />
-          <input type="number" step="any" min="0" placeholder="Risk %" aria-label="Risk percent" value={f.risk} onChange={set("risk")} />
-        </div>
-        <div className="kform-row">
-          <input type="number" step="any" placeholder="Entry" aria-label="Entry price" value={f.entry} onChange={set("entry")} />
-          <input type="number" step="any" placeholder="Stop" aria-label="Stop price" value={f.stop} onChange={set("stop")} />
-          <input type="number" step="any" placeholder="Target (optional)" aria-label="Target price" value={f.target} onChange={set("target")} />
-        </div>
-        <button className="btn" type="submit">Calculate</button>
+      <p className="note">Works out how many coins to buy so a stopped-out trade loses only the % you choose.</p>
+      <form className="kform ksizer" aria-label="Position size" onSubmit={(e) => { e.preventDefault(); calc(); }}>
+        <label className="kfield"><span className="kfield-l">Direction</span>
+          <select value={f.dir} onChange={set("dir")}><option value="long">Long (buy, stop below entry)</option><option value="short">Short (sell, stop above entry)</option></select></label>
+        {SIZER_FIELDS.map(([key, label, hint]) => (
+          <label className="kfield" key={key}><span className="kfield-l">{label}</span>
+            <input type="number" step="any" min="0" inputMode="decimal" placeholder={hint.startsWith("What") || hint.startsWith("How") ? hint.split(", ").pop() : ""} value={f[key]} onChange={set(key)} aria-describedby={"hint-" + key} />
+            <span className="note" id={"hint-" + key}>{hint}</span></label>
+        ))}
+        <div className="kbtn-row"><button className="btn" type="submit">Calculate</button></div>
       </form>
       <div className="kresult" role="status" aria-live="polite">
         {!out ? <p className="note">Fill in the boxes, then Calculate.</p>
           : "msg" in out ? <p className="kresult-msg">{out.msg}</p>
-          : <div className="kstat"><div><b>{fx(out.size, 4)}</b><span>size (units)</span></div><div><b>{fx(out.risk)}</b><span>risk amount</span></div><div><b>{out.rr != null ? fx(out.rr) + "R" : "–"}</b><span>R to target</span></div></div>}
+          : <div className="kstat"><div><b>{fx(out.size, 4)}</b><span>position size (coins)</span></div><div><b>{fx(out.risk)}</b><span>amount at risk</span></div><div><b>{out.rr != null ? "1 : " + fx(out.rr) : "–"}</b><span>risk : reward</span></div></div>}
       </div>
       <p className="note xd">Equity is remembered on this device only. A calculator, not advice.</p>
     </Card>
@@ -335,8 +341,8 @@ export function TradesPage({ movers, tech, scan, intel }: { movers: React.ReactN
   return (
     <div className="kpage">
       <PageHead scene="desk" title="Trades" sub="Your trades, the trading watchlist and the macro desk. Tracking only, never advice." />
-      <Card title="Midday movers and scan details" sub="Fenn" className="kfull">
-        {movers}
+      <Card title="Scan" sub="Fenn · midday movers, then the morning scan" className="kfull kscanc">
+        <Clamp label="Midday movers" lines={5}>{movers}</Clamp>
         <ScanDetails doc={scan} />
       </Card>
       <MacroDesk intel={intel} />

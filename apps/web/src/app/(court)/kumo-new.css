@@ -1162,3 +1162,51 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kweekly .samsara>div:has(>.filed-row){margin:0 0 var(--sp-2);padding:var(--sp-2) var(--sp-3);border:var(--bw) solid var(--k-hairline);border-radius:var(--r-control);background:var(--k-soft)}
 :root[data-ui="new"] .kcard .kmovers>.win-body{padding:0}
 @media (max-width:767px){:root[data-ui="new"] .kgarden-cards>:nth-child(3){order:-1}:root[data-ui="new"] .kgarden-cards>:first-child{order:-2}}
+
+/* ---------- Round 9 ---------- */
+/* Calendar: the Calendar and Economic calendar cards share one width and the same edges */
+:root[data-ui="new"] .kcal-stack{display:grid;gap:var(--sp-6);min-width:0}
+:root[data-ui="new"] .kcal-stack .tabcol{max-width:none;margin:0;width:100%}
+:root[data-ui="new"] .kcal-stack>*,:root[data-ui="new"] .kcal-stack .win{width:100%;margin:0;min-width:0}
+/* Dungeon: Research notes lines up with Your pages */
+:root[data-ui="new"] .kd-pages>.kcard{width:100%;margin:0}
+:root[data-ui="new"] .knote-form{padding-bottom:var(--sp-3);border-bottom:var(--bw) solid var(--k-hairline)}
+:root[data-ui="new"] .knote-form textarea{min-height:88px}
+/* Finance tracker */
+:root[data-ui="new"] .kfin{display:grid;gap:var(--sp-3)}
+:root[data-ui="new"] .kfin-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--sp-3)}
+:root[data-ui="new"] .kfin-tile{display:grid;gap:var(--sp-1);align-content:start;padding:var(--sp-3);border:var(--bw) solid var(--k-hairline);border-radius:var(--r-control);background:var(--k-soft)}
+:root[data-ui="new"] .kfin-tile b,:root[data-ui="new"] .kfin-tile .kreveal{font:700 var(--fs-h3)/1.2 var(--k-font-head);color:var(--k-text)}
+:root[data-ui="new"] .kfig{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--sp-1) var(--sp-3);padding:var(--sp-2) 0;border-bottom:var(--bw) solid var(--k-hairline)}
+:root[data-ui="new"] .kfig-v{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:var(--sp-2)}
+:root[data-ui="new"] .kfig-v input{max-width:140px}
+:root[data-ui="new"] .kfig-h{grid-column:1/-1}
+:root[data-ui="new"] .kfin-row{display:flex;justify-content:space-between;gap:var(--sp-3);padding:var(--sp-2) 0;border-bottom:var(--bw) solid var(--k-hairline)}
+:root[data-ui="new"] details.kfin-row{display:block}
+:root[data-ui="new"] details.kfin-row>summary{display:flex;justify-content:space-between;gap:var(--sp-3);cursor:pointer}
+:root[data-ui="new"] .kfin-left{border-bottom:0}
+:root[data-ui="new"] .kfin-month{display:flex;align-items:center;gap:var(--sp-2);font:700 var(--fs-ui)/1.3 var(--k-font-body)}
+:root[data-ui="new"] .kloan{display:grid;gap:var(--sp-2);padding:var(--sp-3);border:var(--bw) solid var(--k-hairline);border-radius:var(--r-control);background:var(--k-soft)}
+:root[data-ui="new"] .kloan-m{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:var(--sp-2)}
+:root[data-ui="new"] .kloan-m>span{display:grid}
+:root[data-ui="new"] .kfold>summary{cursor:pointer;padding:var(--sp-1) 0}
+/* hidden until hovered or focused; on touch, tap to show and tap again to hide */
+:root[data-ui="new"] .kreveal{padding:0;border:0;background:none;color:inherit;font:inherit;cursor:pointer;text-align:left}
+:root[data-ui="new"] .kreveal .kreveal-v{display:none}
+:root[data-ui="new"] .kreveal-h{color:var(--k-text-muted);font-style:italic}
+@media (hover:hover){:root[data-ui="new"] .kreveal:is(:hover,:focus-visible) .kreveal-v{display:inline}:root[data-ui="new"] .kreveal:is(:hover,:focus-visible) .kreveal-h{display:none}}
+:root[data-ui="new"] .kreveal.on .kreveal-v{display:inline}
+:root[data-ui="new"] .kreveal.on .kreveal-h{display:none}
+/* Trades: the Scan card, compact text and "Show more" */
+:root[data-ui="new"] .kscanc .win-body{gap:var(--sp-2)}
+:root[data-ui="new"] .kscanc :is(p,li,.read){line-height:1.35;margin-block:0}
+:root[data-ui="new"] .kscanc :is(ul,ol){margin-block:0}
+:root[data-ui="new"] .kscanc .klib-item{padding-block:var(--sp-1)}
+:root[data-ui="new"] .kclamp:not(.open) .kclamp-body{max-height:calc(var(--lines,5) * 1.4em + var(--sp-8));overflow:hidden;-webkit-mask-image:linear-gradient(to bottom,var(--k-white) 70%,transparent);mask-image:linear-gradient(to bottom,var(--k-white) 70%,transparent)}
+:root[data-ui="new"] .kclamp-btn{justify-self:start;margin-top:var(--sp-1)}
+:root[data-ui="new"] .kclamp{display:grid}
+/* position size calculator: a label and a hint for every field */
+:root[data-ui="new"] .ksizer{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--sp-3)}
+:root[data-ui="new"] .kfield{display:grid;gap:var(--sp-1);align-content:start}
+:root[data-ui="new"] .kfield-l{font:700 var(--fs-ui)/1.3 var(--k-font-body);color:var(--k-text)}
+:root[data-ui="new"] .ksizer .kbtn-row{grid-column:1/-1}

@@ -10,6 +10,7 @@ import { weekHab } from "@/lib/court/state";
 import { stageFor } from "@/components/kumo/kingdom";
 import { useUi } from "@/components/kumo/useUi";
 import { isAutoPaid } from "./TodayLive";
+import { foldDone, isPaidNow } from "@/lib/court/finance";
 
 // Header numbers (streak, stars) from her state.
 export function HeaderStats() {
@@ -150,7 +151,9 @@ export function LifeAdmin() {
     <>
         <p className="note xd">Coco keeps bills, care and renewals. Momo slots them into free time.</p>
         <div id="lifeList">
-          {st.life.length ? st.life.map((it) => (
+          {/* round 9 (New look): paid and auto-paid items fold under "Show paid (n)"; nothing is removed */}
+          {(() => {
+            const row = (it: (typeof st.life)[number]) => (
             <div className="filed-row" key={it.id}>
               <span>{it.name}{it.amt != null && <> <span className="note">{money(it.amt)}</span></>} <span className="note">{LCATS[it.cat] ?? it.cat} · {ruleText(it.rule)}{it.lead ? ` · remind ${it.lead}d ahead` : ""}{it.sched && it.sched >= k ? ` · booked ${prettyDay(it.sched)}` : ""}</span></span>
               <span className="rep-act">
@@ -162,7 +165,12 @@ export function LifeAdmin() {
                 <button className="btn sm ghost" type="button" onClick={() => update((d) => { d.life = d.life.filter((i) => i.id !== it.id); }, ["life"])}>Remove</button>
               </span>
             </div>
-          )) : <p className="note">Nothing on the list.</p>}
+);
+            if (!st.life.length) return <p className="note">Nothing on the list.</p>;
+            if (ui !== "new") return st.life.map(row);
+            const { open, done } = foldDone(st.life, (it) => isPaidNow(it, isAutoPaid(it), k));
+            return <>{open.length ? open.map(row) : <p className="note">Everything is paid for now.</p>}{done.length > 0 && <details className="kfold"><summary className="note">Show paid ({done.length})</summary>{done.map(row)}</details>}</>;
+          })()}
         </div>
         <form className="field" id="lifeForm" onSubmit={add}>
           <label htmlFor="lfName">Add an item</label>

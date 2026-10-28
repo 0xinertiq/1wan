@@ -446,3 +446,51 @@ After the fix round:
 - 148 tests pass.
 - All 56 browser runs are clean.
 - The build passes.
+
+## Round 9: fixes, editable finance, research note input (on preview)
+
+Nothing protected was edited, no records are deleted, and no new migration was needed: `finance_entries` is already in migration 0006, which is written but not applied, with user_id and owner-only RLS. Until the tables are switched on, finance records are kept in Preview storage on this device. Export my data already includes the table.
+
+### By tab
+- **Calendar:** the Calendar and Economic calendar cards share one stack (`.kcal-stack`). The old 900px centred column no longer narrows the Calendar card, so both have the same width, edges and header line.
+- **Dungeon:**
+  - Research notes line up with Your pages.
+  - A New note form (title, text, optional link, optional tag) saves to research_notes as kind "note".
+  - Notes list newest first under the form and can be attached to the page as before. The empty-state text is updated.
+- **Life Hub, Finance overview:** the tabs are Overview, Log a spend, and Budgets and CSV.
+  - Overview shows the Money Wins ladder first, then the editable tracker:
+    - Overview tiles. Net worth reads "hidden" until hovered or focused; on touch, tap to show and tap again to hide.
+    - Figures with Edit, Undo and a 5-line history: emergency fund, free SGD, sinking fund balances, net worth parts.
+    - Monthly cash flow with a month picker: Income in − Fixed bills − Sinking funds − Logged spending = Left over.
+      - Income is typed once per month; the import is the starting value.
+      - Fixed bills are pulled from Life admin bills with an amount, counted once per hit in the month.
+      - Sinking funds are the monthly set-asides from the import.
+      - Logged spending is totalled by category.
+      - "Left over with the coming changes" is one muted line.
+    - Loans owed to me: lent, a repayments list, written off, still expected. Net worth counts only the still-expected part.
+  - The Show net worth button is gone from the New look.
+- **Life Hub, folding done items** (New look):
+  - A fully ticked Weekly targets milestone group folds under "Show done (n)", and ticked milestones sort to the bottom of an open group.
+  - Life admin items that are auto-paid, a one-off paid, or paid this month fold under "Show paid (n)".
+  - Nothing is removed; ticks and ids are unchanged.
+- **Trades:**
+  - The card is renamed "Scan".
+  - Midday movers and each scan section show their first lines with "Show more", with tighter spacing.
+  - The calculator has a one-line explainer, a label and hint on every field, empty fields instead of a pre-filled "1", Calculate, and a result box (position size, amount at risk, risk : reward).
+- **News:** Today's briefing groups headlines by meaning:
+  - case and punctuation are normalised;
+  - coin and Fed aliases are folded, and entities and numbers compared (60K = $60,000);
+  - word overlap and trigram similarity are added.
+  - The best-scored headline stays, and the others show as "also reported by".
+
+### Decisions made
+1. Balances stay where they always lived (user_state `money`: t, f, nw), so the Money Wins auto rules and the Sunday reset keep working. Loans, monthly income and the edit history live in `finance_entries` as new kinds (`loan`, `income`, `edit`). No new user_state key.
+2. Anything that looks like an account or card number (8 or more digits) is masked as ••• in finance records.
+3. The imported "loans back received" figures are shown as one muted line under Loans, so they are not counted twice. Enter a loan to track it fully.
+4. If a net worth part from the import already counts the S$9,000 loan, set that part to 0 after adding the loan, so it is not counted twice.
+
+### Checks
+- Typecheck is clean.
+- 157 tests pass, including 9 new ones in tests/round9.test.mjs.
+- All 56 browser runs are clean.
+- The build passes, with only the existing Supabase warning.

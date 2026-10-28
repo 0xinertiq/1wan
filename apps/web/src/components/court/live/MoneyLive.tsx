@@ -18,7 +18,8 @@ const sgtDay = (iso: string) => sgtKeyOf(iso);
 type ListKey = "inc" | "fixed";
 type TickKey = "goals" | "open";
 
-export function MoneyLive() {
+// only="spend" (round 9, Life Hub): just Log a spend and this month's lines; the figures live in the finance tracker.
+export function MoneyLive({ only }: { only?: "spend" } = {}) {
   const { st, k, update, events } = useCourt();
   const m = st.mny;
   const month = k.slice(0, 7);
@@ -113,7 +114,7 @@ export function MoneyLive() {
         </>
       )}
 
-      {st.defs.money ? <MoneyPorted d={st.defs.money} loggedToday={loggedToday} /> : <>
+      {only === "spend" ? null : st.defs.money ? <MoneyPorted d={st.defs.money} loggedToday={loggedToday} /> : <>
       <div className="sec-h">Cash flow, {month}</div>
       <p className="note xd">Money in, minus fixed costs, minus what you logged this month.</p>
       <div className="filed-row"><span>Money in per month</span><span>{money(inc)}</span></div>

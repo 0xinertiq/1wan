@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import { PixelSprite, type SpriteName } from "@/components/PixelSprite";
 import { FoxSvg } from "@/components/kumo/Fox";
 import { Scene } from "@/components/kumo/decor/Scene";
@@ -97,3 +97,14 @@ export const Bar = ({ v, max, label, tone = "accent" }: { v: number; max: number
 
 /** Confirm before anything that deletes. */
 export const confirmDelete = (what: string) => typeof window === "undefined" || window.confirm(`Delete ${what}? This cannot be undone.`);
+
+/** Round 9: show the first few lines of a long block, with "Show more" (the full text stays one tap away). */
+export function Clamp({ children, lines = 5, label }: { children: React.ReactNode; lines?: number; label: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={"kclamp" + (open ? " open" : "")} style={{ "--lines": lines } as React.CSSProperties}>
+      <div className="kclamp-body">{children}</div>
+      <button type="button" className="btn sm ghost kclamp-btn" aria-expanded={open} aria-label={`${open ? "Show less" : "Show more"}: ${label}`} onClick={() => setOpen(!open)}>{open ? "Show less" : "Show more"}</button>
+    </div>
+  );
+}
