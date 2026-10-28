@@ -300,3 +300,52 @@ Fixed:
 - CSV import handles quoted commas.
 Kept as is: "Astrology gives timing, not outcomes." on the chart (addendum 1 asks to keep it). The new size calculator uses its own equity box, not the ledger's account setting (the ledger sizer is still in the ledger section).
 After the fixes: typecheck, build, 133 tests and 58 browser runs clean.
+
+## Round 7: layout cleanup, rooms pilot, alert pop-ups (on preview)
+
+Branch `kumo/aesthetic-overhaul`, preview only. Nothing protected was edited: auth, existing RLS and migrations, middleware, /api/ingest and /api/export, calendar fetching, scheduled tasks, XP, stars, streak and tails logic, PixelSprite.tsx, spriteDefs.ts, env vars. No user data is deleted: hidden cards keep their records.
+
+### Where moved features live now
+- Momo's day (Calendar) → only "Ideas for your free time", on the Court's Today card.
+- Watchlist card → gone; prices live in the Technicals rows and on the Court (price feed unchanged).
+- Ledger review, plans, rules and gamble log → hidden; records and the late-night flag logic kept.
+- Watchlist scan and Midday movers tabs (News) → Trades only.
+- Kumo's weekly review and the packet → one card in Settings (#review-card); the Court's unread review card is retired so it has one home.
+- Saved and research strip → retired from News; notes stay in research_notes, the Dungeon's attach list and Export my data.
+- Goals card → retired; goals stay in the goals table and Export my data.
+- Notifications tab, bell and Settings card → alert pop-ups on the agents; stored choices kept in prefs.notif (an explicit "off" still mutes a rule).
+
+### Decisions made
+1. Buttons: one shared `.btn` (transparent pink: translucent fill, 1.5px pink border, plum text). At night the text is the night ink, not plum, so it stays readable. Selected segmented tabs and mini-month days use the same transparent style.
+2. Banners: the scene is drawn with "meet" (never cropped) inside a 5:1 box (4:1 on the phone); the sky and the hill run past the scene's edges so a wider box shows more sky and grass, never empty bars.
+3. Pilot room: the Calendar's clock tower interior, a 400 x 60 pixel strip (new files `decor/rooms.ts`, `decor/ClockRoom.tsx`), with the real Singapore time on the big clock, a swinging pendulum (off under reduced motion), and Momo by her desk (the existing sprite, reused, not edited). Drag with the mouse, swipe on touch, arrow buttons or keyboard. The other tabs keep their fixed banners until you approve.
+4. "More" stays: on phone and tablet it opens a sheet with Garden, Trades, News, Settings and Kingdom Mode (the tabs that do not fit the bottom bar). On desktop it is hidden because the rail lists every tab.
+5. Aligned grids: two-column pages stretch both columns to the row and the last card in each column grows, so the columns finish evenly.
+6. Calendar astro rule: isAstro is unchanged; the Calendar also uses a new isSkyItem (feed names like Luna or moon, and sky phrasing such as "Full Moon", "retrograde", "Venus trine Jupiter"). Single words like "Cancer" or "Mars" never hide a real event.
+7. Garden: tree stage and petals come from this week's quests, anchor ticks and her own habits together. Her habits appear in Quests ("Your habits today") and as one derived phase at the end of the Wins ladder ("Your habits", won once ticked this week). Nothing is stored twice; ticking anywhere writes the same hab.log entry; Small Wins ids and ticks are untouched; no XP from her habits. Kumo's pick moved inside the Quests card.
+8. Dungeon: Your pages | Today's page | Weekly look-back then the side cards; on a tablet the page sits left and the two others stack right. The top-right look-back bubble was removed (the card is in view).
+9. Life Hub: Grid & Wins' Chart | Weekly targets control sits in the card's title bar; the view switch below is "Grid | List".
+10. Trades: Calculator | Performance stats share a row (in that order), after the Trade log. The chart button and its drawing code are gone; her saved chart lines stay in her state. The "30-day low to high" caption is on the Watchlist range column, which no page shows now, so no range column remains anywhere.
+11. News: headlines follow her lenses on the News tab only (the Court keeps every topic); a new Tech topic is read from story titles on world and markets feeds. The Briefs card shows Intel for a news or markets lens and Pulse for Tech or Markets.
+12. Alerts: Momo's morning summary (05:00 to 11:59) speaks for new briefs; Pip announces each brief after that; Olli: big releases within 48 hours; Coco: tasks, routines and life admin due today or overdue; Momo: habit reminder from 17:00; Kumo: bookings within two hours from Needs you now (the others are covered by Coco) and, on Sundays, the weekly review. Dismiss hides an alert for good; Later hides it for three hours. Kept on this device. Kumo joins the Court roster so his "!" has a place.
+13. The fox is called 9-Tails in the tour, the Kingdom catalogue and the fox's own card.
+
+### NEEDS OWNER APPROVAL
+- New optional user_state key `lenses` (with tests). Diff in `apps/web/src/lib/court/state.ts`:
+  ```
+  + export const LENS_IDS = ["crypto", "macro", "markets", "world", "local", "tech", "any", "off"] as const;
+  + export type LensId = (typeof LENS_IDS)[number];
+    CourtState: + lenses: LensId[];
+    OWNED_KEYS: ..., "prefs", "hab", "gridDefs", + "lenses"
+  + export function normLenses(v, old) { known ids once each; "off" or "any" alone; empty → from her old prefs.lens (trading → crypto, macro, markets) }
+    normalize: + lenses: normLenses(r.lenses, r.prefs?.lens),
+  ```
+- The other rooms (Court, Life Hub, Garden, Dungeon, Trades, News, Settings) as wide rooms like the clock tower. Waiting for your verdict on the pilot.
+- Still open from round 6: applying migration 0006 and the read-only feedback endpoint.
+
+### Checks
+Typecheck clean; 140 unit and render tests pass (8 new in tests/round7.test.mjs); headless-browser runs clean, now also failing on any button with a solid pink fill; `next build` passes with only the existing Supabase realtime warning.
+
+### Not checked
+No screenshots (as asked). The room's drag and swipe were checked in code and by the browser runs, not by hand on a phone.
+

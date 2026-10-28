@@ -2,33 +2,37 @@
 
 Consolidated on 28 Oct 2026 from every Court prompt (R1 to round 5). This file is the single source; earlier prompts are superseded, and the contradictions between them, with the rule that won, are listed in PROGRESS.md. From now on changes are small edits here. Classic (the v52 look, one click in Settings) is out of scope and stays as it is.
 
-## Where everything lives (round 6 placement map, with addenda 1 and 2; one canonical home per item)
+## Where everything lives (round 7 placement map; one canonical home per item)
 
-Tab roles: Court = overview (the Castle). Calendar (the Clock Tower) = time and scheduling. Life Hub = long-term planning and life management. Garden (Sakura Garden) = habits and growth. Dungeon = reflection (private journal). Trades = her trades, the trading watchlist and the macro desk. News = headlines, brief history and saved research. More = Notifications, Settings, Kingdom Mode, the welcome tour. There is no Observatory: #observatory redirects to the Court and the world's observatory scrolls to Luna's card. Phone bar: Home, Calendar, Hub, Diary (the Dungeon), More.
+Tab roles: Court = overview (the Castle). Calendar (the Clock Tower) = time and scheduling. Life Hub = long-term planning and life management. Garden (Sakura Garden) = habits and growth. Dungeon = reflection (private journal). Trades = her trades, the trading watchlist and the macro desk. News = headlines and briefs. Settings = look, lenses, Kumo's weekly review and packet, data, account. There is no Observatory and no Notifications tab: #observatory, #inbox and #notifications open the Court. Phone bar: Home, Calendar, Hub, Diary (the Dungeon), More. More (phone and tablet only) opens a sheet with the tabs that do not fit: Garden, Trades, News, Settings, Kingdom Mode.
 
 | Item | Home | Elsewhere (summary or link only) |
 |---|---|---|
-| Today's briefs (Pulse, Intelligence, Crypto scan) | Court, Briefs card | News: brief history |
-| Brief history, Kumo's reviews, the weekly review packet (preview, sensitive toggles off, Copy for Claude) | News | Court: unread review card; News dot; header and fox card link to News |
-| Headlines, topic chips, Telegram posts | News | |
-| Saved and research (market-tagged notes, follows the market lens, hidden when off) | News | Dungeon lists every note and attaches one to a page |
-| Live watchlist with technicals (plain words, EMA chart, lines) | Trades | Court prices strip |
+| Today's briefs (Pulse, Intelligence, Crypto scan) | Court, Briefs card | News: Briefs card (Intel, Pulse history, following her lenses) |
+| Kumo's weekly review and the weekly review packet (preview, sensitive toggles off, Copy for Claude) | Settings, one card (#review-card) | Kumo's Sunday alert; header packet button and fox card link there; Settings dot while unread |
+| Headlines, topic chips, Telegram posts | News (follow her lenses) | |
+| Saved research notes | no page (retired from News, round 7); records kept | Dungeon lists every note and attaches one to a page; Export my data |
+| Technicals (plain words and EMA lines; no chart button) | Trades | Court prices strip |
 | Midday movers, scan details (Style Map, Trade Plan with Log this trade, also on watch, alerts, thesis log, catalysts) | Trades | Court Crypto scan tab: snapshot, Movers, Strongest now |
-| Trade log, position size calculator, performance stats, ledger review (stop and ATR flags), plans, rules, gamble and late-night ledger | Trades | |
+| Trade log, position size calculator, performance stats | Trades | |
+| Ledger review, plans, rules, gamble and late-night ledger | hidden (round 7); records and the late-night flag logic kept | |
 | Macro desk (Olli): next releases summary, rates and yields, week notes | Trades | Calendar is the home of releases |
 | Long-term watchlist (Tilly) | Trades | |
-| Calendar events (Day, Week, Month, Agenda), economic calendar, Momo's day, My tasks, mini month, Upcoming | Calendar | Court: Needs you now, Today, Week tab (opens ?day=), the Next: line |
-| Astrology (astro feed, moon, transits) | Court only: Luna's card and the Week tab's Moon sign and tone | never on the Calendar |
-| Grid & Wins: Harada 9x9 chart, Weekly targets (study hours, thesis entries, posts, replies; Samsara milestones) | Life Hub, top | Goals card: main goal and progress with a link; Garden look-back links to Weekly targets |
-| Goals with milestones, Life admin (Auto-paid, Important), pets and self-care routines, Finance overview (this month, budgets and CSV, Money Wins ladder) | Life Hub | Court Needs you now within 3 days |
-| Habits: quests, daily anchors, branches, Wins ladder (Small Wins), her own habits, This week | Garden | Today stat strip: counts only |
+| Calendar events (Day, Week, Month, Agenda), economic calendar, My tasks, Month at a glance, Upcoming | Calendar | Court: Needs you now, Today, Week tab (opens ?day=), the Next: line |
+| Momo's ideas for your free time | Court, Today card | |
+| Astrology (astro feed, moon, transits) | Court only: Luna's card and the Week tab's Moon sign and tone | never on the Calendar (isAstro plus the Calendar-only isSkyItem) |
+| Grid & Wins: Harada 9x9 chart, Weekly targets | Life Hub, top | Garden look-back links to Weekly targets |
+| Life admin (Auto-paid, Important) and the Finance overview (this month, budgets and CSV, Money Wins ladder) | Life Hub, one full-width card | Court Needs you now within 3 days |
+| Routine (pets and self-care routines) | Life Hub | |
+| Goals with milestones | no page (retired, round 7: progress is in Grid & Wins); records kept | Export my data |
+| Habits: quests, daily anchors, branches, Wins ladder (Small Wins plus her habits), My habits (the one place to add habits) | Garden | Today stat strip: counts only |
 | Journal pages, mood, tags, trade reflections, Count your wins, the one weekly look-back | Dungeon (private) | |
-| Look, day or night, market lens, connections, Telegram channels, Export my data, usage, notification choices, tour, sign out | Settings | |
-| Alerts | Bell and Notifications inbox | |
+| Look, day or night, market lens (several), rooms, connections, Telegram channels, Export my data, usage, tour, sign out | Settings | |
+| Alerts | pixel "!" on the agent: Court roster (Kumo, Pip, Olli, Coco, Momo) and Momo in the Calendar room | |
 | Kingdom preview (catalogue states, no purchases) | Kingdom Mode | |
-| Focus sprint, quote, fox and tails, prices, Luna's card, Park a thought | Court (unchanged) | |
+| Focus sprint, quote, 9-Tails and tails, prices, Luna's card, Park a thought | Court (unchanged) | |
 
-Retired: the Observatory page and Luna's 7-day sky view; the Life sub-tabs Money, Trade, Grid & Wins and Samsara (data unchanged, now in their homes above). Classic keeps the v52 layout.
+Retired: the Observatory page and Luna's 7-day sky view; the Life sub-tabs Money, Trade, Grid & Wins and Samsara (data unchanged, now in their homes above); the Notifications tab and bell (round 7). Classic keeps the v52 layout.
 
 ## Global rules
 - One canonical home per item; other places show a summary and link. The app tracks, never advises. No Bigdata wording in the UI: every brief, review, desk note and sources line is shown through one display scrubber (lib/noBigdata.ts); stored data and the ingest / export routes are untouched. Protected paths and the tails, XP, stars and streak logic are never changed.

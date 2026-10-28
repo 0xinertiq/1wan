@@ -1,6 +1,7 @@
 // Browser check (npm run test:browser): starts the local harness and opens the real Court in headless Chrome with
 // empty, partial, broken, old-format, rain and full data; client-only and server-rendered then hydrated; day and
-// night; desktop and phone; and with old or broken values saved in the browser. Fails on any console error or
+// night; desktop and phone; and with old or broken values saved in the browser. Fails on any console error,
+// any button with a solid pink fill (round 7), or
 // uncaught exception. Needs Chrome (CHROME env or the default Windows path) and network access for React from
 // esm.sh. Optional local real-data files: HARNESS_REAL, HARNESS_REALAPI, HARNESS_REALUSER (never committed).
 import { spawn, execFileSync } from "node:child_process";
