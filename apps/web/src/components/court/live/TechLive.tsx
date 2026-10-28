@@ -66,28 +66,30 @@ function Chart({ sym, tf }: { sym: string; tf: string }) {
     import("lightweight-charts").then(({ createChart, LineStyle }) => {
       if (!alive || !box.current) return;
       const css = getComputedStyle(document.documentElement);
-      const ink = css.getPropertyValue("--ink").trim() || "#4a2538";
-      chart = createChart(box.current, { height: 300, layout: { background: { color: "transparent" }, textColor: ink }, grid: { vertLines: { visible: false }, horzLines: { color: "rgba(127,127,127,.15)" } }, timeScale: { timeVisible: tf !== "1d" } });
+      // Colours come from the tokens (kumo-tokens.css, chart colours).
+      const tok = (n: string) => css.getPropertyValue(n).trim();
+      const ink = tok("--ink") || tok("--k-chart-ink");
+      chart = createChart(box.current, { height: 300, layout: { background: { color: "transparent" }, textColor: ink }, grid: { vertLines: { visible: false }, horzLines: { color: tok("--k-chart-grid") } }, timeScale: { timeVisible: tf !== "1d" } });
       const cs = data.candles!, T = (t: number) => (Math.floor(t / 1000) + 8 * 3600) as import("lightweight-charts").UTCTimestamp;
-      const s = chart.addCandlestickSeries({ upColor: "#7cc49d", downColor: "#e58fb0", borderVisible: false, wickUpColor: "#7cc49d", wickDownColor: "#e58fb0" });
+      const s = chart.addCandlestickSeries({ upColor: tok("--k-chart-up"), downColor: tok("--k-chart-down"), borderVisible: false, wickUpColor: tok("--k-chart-up"), wickDownColor: tok("--k-chart-down") });
       s.setData(cs.map((c) => ({ time: T(c.t), open: c.o, high: c.h, low: c.l, close: c.c })));
-      const vol = chart.addHistogramSeries({ priceScaleId: "vol", color: "rgba(201,182,255,.5)", priceFormat: { type: "volume" } });
+      const vol = chart.addHistogramSeries({ priceScaleId: "vol", color: tok("--k-chart-vol"), priceFormat: { type: "volume" } });
       chart.priceScale("vol").applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
       vol.setData(cs.map((c) => ({ time: T(c.t), value: c.v })));
       const closes = cs.map((c) => c.c);
-      for (const [n, col] of [[50, "#c99a2e"], [200, "#4a2538"]] as const) {
+      for (const [n, col] of [[50, tok("--k-chart-ma50")], [200, tok("--k-chart-ma200")]] as const) {
         const e = ema(closes, n);
         chart.addLineSeries({ color: col, lineWidth: 1, priceLineVisible: false, lastValueVisible: false }).setData(cs.map((c, i) => (e[i] == null ? null : { time: T(c.t), value: e[i]! })).filter(Boolean) as { time: import("lightweight-charts").UTCTimestamp; value: number }[]);
       }
       // Auto lines, from the first swing point to the last candle.
       for (const l of data.snap?.lines ?? []) {
         const pts = [{ time: T(cs[l.from.i].t), value: l.icpt + l.slope * l.from.i }, { time: T(cs[cs.length - 1].t), value: l.icpt + l.slope * (cs.length - 1) }];
-        chart.addLineSeries({ color: l.broken ? "#999" : "#8a6fd1", lineWidth: 2, lineStyle: LineStyle.Dashed, priceLineVisible: false, lastValueVisible: false }).setData(pts);
+        chart.addLineSeries({ color: l.broken ? tok("--k-chart-off") : tok("--k-chart-line"), lineWidth: 2, lineStyle: LineStyle.Dashed, priceLineVisible: false, lastValueVisible: false }).setData(pts);
       }
       // Her own levels and lines.
       for (const l of mine) {
-        if (l.kind === "level") s.createPriceLine({ price: l.p1.p, color: "#c99a2e", lineWidth: 2, lineStyle: LineStyle.Solid, axisLabelVisible: true, title: l.label || "my level" });
-        else if (l.p2) chart.addLineSeries({ color: "#c99a2e", lineWidth: 2, priceLineVisible: false, lastValueVisible: false }).setData([{ time: T(Math.min(l.p1.t, l.p2.t)), value: l.p1.t < l.p2.t ? l.p1.p : l.p2.p }, { time: T(Math.max(l.p1.t, l.p2.t)), value: l.p1.t < l.p2.t ? l.p2.p : l.p1.p }]);
+        if (l.kind === "level") s.createPriceLine({ price: l.p1.p, color: tok("--k-chart-ma50"), lineWidth: 2, lineStyle: LineStyle.Solid, axisLabelVisible: true, title: l.label || "my level" });
+        else if (l.p2) chart.addLineSeries({ color: tok("--k-chart-ma50"), lineWidth: 2, priceLineVisible: false, lastValueVisible: false }).setData([{ time: T(Math.min(l.p1.t, l.p2.t)), value: l.p1.t < l.p2.t ? l.p1.p : l.p2.p }, { time: T(Math.max(l.p1.t, l.p2.t)), value: l.p1.t < l.p2.t ? l.p2.p : l.p1.p }]);
       }
       chart.timeScale().fitContent();
       chart.subscribeClick((pt) => {

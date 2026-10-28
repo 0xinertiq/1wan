@@ -16,7 +16,7 @@ type View = "agenda" | "week" | "month";
 type Layer = "sky";
 type Item = { t: string; color: string; a: number; b: number; allDay: boolean; layer?: Layer; cal?: string; desc?: string };
 const LAYERS: [Layer, string][] = [["sky", "Luna's sky"]];
-const LCOL: Record<Layer, string> = { sky: "#c9b6ff" };
+const LCOL: Record<Layer, string> = { sky: "var(--k-lav-300)" };
 
 function gaps(items: Item[]) {
   const busy = items.filter((e) => !e.allDay && !e.layer && !(e.cal && isAstro({ cal: e.cal }))).map((e) => [Math.max(540, e.a), Math.min(1260, e.b)]).filter(([a, b]) => b > a).sort((x, y) => x[0] - y[0]);

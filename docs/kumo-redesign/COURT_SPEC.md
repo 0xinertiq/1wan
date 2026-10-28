@@ -169,3 +169,14 @@ The spec text proposed Inter for body; the owner overrode it:
 - Needs you now: crew icon beside left-aligned text; bold name, then time in SGT, "in n min" and impact, then Forecast and Previous per release (only fields that exist); releases at the same time grouped in one card with one Seen.
 - Briefs: one reading layout (17/1.65 body, Playfair 20 titles with an accent bar); the callout panel is cream by day and deep plum (#2A2340) at night with #ECE8F5 text.
 - Garden (New look): scene, tree and summary left (sticky), Daily anchors | Branches | Quests right; tails live with the fox.
+
+## Part 10: Round 6 (overrides earlier parts where they differ)
+- World framing: the whole island (spires, towers, labels and the rock underside) fits inside the scene with a small even margin; the scale is the largest that fits, so the island fills the width snugly. Supersedes the "zoomed, cropped" framing of Part 9.
+- Crew about 15% of the scene height (20% on the phone strip), standing on the ground in front of the buildings; Kumo on his cloud at about three quarters of that; the fox about 10%.
+- Quote bubble: clear glass cloud (cream about 40% by day, lavender about 45% at night, by the scene's time), backdrop blur, 1px plum outline, small tail to Kumo; colours from tokens.
+- Fox: a gentle hop every 16 seconds, 1.8 seconds per hop.
+- Briefs: content spans the full card width. Top 5 = the five items of "## Top 5 headlines", each a numbered item with the bold headline, one why line and the sources as link chips only. The same item layout is used for every block of a brief in News.
+- Luna: "The day leans toward" (lavender tint) and "Be gentle with" (sakura tint) as two side-by-side blocks; "Today in your chart" below them, small and quiet.
+- Links: one colour everywhere, deep sakura (#C2185B day, #FF9FCB night), underlined, same hover and visited. Focus ring, selection, form accents and scrollbars use the sakura and plum tokens; no blue.
+- Kumo's weekly review: on the Court only while unread ("New weekly review", Mark as read); then only in News, with a dot on News for the next new one. Read state per device.
+- Design tokens: `apps/web/src/app/(court)/kumo-tokens.css` is the one source for colours (day and night), spacing (4/8/12/16/24/32/48), radii, borders, shadows, type, link and focus. One card, row, chip, button, input and heading style. `tests/tokens.test.mjs` fails on raw colours or off-scale spacing in the New look.

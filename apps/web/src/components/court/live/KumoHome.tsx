@@ -137,14 +137,16 @@ function LunaCard() {
           </div>
           <p>{TONEMSG[w.tone]} The Moon is {w.mood}.</p>
           {ing && <p className="kluna-sm">Moon moves into {ing.s} {ing.day === k ? "" : `on ${prettyDay(ing.day)} `}at {ing.t} SGT.</p>}
-          {w.items.length > 0 && <>
-            <h3 className="kluna-h">Today in your chart</h3>
-            <ul className="kluna-l">{w.items.slice(0, 3).map((e, i) => <li key={i}>{explain(e)} <span className="kluna-sm">{e.back ? `(in orb, ${e.o}°)` : `(${e.t} SGT)`}</span></li>)}</ul>
-          </>}
           <div className="kluna-two">
-            <div><h3 className="kluna-h">The day leans toward</h3><p>{w.lean.join(", ")}.</p></div>
-            <div><h3 className="kluna-h">Be gentle with</h3><p>{w.ease.join(", ")}.</p></div>
+            <div className="kluna-blk lean"><b>The day leans toward</b><p>{w.lean.join(", ")}.</p></div>
+            <div className="kluna-blk ease"><b>Be gentle with</b><p>{w.ease.join(", ")}.</p></div>
           </div>
+          {w.items.length > 0 && (
+            <div className="kluna-chart">
+              <span className="kluna-chart-h">Today in your chart</span>
+              <ul>{w.items.slice(0, 3).map((e, i) => <li key={i}>{explain(e)} <span>{e.back ? `(in orb, ${e.o}°)` : `(${e.t} SGT)`}</span></li>)}</ul>
+            </div>
+          )}
           {w.merc && <p className="kluna-call">{w.merc}</p>}
           <h3 className="kluna-h">Self-care for today</h3>
           <ul className="kluna-l">{w.care.slice(0, 5).map((x) => <li key={x}>{x}</li>)}</ul>

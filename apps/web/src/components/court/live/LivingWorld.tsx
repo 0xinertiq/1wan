@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { PixelSprite, type SpriteName } from "@/components/PixelSprite";
 import { CREW_AT, stageFor } from "@/components/kumo/kingdom";
-import { geometry, makeWorld, phaseAt, weatherFrom } from "@/components/kumo/world/draw";
+import { FIT_H, FIT_W, geometry, makeWorld, phaseAt, weatherFrom } from "@/components/kumo/world/draw";
 import type { BriefKind } from "@/lib/briefKinds";
 import { crewDuty } from "@/lib/court/duty";
 import type { WaterEvt } from "@/lib/court/garden";
@@ -37,11 +37,12 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
   useEffect(() => { fetch("/api/weather").then((r) => r.json()).then(setWx).catch(() => setWx({ now: null })); }, []);
   useEffect(() => { getOnce<{ events?: WaterEvt[] }>("/api/water?days=1").then((j) => setWater(Array.isArray(j.events) ? j.events : [])).catch(() => {}); }, []);
 
-  // Zoomed camera: the scale (in half steps, at least 2 on desktop and tablet, 1 on the phone strip) is chosen so
-  // the island fills about 85-90% of the width; the sky above and the rock below are cropped.
+  // Snug framing: the scale is the largest that fits the whole island (FIT_W x FIT_H, spires and underside
+  // included) inside the box, so nothing is cut off and the island fills the width. Crew are about 15% of the
+  // scene height (20% on the phone strip) so they read in front of the buildings.
   useEffect(() => {
     const el = box.current; if (!el) return;
-    const ro = new ResizeObserver(() => { const w = el.clientWidth, h = el.clientHeight, s = h >= 280 ? Math.max(2, Math.round((w / 410) * 2) / 2) : 1; setSize({ W: Math.ceil(w / s), H: Math.floor(h / s), s, px: Math.round(h * (s > 1 ? 0.09 : 0.15)) }); });
+    const ro = new ResizeObserver(() => { const w = el.clientWidth, h = el.clientHeight, s = Math.min(w / FIT_W, h / FIT_H); setSize({ W: Math.ceil(w / s), H: Math.floor(h / s), s, px: Math.round(h * (h >= 280 ? 0.15 : 0.2)) }); });
     ro.observe(el); return () => ro.disconnect();
   }, []);
 
@@ -57,12 +58,17 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
 
   useEffect(() => {
     const cv = cvRef.current; if (!cv || !world || !size) return;
-    cv.width = size.W; cv.height = size.H;
-    const c = cv.getContext("2d")!;
+    // The world is drawn at its logical size, blown up by a whole number nearest-neighbour (crisp, even pixels),
+    // and the browser then fits that to the exact (fractional) scale.
+    const N = Math.max(1, Math.ceil(size.s));
+    cv.width = size.W * N; cv.height = size.H * N;
+    const lc = document.createElement("canvas"); lc.width = size.W; lc.height = size.H;
+    const l = lc.getContext("2d")!, c = cv.getContext("2d")!;
+    const paint = (t: number) => { world.draw(l, t, new Date()); c.imageSmoothingEnabled = false; c.drawImage(lc, 0, 0, size.W * N, size.H * N); };
     const still = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     let raf = 0, last = 0, onScreen = true;
-    const frame = (t: number) => { raf = requestAnimationFrame(frame); if (!onScreen || document.hidden || t - last < 33) return; last = t; world.draw(c, t, new Date()); };
-    world.draw(c, 4000, new Date());
+    const frame = (t: number) => { raf = requestAnimationFrame(frame); if (!onScreen || document.hidden || t - last < 33) return; last = t; paint(t); };
+    paint(4000);
     if (still) return;
     const io = new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; });
     io.observe(cv);
@@ -95,14 +101,14 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
         ))}
         {g && size && (
           <>
-            <span className="lw-crew lw-kumo" style={{ left: (g.cx + 58) * size.s, top: (g.gy - 54) * size.s, width: size.px, height: size.px }} title="Chief Kumo"><PixelSprite name="kumo" /></span>
+            <span className="lw-crew lw-kumo" style={{ left: (g.cx + 58) * size.s, top: (g.gy - 54) * size.s, width: Math.round(size.px * 0.75), height: Math.round(size.px * 0.75) }} title="Chief Kumo"><PixelSprite name="kumo" /></span>
             {CREW.map((id) => {
               const p = spot(id);
               return <span key={id} className={"lw-crew" + (p.on ? " on" : " in")} style={{ left: p.x, top: p.y, width: size.px, height: size.px }} title={`${id[0].toUpperCase() + id.slice(1)}: ${duty[id]?.why ?? ""}`} aria-hidden={!p.on}><PixelSprite name={id as SpriteName} /></span>;
             })}
           </>
         )}
-        {g && size && <WorldFox perches={g.perches} s={size.s} px={Math.round(size.px * 1.1)} cheer={cheer} />}
+        {g && size && <WorldFox perches={g.perches} s={size.s} px={Math.round(size.px * 0.7)} cheer={cheer} />}
         <SprintIcon />
         <div className="lw-top">
           <p className="lw-greet">{greetWord(nm)}, Queen</p>
@@ -175,19 +181,21 @@ function CloudSay({ text, open, onToggle, night, style }: { text: string; open: 
     const along = (x0: number, y0: number, x1: number, y1: number) => { const n = Math.max(1, Math.round(Math.hypot(x1 - x0, y1 - y0) / (b * 1.35))); for (let i = 0; i < n; i++) puffs.push([x0 + ((x1 - x0) * i) / n, y0 + ((y1 - y0) * i) / n, b]); };
     along(b, b, w - b, b); along(w - b, b, w - b, h - b); along(w - b, h - b, b, h - b); along(b, h - b, b, b);
   }
-  // Kumo sits below-left of the bubble, so the tail puffs trail down-left to him. The fill is about 60%
-  // opaque (the scene shows through, blurred by the button's backdrop filter); the outline stays solid.
+  // Kumo sits below-left of the bubble, so the tail puffs trail down-left to him. A clear glass cloud: the
+  // fill is a light token tint (cream by day, lavender at night, set in CSS) under the button's backdrop blur,
+  // and the outline is a 1px plum ring cut from the shape with a mask, so nothing dark shows through the glass.
   const tail: [number, number, number][] = [[4, h + 3, 5], [-5, h + 10, 3]];
-  const fill = night ? "#4B3F86" : "#FFF8EE";
+  const all = [...puffs, ...tail], id = useId().replace(/:/g, "");
+  const shape = (grow: number, col: string) => <>
+    {all.map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r + grow} fill={col} />)}
+    {w > 0 && <rect x={b - grow} y={b - grow} width={Math.max(0, w - 2 * b + 2 * grow)} height={Math.max(0, h - 2 * b + 2 * grow)} fill={col} />}
+  </>;
   return (
     <button ref={ref} type="button" className={"lw-say r5" + (open ? " open" : "") + (night ? " night" : "")} style={style} aria-expanded={open} onClick={onToggle} title="Quote of the day">
       <svg className="lw-cloud" width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden="true">
-        {[...puffs, ...tail].map(([x, y, r], i) => <circle key={"o" + i} cx={x} cy={y} r={r + 1.5} fill="#4a2538" />)}
-        <g opacity=".6">
-          {[...puffs, ...tail].map(([x, y, r], i) => <circle key={"f" + i} cx={x} cy={y} r={r} fill={fill} />)}
-          {w > 0 && <rect x={b} y={b} width={Math.max(0, w - 2 * b)} height={Math.max(0, h - 2 * b)} fill={fill} />}
-        </g>
-        {[[w - 4, 4], [10, h - 2]].map(([x, y], i) => <path key={i} d={`M${x} ${y - 4}L${x + 1} ${y - 1}L${x + 4} ${y}L${x + 1} ${y + 1}L${x} ${y + 4}L${x - 1} ${y + 1}L${x - 4} ${y}L${x - 1} ${y - 1}Z`} fill="#FFD95E" stroke="#4a2538" strokeWidth=".6" />)}
+        <defs><mask id={"m" + id} maskUnits="userSpaceOnUse" x="-20" y="-20" width={w + 40} height={h + 40}>{shape(1, "white")}{shape(0, "black")}</mask></defs>
+        <g className="lw-cloud-fill">{shape(0, "currentColor")}</g>
+        <rect className="lw-cloud-line" x="-20" y="-20" width={w + 40} height={h + 40} mask={`url(#m${id})`} />
       </svg>
       <span className="lw-say-t">{text}</span>
     </button>
@@ -197,6 +205,7 @@ function CloudSay({ text, open, onToggle, night, style }: { text: string; open: 
 // Focus sprint, top left of the world: a pixel hourglass with a face. Tap to start the existing 25-minute
 // sprint (Study or Other); while it runs, a ring and the minutes left show, and a tap offers Stop.
 const HG = ["XXXXXXXXX", ".XgggggX.", ".XoooooX.", "..XoXoX..", "..XoooX..", "...XcX...", "..XoooX..", ".XooooX..", ".XoooooX.", "XXXXXXXXX"];
+// pixel-art palette (the hourglass sprite)
 const HGF: Record<string, string> = { X: "#4a2538", o: "#FFF8EE", g: "#FFD95E", c: "#FF9DBF" };
 function SprintIcon() {
   const { run, left, finish, start } = useSprint();
@@ -205,7 +214,7 @@ function SprintIcon() {
   return (
     <div className="lw-sprint">
       <button type="button" className={"lw-sprint-btn" + (run ? " on" : "")} aria-expanded={open} aria-label={run ? `Focus sprint running, ${mins} minutes left` : "Start a 25-minute focus sprint"} onClick={() => setOpen(!open)}>
-        {run && <svg className="lw-ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16" fill="none" stroke="rgba(255,255,255,.7)" strokeWidth="3" /><circle cx="18" cy="18" r="16" fill="none" stroke="#F65A9B" strokeWidth="3" strokeDasharray={`${frac * 100.5} 100.5`} transform="rotate(-90 18 18)" /></svg>}
+        {run && <svg className="lw-ring" viewBox="0 0 36 36" aria-hidden="true"><circle className="lw-ring-bg" cx="18" cy="18" r="16" fill="none" strokeWidth="3" /><circle className="lw-ring-fg" cx="18" cy="18" r="16" fill="none" strokeWidth="3" strokeDasharray={`${frac * 100.5} 100.5`} transform="rotate(-90 18 18)" /></svg>}
         <svg className="lw-hg" viewBox="0 0 9 10" shapeRendering="crispEdges" aria-hidden="true">
           {HG.flatMap((row, y) => row.split("").map((ch, x) => (ch === "." ? null : <rect key={x + "-" + y} x={x} y={y} width="1" height="1" fill={HGF[ch]} />)))}
         </svg>

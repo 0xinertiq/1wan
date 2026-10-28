@@ -91,11 +91,13 @@ function tint(cv: HTMLCanvasElement, col: string | null) {
 }
 
 // --- world geometry -------------------------------------------------------------------------------------
-// The camera is zoomed on the island: gy (the grass line) sits low, so the underside is cropped and the
-// island fills most of the width. On tall boxes the old framing (70px of rock below the grass) comes back.
-export const RX = 176;
+// The whole island fits inside the box: FIT_W x FIT_H logical pixels (spire tops and labels above the grass
+// line, the rock underside below it, a small margin round all of it) are centred, and the page picks the
+// scale so this box fills the scene snugly. Nothing is cropped.
+export const RX = 176, TOP = 118, BOT = 58, MARGIN = 6;
+export const FIT_W = 2 * (RX + 8) + 2 * MARGIN, FIT_H = TOP + BOT + 2 * MARGIN;
 export function geometry(W: number, H: number) {
-  const cx = Math.round(W / 2), gy = H - Math.max(30, Math.min(70, H - 140));
+  const cx = Math.round(W / 2), gy = Math.round(Math.max(TOP + MARGIN, (H - TOP - BOT) / 2 + TOP));
   const ct = cx - 122, ob = cx + 116, lh = cx - 152, tx = cx - 66;
   const places: Place[] = [
     { id: "castle", label: "The Castle", href: "#court", x: cx, y: gy - 108, desk: [cx, gy + 8] },
@@ -181,25 +183,25 @@ type Win = [number, number, number, number];
 function drawIsland(c: C, o: WorldOpts, r: () => number, wins: Win[]) {
   const { cx, gy, ct, ob, lh, tx } = geometry(o.W, o.H);
   // underside: soil band, then faceted lavender rock tapering to a point, cracks, roots, crystals
-  const D = 64;
+  const D = 46;
   for (let i = 0; i < D; i++) {
     const t = i / D, hw = Math.round(RX * Math.pow(1 - t, 0.8) * (0.96 + 0.05 * Math.sin(i * 1.3)));
     if (hw <= 0) continue;
     const y = gy + 10 + i;
     rect(c, cx - hw - 1, y, hw * 2 + 3, 1, P);
     if (i < 6) { rect(c, cx - hw, y, hw * 2 + 1, 1, i % 3 === 2 ? K.soilLo : K.soil); continue; }
-    // facets: diagonal bands 15px wide, drawn as runs
+    // facets: wide diagonal bands, drawn as runs
     for (let x = -hw; x <= hw;) {
-      const f = Math.floor((x + i * 0.9 + 400) / 15), end = Math.min(hw + 1, Math.ceil((f + 1) * 15 - i * 0.9 - 400));
+      const f = Math.floor((x + i * 0.6 + 400) / 26), end = Math.min(hw + 1, Math.ceil((f + 1) * 26 - i * 0.6 - 400));
       const col = [K.rock, K.rock2, K.rockHi, K.rock2, K.rock3][f % 5];
       const nx = Math.max(x + 1, end);
       rect(c, cx + x, y, nx - x, 1, col); x = nx;
     }
     rect(c, cx - hw, y, 2, 1, K.rockHi);
   }
-  for (let k = 0; k < 14; k++) { let x = cx - 140 + Math.floor(r() * 280), y = gy + 18 + Math.floor(r() * 26); for (let j = 0; j < 5; j++) { rect(c, x, y, 1, 1, K.crack); x += r() < 0.5 ? 1 : -1; y += 1; } }
+  for (let k = 0; k < 14; k++) { let x = cx - 110 + Math.floor(r() * 220), y = gy + 18 + Math.floor(r() * 18); for (let j = 0; j < 5; j++) { rect(c, x, y, 1, 1, K.crack); x += r() < 0.5 ? 1 : -1; y += 1; } }
   for (let k = 0; k < 18; k++) { const x = cx - 160 + Math.floor(r() * 320), len = 4 + Math.floor(r() * 12); for (let j = 0; j < len; j++) rect(c, x + Math.round(Math.sin(j / 2 + k) * 1), gy + 14 + j, 1, 1, j % 4 === 3 ? K.trunkHi : K.trunk); }
-  for (const [x, y, col] of [[cx - 46, gy + 52, "#CFC2FF"], [cx + 30, gy + 56, "#9EE6E0"], [cx - 4, gy + 66, "#FFC2DD"], [cx + 80, gy + 34, "#CFC2FF"], [cx - 98, gy + 32, "#9EE6E0"]] as const) {
+  for (const [x, y, col] of [[cx - 22, gy + 42, "#CFC2FF"], [cx + 16, gy + 44, "#9EE6E0"], [cx - 4, gy + 50, "#FFC2DD"], [cx + 70, gy + 28, "#CFC2FF"], [cx - 90, gy + 28, "#9EE6E0"]] as const) {
     rect(c, x - 2, y - 1, 5, 6, P); rect(c, x - 1, y, 3, 4, col); rect(c, x, y + 4, 1, 2, col); rect(c, x - 1, y, 1, 1, "#FFFFFF");
   }
   // grass top with a thick rounded lip
@@ -226,7 +228,7 @@ function drawIsland(c: C, o: WorldOpts, r: () => number, wins: Win[]) {
   rect(c, px - 3, py + 2, 2, 1, K.pink2); rect(c, px + 10, py - 2, 2, 1, K.pink);
   for (let i = 0; i < 26; i++) { const x = px + 14 + i, y = py + 2 + Math.round(i * 0.55); rect(c, x - 1, y - 1, 4, 4, P); rect(c, x, y, 2, 2, K.water); }
   const wfX = px + 40, wfY = gy + 18;
-  orect(c, wfX, wfY, 7, 46, K.water); for (let y = wfY; y < wfY + 46; y += 3) rect(c, wfX + 1 + (y % 2), y, 1, 2, K.waterHi);
+  orect(c, wfX, wfY, 7, 32, K.water); for (let y = wfY; y < wfY + 32; y += 3) rect(c, wfX + 1 + (y % 2), y, 1, 2, K.waterHi);
 
   // paths: castle stairs to the front, stepping stones to the cottages, a little signpost
   for (let y = gy - 2; y <= gy + 20; y++) { const hw = 5 + Math.round((y - gy) * 0.25), bend = Math.round(Math.sin((y - gy) / 6) * 2); rect(c, cx - hw - 1 + bend, y, hw * 2 + 3, 1, K.stoneLo); rect(c, cx - hw + bend, y, hw * 2 + 1, 1, y % 3 === 0 ? K.stone : "#FBE7D6"); }
@@ -397,7 +399,7 @@ function drawIslets(c: C, o: WorldOpts, r: () => number, wins: Win[]) {
   orect(c, cx - 202, gy - 114, 2, 9, K.wall); orect(c, cx - 190, gy - 114, 2, 9, K.wall); cone(c, cx - 196, gy - 126, 9, 9, K.lav, K.lavLo, "#E6DCFF");
   islet(c, cx + 206, gy - 118, 30, r, "pink");
   // little floating rocks round the island
-  for (const [x, y, w] of [[cx - 196, gy + 26, 10], [cx + 200, gy + 30, 12], [cx - 150, gy + 52, 7], [cx + 156, gy + 50, 8]] as const) {
+  for (const [x, y, w] of [[cx - 200, gy + 26, 10], [cx + 204, gy + 30, 12], [cx - 140, gy + 46, 7], [cx + 146, gy + 44, 8]] as const) {
     for (let i = 0; i < 6; i++) { const hw = Math.round((w / 2) * (1 - i / 6)); rect(c, x - hw - 1, y + i, hw * 2 + 3, 1, P); rect(c, x - hw, y + i, hw * 2 + 1, 1, i < 2 ? K.rockHi : K.rock2); }
   }
   if (o.stage >= 4) {
@@ -423,7 +425,7 @@ export function makeWorld(o: WorldOpts): World {
     const w = 26 + Math.floor(r() * 30);
     return { cv: cloudSprite(w, 9 + Math.floor(r() * 6), o.phase, o.weather, r, i % 3 === 0), x: r() * (o.W + 80), y: 4 + r() * Math.max(10, gy - 110), v: 1.2 + (i % 3) * 0.9 };
   });
-  const sea = Array.from({ length: Math.ceil(o.W / 36) + 3 }, (_, i) => ({ cv: cloudSprite(44, 12, o.phase, o.weather, r, i % 5 === 2), x: i * 36 - 20, y: Math.max(o.H - 14, gy + 24) + (i % 2) * 3 }));
+  const sea = Array.from({ length: Math.ceil(o.W / 36) + 3 }, (_, i) => ({ cv: cloudSprite(44, 12, o.phase, o.weather, r, i % 5 === 2), x: i * 36 - 20, y: Math.max(o.H - 10, gy + BOT) + (i % 2) * 3 }));
   const stars = Array.from({ length: 80 }, () => [Math.floor(r() * o.W), Math.floor(r() * (gy - 40)), r()] as const);
   const petals = Array.from({ length: o.stage >= 2 ? 22 : 14 }, () => ({ x: r() * o.W, y: r() * o.H, v: 4 + r() * 5, p: r() * 6, big: r() < 0.3 }));
   const lights = Array.from({ length: 16 }, () => ({ x: cx - 170 + r() * 340, y: gy - 60 + r() * 70, p: r() * 6 }));
@@ -476,7 +478,7 @@ export function makeWorld(o: WorldOpts): World {
     // chimney smoke from the cottage
     for (let i = 0; i < 3; i++) { const k = (s * 0.4 + i / 3) % 1, x = cx - 143 + Math.round(Math.sin(k * 6 + i) * 2 + k * 6), y = gy - 26 - Math.round(k * 16); c.globalAlpha = 0.7 * (1 - k); ell(c, x, y, 1 + Math.round(k * 2), 1 + Math.round(k * 2), night ? "#B9AEDB" : "#FFFFFF"); c.globalAlpha = 1; }
     // waterfall shimmer and foam, pond ripples
-    { const wfX = cx + 88, wfY = gy + 18; for (let y = 0; y < 46; y += 5) rect(c, wfX + 2, wfY + ((y + Math.floor(s * 20)) % 46), 3, 2, K.waterHi);
+    { const wfX = cx + 88, wfY = gy + 18; for (let y = 0; y < 32; y += 5) rect(c, wfX + 2, wfY + ((y + Math.floor(s * 20)) % 32), 3, 2, K.waterHi);
       for (let i = 0; i < 4; i++) { const k = (s * 0.6 + i / 4) % 1; c.globalAlpha = 1 - k; rect(c, cx + 48 - Math.round(k * 10), gy + 4 + (i % 2), Math.round(k * 20) + 1, 1, K.waterHi); c.globalAlpha = 1; } }
     // the sakura canopy sways (dense pink with light pink and white highlights)
     { const ty = gy + 2, sw = Math.round(Math.sin(s / 1.6));

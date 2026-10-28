@@ -3,7 +3,25 @@
 import { useState } from "react";
 import { BriefFeedback } from "./BriefFeedback";
 import { SourcesLine, type BriefDoc } from "./BriefTabs";
-import { isNoMovers, reviewParts, todaysPlan, topFive } from "@/components/kumo/briefParse";
+import { briefSections, isNoMovers, reviewParts, todaysPlan, topFive, type Headline } from "@/components/kumo/briefParse";
+import { useReview } from "@/components/kumo/reviewRead";
+
+// One uniform brief item, used by the Top 5 and by every block of a brief in News: bold numbered headline,
+// one why line, then the sources as link chips (never also as text).
+function Items({ items }: { items: Headline[] }) {
+  return (
+    <ol className="bitems">
+      {items.map((h, i) => (
+        <li key={i}>
+          {h.topic && <span className="bitem-topic">{h.topic}</span>}
+          {h.title && <b className="bitem-t">{h.title}</b>}
+          {h.why && <span className="bitem-w">{h.why}</span>}
+          {h.links.length > 0 && <span className="top5-src">{h.links.map((l, j) => <a key={j} href={l.url} target="_blank" rel="noopener noreferrer">{l.text}</a>)}</span>}
+        </li>
+      ))}
+    </ol>
+  );
+}
 
 // Briefs on the New-look Court and their homes elsewhere. One canonical home per item: the full text of every
 // brief lives in News; the scan's prices, technicals and Movers live in Trades. The Court shows summaries
@@ -38,16 +56,7 @@ function IntelPane({ d }: { d: BriefDoc | null }) {
       <Head d={d} />
       <div className="bcall">
         <p className="bcall-h">{t.fromSection ? "Top 5 headlines" : "From this brief"}</p>
-        {t.items.length ? (
-          <ol className="top5">
-            {t.items.map((h, i) => (
-              <li key={i}>
-                <b>{h.title}</b>{h.why && <span> {h.why}</span>}
-                {h.links.length > 0 && <span className="top5-src">{h.links.map((l, j) => <a key={j} href={l.url} target="_blank" rel="noopener noreferrer">{l.text}</a>)}</span>}
-              </li>
-            ))}
-          </ol>
-        ) : <p className="note">This brief has no headlines section.</p>}
+        {t.items.length ? <Items items={t.items} /> : <p className="note">This brief has no headlines section.</p>}
         <a className="blink" href="#news">Read the full brief in News →</a>
       </div>
       <SourcesLine s={d.sources} />
@@ -79,24 +88,35 @@ function ScanPane({ d }: { d: BriefDoc | null }) {
   );
 }
 
-// Chief Kumo's weekly review, compact for the Court rail.
+// Chief Kumo's weekly review on the Court: only while unread ("New weekly review", Mark as read). Once read it
+// lives in News (Kumo reviews). The summary shows once, then the per-desk lines and suggestions; Show more
+// reveals the rest of them. Read state is per device (components/kumo/reviewRead.ts).
 export function ReviewCard({ d }: { d: BriefDoc | null }) {
   const [open, setOpen] = useState(false);
-  const r = d ? reviewParts(d.body ?? "") : null;
+  const { ready, unread, markRead } = useReview(d?.at ?? null);
+  if (!d || !ready || !unread) return null;
+  const r = reviewParts(d.body ?? "");
+  const lines = [...r.desks, ...r.suggestions], shown = open ? lines : lines.slice(0, 3);
   return (
     <section className="win kreview" aria-labelledby="krvT">
-      <div className="win-title"><h2 id="krvT">Kumo&apos;s weekly review</h2>{d?.when && <span className="sub">{d.when.split(" (")[0]}</span>}</div>
+      <div className="win-title"><h2 id="krvT">New weekly review</h2>{d.when && <span className="sub">{d.when.split(" (")[0]}</span>}</div>
       <div className="win-body">
-        {!d || !r ? <p className="note">No weekly review yet. Kumo files it on Sunday at 08:50.</p> : <>
-          {r.summary && <p className="rv-sum">{r.summary}</p>}
-          {r.suggestions.length > 0 && <ul className="rv-sug">{r.suggestions.map((s, i) => <li key={i}>{s}</li>)}</ul>}
-          {open && <div className="brb open" dangerouslySetInnerHTML={{ __html: d.html }} />}
-          <button className="btn sm ghost" type="button" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? "Show less" : "Read more"}</button>
-          <BriefFeedback key={d.key + d.at} kind={d.key} at={d.at} initial={d.vote} />
-        </>}
+        {r.summary && <p className="rv-sum">{r.summary}</p>}
+        {shown.length > 0 && <ul className="rv-sug">{shown.map((s, i) => <li key={i}>{s}</li>)}</ul>}
+        <div className="rep-act">
+          {lines.length > 3 && <button className="btn sm ghost" type="button" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? "Show less" : "Show more"}</button>}
+          <button className="btn sm" type="button" onClick={() => markRead(d.at)}>Mark as read</button>
+        </div>
+        <BriefFeedback key={d.key + d.at} kind={d.key} at={d.at} initial={d.vote} />
       </div>
     </section>
   );
+}
+
+// "Mark as read" beside the newest review in News, while it is unread.
+function ReviewRead({ at }: { at: string }) {
+  const { unread, markRead } = useReview(null);
+  return unread ? <button className="btn sm" type="button" onClick={() => markRead(at)}>Mark as read</button> : null;
 }
 
 // Midday Movers for Trades: the latest real alert, or the desk's "no movers" note with the age of the last
@@ -124,6 +144,19 @@ export function MoversCard({ list }: { list: BriefDoc[] }) {
   );
 }
 
+// A brief written as bold-lead items (Intel and similar) reads as sections of uniform items, like the Top 5;
+// anything else (scans with tables, older formats) shows its rendered text.
+function BriefBody({ d }: { d: BriefDoc }) {
+  const b = briefSections(d.body ?? "");
+  if (!b.structured) return <article className="read" dangerouslySetInnerHTML={{ __html: d.html }} />;
+  return (
+    <article className="read">
+      {b.intro && <p>{b.intro}</p>}
+      {b.sections.map((s) => <section key={s.title}><h3>{s.title}</h3><Items items={s.items} /></section>)}
+    </article>
+  );
+}
+
 // News: the full text of every brief and scan, by desk, with history by date. Readable layout; sections fold.
 const DESKS: { key: string; label: string }[] = [
   { key: "intel", label: "Intelligence" }, { key: "scan", label: "Watchlist scan" }, { key: "movers", label: "Midday movers" },
@@ -146,8 +179,9 @@ export function BriefsLibrary({ history }: { history: BriefDoc[] }) {
           {list.map((d, i) => (
             <details key={d.at + all} className="klib-item" open={all || i === 0}>
               <summary><b>{d.title}</b> <span className="note">{d.when.split(" (")[0]}</span></summary>
-              <article className="read" dangerouslySetInnerHTML={{ __html: d.html }} />
+              <BriefBody d={d} />
               <SourcesLine s={d.sources} />
+              {i === 0 && d.key === "review" && <ReviewRead at={d.at} />}
               {i === 0 && <BriefFeedback key={d.key + d.at} kind={d.key} at={d.at} initial={d.vote} />}
             </details>
           ))}

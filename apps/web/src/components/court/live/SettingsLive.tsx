@@ -24,11 +24,11 @@ export function HeaderStats() {
   return (
     <>
       <div className="pill" title="Daily check-in streak">
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c1 4.2 5.2 6 5.2 11a5.2 5.2 0 0 1-10.4 0c0-2.2 1-3.5 2.3-4.6.1 2 .9 3.1 2 3.4-.6-4 .4-6.4.9-9.8z" fill="#FF9DBF" stroke="#A34876" strokeWidth="1.8" strokeLinejoin="round" /></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c1 4.2 5.2 6 5.2 11a5.2 5.2 0 0 1-10.4 0c0-2.2 1-3.5 2.3-4.6.1 2 .9 3.1 2 3.4-.6-4 .4-6.4.9-9.8z" fill="var(--k-sakura-300)" stroke="var(--k-icon-line)" strokeWidth="1.8" strokeLinejoin="round" /></svg>
         <b id="streak">{st.streak}</b> day streak
       </div>
       <div className="pill" title="Stars collected">
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z" fill="#FFD95E" stroke="#A34876" strokeWidth="1.8" strokeLinejoin="round" /></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z" fill="var(--k-gold-400)" stroke="var(--k-icon-line)" strokeWidth="1.8" strokeLinejoin="round" /></svg>
         <b id="stars">{st.stars}</b> stars
       </div>
       {ui === "classic" && <div className="pill" title="Kumo's nine tails">tails <b>{n}/9</b></div>}

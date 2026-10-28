@@ -88,12 +88,13 @@ export function WorldFox({ perches, s, px, cheer }: { perches: [number, number][
   const ref = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    // A slow, gentle hop every 16 s (1.8 s per jump, at half the earlier speed), resting or napping in between.
     const id = setInterval(() => {
       const el = ref.current; if (!el || document.hidden || open) return;
       const r = el.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
       setAt((x) => (x + 1 + Math.floor(Math.random() * (perches.length - 1))) % perches.length);
-      setHop(true); setTimeout(() => setHop(false), 900);
-    }, 7000);
+      setHop(true); setTimeout(() => setHop(false), 1800);
+    }, 16000);
     return () => clearInterval(id);
   }, [perches.length, open]);
   useEffect(() => { if (!cheer) return; setJoy(true); const t = setTimeout(() => setJoy(false), 1400); return () => clearTimeout(t); }, [cheer]);

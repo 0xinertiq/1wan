@@ -14,37 +14,70 @@ function section(body: string, re: RegExp): string[] | null {
   return out;
 }
 
-export type Headline = { title: string; why: string; links: { text: string; url: string }[] };
+export type Headline = { title: string; why: string; links: { text: string; url: string }[]; topic?: string };
 
-// "## Top 5 headlines": list items, headline in bold (or before a dash or colon), the rest is the why.
-// Older briefs without it: the first line of each "##" block.
+// One brief item: a paragraph or list item that opens with a bold lead ("**The Fed is expected to hold...**",
+// the format the Intel brief stores). The bold lead is the title, the rest is the why, and the trailing
+// " — [Source](url), [Source](url)" tail becomes link chips only, so sources never show twice.
+// `short` keeps only the first sentence of the why (the Court); News shows it whole.
+const SRC_TAIL = /\s*(?:[—–-]\s*)?(?:\[[^\]]+\]\([^)]+\)[\s,;.]*(?:and\s+)?)+\s*$/;
+const BOLD = /^\s*(?:(?:[-*•]|\d+[.)])\s+)?\*\*/;
+const firstSentence = (s: string, short: boolean) => (short ? (s.match(/^.+?[.!?](?=\s|$)/)?.[0] ?? s) : s);
+function item(text: string, short: boolean): Headline {
+  const t = text.replace(/^\s*(?:[-*•]|\d+[.)])\s+/, "").trim();
+  const b = t.match(/^\*\*(.+?)\*\*/);
+  const ls = links(t);
+  let rest = (b ? t.slice(b[0].length) : t).replace(SRC_TAIL, "");
+  if (b) return { title: strip(b[1]), why: firstSentence(strip(rest).replace(/^[—–:.-]\s*/, ""), short), links: ls };
+  const head = rest.split(/\s[—–-]\s|:\s/)[0];
+  rest = rest.slice(head.length).replace(/^\s*[—–:.-]\s*/, "");
+  return { title: strip(head), why: firstSentence(strip(rest), short), links: ls };
+}
+
+// Paragraphs (blank-line separated) or list items in a block of lines.
+function chunks(lines: string[]): string[] {
+  const out: string[] = [];
+  let cur = "";
+  for (const l of lines) {
+    if (!l.trim()) { if (cur) out.push(cur); cur = ""; continue; }
+    if (/^\s*(?:[-*•]|\d+[.)])\s+/.test(l) && cur) { out.push(cur); cur = l; continue; }
+    cur = cur ? cur + " " + l.trim() : l;
+  }
+  if (cur) out.push(cur);
+  return out;
+}
+
+// "## Top 5 headlines": its items, up to five, each its own numbered item. Older briefs without that block:
+// one line per "##" section (the section's first item, with the section name as a small topic label).
 export function topFive(body: string): { items: Headline[]; fromSection: boolean } {
   const sec = section(body, /top\s*5\s*headlines?/i);
   if (sec) {
-    const items: Headline[] = [];
-    for (const l of sec) {
-      const m = l.match(/^\s*(?:[-*•]|\d+[.)])\s+(.+)$/);
-      if (!m) {
-        if (items.length && l.trim()) { const last = items[items.length - 1]; last.why = strip(last.why + " " + l); last.links.push(...links(l)); }
-        continue;
-      }
-      const t = m[1], b = t.match(/\*\*(.+?)\*\*/);
-      const head = t.split(/\s[—–-]\s|:\s/)[0];
-      const title = b ? strip(b[1]) : strip(head);
-      const rest = b ? t.replace(b[0], "") : t.slice(head.length);
-      items.push({ title, why: strip(rest.replace(/^\s*[—–:.-]\s*/, "")), links: links(t) });
-      if (items.length === 5) break;
-    }
+    const items = chunks(sec).filter((c) => /\*\*|^\s*(?:[-*•]|\d+[.)])\s/.test(c)).map((c) => item(c, true)).slice(0, 5);
     if (items.length) return { items, fromSection: true };
   }
   const items: Headline[] = [];
-  for (const b of body.split(/\r?\n(?=##\s)/).slice(1)) {
-    const [head, ...rest] = b.split(/\r?\n/);
-    const first = rest.find((l) => l.trim() && !/^#/.test(l));
-    if (first) items.push({ title: strip(head.replace(/^#+\s*/, "")), why: strip(first.replace(/^\s*(?:[-*•]|\d+[.)])\s+/, "")), links: links(first) });
+  for (const s of briefSections(body).sections) {
+    const it = s.items[0];
+    if (it) items.push(it.title ? { ...it, why: firstSentence(it.why, true), topic: s.title } : { title: firstSentence(it.why, true), why: "", links: it.links, topic: s.title });
     if (items.length === 5) break;
   }
   return { items, fromSection: false };
+}
+
+// The whole brief as sections of uniform items (News). `structured` is false when the brief is not written as
+// bold-lead items (scans with tables, older formats); the reader then shows the plain rendered text instead.
+export function briefSections(body: string): { intro: string; sections: { title: string; items: Headline[] }[]; structured: boolean } {
+  const parts = body.split(/\r?\n(?=##\s)/);
+  const intro = strip(chunks(parts[0].split(/\r?\n/)).slice(1).join(" "));
+  const sections = parts.slice(1).map((p) => {
+    const [head, ...rest] = p.split(/\r?\n/);
+    // A paragraph without a bold lead (a footer or note) keeps its text with no title.
+    const its = chunks(rest).filter((c) => !/^\s*\|/.test(c) && !/^#/.test(c)).map((c) => (BOLD.test(c) ? item(c, false) : { title: "", why: strip(c.replace(/^\s*(?:[-*•]|\d+[.)])\s+/, "").replace(SRC_TAIL, "")), links: links(c) }));
+    return { title: strip(head.replace(/^#+\s*/, "")), items: its };
+  });
+  const all = parts.slice(1).flatMap((p) => chunks(p.split(/\r?\n/).slice(1)));
+  const structured = all.length > 0 && all.filter((c) => BOLD.test(c)).length >= all.length * 0.7 && !/^\s*\|/m.test(body);
+  return { intro, sections, structured };
 }
 
 export type PlanRow = { ticker: string; grade: string; entry: string; stop: string; target: string; rr: string };
@@ -76,16 +109,17 @@ export function todaysPlan(body: string): { readThrough: string | null; rows: Pl
 // A movers run that found nothing notable says so in its text.
 export const isNoMovers = (body: string) => /\bno\s+(?:notable\s+|significant\s+|big\s+)?movers?\b|\bnothing\s+(?:moved|notable)\b/i.test(body);
 
-// Kumo's weekly review: the summary (a "Summary" section, else the first paragraph) and up to three
-// suggestions (a "Suggestions" / "Recommendations" / "Next week" section).
-export function reviewParts(body: string): { summary: string; suggestions: string[] } {
+// Kumo's weekly review: the summary (a "Summary" section, else the first paragraph), the per-desk lines
+// ("Intel: ...", "Scan: ...") and the suggestions (a "Suggestions" / "Next week" section, else the bullets).
+export function reviewParts(body: string): { summary: string; desks: string[]; suggestions: string[] } {
   const para = (ls: string[]) => strip(ls.filter((l) => l.trim() && !/^#/.test(l) && !/^\s*\|/.test(l) && !/^\s*(?:[-*•]|\d+[.)])\s/.test(l)).slice(0, 3).join(" "));
   const sum = section(body, /summary|overview|the week/i);
   const firstPara = body.split(/\r?\n\s*\r?\n/).find((p) => p.trim() && !/^#/.test(p.trim()));
   const summary = sum ? para(sum) : para(firstPara?.split(/\r?\n/) ?? []);
-  const sg = section(body, /suggest|recommend|next week|try this/i) ?? [];
-  const suggestions = sg.map((l) => l.match(/^\s*(?:[-*•]|\d+[.)])\s+(.+)$/)?.[1]).filter((x): x is string => !!x).map(strip).slice(0, 3);
-  return { summary: summary.slice(0, 400), suggestions };
+  const sg = section(body, /suggest|recommend|next week|try this/i) ?? body.split(/\r?\n/);
+  const suggestions = sg.map((l) => l.match(/^\s*(?:[-*•]|\d+[.)])\s+(.+)$/)?.[1]).filter((x): x is string => !!x).map(strip).slice(0, 8);
+  const desks = body.split(/\r?\n/).filter((l) => /^\s*\*{0,2}[A-Z][\w ]{1,24}\*{0,2}:\s+\S/.test(l) && !/^\s*(?:[-*•]|\d+[.)])\s/.test(l)).map(strip).slice(0, 8);
+  return { summary: summary.slice(0, 400), desks, suggestions };
 }
 
 // Sources line without any mention of Bigdata (permanently disconnected).

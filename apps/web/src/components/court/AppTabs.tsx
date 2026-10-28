@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useUi } from "@/components/kumo/useUi";
+import { useReview } from "@/components/kumo/reviewRead";
 import { useCourt } from "./CourtState";
 
 // Main tabs: bottom bar on phone, left rail on desktop. Every panel stays mounted so nothing she typed is lost
@@ -29,6 +30,7 @@ const ICONS: Record<PageId | "more", string[]> = {
   observatory: ["......g..", "....XX...", "...XooX..", "..XoooX..", ".XoooX...", "X.XXX....", "..X.X....", ".X...X..."],
   more: [".........", ".........", ".........", "XX.XX.XX.", "XX.XX.XX.", ".........", ".........", "........."],
 };
+// pixel-art palette (nav icons)
 const FILL: Record<string, string> = { X: "var(--line)", o: "var(--win-hi)", g: "#FFD95E", p: "#FFB3D1" };
 
 function Icon({ id }: { id: PageId | "more" }) {
@@ -49,6 +51,9 @@ export function AppTabs({ panels, extra = {} }: { panels: Record<TabId, React.Re
   const [more, setMore] = useState(false);
   const ui = useUi();
   const { openSheet } = useCourt();
+  // A small dot on News while Kumo's newest weekly review is unread (New look).
+  const review = useReview(null);
+  const dot = (id: PageId) => (ui === "new" && id === "news" && review.unread ? <i className="nav-dot" aria-label="new weekly review" /> : null);
 
   useEffect(() => {
     setTab(fromHash());
@@ -72,18 +77,18 @@ export function AppTabs({ panels, extra = {} }: { panels: Record<TabId, React.Re
       <nav className={"tabnav" + (ui === "new" ? " tabnav-new" : "")} aria-label="Main">
         {nav.map((id) => (
           <button key={id} type="button" className={ui === "new" && !PHONE_BAR.includes(id) ? "nav-more-item" : undefined} aria-current={tab === id ? "page" : undefined} onClick={() => go(id)}>
-            <Icon id={id} />
+            <Icon id={id} />{dot(id)}
             <span>{ui === "new" && id === "life" ? <><span className="nl-desk">Life</span><span className="nl-phone">Hub</span></> : LABEL[id]}</span>
           </button>
         ))}
         {ui === "new" && (
           <button type="button" className="nav-more" aria-expanded={more} aria-current={inMore.includes(tab) ? "page" : undefined} onClick={() => setMore(!more)}>
-            <Icon id="more" /><span>More</span>
+            <Icon id="more" />{inMore.includes("news") && dot("news")}<span>More</span>
           </button>
         )}
         {ui === "new" && more && (
           <div className="nav-sheet" role="menu">
-            {inMore.map((id) => <button key={id} type="button" role="menuitem" aria-current={tab === id ? "page" : undefined} onClick={() => go(id)}><Icon id={id} /><span>{LABEL[id]}</span></button>)}
+            {inMore.map((id) => <button key={id} type="button" role="menuitem" aria-current={tab === id ? "page" : undefined} onClick={() => go(id)}><Icon id={id} />{dot(id)}<span>{LABEL[id]}</span></button>)}
             <button type="button" role="menuitem" onClick={() => { setMore(false); openSheet({ kind: "settings" }); }}><Icon id="more" /><span>Settings</span></button>
           </div>
         )}

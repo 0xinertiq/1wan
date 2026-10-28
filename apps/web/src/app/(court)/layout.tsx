@@ -3,6 +3,7 @@ import { Atkinson_Hyperlegible, Baloo_2, Inter, Ma_Shan_Zheng, Noto_Serif_SC, Nu
 import { APP_NAME } from "@/lib/brand";
 import "./tokens.css";
 import "./dashboard.css";
+import "./kumo-tokens.css";
 import "./kumo-new.css";
 
 // Separate root layout so the v52 dashboard CSS never mixes with the rest of the app.

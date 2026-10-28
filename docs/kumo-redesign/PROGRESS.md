@@ -100,3 +100,38 @@ Honest notes (weaker than the direction):
 - Cloud faces are only a few pixels.
 
 NEEDS OWNER APPROVAL (new): an AI rewrite of the astro calendar text in Luna's voice would need a paid call; for now Luna only adds her own fixed phrases by keyword. (The three items above still stand.)
+
+## R6 (on preview)
+Done:
+- World fits snugly: the whole island, towers, spires and the rock underside sit inside the scene with an even margin (no cut-off tops, island fills the width). Drawn crisp at a whole-number scale, then fitted. Phone strip 196px.
+- Crew about 15% of the scene height (20% on the phone strip), on the ground in front of the buildings; Kumo on his cloud slightly smaller; fox about 10%.
+- Quote bubble: clear glass cloud with token colours. The brown look came from solid plum outline circles showing through the translucent fill; the outline is now a 1px ring cut out with a mask.
+- Fox: hops every 16 seconds instead of 7, each hop 1.8 seconds instead of 0.9 (half the speed), gentler easing; still under reduced motion.
+- Briefs: full card width. Top 5 fixed (below). Sources show only as link chips. Every block of an Intel brief in News uses the same item layout.
+- Luna: lean / gentle as two side-by-side soft blocks (lavender, sakura, plum text); "Today in your chart" small and quiet below them.
+- Links: one sakura colour everywhere, underlined, same hover and visited; pink focus ring, selection, form accent and scrollbars.
+- Weekly review: on the Court only while unread, with Mark as read; summary once, then desk lines and suggestions with Show more / Show less; a dot on News marks a new review.
+
+Top 5 headlines, what was wrong: I read the stored brief (28 Oct, 07:53 SGT, read-only). Its "## Top 5 headlines" block has five items, written as paragraphs ("**headline.** why — [Source](url), [Source](url)"), not as list items. The old parser only looked for list items, found none, and fell back to "first line of each section", so the Court showed four items labelled with the section names, the first being "Top 5 headlines". The parser now reads paragraph items: on the real brief it returns all five, with the bold headline as the title and no source text in the why. No prompt change needed. Older briefs (no Top 5 block) show one line per section with the section name as a small label.
+
+Weekly review read state: kept on this device (localStorage), no saved state change. If you want it synced across devices, it needs a new field in your saved state: NEEDS OWNER APPROVAL.
+
+Consistency pass, causes found:
+1. kumo-new.css grew round by round (A, C2, R2, R2b, R3, R4, R5): each round added a block that overrode earlier ones, often with !important (18), so the same element had up to three competing rules.
+2. Raw values everywhere: 79 hex and 49 rgba colours, and spacing spread over 2, 3, 6, 9, 10, 14, 18, 20 and 22px next to the 4/8/12/16/24 scale.
+3. No single token set: kumo-new.css had its own --kumo-* values, tokens.css pointed at the v52 variables, and night mode kept the Classic v52 palette.
+4. Classic leaks: dashboard.css (75 KB, v52) still styles cards that render in the New look (.tcard, .gk, .gs, .jp, .jt, .lp, .quest, details.gdet) with 2-3px lavender borders and hard drop shadows; only some were overridden.
+5. Links had three colours (#6A4FC9, #B9A6FF, browser default) and the focus ring was lavender.
+
+What changed:
+- One token file, `src/app/(court)/kumo-tokens.css`: palette, day and night semantic tokens (a proper plum night), spacing, radii, border, shadows, type, link and focus. The v52 variables are remapped to these tokens under the New look, so leaked Classic rules take the same colours.
+- Replaced in kumo-new.css: 45 hex and 43 rgba colours (another 34 hex and 6 rgba moved into the token file), 214 spacing values snapped to the scale tokens, 18 radii to radius tokens, 7 lavender focus rings and 1 input focus, 9 blue or lavender link colours. Night override blocks no longer needed were removed (17 lines).
+- Components: chart colours (TechLive, 9 values), the calendar dot, the sprint ring and two header icons moved to tokens. Pixel art and illustrations keep their own colours (sprites, world, fox, bonsai, header and nav icons, Classic Cloud Court).
+- One card, inner row, chip, button, input and heading style, and one column gap (24px desktop, 16px phone), applied to New-look cards and to the Classic card classes that show in the New look.
+- `tests/tokens.test.mjs` (runs with the tests): fails on raw colours in kumo-new.css or New-look components, and on off-scale spacing or radii in kumo-new.css.
+
+Left to do (honest):
+- I could not visit the tabs in a browser: the preview and the local app need your login. The pass was done in code; please look at Calendar, Life Hub, Dungeon and Settings on the preview, as they still rely most on Classic markup.
+- dashboard.css itself (Classic) still has many raw values; it is out of scope while the Classic switch stays. Some of its 2px borders on less common elements may still show in the New look.
+- Font sizes are tokenised in the new rules but not yet everywhere in kumo-new.css.
+- Underside facets of the island read a little stripy; the fox's tails still crowd at nine.
