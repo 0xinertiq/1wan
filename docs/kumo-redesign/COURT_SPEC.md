@@ -2,37 +2,33 @@
 
 Consolidated on 28 Oct 2026 from every Court prompt (R1 to round 5). This file is the single source; earlier prompts are superseded, and the contradictions between them, with the rule that won, are listed in PROGRESS.md. From now on changes are small edits here. Classic (the v52 look, one click in Settings) is out of scope and stays as it is.
 
-## Where each thing lives (one canonical home per item)
+## Where everything lives (round 6 placement map, with addenda 1 and 2; one canonical home per item)
+
+Tab roles: Court = overview (the Castle). Calendar (the Clock Tower) = time and scheduling. Life Hub = long-term planning and life management. Garden (Sakura Garden) = habits and growth. Dungeon = reflection (private journal). Trades = her trades, the trading watchlist and the macro desk. News = headlines, brief history and saved research. More = Notifications, Settings, Kingdom Mode, the welcome tour. There is no Observatory: #observatory redirects to the Court and the world's observatory scrolls to Luna's card. Phone bar: Home, Calendar, Hub, Diary (the Dungeon), More.
 
 | Item | Home | Elsewhere (summary or link only) |
 |---|---|---|
-| Today's briefs, full text (Pulse, Intelligence, Crypto scan) | Court, Briefs card | News: the same briefs in the history list |
-| Brief history (all desks, by date), Kumo's reviews once read | News, Briefs and scans | |
-| Kumo's weekly review, unread | Court rail ("New weekly review", Mark as read) | News tab dot until read |
-| Headlines feed (Pip), categories, "In today's top 5" tags | News | |
-| Midday movers | Trades (left) | |
-| Live prices | Court prices strip (one line) | Trades: Live watchlist |
-| Live watchlist (price, day change, 1-month range), technicals | Trades (left), labelled Live | Court Briefs: "Open in Trades" from the dated scan |
-| Full Crypto scan (style map, trade plan, catalysts, gaps) | News, brief history (full text) | Court Briefs: snapshot, read-through, Movers, "Strongest now" (top 3 by score); Trades will later host the Style Map, Trade Plan and Catalysts (not built yet) |
-| Trade log and tools | Trades (right) | |
-| Liquidity releases (FOMC, NFP, CPI, PPI, PCE, GDP, ECB, BoJ, BoE, refunding) | Calendar, Economic calendar ("Moves liquidity" default, "All releases" toggle) | Court: one "Next:" line within 48h; Week tab: small tags |
-| Calendar events (day, week, month views) | Calendar | Court Today: Now / Next / Later; Week tab: top 3 a day |
-| Momo's day ideas | Calendar (left) | |
-| The next 7 days at a glance | Court, Today card, Week tab | |
-| Due bills, bookings, life admin, with the Auto-paid and Important toggles | Life Hub, Life admin (every item) | Needs you now when overdue, due within 3 days or marked Important (never auto-paid); Week tab rows |
-| Parked thoughts (Park a thought) | Court: the one-line input under the world; the list under Today's stat strip | |
-| Luna's daily reading | Court, Luna's card | Week tab: Moon sign and tone tag |
-| Luna's 7-day sky, astro calendar text with attribution | Observatory | |
-| Habits, daily anchors, branches, quests | Sakura Garden | Today stat strip: counts only |
-| Kumo's pick | Sakura Garden (top) | |
-| Journal (private, exportable, Inter) | Dungeon | |
-| Focus sprint (tap to pause and resume, small stop) | World, the hourglass in the HUD | |
-| Quote of the day (always in full) | World, Kumo's glass cloud bubble, or under the strip when no spot in the scene is free | |
-| Date and time (one pixel badge), level, EXP, streak, stars, rest day | Header | World HUD: level chip |
-| Tails (0 to 9, read-only) | World, the fox and his card | Classic: header chip |
-| Weather | World HUD chip | |
-| Crew at work | World (crew at their places), roster line under the columns | World HUD: "n at work" chip |
-| Settings, Look switch, Export my data | Header menu | |
+| Today's briefs (Pulse, Intelligence, Crypto scan) | Court, Briefs card | News: brief history |
+| Brief history, Kumo's reviews, the weekly review packet (preview, sensitive toggles off, Copy for Claude) | News | Court: unread review card; News dot; header and fox card link to News |
+| Headlines, topic chips, Telegram posts | News | |
+| Saved and research (market-tagged notes, follows the market lens, hidden when off) | News | Dungeon lists every note and attaches one to a page |
+| Live watchlist with technicals (plain words, EMA chart, lines) | Trades | Court prices strip |
+| Midday movers, scan details (Style Map, Trade Plan with Log this trade, also on watch, alerts, thesis log, catalysts) | Trades | Court Crypto scan tab: snapshot, Movers, Strongest now |
+| Trade log, position size calculator, performance stats, ledger review (stop and ATR flags), plans, rules, gamble and late-night ledger | Trades | |
+| Macro desk (Olli): next releases summary, rates and yields, week notes | Trades | Calendar is the home of releases |
+| Long-term watchlist (Tilly) | Trades | |
+| Calendar events (Day, Week, Month, Agenda), economic calendar, Momo's day, My tasks, mini month, Upcoming | Calendar | Court: Needs you now, Today, Week tab (opens ?day=), the Next: line |
+| Astrology (astro feed, moon, transits) | Court only: Luna's card and the Week tab's Moon sign and tone | never on the Calendar |
+| Grid & Wins: Harada 9x9 chart, Weekly targets (study hours, thesis entries, posts, replies; Samsara milestones) | Life Hub, top | Goals card: main goal and progress with a link; Garden look-back links to Weekly targets |
+| Goals with milestones, Life admin (Auto-paid, Important), pets and self-care routines, Finance overview (this month, budgets and CSV, Money Wins ladder) | Life Hub | Court Needs you now within 3 days |
+| Habits: quests, daily anchors, branches, Wins ladder (Small Wins), her own habits, This week | Garden | Today stat strip: counts only |
+| Journal pages, mood, tags, trade reflections, Count your wins, the one weekly look-back | Dungeon (private) | |
+| Look, day or night, market lens, connections, Telegram channels, Export my data, usage, notification choices, tour, sign out | Settings | |
+| Alerts | Bell and Notifications inbox | |
+| Kingdom preview (catalogue states, no purchases) | Kingdom Mode | |
+| Focus sprint, quote, fox and tails, prices, Luna's card, Park a thought | Court (unchanged) | |
+
+Retired: the Observatory page and Luna's 7-day sky view; the Life sub-tabs Money, Trade, Grid & Wins and Samsara (data unchanged, now in their homes above). Classic keeps the v52 layout.
 
 ## Global rules
 - One canonical home per item; other places show a summary and link. The app tracks, never advises. No Bigdata wording in the UI: every brief, review, desk note and sources line is shown through one display scrubber (lib/noBigdata.ts); stored data and the ingest / export routes are untouched. Protected paths and the tails, XP, stars and streak logic are never changed.
@@ -83,12 +79,13 @@ Code-drawn pixel kingdom, chibi storybook style: pastel sky by Singapore time, b
 - The fox (crew/fox.md v2): an original chibi kitsune on the crew's pixel grid and scale (about 15% of the scene height), plump fanned tails from the tails value (read-only), a squash-and-stretch hop every 16 s, naps, a happy bounce, a tail wag, a tails card; only on perches clear of labels, the HUD and the bubble.
 - Performance: pause off-screen and in hidden tabs; reduced motion shows a still scene.
 
-## Tabs
-- Calendar: left, the Economic calendar (Moves liquidity | All releases) and Momo's day; right, the calendar with Day / Week / Month views. Every event shows its source and the page shows "last fetched"; read-only iCal.
-- Trades: left, the Live watchlist (price, day change, 1-month range bar), Midday movers (latest alert or "No movers today (checked 14:30)" with the age of the last real alert) and the Live technicals; right, the trade log and tools (unchanged behaviour). Tracking only.
-- News: left, Briefs and scans (full text by desk with history, Expand all, uniform items, Kumo reviews with Mark as read); right, the Headlines feed with categories by content (a crypto headline files under Crypto whatever feed carried it) and "In today's top 5" tags.
-- Observatory: Luna's 7-day sky and the astro calendar text with its attribution.
-- Sakura Garden: two columns: scene, tree and summary left (sticky); Daily anchors | Branches | Quests right. Decay and rest-day logic unchanged.
-- Dungeon (was Fox Diary; internal ids unchanged): guided prompts, writing in Inter, month calendar, text-only archive, weekly recap; private, never shown to friends, exportable.
-- Life Hub: goals, projects, life admin (every item, including auto-paid ones), finance and trading journal (tracking only).
-- Settings, notifications, onboarding: later slices, same tokens.
+## Tabs (round 6)
+Every tab: a pixel scene header (code-drawn, day, dusk or night by Singapore time, 140px desktop, 72px phone strip, still under reduced motion and paused off screen), then the Playfair title, one subtitle line and the page actions. Shared parts in components/court/ui.tsx (PageHead, Card with its own error boundary, Chip, Btn, Callout, Table, TabPills, SectionLabel, EmptyState with a pixel friend, StoreNote). Layouts at 1200px and up:
+- Trades: two columns (left: Live watchlist with technicals, Midday movers, Scan details, Macro desk; right: Trade log, Position size calculator, Performance stats, Long-term watchlist, ledger review, plans, rules and gamble log).
+- Calendar: two thirds (Day | Week | Month | Agenda, economic calendar) and one third (My tasks, mini month, Upcoming, Momo's day).
+- Life Hub: Grid & Wins full width (Chart | Weekly targets), then a 2x2 grid: Goals, Life admin, Pets and self-care, Finance overview.
+- Dungeon: three columns (month and searchable list; the page in Inter; mood, tags, trade reflection, research notes, weekly look-back).
+- Garden: pixel sakura garden on the left (tree stages 0 to 4 from this week's habits, droops when thirsty); right: Daily anchors | Branches | Quests | Wins ladder | My habits | This week.
+- News: headlines left; brief history, reviews and the packet right; Saved and research full width below.
+- Notifications: High priority, Today, Earlier in three columns. Settings: two columns of sections. Kingdom Mode: the world and the catalogue preview. Welcome: five steps.
+Storage: lib/vault.ts, two backends behind one interface (Supabase tables from migration 0006 when NEXT_PUBLIC_1WAN_TABLES=on; otherwise "Preview storage, this device only"), every record cleaned on read.

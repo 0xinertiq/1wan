@@ -216,3 +216,67 @@ Checks: typecheck, build, 62 tests (tokens, fonts, contrast, overlap, dates, Big
 - Found and fixed every way one bad value could blank the whole page: the shared date formatter and the older date helpers threw on an unreadable date (the old code printed "Invalid Date"); a world box shorter than the HUD band gave a negative or giant canvas; malformed calendar events, watering events, feed lists, a missing gamble list, or an odd saved "seen" value crashed a card and with it the page.
 - Safeguards: an error boundary per card and per tab ("This card could not load" with Retry); a page-level and a root fallback with "Reset saved settings on this device" (clears only this app's local keys); versioned, validated local settings (lib/court/store.ts); data cleaned where it enters.
 - Tests: tests/render.test.mjs renders every screen with empty, partial, broken and old-format data and fails on any error; npm run test:browser opens the real app in headless Chrome (38 runs, also with old and broken saved values) and fails on any console error or uncaught exception.
+
+## Round 6: the remaining tabs (on preview)
+Built: Trades, Calendar, Life Hub (with Grid & Wins as a Harada 9x9 chart), Dungeon, Garden, News, Settings, Notifications, Onboarding, Kingdom Mode; Observatory removed. The placement map is at the top of COURT_SPEC.md.
+
+Where moved features live now: Money (spending, typed figures, Money Wins balances and ladder) in Life Hub > Finance overview; Trade (log, sizer, ledger review with stop and ATR flags, plans, rules, gamble and late-night ledger) in Trades; Grid & Wins in Life Hub; Samsara's weekly counters and milestones in Life Hub > Grid & Wins > Weekly targets; Small Wins ladder in Garden > Wins ladder; technicals inside Trades (Live watchlist area); the weekly review packet in News; Count your wins and the one weekly look-back in the Dungeon; Luna's sky only on the Court.
+
+### Decisions made (smaller, reversible option each time)
+1. Trade log uses the existing trades table and /api/ledger (her real ledger), not a new trades table. The target price is kept inside the trade's checks field (no column change, no migration).
+2. Round 6 records use one generic shape per table (id, data, created and updated times; research_notes also has kind, journal_entries has day), so new fields need no new migration.
+3. Preview storage lives in this browser under its own keys, so "Reset saved settings on this device" never deletes records. Settings has "Download this device's preview records".
+4. The Dungeon writes pages to journal_entries. Older diary text (wins, thanks, notes) and older moods stay where they are and show read-only on their day; Count your wins still saves where it always did. Mood is not a key this app owns, so new moods are saved on the journal page.
+5. Habit editor: her own habits go in the new optional key hab; they never award XP or touch quests, streak or tails.
+6. Garden tree stage = this week's daily quests done ÷ planned, in five steps; it droops while the trunk is thirsty. Cosmetic only.
+7. Grid & Wins wizard on an existing chart fills empty cells only (see approvals); a user with no chart gets the full wizard.
+8. Samsara milestones (not placed by addendum 2) sit under Weekly targets with their ids unchanged.
+9. Last fetched on the Calendar is when the page last received calendar data (the calendar fetching code is untouched).
+10. Tilly's "Summarise my notes" is not shown: no paid API is configured (CLAUDE.md: no paid API yet), so the rule "hidden when no AI key or cap" applies.
+11. Onboarding opens by itself only for a brand-new account (no history at all); it never redirects her. Rooms switched off hide Garden, Dungeon, Trades and News from the nav; Court, Calendar, Life Hub and Settings always stay.
+12. Settings and Birth details in the header menu, and the packet button, go to their one home in the New look; Classic keeps its sheets and its old Life sub-tabs (Classic is out of scope).
+13. Notification read state is per device, like the review read state.
+
+### NEEDS OWNER APPROVAL
+1. Three new optional user_state keys (no migration, older documents load unchanged, tests in tests/state.test.mjs and tests/harada.test.mjs):
+   - type CourtState: + prefs: Prefs; hab: Habits; gridDefs: GridDefs;
+   - OWNED_KEYS: + "prefs", "hab", "gridDefs" (appended; nothing removed)
+   - normalize(): + prefs: normPrefs(r.prefs), hab: normHab(r.hab), gridDefs: normGridDefs(r.gridDefs),
+2. Grid & Wins wizard rebuild: archiving the old chart's ticks would mean moving st.grid.done, which the nine tails read, so the wizard fills empty cells only on an existing chart. A full rebuild with archived ticks needs your go-ahead and a tails review.
+3. Feedback loop: Useful / Needs work ratings and one-line notes are stored in the feedback table (one row per brief kind, last 60 items in items). The scheduled desks cannot read them: they still read the old dashboard's database, and /api/ingest/brief only accepts writes. Smallest safe fix: a new read-only GET /api/ingest/feedback behind the same ingest secret, returning the last 14 days of ratings per desk, plus one line in each desk prompt to read it. It touches the protected ingest area, so not built.
+4. Applying migration 0006 and setting the flag (steps below).
+Still open from before: synced review read state (later), kingdom thresholds (placeholders).
+
+### Round 6 storage: steps for you
+(1) Export your data first
+1. Open the preview and sign in.
+2. Click the menu (three dots) at the top right, then the down-arrow icon "Export my data".
+3. Save the file somewhere safe (it holds your journal and trades).
+4. On each browser where you tried the preview, open Settings and click "Download this device's preview records" (only shown before the flag is on).
+
+(2) Apply the migration in Supabase
+1. Go to supabase.com, sign in, open the 1wan project.
+2. In the left bar click "SQL Editor", then "New query".
+3. Open supabase/migrations/0006_round6_tables.sql from the repo, copy all of it, paste it into the editor.
+4. Click "Run". You should see "Success. No rows returned".
+5. In the left bar click "Table Editor": you should see journal_entries, goals, finance_entries, research_notes, longterm_watchlist, tasks and routines, each with a small "RLS enabled" label.
+
+(3) Set the flag (not a secret; never paste keys into chat)
+1. Vercel: open the 1wan project, Settings, Environment Variables. Add the name NEXT_PUBLIC_1WAN_TABLES with the value on, tick Preview only for now, Save. Then Deployments, the latest preview, the three dots, Redeploy.
+2. Your computer: open apps/web/.env.local in a text editor, add one line NEXT_PUBLIC_1WAN_TABLES=on, save.
+
+(4) Verify
+1. Open the preview, Settings: "Your data" should say "Saved to your account".
+2. Add a task in Calendar, reload: it is still there. Open it on your phone: it is there too.
+3. Export my data again: the file now has the seven new sections.
+4. Optional: supabase/tests/0006_rls_test.sql is a pgTAP test for a local or branch database only (never production).
+Records saved in preview storage before the flag do not move by themselves; tell me if you want an import button.
+
+### Checks
+Typecheck, build, 130 unit tests (tokens, fonts, contrast, overlap, dates, Bigdata, normalize, Harada chart, storage cleaning, inbox, astro rule on the Calendar, Observatory redirect, render of every page with empty, partial, old and odd data) and 58 headless browser runs (every tab by address, day and night, desktop, tablet and phone, old and broken saved values and records): no console errors.
+
+### Not checked
+- Screens were not visually reviewed by screenshot (as asked); layout is checked through the render tests, tokens and the overlap test.
+- The Supabase backend was not run against a real database (the migration is not applied); the device backend was.
+- The RLS SQL test was written but not run (no local database here).
+- Real calendar, ledger and spending responses inside the new pages were only checked with fixture data this round.

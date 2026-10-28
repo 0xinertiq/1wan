@@ -301,7 +301,7 @@ export function TradesPage({ left, scan, intel }: { left: React.ReactNode; scan:
         <div className="kcol">{left}<ScanDetails doc={scan} /><MacroDesk intel={intel} /></div>
         <div className="kcol">
           <TradeLog L={L} /><Sizer /><Stats L={L} /><LongTerm />
-          <Card title="Plans, rules and gamble log" sub="from your ledger"><details><summary className="btn sm ghost">Open</summary><TradeLive extras /></details></Card>
+          <Card title="Ledger review, plans, rules and gamble log" sub="from your ledger"><details><summary className="btn sm ghost">Open</summary><TradeLive extras /></details></Card>
         </div>
       </div>
     </div>

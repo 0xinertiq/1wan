@@ -1022,3 +1022,6 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kbell .ic-o{fill:var(--k-icon-fill);stroke:var(--k-icon-line)}
 :root[data-ui="new"] .kbell .ic-X{stroke:var(--k-icon-line)}
 :root[data-ui="new"] .kcat-art{display:block;width:48px;height:48px;image-rendering:pixelated}
+/* Round 6 mobile pass: 44px targets for segmented tabs and chips on touch screens and the phone */
+@media (pointer:coarse),(max-width:767px){:root[data-ui="new"] :is(.kseg button,.chipb,.klink-row,.kbell .icon-btn){min-height:var(--tap)}}
+:root[data-ui="new"] .kpage :focus-visible{outline:var(--bw-2) solid var(--k-focus);outline-offset:2px}
