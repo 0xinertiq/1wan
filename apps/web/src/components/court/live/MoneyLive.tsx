@@ -114,7 +114,8 @@ export function MoneyLive({ only }: { only?: "spend" } = {}) {
         </>
       )}
 
-      {only === "spend" ? null : st.defs.money ? <MoneyPorted d={st.defs.money} loggedToday={loggedToday} /> : <>
+      {/* without an import, her typed figures (key mny) keep their home here */}
+      {only === "spend" && st.defs.money ? null : st.defs.money ? <MoneyPorted d={st.defs.money} loggedToday={loggedToday} /> : <>
       <div className="sec-h">Cash flow, {month}</div>
       <p className="note xd">Money in, minus fixed costs, minus what you logged this month.</p>
       <div className="filed-row"><span>Money in per month</span><span>{money(inc)}</span></div>

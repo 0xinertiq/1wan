@@ -138,3 +138,23 @@ test("Today's briefing never repeats a story: same subject in other words become
   assert.deepEqual(b.stories[0].also.sort(), ["CoinDesk", "Decrypt"]);
   assert.equal(b.headlines, 4);
 });
+
+test("review fixes: no false merges in the briefing, and no chaining from one story to the next", () => {
+  assert.ok(!sameStory("Fed holds rates", "ECB holds rates"), "different central banks");
+  assert.ok(!sameStory("Bitcoin ETF outflows hit record", "Ethereum ETF outflows hit record"), "different coins");
+  assert.ok(!sameStory("Crypto Market Slides In 2026", "Stock Market Rallies In 2026"), "a shared year or Title Case word is not a subject");
+  const it = (title, source, score) => ({ lead: { title, source, group: "Crypto", at: "2026-10-28T01:00:00Z", link: "https://x/" + encodeURIComponent(source + title), tier: "media" }, items: [{ title, source, group: "Crypto", at: "2026-10-28T01:00:00Z", link: "https://x/" + encodeURIComponent(source), tier: "media" }], sources: 1, independent: 1, syndicated: false, score, why: [] });
+  const b = briefing([it("Bitcoin rebounds above 60k", "A", 90), it("Bitcoin rebounds as ETF inflows return", "B", 80), it("Bitcoin ETF inflows hit record", "C", 70)], ["any"]);
+  assert.equal(b.stories.length, 2, "C is compared with the lead, not pulled in through B");
+});
+
+test("review fixes: money is never counted twice and old figures keep a home", async () => {
+  const f = src("components/court/live/FinanceTracker.tsx");
+  assert.match(f, /lentPart\(r\[1\], r\[4\]\) \? 0 :/, "an imported loan part is left out once loans are tracked");
+  assert.match(f, /l\.category !== "bills"/, "spends logged under Bills are not subtracted twice");
+  assert.match(f, /<Fig id="t\.sgd"[\s\S]*<Fig id="t\.usd"/, "the imported loans-back figures stay editable");
+  assert.match(f, /raw === "" \|\| !Number\.isFinite\(\+raw\)\) return;/, "an empty entry never becomes 0");
+  assert.match(f, /mine\.find\(\(e\) => !e\.undo && !undone\.has\(e\.id\)\)/, "Undo steps back one change at a time");
+  assert.match(src("components/court/live/MoneyLive.tsx"), /only === "spend" && st\.defs\.money \? null/, "without an import her typed figures still show");
+  assert.equal(hitsInMonth({ type: "every", n: 14, last: "2026-11-05" }, "2026-10"), 2, "past months keep their count");
+});

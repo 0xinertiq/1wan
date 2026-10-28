@@ -7,13 +7,14 @@ import { useVault, type VRow } from "@/lib/vault";
 import { billsForMonth, cashflow, loanMath, type Repay } from "@/lib/court/finance";
 import { addDays, prettyDay, stamp, sgtKeyOf } from "@/lib/court/time";
 import { Btn, StoreNote } from "../ui";
+import { fundStatus } from "./MoneyPorted";
 
 // The editable finance tracker (round 9), the first tab of the Life Hub's Finance overview. The imported figures are
 // the starting values; every figure can be edited inline, with Undo and a small history. Balances keep living where
 // they always did (user_state money: t, f, nw); loans, monthly income and the edit history live in finance_entries
 // (preview storage on this device until the new tables are switched on). Tracks and explains, never advises.
 
-type Edit = VRow & { kind: "edit"; fig: string; label: string; from: number; to: number };
+type Edit = VRow & { kind: "edit"; fig: string; label: string; from: number; to: number; undo?: string };
 type LoanRow = VRow & { kind: "loan"; name: string; lent: number; date?: string; repaid: Repay[]; off: number; note?: string };
 type Income = VRow & { kind: "income"; month: string; amt: number };
 type Row = Edit | LoanRow | Income | (VRow & { kind: "budget" | "entry" });
@@ -25,30 +26,33 @@ export const sgd = (n: number) => (n < 0 ? "−" : "") + "S$" + Math.round(Math.
 export function Reveal({ value, label }: { value: string; label: string }) {
   const [on, setOn] = useState(false);
   return (
-    <button type="button" className={"kreveal" + (on ? " on" : "")} aria-pressed={on} aria-label={on ? `${label}: ${value}. Tap to hide` : `${label} hidden. Hover or tap to show`} onClick={() => setOn(!on)}>
+    <button type="button" className={"kreveal" + (on ? " on" : "")} aria-pressed={on} aria-label={`Show ${label}`} onClick={() => setOn(!on)}>
       <span className="kreveal-h" aria-hidden="true">hidden</span><span className="kreveal-v" aria-hidden="true">{value}</span>
     </button>
   );
 }
 
 /** One editable figure: tap the value to edit, Enter or Save keeps it, Undo puts the last value back, History shows five. */
-function Fig({ id, label, value, onSave, edits, log, money = true, mask = false }: { id: string; label: string; value: number; onSave: (v: number) => void; edits: Edit[]; log: (fig: string, label: string, from: number, to: number) => void; money?: boolean; mask?: boolean }) {
+function Fig({ id, label, value, onSave, edits, log, money = true, mask = false, hint }: { id: string; label: string; value: number; onSave: (v: number) => void; edits: Edit[]; log: (fig: string, label: string, from: number, to: number, undo?: string) => void; money?: boolean; mask?: boolean; hint?: React.ReactNode }) {
   const [draft, setDraft] = useState<string | null>(null);
   const mine = edits.filter((e) => e.fig === id).sort((a, b) => b.at.localeCompare(a.at));
-  const last = mine[0];
-  const fmt = (n: number) => (money ? sgd(n) : String(n));
-  const save = () => { if (draft == null) return; const v = Math.max(0, +draft || 0); setDraft(null); if (v !== value) { onSave(v); log(id, label, value, v); } };
+  // Undo steps back one change at a time: an undo marks the change it reversed, so the next Undo reaches the one before
+  const undone = new Set(mine.map((e) => e.undo).filter(Boolean));
+  const last = mine.find((e) => !e.undo && !undone.has(e.id));
+  const fmt = (n: number) => (money ? sgd(n) : Math.round(n).toLocaleString("en-SG"));
+  // an empty or unreadable entry changes nothing (it never turns a figure into 0)
+  const save = () => { if (draft == null) return; const raw = draft.trim(); setDraft(null); if (raw === "" || !Number.isFinite(+raw)) return; const v = Math.max(0, +raw); if (v !== value) { onSave(v); log(id, label, value, v); } };
   return (
     <div className="kfig">
-      <span className="kfig-l">{label}</span>
+      <span className="kfig-l">{label}{hint && <><br /><span className="note">{hint}</span></>}</span>
       {draft == null
         ? <span className="kfig-v">{mask ? <Reveal value={fmt(value)} label={label} /> : <b>{fmt(value)}</b>} <Btn kind="sm ghost" aria-label={`Edit ${label}`} onClick={() => setDraft(String(value))}>Edit</Btn>
-            {last && last.to === value && <Btn kind="sm ghost" aria-label={`Undo the last change to ${label}`} onClick={() => { onSave(last.from); log(id, label, value, last.from); }}>Undo</Btn>}</span>
+            {last && last.to === value && <Btn kind="sm ghost" aria-label={`Undo the last change to ${label}`} onClick={() => { onSave(last.from); log(id, label, value, last.from, last.id); }}>Undo</Btn>}</span>
         : <form className="kfig-v" onSubmit={(e) => { e.preventDefault(); save(); }}>
             <input type="number" min="0" step="0.01" inputMode="decimal" aria-label={label} autoFocus value={draft} onChange={(e) => setDraft(e.target.value)} />
             <button className="btn sm" type="submit">Save</button><Btn kind="sm ghost" onClick={() => setDraft(null)}>Cancel</Btn>
           </form>}
-      {mine.length > 0 && <details className="kfig-h"><summary className="note">History ({Math.min(5, mine.length)})</summary>{mine.slice(0, 5).map((e) => <div className="note" key={e.id}>{mask ? "changed" : `${fmt(e.from)} → ${fmt(e.to)}`} · <time className="ts">{stamp(e.at)}</time></div>)}</details>}
+      {mine.length > 0 && <details className="kfig-h"><summary className="note">History ({Math.min(5, mine.length)})</summary>{mine.slice(0, 5).map((e) => <div className="note" key={e.id}>{e.undo ? "undo: " : ""}{mask ? "changed" : `${fmt(e.from)} → ${fmt(e.to)}`} · <time className="ts">{stamp(e.at)}</time></div>)}</details>}
     </div>
   );
 }
@@ -65,16 +69,22 @@ export function FinanceTracker({ d: raw }: { d: MoneyDefs | undefined }) {
   const fund = (id: string) => s.f[id] ?? 0;
   const part = (id: string, def: number) => s.nw[id] ?? def;
   const setNum = (g: "t" | "f" | "nw", id: string, val: number) => update((x) => { x.money[g] = { ...x.money[g], [id]: Math.max(0, val) }; x.money.upd = k; }, ["money"]);
-  const log = (fig: string, label: string, from: number, to: number) => v.put({ kind: "edit", fig, label, from, to } as Partial<Row>);
+  const log = (fig: string, label: string, from: number, to: number, undo?: string) => v.put({ kind: "edit", fig, label, from, to, ...(undo ? { undo } : {}) } as Partial<Row>);
 
   // month picker and the month's logged spending
   const [month, setMonth] = useState(k.slice(0, 7));
   const [lines, setLines] = useState<Line[] | null>(null);
   useEffect(() => {
+    let alive = true;
     setLines(null);
-    fetch("/api/spending?from=" + month + "-01").then((r) => r.json()).then((j) => setLines(Array.isArray(j.lines) ? j.lines : [])).catch(() => setLines([]));
+    fetch("/api/spending?from=" + month + "-01").then((r) => r.json()).then((j) => { if (alive) setLines(Array.isArray(j.lines) ? j.lines : []); }).catch(() => { if (alive) setLines([]); });
+    return () => { alive = false; };
   }, [month]);
-  const spentLines = (lines ?? []).filter((l) => sgtKeyOf(l.at).startsWith(month));
+  // spends logged under "bills" are already counted once, as Fixed bills from Life admin
+  const allLines = (lines ?? []).filter((l) => sgtKeyOf(l.at).startsWith(month));
+  const spentLines = allLines.filter((l) => l.category !== "bills");
+  const billLines = allLines.length - spentLines.length;
+  const loggedToday = (lines ?? []).some((l) => sgtKeyOf(l.at) === k);
   const byCat = [...new Set(spentLines.map((l) => l.category))].map((c) => ({ c, t: spentLines.filter((l) => l.category === c).reduce((a, l) => a + Number(l.amount), 0) })).sort((a, b) => b.t - a.t);
   const spent = byCat.reduce((a, x) => a + x.t, 0);
   const typed = v.rows.find((r): r is Income => r.kind === "income" && r.month === month);
@@ -86,9 +96,14 @@ export function FinanceTracker({ d: raw }: { d: MoneyDefs | undefined }) {
   const coming = d.steps.reduce((a, r) => a + r[2], 0);
 
   const loanExpected = loans.reduce((a, l) => a + loanMath(l).expected, 0);
-  const netWorth = d.nw.reduce((a, r) => a + r[4] * part(r[0], r[3]), 0) + loanExpected;
+  // once loans are tracked below, an imported net worth part that is itself money lent out is left out, so a loan
+  // is never counted twice
+  const lentPart = (label: string, sign: number) => loans.length > 0 && sign > 0 && /\b(loan|lent|owed to me|receivable|iou)\b/i.test(label);
+  const netWorth = d.nw.reduce((a, r) => a + (lentPart(r[1], r[4]) ? 0 : r[4] * part(r[0], r[3])), 0) + loanExpected;
+  const r2ok = !!s.done.r2 && s.upd === k;
   const held = d.funds.reduce((a, r) => a + fund(r[0]), 0);
   const [lf, setLf] = useState({ name: "", lent: "", date: "" });
+  const [lmsg, setLmsg] = useState("");
   const tick = (id: string, on: boolean) => update((x) => { x.money.done = { ...x.money.done, [id]: on }; if (!on) delete x.money.done[id]; }, ["money"]);
   const up = d.up.filter(([dt]) => dt >= addDays(k, -3) && dt <= addDays(k, 45));
 
@@ -102,13 +117,15 @@ export function FinanceTracker({ d: raw }: { d: MoneyDefs | undefined }) {
         <div className="kfin-tile"><span className="note">Sinking funds held</span><b>{sgd(held)}</b><span className="note">{d.funds.length} funds</span></div>
       </div>
 
-      <div className="sec-h">Figures <span className="note">tap a figure to change it; Undo puts the last value back</span></div>
-      <Fig id="t.ef" label="Emergency fund" value={t.ef} onSave={(x) => setNum("t", "ef", x)} edits={edits} log={log} />
-      <Fig id="t.free" label="Free SGD" value={t.free} onSave={(x) => setNum("t", "free", x)} edits={edits} log={log} />
-      {d.funds.map(([id, name, target]) => <Fig key={id} id={"f." + id} label={`${name} (of ${sgd(target)})`} value={fund(id)} onSave={(x) => setNum("f", id, x)} edits={edits} log={log} />)}
+      <div className="sec-h">Figures <span className="note">tap Edit to change one; Undo steps back{raw?.asOf ? ` · imported as of ${raw.asOf}, updated ${s.upd ? prettyDay(s.upd) : "in the old page"}` : ""}</span></div>
+      <Fig id="t.ef" label="Emergency fund" value={t.ef} onSave={(x) => setNum("t", "ef", x)} edits={edits} log={log} hint={d.k.ef ? `target ${sgd(d.k.ef)}${t.ef < d.k.ef ? ", " + sgd(d.k.ef - t.ef) + " short" : ", fully funded"}` : undefined} />
+      <Fig id="t.free" label="Free SGD" value={t.free} onSave={(x) => setNum("t", "free", x)} edits={edits} log={log} hint={d.k.base ? `${t.free - d.k.base >= 0 ? "+" : "−"}${sgd(Math.abs(t.free - d.k.base))} vs baseline (${sgd(d.k.base)})` : undefined} />
+      {d.funds.map((r) => { const [id, name, target, due, monthly, note] = r; const stt = fundStatus(k, fund(id), r);
+        return <Fig key={id} id={"f." + id} label={`${name} (of ${sgd(target)})`} value={fund(id)} onSave={(x) => setNum("f", id, x)} edits={edits} log={log}
+          hint={<><span className={"st-" + stt.cls}>{stt.txt}</span> · {due ? "due " + prettyDay(due) : "due date unknown"} · {sgd(monthly)} a month{note ? " · " + note : ""}<span className="mbar" aria-hidden="true"><i style={{ width: Math.min(fund(id) / (target || 1), 1) * 100 + "%" }} /></span></>} />; })}
       {d.nw.length > 0 && (
         <details className="kfin-nw"><summary className="note">Net worth parts ({d.nw.length})</summary>
-          {d.nw.map(([id, l, , def, sign]) => <Fig key={id} id={"nw." + id} label={`${l}${sign < 0 ? " (owed)" : ""}`} value={part(id, def)} onSave={(x) => setNum("nw", id, x)} edits={edits} log={log} mask />)}
+          {d.nw.map(([id, l, det, def, sign]) => <Fig key={id} id={"nw." + id} label={`${l}${sign < 0 ? " (owed, subtracted)" : ""}`} value={part(id, def)} onSave={(x) => setNum("nw", id, x)} edits={edits} log={log} mask hint={lentPart(l, sign) ? "left out of net worth while your loans are tracked below" : det || undefined} />)}
         </details>
       )}
 
@@ -121,26 +138,33 @@ export function FinanceTracker({ d: raw }: { d: MoneyDefs | undefined }) {
           <p className="note">Bills are edited once, in Life admin.</p></details>
         <div className="kfin-row"><span>− Sinking funds <span className="note">monthly set-asides</span></span><b>{sgd(sinking)}</b></div>
         <details className="kfin-row"><summary><span>− Logged spending <span className="note">{lines == null ? "loading…" : `${spentLines.length} line${spentLines.length === 1 ? "" : "s"}`}</span></span><b>{sgd(spent)}</b></summary>
-          {byCat.map((x) => <div className="note" key={x.c}>{x.c} · {sgd(x.t)}</div>)}</details>
+          {byCat.map((x) => <div className="note" key={x.c}>{x.c} · {sgd(x.t)}</div>)}
+          {billLines > 0 && <p className="note">{billLines} spend{billLines === 1 ? "" : "s"} logged under Bills left out here: bills count once, above.</p>}</details>
         <div className="kfin-row kfin-left"><b>= Left over</b><b>{sgd(cf.left)}</b></div>
         {d.steps.length > 0 && <p className="note">Left over with the coming changes: {sgd(cf.left + coming)}</p>}
       </div>
 
       <div className="sec-h">Loans owed to me</div>
       {loans.map((l) => <Loan key={l.id} l={l} put={(x) => v.put({ id: l.id, ...x } as Partial<Row>)} />)}
-      <form className="kform" aria-label="Add a loan owed to you" onSubmit={(e) => { e.preventDefault(); const lent = +lf.lent; if (!lf.name.trim() || !(lent > 0)) return; v.put({ kind: "loan", name: lf.name.trim().slice(0, 60), lent, date: lf.date || undefined, repaid: [], off: 0 } as Partial<Row>); setLf({ name: "", lent: "", date: "" }); }}>
+      <form className="kform" aria-label="Add a loan owed to you" onSubmit={(e) => { e.preventDefault(); const lent = +lf.lent; if (!lf.name.trim() || !(lent > 0)) return setLmsg("Give the loan a name and an amount above 0."); v.put({ kind: "loan", name: lf.name.trim().slice(0, 60), lent, date: lf.date || undefined, repaid: [], off: 0 } as Partial<Row>); setLf({ name: "", lent: "", date: "" }); setLmsg("Loan added."); }}>
         <div className="kform-row">
           <input aria-label="Who or what (no account numbers)" placeholder="Who or what, e.g. Loan to a friend" maxLength={60} value={lf.name} onChange={(e) => setLf({ ...lf, name: e.target.value })} />
           <input type="number" min="0" step="0.01" aria-label="Amount lent" placeholder="Amount lent, e.g. 9000" value={lf.lent} onChange={(e) => setLf({ ...lf, lent: e.target.value })} />
           <input type="date" aria-label="Date lent" value={lf.date} onChange={(e) => setLf({ ...lf, date: e.target.value })} />
           <button className="btn sm" type="submit">Add loan</button>
         </div>
+        {lmsg && <p className="note" role="status">{lmsg}</p>}
       </form>
-      {(d.k.sgdExp > 0 || d.k.usdExp > 0) && <p className="note">From your import: {sgd(t.sgd ?? 0)} of {sgd(d.k.sgdExp)} SGD and USD {Math.round(t.usd ?? 0).toLocaleString("en-SG")} of {d.k.usdExp.toLocaleString("en-SG")} received back. Add a loan above to track it here.</p>}
+      {(d.k.sgdExp > 0 || d.k.usdExp > 0) && <>
+        <Fig id="t.sgd" label="Loans back from your import, SGD received" value={t.sgd ?? 0} onSave={(x) => setNum("t", "sgd", x)} edits={edits} log={log} hint={`of ${sgd(d.k.sgdExp)} expected`} />
+        <Fig id="t.usd" label="Loans back from your import, USD received" value={t.usd ?? 0} money={false} onSave={(x) => setNum("t", "usd", x)} edits={edits} log={log} hint={`of USD ${d.k.usdExp.toLocaleString("en-SG")} expected`} />
+      </>}
       <StoreNote status={v.status} failed={v.failed} />
 
-      {d.routines[1] && <label className="kcheck"><input type="checkbox" checked={!!s.done.r2} onChange={(e) => tick("r2", e.target.checked)} />{d.routines[1][1]} <span className="note">{d.routines[1][2]}</span></label>}
-      {up.length > 0 && <details><summary className="note">Coming up, next 45 days ({up.length})</summary>{up.map(([dt, l, a], i) => <div className="note" key={dt + i}>{prettyDay(dt)} · {l} · {a == null ? "–" : sgd(a)}</div>)}</details>}
+      <div className="sec-h">Routines</div>
+      <p className="note">{d.routines[0]?.[1] ?? "Money check"}: {loggedToday ? "done today (auto: a spending line exists)" : "not yet today: log one line in Log a spend"}</p>
+      {d.routines[1] && <label className="kcheck"><input type="checkbox" checked={!!s.done.r2} onChange={(e) => tick("r2", e.target.checked)} />{d.routines[1][1]} <span className="note">{r2ok ? "done (auto: ticked and figures updated today)" : s.done.r2 ? "ticked; update one figure above to complete it" : d.routines[1][2]}</span></label>}
+      {up.length > 0 && <details><summary className="note">Coming up, next 45 days ({up.length})</summary>{up.map(([dt, l, a, note], i) => <div className="note" key={dt + i}>{prettyDay(dt)} · {l}{note === "fund" ? " · from fund" : note === "in" ? " · in" : note ? " · " + note : ""} · {a == null ? "–" : sgd(a)}</div>)}</details>}
       {d.open.length > 0 && <details><summary className="note">Open items ({d.open.filter(([id]) => s.done[id]).length} / {d.open.length} sorted)</summary>
         {d.open.map(([id, title, det]) => <label className="kcheck" key={id}><input type="checkbox" checked={!!s.done[id]} onChange={(e) => tick(id, e.target.checked)} />{s.done[id] ? <s>{title}</s> : title} <span className="note">{det}</span></label>)}</details>}
       <p className="note xd">Tracking only, not advice. No account numbers are ever stored.</p>
@@ -152,6 +176,7 @@ function Loan({ l, put }: { l: LoanRow; put: (x: Partial<LoanRow>) => void }) {
   const m = loanMath(l);
   const [r, setR] = useState({ date: "", amt: "" });
   const [off, setOff] = useState<string | null>(null);
+  const [msg, setMsg] = useState("");
   return (
     <div className="kloan">
       <div className="kloan-h"><b>{l.name}</b>{l.date && <span className="note"> · lent {l.date}</span>}</div>
@@ -162,16 +187,17 @@ function Loan({ l, put }: { l: LoanRow; put: (x: Partial<LoanRow>) => void }) {
         <span><span className="note">Still expected</span> <b>{sgd(m.expected)}</b></span>
       </div>
       {l.repaid.length > 0 && <details><summary className="note">Repayments ({l.repaid.length})</summary>{[...l.repaid].sort((a, b) => a.date.localeCompare(b.date)).map((x, i) => <div className="note" key={i}>{x.date} · {sgd(x.amt)}</div>)}</details>}
-      <form className="kform-row" aria-label={`Add a repayment for ${l.name}`} onSubmit={(e) => { e.preventDefault(); const amt = +r.amt; if (!r.date || !(amt > 0)) return; put({ repaid: [...l.repaid, { date: r.date, amt }] }); setR({ date: "", amt: "" }); }}>
+      <form className="kform-row" aria-label={`Add a repayment for ${l.name}`} onSubmit={(e) => { e.preventDefault(); const amt = +r.amt; if (!r.date || !(amt > 0)) return setMsg("Give the repayment a date and an amount above 0."); if (amt > m.expected + 0.005) return setMsg(`That is more than is still expected (${sgd(m.expected)}).`); put({ repaid: [...l.repaid, { date: r.date, amt }] }); setR({ date: "", amt: "" }); setMsg(""); }}>
         <input type="date" aria-label="Repayment date" value={r.date} onChange={(e) => setR({ ...r, date: e.target.value })} />
         <input type="number" min="0" step="0.01" aria-label="Repayment amount" placeholder="Repaid amount" value={r.amt} onChange={(e) => setR({ ...r, amt: e.target.value })} />
         <button className="btn sm" type="submit">Add repayment</button>
       </form>
       {off == null ? <Btn kind="sm ghost" onClick={() => setOff(String(m.off || m.expected))}>Mark written off…</Btn>
-        : <form className="kform-row" aria-label={`Written off for ${l.name}`} onSubmit={(e) => { e.preventDefault(); put({ off: Math.max(0, +off || 0) }); setOff(null); }}>
+        : <form className="kform-row" aria-label={`Written off for ${l.name}`} onSubmit={(e) => { e.preventDefault(); const x = Math.max(0, +off || 0); if (x + m.repaid > m.lent + 0.005) return setMsg(`Written off plus repaid cannot pass the ${sgd(m.lent)} lent.`); put({ off: x }); setOff(null); setMsg(""); }}>
             <input type="number" min="0" step="0.01" aria-label="Amount written off" value={off} onChange={(e) => setOff(e.target.value)} />
             <button className="btn sm" type="submit">Save written off</button><Btn kind="sm ghost" onClick={() => setOff(null)}>Cancel</Btn>
           </form>}
+      {msg && <p className="note" role="status">{msg}</p>}
     </div>
   );
 }

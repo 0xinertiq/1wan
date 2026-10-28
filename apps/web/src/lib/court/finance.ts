@@ -26,8 +26,9 @@ export function hitsInMonth(rule: LifeItem["rule"], month: string) {
     case "once": return rule.date.slice(0, 7) === month ? 1 : 0;
     case "every": {
       if (!(rule.n >= 1)) return 0;
+      // phase-aligned to the last time it was done, before or after, so past months never change when it is ticked
       const start = rule.last ?? days[0];
-      return days.filter((d) => d >= start && Math.round((Date.parse(d) - Date.parse(start)) / 86400e3) % rule.n === 0).length;
+      return days.filter((d) => { const gap = Math.round((Date.parse(d) - Date.parse(start)) / 86400e3); return ((gap % rule.n) + rule.n) % rule.n === 0; }).length;
     }
   }
 }
@@ -49,6 +50,7 @@ export function cashflow(x: { income: number; bills: number; sinking: number; sp
 export function isPaidNow(it: Pick<LifeItem, "paid" | "rule">, autoPaid: boolean, k: string) {
   if (autoPaid) return true;
   if (it.paid === 1 || (it.rule.type === "once" && !!it.paid)) return true;
+  if (it.rule.type === "every" && it.rule.last && it.rule.last.slice(0, 7) === k.slice(0, 7)) return true;
   return typeof it.paid === "string" && it.paid.slice(0, 7) === k.slice(0, 7);
 }
 

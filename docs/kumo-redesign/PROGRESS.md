@@ -494,3 +494,42 @@ Nothing protected was edited, no records are deleted, and no new migration was n
 - 157 tests pass, including 9 new ones in tests/round9.test.mjs.
 - All 56 browser runs are clean.
 - The build passes, with only the existing Supabase warning.
+
+### Independent review (fresh reviewer, read-only) and the one fix round
+The reviewer found no protected file touched.
+
+**Fixed:**
+- **Briefing false merges.** Two headlines with different named subjects (Fed and ECB, Bitcoin and Ethereum) are never merged. Years and Title Case words no longer count as subjects, and each story is compared only with a group's lead headline, so matches don't chain from one story to the next.
+- **Net worth double counting.** Once loans are tracked, an imported net-worth part that is itself money lent out is left out, with a note on it.
+- **Imported loan figures.** The SGD and USD "loans back" received figures are editable again.
+- **Restored from the old money view:**
+  - routine r1 status and r2 status text;
+  - fund pace, due date, monthly amount and bar;
+  - Free SGD vs baseline;
+  - the "imported as of" line;
+  - the "from fund" and "in" notes on Coming up.
+- **No import:** someone without an import still gets their typed money figures under Log a spend.
+- **Bills counted once:** spends logged under "bills" no longer count twice in the cash flow.
+
+**Minor fixes:**
+- Undo steps back one change at a time, and an empty entry never saves as 0.
+- The loan forms explain bad input, and repayments plus written-off can't pass the amount lent.
+- "Every N days" bills count by phase, so past months don't change.
+- Those bills fold once done this month.
+- Switching months quickly no longer mixes up the spending lines.
+- "Show more" and its fade appear only on blocks that are really clipped.
+- Reveal has a fixed label.
+- Calculator hints are read once.
+- The note form says when a link was dropped.
+
+**Kept, with notes:**
+- **Not yet editable:** fund targets, monthly set-asides, and a loan's name or amount.
+- **USD loans:** loans are in SGD; the imported USD figure stays separate.
+- **Bills:** only Life admin bills (not "Money" items) count as fixed bills.
+- **Bill paid from a sinking fund:** if a bill is paid from a fund, it shows both as a bill and as a set-aside.
+
+Checks after the fix round:
+- Typecheck is clean.
+- 159 tests pass.
+- All 56 browser runs are clean.
+- The build passes.

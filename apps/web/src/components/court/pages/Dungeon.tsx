@@ -31,7 +31,7 @@ function NewNote({ onSave }: { onSave: (n: NonNullable<ReturnType<typeof noteFro
   const [f, setF] = useState({ title: "", text: "", url: "", tag: "" });
   const [msg, setMsg] = useState("");
   return (
-    <form className="kform knote-form" aria-label="New note" onSubmit={(e) => { e.preventDefault(); const n = noteFromForm(f); if (!n) return setMsg("Give the note a title or some text."); onSave(n); setF({ title: "", text: "", url: "", tag: "" }); setMsg("Saved."); }}>
+    <form className="kform knote-form" aria-label="New note" onSubmit={(e) => { e.preventDefault(); const n = noteFromForm(f); if (!n) return setMsg("Give the note a title or some text."); onSave(n); setF({ title: "", text: "", url: "", tag: "" }); setMsg(f.url.trim() && !n.url ? "Saved without the link: a link must start with https://" : "Saved."); }}>
       <div className="sec-h">New note</div>
       <input aria-label="Note title" placeholder="Title" maxLength={120} value={f.title} onChange={(e) => { setF({ ...f, title: e.target.value }); setMsg(""); }} />
       <textarea aria-label="Note text" placeholder="What you found, in your words" maxLength={4000} value={f.text} onChange={(e) => setF({ ...f, text: e.target.value })} />

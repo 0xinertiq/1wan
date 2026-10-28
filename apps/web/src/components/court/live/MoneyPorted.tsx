@@ -18,7 +18,7 @@ function paydays(k: string, due: string) {
   while (d < due) { c++; m++; if (m > 12) { m = 1; y++; } d = `${y}-${String(m).padStart(2, "0")}-07`; }
   return c;
 }
-function fundStatus(k: string, bal: number, [, , target, due, monthly]: MoneyDefs["funds"][number]) {
+export function fundStatus(k: string, bal: number, [, , target, due, monthly]: MoneyDefs["funds"][number]) {
   if (!due) return { cls: "mut", txt: "Due month unknown" };
   if (due < k) return { cls: "mut", txt: "Due date passed · update balance" };
   if (bal >= target - 0.05) return { cls: "ok", txt: "Funded" };

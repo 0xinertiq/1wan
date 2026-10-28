@@ -243,8 +243,8 @@ function Sizer() {
           <select value={f.dir} onChange={set("dir")}><option value="long">Long (buy, stop below entry)</option><option value="short">Short (sell, stop above entry)</option></select></label>
         {SIZER_FIELDS.map(([key, label, hint]) => (
           <label className="kfield" key={key}><span className="kfield-l">{label}</span>
-            <input type="number" step="any" min="0" inputMode="decimal" placeholder={hint.startsWith("What") || hint.startsWith("How") ? hint.split(", ").pop() : ""} value={f[key]} onChange={set(key)} aria-describedby={"hint-" + key} />
-            <span className="note" id={"hint-" + key}>{hint}</span></label>
+            <input type="number" step="any" min="0" inputMode="decimal" placeholder={hint.startsWith("What") || hint.startsWith("How") ? hint.split(", ").pop() : ""} value={f[key]} onChange={set(key)} />
+            <span className="note">{hint}</span></label>
         ))}
         <div className="kbtn-row"><button className="btn" type="submit">Calculate</button></div>
       </form>

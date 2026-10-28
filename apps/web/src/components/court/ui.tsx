@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { PixelSprite, type SpriteName } from "@/components/PixelSprite";
 import { FoxSvg } from "@/components/kumo/Fox";
 import { Scene } from "@/components/kumo/decor/Scene";
@@ -101,10 +101,21 @@ export const confirmDelete = (what: string) => typeof window === "undefined" || 
 /** Round 9: show the first few lines of a long block, with "Show more" (the full text stays one tap away). */
 export function Clamp({ children, lines = 5, label }: { children: React.ReactNode; lines?: number; label: string }) {
   const [open, setOpen] = useState(false);
+  const [clip, setClip] = useState(false);
+  const body = useRef<HTMLDivElement>(null);
+  // only long blocks are clipped and get "Show more"; short ones show whole, with no fade and no button
+  useEffect(() => {
+    const el = body.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const look = () => { if (!open) setClip(el.scrollHeight > el.clientHeight + 4); };
+    look();
+    const ro = new ResizeObserver(look); ro.observe(el);
+    return () => ro.disconnect();
+  }, [open]);
   return (
-    <div className={"kclamp" + (open ? " open" : "")} style={{ "--lines": lines } as React.CSSProperties}>
-      <div className="kclamp-body">{children}</div>
-      <button type="button" className="btn sm ghost kclamp-btn" aria-expanded={open} aria-label={`${open ? "Show less" : "Show more"}: ${label}`} onClick={() => setOpen(!open)}>{open ? "Show less" : "Show more"}</button>
+    <div className={"kclamp" + (open ? " open" : "") + (clip ? " clip" : "")} style={{ "--lines": lines } as React.CSSProperties}>
+      <div className="kclamp-body" ref={body}>{children}</div>
+      {(clip || open) && <button type="button" className="btn sm ghost kclamp-btn" aria-expanded={open} aria-label={`${open ? "Show less" : "Show more"}: ${label}`} onClick={() => setOpen(!open)}>{open ? "Show less" : "Show more"}</button>}
     </div>
   );
 }

@@ -1202,7 +1202,8 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kscanc :is(p,li,.read){line-height:1.35;margin-block:0}
 :root[data-ui="new"] .kscanc :is(ul,ol){margin-block:0}
 :root[data-ui="new"] .kscanc .klib-item{padding-block:var(--sp-1)}
-:root[data-ui="new"] .kclamp:not(.open) .kclamp-body{max-height:calc(var(--lines,5) * 1.4em + var(--sp-8));overflow:hidden;-webkit-mask-image:linear-gradient(to bottom,var(--k-white) 70%,transparent);mask-image:linear-gradient(to bottom,var(--k-white) 70%,transparent)}
+:root[data-ui="new"] .kclamp:not(.open) .kclamp-body{max-height:calc(var(--lines,5) * 1.4em + var(--sp-8));overflow:hidden}
+:root[data-ui="new"] .kclamp.clip:not(.open) .kclamp-body{-webkit-mask-image:linear-gradient(to bottom,var(--k-white) 70%,transparent);mask-image:linear-gradient(to bottom,var(--k-white) 70%,transparent)}
 :root[data-ui="new"] .kclamp-btn{justify-self:start;margin-top:var(--sp-1)}
 :root[data-ui="new"] .kclamp{display:grid}
 /* position size calculator: a label and a hint for every field */

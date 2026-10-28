@@ -36,7 +36,7 @@ const CLEAN: Record<Table, (r: Raw) => Raw | null> = {
       repaid: (Array.isArray(r.repaid) ? r.repaid : []).filter((x) => x && typeof x === "object" && DAY.test(String((x as Raw).date)) && (N((x as Raw).amt) ?? 0) > 0).map((x) => ({ date: (x as Raw).date as string, amt: N((x as Raw).amt) as number })),
       off: Math.max(0, N(r.off) ?? 0), note: NOACC(S(r.note, 120)) } : null;
     if (r.kind === "income") return typeof r.month === "string" && /^\d{4}-\d{2}$/.test(r.month) && N(r.amt) != null ? { kind: "income", month: r.month, amt: Math.max(0, N(r.amt) as number) } : null;
-    if (r.kind === "edit") return typeof r.fig === "string" && N(r.to) != null ? { kind: "edit", fig: S(r.fig, 60), label: NOACC(S(r.label, 60)), from: N(r.from) ?? 0, to: N(r.to) } : null;
+    if (r.kind === "edit") return typeof r.fig === "string" && N(r.to) != null ? { kind: "edit", fig: S(r.fig, 60), label: NOACC(S(r.label, 60)), from: N(r.from) ?? 0, to: N(r.to), undo: OS(r.undo) } : null;
     return (r.kind !== "budget" && r.kind !== "entry") || N(r.amt) == null ? null : { kind: r.kind, cat: S(r.cat, 30) || "other", amt: N(r.amt), date: typeof r.date === "string" && DAY.test(r.date) ? r.date : undefined, type: r.type === "in" ? "in" : "out", note: NOACC(S(r.note, 120)) };
   },
   research_notes: (r) => ({ kind: r.kind === "macro" ? "macro" : "note", title: S(r.title, 120), text: S(r.text, 4000), tags: SL(r.tags), url: typeof r.url === "string" && /^https?:\/\//.test(r.url) ? r.url : undefined, pinned: r.pinned === true, lens: r.lens === "local" || r.lens === "any" ? r.lens : r.lens === "trading" ? "trading" : undefined, watch: OS(r.watch), week: OS(r.week) }),
