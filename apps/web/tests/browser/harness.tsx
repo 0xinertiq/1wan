@@ -27,7 +27,6 @@ import { StatusLine } from "@/components/court/StatusLine";
 import { EconLive } from "@/components/court/live/EconLive";
 import { TodayLive } from "@/components/court/live/TodayLive";
 import { CalendarTab } from "@/components/court/live/CalendarTab";
-import { LiveWatch } from "@/components/court/live/LiveWatch";
 import { TechLive } from "@/components/court/live/TechLive";
 import { NewsLive } from "@/components/court/NewsLive";
 import { DiaryLive, GardenLive, WinsButton } from "@/components/court/live/GrowLive";

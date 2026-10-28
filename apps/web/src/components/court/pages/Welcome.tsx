@@ -24,8 +24,9 @@ export function WelcomePage() {
   const p = st.prefs;
   const [step, setStep] = useState(0);
   const [f, setF] = useState({ name: p.name ?? "", tz: p.tz ?? "Asia/Singapore", rooms: { ...Object.fromEntries(INTERESTS.map(([id]) => [id, true])), ...(p.rooms ?? {}) } as Record<string, boolean>, lens: (st.lenses.includes("off") ? "off" : st.lenses.includes("any") ? "any" : st.lenses.length === 1 && st.lenses[0] === "local" ? "local" : "trading") as Lens, companion: p.companion ?? "fox", morning: p.notif?.morning ?? true });
-  // round 7: the tour's simple lens choice writes her lenses (Settings allows several); prefs.lens is kept in step
-  const save = (done = false) => update((d) => { const lens = f.rooms.markets ? f.lens : "off"; d.prefs = { ...d.prefs, name: f.name.trim().slice(0, 40) || undefined, tz: f.tz, rooms: f.rooms, lens, companion: f.companion, notif: { ...(d.prefs.notif ?? {}), morning: f.morning }, ...(done ? { onboarded: k } : {}) }; d.lenses = normLenses([], lens); }, ["prefs", "lenses"]);
+  // round 7: the tour's simple lens choice writes her lenses only when she changes it there (Settings allows several)
+  const [lens0] = useState(f.lens), [rooms0] = useState(f.rooms.markets);
+  const save = (done = false) => update((d) => { const lens = f.rooms.markets ? f.lens : "off"; d.prefs = { ...d.prefs, name: f.name.trim().slice(0, 40) || undefined, tz: f.tz, rooms: f.rooms, lens, companion: f.companion, notif: { ...(d.prefs.notif ?? {}), morning: f.morning }, ...(done ? { onboarded: k } : {}) }; if (f.lens !== lens0 || f.rooms.markets !== rooms0) d.lenses = normLenses([], lens); }, ["prefs", "lenses"]);
   const next = () => { save(); setStep(Math.min(4, step + 1)); };
   const steps = ["Welcome", "Interests", "Connections", "Theme and companion", "Enter the kingdom"];
   return (

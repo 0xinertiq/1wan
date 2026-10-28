@@ -23,7 +23,7 @@
 :root[data-ui="new"] .win-body{padding:var(--sp-4)}
 :root[data-ui="new"] .sec-h{font:700 12px var(--kumo-font-body);letter-spacing:.06em}
 
-/* Buttons: filled pink primary, white secondary, no hard drop. */
+/* Buttons: transparent pink (round 7; the shared rule is in the Round 6 block below), no hard drop. */
 :root[data-ui="new"] .btn{font:700 14px var(--kumo-font-body);letter-spacing:0;padding:var(--sp-3) var(--sp-4);min-height:40px;border:1.5px solid var(--k-btn-line);border-radius:var(--kumo-radius-control);background:var(--k-btn-fill);color:var(--k-btn-ink);box-shadow:none;transition:background-color .15s,box-shadow .15s}
 :root[data-ui="new"] .btn:hover:not(:disabled){box-shadow:var(--kumo-shadow-card)}
 :root[data-ui="new"] .btn:active:not(:disabled){transform:translateY(1px);box-shadow:none}
@@ -960,11 +960,6 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 /* journal writing (Inter, journal only) */
 :root[data-ui="new"] .kjournal textarea{min-height:280px;font:400 var(--fs-read)/var(--lh-read) var(--k-font-journal)}
 :root[data-ui="new"] .kmood{display:flex;flex-wrap:wrap;gap:var(--sp-2)}
-/* bell and inbox */
-:root[data-ui="new"] .kbell{position:relative}
-:root[data-ui="new"] .kbell-n{position:absolute;top:2px;right:2px;min-width:18px;height:18px;padding:0 var(--sp-1);border-radius:var(--r-pill);background:var(--k-accent);color:var(--k-accent-ink);font:700 11px/18px var(--k-font-body);text-align:center}
-:root[data-ui="new"] .kbell-pop{position:absolute;right:0;top:calc(100% + 8px);z-index:80;width:min(360px,calc(100vw - 32px));padding:var(--sp-3);border:var(--bw-2) solid var(--k-outline);border-radius:var(--r-card);background:var(--k-surface);box-shadow:var(--k-shadow-float);display:grid;gap:var(--sp-2)}
-:root[data-ui="new"] .kinbox-item.unread .krow-main b::before{content:"";display:inline-block;width:8px;height:8px;margin-right:var(--sp-2);border-radius:var(--r-pill);background:var(--k-accent);vertical-align:middle}
 /* kingdom mode */
 :root[data-ui="new"] .kcat{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--sp-3)}
 :root[data-ui="new"] .kcat>div{display:grid;gap:var(--sp-1);padding:var(--sp-3);border:var(--bw) dashed var(--k-divider);border-radius:var(--r-control);background:var(--k-surface-2)}
@@ -1008,11 +1003,9 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 }
 :root[data-ui="new"] .klink-row{width:100%;min-height:var(--tap);border:0;border-bottom:var(--bw) dashed var(--k-divider);background:transparent;text-align:left;cursor:pointer}
 :root[data-ui="new"] .klink-row[aria-pressed=true]{background:var(--k-tint-sakura)}
-:root[data-ui="new"] .kbell .ic-o{fill:var(--k-icon-fill);stroke:var(--k-icon-line)}
-:root[data-ui="new"] .kbell .ic-X{stroke:var(--k-icon-line)}
 :root[data-ui="new"] .kcat-art{display:block;width:48px;height:48px;image-rendering:pixelated}
 /* Round 6 mobile pass: 44px targets for segmented tabs and chips on touch screens and the phone */
-@media (pointer:coarse),(max-width:767px){:root[data-ui="new"] :is(.kseg button,.chipb,.klink-row,.kbell .icon-btn){min-height:var(--tap)}}
+@media (pointer:coarse),(max-width:767px){:root[data-ui="new"] :is(.kseg button,.chipb,.klink-row){min-height:var(--tap)}}
 :root[data-ui="new"] .kpage :focus-visible{outline:var(--bw-2) solid var(--k-focus);outline-offset:2px}
 
 /* Phone bar order: Home, Calendar, Hub, Diary, then More */

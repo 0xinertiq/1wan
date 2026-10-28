@@ -18,7 +18,6 @@ import { StatusLine } from "../src/components/court/StatusLine.tsx";
 import { EconLive, NextLiquidityLine } from "../src/components/court/live/EconLive.tsx";
 import { MomoCard, MomoIdeas, KumoPick, TodayLive } from "../src/components/court/live/TodayLive.tsx";
 import { CalendarTab } from "../src/components/court/live/CalendarTab.tsx";
-import { LiveWatch } from "../src/components/court/live/LiveWatch.tsx";
 import { TechLive } from "../src/components/court/live/TechLive.tsx";
 import { TradeLive } from "../src/components/court/live/TradeLive.tsx";
 import { NewsLive } from "../src/components/court/NewsLive.tsx";
@@ -93,7 +92,7 @@ function screens(docs) {
     header: h(Header),
     court: h(CourtLayout, { s: slots }),
     calendar: h("div", null, h(NextLiquidityLine), h(CalendarTab), h(CalendarPage, { main: h(CalendarTab, { noWeek: true }), econ: h(EconLive) }), h(MomoCard), h(MomoIdeas)),
-    trades: h("div", null, h(TradeLive), h(LiveWatch), h(TradesPage, { movers: h(MoversCard, { list: docs.filter((d) => d.key === "movers") }), tech: h(TechLive), scan: docOf("scan"), intel: docOf("intel") })),
+    trades: h("div", null, h(TradeLive), h(TradesPage, { movers: h(MoversCard, { list: docs.filter((d) => d.key === "movers") }), tech: h(TechLive), scan: docOf("scan"), intel: docOf("intel") })),
     news: h(NewsPage, { headlines: h(NewsLive, { top5: ["The Fed holds."] }), library: h(BriefsLibrary, { history: docs }) }),
     garden: h("div", null, h(KumoPick), h(GardenLive)),
     diary: h("div", null, h(WinsButton), h(DiaryLive, { open: true })),

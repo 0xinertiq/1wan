@@ -349,3 +349,28 @@ Typecheck clean; 140 unit and render tests pass (8 new in tests/round7.test.mjs)
 ### Not checked
 No screenshots (as asked). The room's drag and swipe were checked in code and by the browser runs, not by hand on a phone.
 
+
+### Independent review (fresh reviewer, read-only) and the one fix round
+The reviewer found no protected file touched, no solid pink button left, one home for every moved feature, and nothing deleted. Fixed:
+- Classic keeps its Technicals chart (the New look still has no chart button).
+- The morning's briefs never alert twice: Pip only announces briefs filed from 12:00, and Momo's summary covers the rest.
+- Replaying the tour no longer resets the lenses chosen in Settings.
+- The Dungeon's note text no longer points to the removed research strip.
+- The alert "!" waits for saved Dismiss and Later choices, so it never flashes.
+- The alert bubble closes on scroll, focus moves to the current tab after the last Dismiss, and a link to the current address still opens.
+- Each Briefs card has its own heading id.
+- Wins-ladder habits now show today's tick, so ticking and unticking always match.
+- The Tech topic shows only on the News tab, so the classic Court's headlines are unchanged.
+- Dead code removed: the bell and inbox styles, and the unused Watchlist card.
+
+Kept, with notes:
+- **Alerts default to on.** Only an explicit "off" stored before mutes a rule, and with the Notifications card gone she cannot change this. NEEDS OWNER APPROVAL: keep on, or return to morning-only.
+- **The Calendar's sky filter** (also in Classic) hides calendars named with "luna" or "moon", and titles such as "Moon cake festival" or "Eclipse meetup".
+- **`forLens` and the `Research` type stay**, because the Dungeon and the tests use them.
+- **`InboxProvider` keeps its name.**
+
+Checks after the fix round:
+- Typecheck is clean.
+- 140 tests pass.
+- Browser runs are clean.
+- The build passes.

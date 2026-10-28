@@ -34,9 +34,11 @@ export function AlertsProvider({ children }: { children: React.ReactNode }) {
   const [gone, setGone] = useState<string[]>([]);
   const [later, setLater] = useState<Record<string, number>>({});
   const [tick, setTick] = useState(0);
+  const [ready, setReady] = useState(false);
   useEffect(() => {
     setGone(readSaved("alerts.dismissed", isStringList, []));
     setLater(readSaved("alerts.later", isLater, {}));
+    setReady(true);
     // look again every ten minutes, so "Later" alerts come back and the hour rules move on
     const t = window.setInterval(() => setTick((n) => n + 1), 600e3);
     return () => window.clearInterval(t);
@@ -55,7 +57,8 @@ export function AlertsProvider({ children }: { children: React.ReactNode }) {
       on: (id) => st.prefs.notif?.[id] !== false,
     });
   }, [st, k, nm, events, briefs, review, rv.unread, econ, tasks.rows, routines.rows, tick]); // eslint-disable-line react-hooks/exhaustive-deps
-  const alerts = showing(all, gone, later, Date.now());
+  // nothing shows until her Dismiss and Later choices are read, so a dismissed "!" never flashes on load
+  const alerts = ready ? showing(all, gone, later, Date.now()) : [];
   const dismiss = (id: string) => { const x = [...new Set([...gone, id])].slice(-300); setGone(x); writeSaved("alerts.dismissed", x); };
   const putOff = (id: string) => {
     const now = Date.now();
@@ -79,9 +82,9 @@ export function AlertMark({ agent }: { agent: Agent }) {
     const close = (e: Event) => { if (!pop.current?.contains(e.target as Node) && !btn.current?.contains(e.target as Node)) setAt(null); };
     const esc = (e: KeyboardEvent) => { if (e.key === "Escape") { setAt(null); btn.current?.focus(); } };
     const away = () => setAt(null);
-    document.addEventListener("pointerdown", close); document.addEventListener("keydown", esc); window.addEventListener("resize", away);
+    document.addEventListener("pointerdown", close); document.addEventListener("keydown", esc); window.addEventListener("resize", away); window.addEventListener("scroll", away, true);
     pop.current?.querySelector<HTMLElement>("a,button")?.focus();
-    return () => { document.removeEventListener("pointerdown", close); document.removeEventListener("keydown", esc); window.removeEventListener("resize", away); };
+    return () => { document.removeEventListener("pointerdown", close); document.removeEventListener("keydown", esc); window.removeEventListener("resize", away); window.removeEventListener("scroll", away, true); };
   }, [at]);
   useEffect(() => { if (!mine.length) setAt(null); }, [mine.length]);
   if (ui !== "new" || !mine.length) return null;
@@ -104,8 +107,8 @@ export function AlertMark({ agent }: { agent: Agent }) {
             <div className="kalert-item" key={a.id}>
               <p>{a.text}</p>
               <div className="kalert-act">
-                <a className="btn sm" href={"#" + a.go} onClick={() => setAt(null)}>{a.label}</a>
-                <button type="button" className="btn sm ghost" onClick={() => dismiss(a.id)}>Dismiss</button>
+                <a className="btn sm" href={"#" + a.go} onClick={() => { setAt(null); if (window.location.hash === "#" + a.go) window.dispatchEvent(new HashChangeEvent("hashchange")); }}>{a.label}</a>
+                <button type="button" className="btn sm ghost" onClick={() => { if (mine.length === 1) { setAt(null); document.querySelector<HTMLElement>(".tabnav button[aria-current=page]")?.focus(); } dismiss(a.id); }}>Dismiss</button>
                 <button type="button" className="btn sm ghost" onClick={() => later(a.id)}>Later</button>
               </div>
             </div>

@@ -37,7 +37,8 @@ test("a habit added in My habits shows in Quests and once in the Wins ladder, wi
   assert.deepEqual(habitQuests(hab, K), [{ id: "h1", name: "Stretch", done: false }]);
   const mine = habitPhase(hab, K);
   assert.deepEqual(mine.phase.items.map((i) => i[0]), [HAB_PREFIX + "h1"], "one ladder item per habit, paused left out");
-  assert.deepEqual(mine.done, { [HAB_PREFIX + "h1"]: true }, "ticked on Monday counts for the week");
+  assert.deepEqual(mine.done, { [HAB_PREFIX + "h1"]: false }, "the ladder shows today's tick, so tick and untick always match");
+  assert.deepEqual(habitPhase({ ...hab, log: { [K]: ["h1"] } }, K).done, { [HAB_PREFIX + "h1"]: true });
   assert.equal(habitPhase({ list: [], log: {} }, K), null);
 });
 
@@ -61,10 +62,11 @@ test("alerts: one agent per rule, the calm morning summary, explicit offs, and D
   assert.deepEqual(am.map((a) => a.agent), ["momo", "olli", "coco", "kumo"], "morning: Momo's one summary speaks for the briefs; no habit nudge before 17:00");
   assert.match(am[0].text, /^Good morning\. 2 new briefs: Intelligence and Pulse\.$/);
   assert.equal(am[2].go, "calendar"); assert.match(am[2].text, /Renew passport/); assert.ok(!/Dog grooming/.test(am[2].text), "only due today or overdue");
-  const pm = buildAlerts({ ...base, hour: 18 });
-  assert.deepEqual(pm.map((a) => a.agent), ["pip", "pip", "olli", "coco", "momo", "kumo"]);
+  const pm = buildAlerts({ ...base, hour: 18, briefs: [...base.briefs, { key: "movers", label: "Midday movers", at: "2026-10-28T06:30:00Z" }] });
+  assert.deepEqual(pm.map((a) => a.agent), ["pip", "olli", "coco", "momo", "kumo"], "the morning's briefs never alert twice; Pip announces the 14:30 one");
+  assert.match(pm[0].text, /Midday movers/);
   assert.equal(new Set(pm.map((a) => a.id)).size, pm.length);
-  assert.deepEqual(buildAlerts({ ...base, hour: 18, on: (id) => id !== "briefs" && id !== "habits" }).map((a) => a.agent), ["olli", "coco", "kumo"]);
+  assert.deepEqual(buildAlerts({ ...base, hour: 18, on: (id) => id !== "liquidity" && id !== "habits" }).map((a) => a.agent), ["coco", "kumo"]);
   const later = { [am[1].id]: Date.parse("2026-10-28T03:00:00Z") };
   assert.deepEqual(showing(am, [am[0].id], later, Date.parse("2026-10-28T01:00:00Z")).map((a) => a.agent), ["coco", "kumo"]);
   assert.deepEqual(showing(am, [am[0].id], later, Date.parse("2026-10-28T04:00:00Z")).map((a) => a.agent), ["olli", "coco", "kumo"], "Later comes back");

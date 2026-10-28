@@ -23,10 +23,10 @@ const CRYPTO = /\b(crypto|bitcoin|btc|ether(?:eum)?|eth|stablecoins?|solana|xrp|
 const MACRO = /\b(fed|fomc|federal reserve|cpi|inflation|interest rates?|rate (?:cut|hike|decision)|central bank|ecb|boj|bank of japan|bank of england|payrolls|treasur(?:y|ies)|bond yields?)\b/i;
 // Round 7: technology stories on a world or markets feed file under Tech (a lens she can follow).
 const TECH = /\b(ai|artificial intelligence|openai|anthropic|nvidia|chips?|chipmakers?|semiconductors?|apple|alphabet|google|microsoft|amazon|meta|tesla|start-?ups?|venture capital|software|smartphones?)\b/i;
-export function topicOf(title: string, group: string): string {
+export function topicOf(title: string, group: string, tech = false): string {
   if (CRYPTO.test(title)) return "Crypto";
   if (group === "World" && MACRO.test(title)) return "Macro";
-  if ((group === "World" || group === "Markets") && TECH.test(title)) return "Tech";
+  if (tech && (group === "World" || group === "Markets") && TECH.test(title)) return "Tech";
   return group;
 }
 
@@ -70,12 +70,12 @@ export function NewsLive({ top5 = [], follow = false }: { top5?: string[]; follo
 
   const tgItems = (tg?.items ?? []).map((m) => ({ title: m.text.split(String.fromCharCode(10))[0].slice(0, 220), source: m.title + " (Telegram)", group: "Telegram", region: "Global", tier: "social" as const, at: m.at, link: m.link }));
   const regions = st.news.regions.length ? st.news.regions : REGIONS;
-  const rss = (data?.items ?? []).filter((h) => regions.includes(h.region)).map((h) => ({ ...h, group: topicOf(h.title, h.group) }));
+  const rss = (data?.items ?? []).filter((h) => regions.includes(h.region)).map((h) => ({ ...h, group: topicOf(h.title, h.group, follow) }));
   const watch = (prices?.prices ?? []).flatMap((p) => [p.sym, (COINGECKO_IDS[p.sym] ?? "").split("-")[0]]).filter(Boolean);
   const clusters = cluster([...rss, ...tgItems], { watch, releases: (econ?.items ?? []).filter((e) => e.top).map((e) => e.title) });
   const seen = (c: (typeof clusters)[number]) => !follow || headlineShown(c.lead.group ?? "", st.lenses) || (!st.lenses.includes("off") && c.items.some((x) => x.group === "Telegram"));
   const items = clusters.filter(seen);
-  const groups = [...NEWS_GROUPS, "Tech"].filter((g) => !follow || headlineShown(g, st.lenses));
+  const groups = [...NEWS_GROUPS, ...(follow ? ["Tech"] : [])].filter((g) => !follow || headlineShown(g, st.lenses));
   const lensOff = follow && st.lenses.includes("off");
   // A Telegram post that clustered with a news story still shows under the Telegram chip (never lost to topic filing).
   const list = tab === "All" ? items : tab === "Telegram" ? items.filter((c) => c.items.some((x) => x.group === "Telegram")) : items.filter((c) => c.lead.group === tab);

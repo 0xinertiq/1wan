@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { BriefFeedback } from "./BriefFeedback";
 import { SourcesLine, type BriefDoc } from "./BriefTabs";
 import { briefSections, isNoMovers, scanCourt, type Headline } from "@/components/kumo/briefParse";
@@ -148,6 +148,7 @@ const DESKS: { key: string; label: string }[] = [
 const SHORT: Record<string, string> = { intel: "Intel", pulse: "Pulse" };
 export function BriefsLibrary({ history, only, follow = false, title = "Briefs and scans" }: { history: BriefDoc[]; only?: string[]; follow?: boolean; title?: string }) {
   const { st } = useCourt();
+  const hid = useId();
   const allow = follow ? (briefTabs(st.lenses) as string[]) : null;
   const desks = DESKS.filter((k) => (!only || only.includes(k.key)) && (!allow || allow.includes(k.key)) && history.some((d) => d.key === k.key)).map((k) => (only && SHORT[k.key] ? { ...k, label: SHORT[k.key] } : k));
   const [pick, setDesk] = useState(desks[0]?.key ?? "intel");
@@ -155,8 +156,8 @@ export function BriefsLibrary({ history, only, follow = false, title = "Briefs a
   const [all, setAll] = useState(false);
   const list = history.filter((d) => d.key === desk).slice(0, 14);
   return (
-    <section className="win klib" aria-labelledby="klibT">
-      <div className="win-title"><h2 id="klibT">{title}</h2><span className="sub">full text, newest first</span></div>
+    <section className="win klib" aria-labelledby={hid}>
+      <div className="win-title"><h2 id={hid}>{title}</h2><span className="sub">full text, newest first</span></div>
       <div className="win-body">
         {!desks.length ? <p className="note">{allow && !allow.length ? "Your news lens is off. Turn a lens on in Settings." : "Nothing filed yet."}</p> : <>
           {desks.length > 1 && <div className="kseg" role="group" aria-label="Desks">

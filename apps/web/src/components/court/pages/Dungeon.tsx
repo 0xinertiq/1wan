@@ -89,7 +89,7 @@ function Side({ day, e, put }: { day: string; e: Entry | undefined; put: (x: Par
         <label className="kform">After: what would you change?<textarea key={day + "c"} maxLength={1000} defaultValue={cur.change ?? ""} onBlur={(ev) => ev.target.value !== (cur.change ?? "") && put({ ...base, change: ev.target.value })} /></label>
       </Card>
       <Card title="Research notes" sub="attach one to this page">
-        {!notes.rows.length ? <EmptyState who="tilly">No research notes yet. Save them in News, under Saved and research.</EmptyState>
+        {!notes.rows.length ? <EmptyState who="tilly">No saved research notes. Notes you saved before are listed here to attach; nothing new is saved from News any more.</EmptyState>
           : notes.rows.slice(0, 20).map((n) => {
             const on = (cur.notes ?? []).includes(n.id);
             return (

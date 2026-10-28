@@ -25,13 +25,13 @@ export function habitQuests(hab: Hab, k: string) {
   return unique(hab.list).filter((h) => !h.paused && h.days.includes(wd)).map((h) => ({ id: h.id, name: h.name, done: today.includes(h.id) }));
 }
 
-/** Her habits as one extra phase of the Wins ladder: a habit counts as won once ticked on any day this week. */
+/** Her habits as one extra phase of the Wins ladder, ticked for today (the same tick as My habits and Quests). */
 export function habitPhase(hab: Hab, k: string): { phase: Phase; done: Record<string, boolean> } | null {
   const live = unique(hab.list).filter((h) => !h.paused);
   if (!live.length) return null;
-  const days = weekSoFar(k);
+  const today = hab.log[k] ?? [];
   return {
-    phase: { id: "hab", title: "Your habits", when: "this week", why: "Added in My habits. Tick them there, in Quests or here: it is the same habit.", items: live.map((h) => [HAB_PREFIX + h.id, h.name, "from My habits"]) },
-    done: Object.fromEntries(live.map((h) => [HAB_PREFIX + h.id, days.some((d) => (hab.log[d] ?? []).includes(h.id))])),
+    phase: { id: "hab", title: "Your habits", when: "today", why: "Added in My habits. Tick them there, in Quests or here: it is the same habit.", items: live.map((h) => [HAB_PREFIX + h.id, h.name, "from My habits"]) },
+    done: Object.fromEntries(live.map((h) => [HAB_PREFIX + h.id, today.includes(h.id)])),
   };
 }
