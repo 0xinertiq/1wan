@@ -1,5 +1,7 @@
 "use client";
 
+import { useVault } from "@/lib/vault";
+import { dueSoon } from "@/lib/court/vaultDue";
 import { useState } from "react";
 import { PixelSprite } from "@/components/PixelSprite";
 import { useCourt } from "../CourtState";
@@ -69,7 +71,9 @@ export function TodayLive({ bare = false }: { bare?: boolean }) {
 // The glance numbers and Since yesterday as one compact row (New look's Today card).
 export function TodayChips() {
   const { st, k, events } = useCourt();
-  const wh = weekHab(st, k), due = dueList(st, k, events).filter((x) => x.dd <= 3).length;
+  // Round 6: her tasks and routines due within 3 days count too.
+  const tasks = useVault("tasks"), routines = useVault("routines");
+  const wh = weekHab(st, k), due = dueList(st, k, events).filter((x) => x.dd <= 3).length + dueSoon(tasks.rows as never, routines.rows as never, k, 3).length;
   const yd = st.days[addDays(k, -1)];
   return (
     <div className="tchips" role="group" aria-label="Today at a glance">

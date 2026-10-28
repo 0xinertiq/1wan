@@ -9,6 +9,8 @@ import { addDays, hm, prettyDay, wdName, wdOf, weekKey } from "@/lib/court/time"
 import { branches, needsCare, type WaterEvt } from "@/lib/court/garden";
 import { getOnce } from "@/lib/court/once";
 import { isStringList, readSaved, writeSaved } from "@/lib/court/store";
+import { useVault } from "@/lib/vault";
+import { dueSoon, type DueThing } from "@/lib/court/vaultDue";
 
 // Court home cards (docs/build-dashboard-v2.md section 2): Needs you now, weather, This week strip, Week ahead.
 // Rules only, from her real records. Each card folds, and the fold is remembered on this device.
@@ -45,8 +47,11 @@ function useRecords() {
 // hours, and (b) agents waiting on her (today's briefs still to rate, as one line). No macro releases, no
 // habits, no price alerts. Items on the same day (or at the same time) share one card with one Seen.
 type Need = { id: string; crew: SpriteName; t: string; sub?: string; rows?: string[]; go?: string; rank: number };
-function needs(st: CourtState, k: string, nm: number, events: CalEvent[], unrated: string[]): Need[] {
+function needs(st: CourtState, k: string, nm: number, events: CalEvent[], unrated: string[], vdue: DueThing[] = []): Need[] {
   const out: Need[] = [];
+  // Round 6: her own tasks (Calendar) and routines (Life Hub) due within 3 days, one row each.
+  for (const x of vdue) out.push({ id: x.id + x.d, crew: x.kind === "task" ? "momo" : "coco", rank: x.dd <= 0 ? 1 : 3, go: x.kind === "task" ? "calendar" : "life",
+    t: `${x.name} ${x.dd < 0 ? "overdue" : x.dd === 0 ? "due today" : x.dd === 1 ? "due tomorrow" : "due " + prettyDay(x.d)}`, sub: prettyDay(x.d) });
   const due = dueList(st, k, events).filter((x) => !isAutoPaid(x.it) && (x.dd <= 3 || x.it.important === true));
   const byDay = new Map<string, typeof due>();
   for (const x of due) byDay.set(x.d, [...(byDay.get(x.d) ?? []), x]);
@@ -80,7 +85,8 @@ export function NeedsNow({ unrated = [] }: { unrated?: string[] }) {
   // Seen items for today, on this device (versioned key; an old or broken value is ignored).
   useEffect(() => { setSeen(readSaved("seen." + k, isStringList, [])); }, [k]);
   const hide = (id: string) => { const x = [...seen, id]; setSeen(x); writeSaved("seen." + k, x); };
-  const list = needs(st, k, nm, events, unrated).filter((x) => !seen.includes(x.id));
+  const tasks = useVault("tasks"), routines = useVault("routines");
+  const list = needs(st, k, nm, events, unrated, dueSoon(tasks.rows as never, routines.rows as never, k, 3)).filter((x) => !seen.includes(x.id));
   const shown = all ? list : list.slice(0, 3);
   // When nothing is waiting the card animates away and leaves no space; it returns when something is due.
   const [gone, setGone] = useState(false);

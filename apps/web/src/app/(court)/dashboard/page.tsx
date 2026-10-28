@@ -38,6 +38,7 @@ const cleanMem = (m: DeskMem): DeskMem => {
 };
 import { NewOnly } from "@/components/kumo/NewOnly";
 import { TradesPage } from "@/components/court/pages/TradesPage";
+import { CalendarPage } from "@/components/court/pages/CalendarPage";
 import { topFive } from "@/components/kumo/briefParse";
 import { DiaryLive, GardenLive, StatusLive, WinsButton } from "@/components/court/live/GrowLive";
 import { bootState } from "@/lib/court/actions";
@@ -151,7 +152,7 @@ export default async function Dashboard() {
               }}
             />
           ),
-          calendar: <NewOnly classic={<CalendarTab />}><div className="tgrid cal"><div className="tcol"><EconLive /><MomoCard /></div><div className="tcol"><CalendarTab noWeek /></div></div></NewOnly>,
+          calendar: <NewOnly classic={<CalendarTab />}><CalendarPage main={<CalendarTab noWeek />} econ={<EconLive />} momo={<MomoCard />} /></NewOnly>,
           garden: <div className="tabcol"><NewOnly><section className="win kpick" aria-label="Chief Kumo's pick"><div className="win-body"><KumoPick /></div></section></NewOnly><GardenLive /></div>,
           diary: <div className="tabcol"><WinsButton /><DiaryLive open /></div>,
           life: <div className="tabcol"><LifeTabs /></div>,

@@ -1,5 +1,6 @@
 "use client";
 
+import { openTab } from "@/lib/court/nav";
 import { useState } from "react";
 import { useUi } from "@/components/kumo/useUi";
 import { useCourt } from "../CourtState";
@@ -154,7 +155,7 @@ function WeekView() {
         const items = [...evs.map((e) => (e.allDay ? e.t : `${hm(e.a)} ${e.t}`)), ...due.filter((x) => x.d === d).map((x) => `${x.it.name} due`)];
         const tags = liq.filter((x) => sgtDay(x.at) === d).map((x) => x.name);
         return (
-          <a key={d} href="#calendar" className={"kweek-d" + (d === k ? " today" : "")} aria-label={`${prettyDay(d)}: ${items.length} item${items.length === 1 ? "" : "s"}`}>
+          <a key={d} href={`?day=${d}#calendar`} onClick={(e) => { e.preventDefault(); openTab("calendar", { day: d }); }} className={"kweek-d" + (d === k ? " today" : "")} aria-label={`${prettyDay(d)}: ${items.length} item${items.length === 1 ? "" : "s"}`}>
             <span className="kweek-h"><b>{wdName(wdOf(d)).slice(0, 3)} {+d.slice(8)}</b>{w && <span className="kweek-sky">{w.moon.slice(0, 3)} · {TONE[w.tone]}</span>}{tags.map((t) => <span className="kweek-tag" key={t}>{t}</span>)}</span>
             <span className="kweek-ev">{items.length ? items.slice(0, 3).join(" · ") + (items.length > 3 ? ` · +${items.length - 3} more` : "") : "Nothing planned"}</span>
           </a>

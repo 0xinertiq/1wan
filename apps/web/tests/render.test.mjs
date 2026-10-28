@@ -28,6 +28,7 @@ import { Header } from "../src/components/court/Header.tsx";
 import { AppTabs } from "../src/components/court/AppTabs.tsx";
 import { SettingsLive } from "../src/components/court/live/SettingsLive.tsx";
 import { TradesPage } from "../src/components/court/pages/TradesPage.tsx";
+import { CalendarPage } from "../src/components/court/pages/CalendarPage.tsx";
 
 const K = "2026-10-28", NOW = "2026-10-28T03:02:00Z";
 const h = React.createElement;
@@ -62,6 +63,7 @@ const PRICES = {
   live: { at: NOW, source: "crypto.com", stale: false, prices: [{ sym: "BTC", usd: 80800, ch24: 1.2 }, { sym: "SOL", usd: 190.5, ch24: null }, { sym: "ZRO", usd: 0.0123, ch24: -3 }] },
 };
 
+export { ctx, K, EVENTS, STATES };
 function ctx(st, events, prices, cal = "live") {
   const noop = () => {};
   return { st, k: K, nm: 662, recap: null, clearRecap: noop, update: noop, levelUp: noop, save: "idle", events, cal: { state: cal, cals: [] }, setCalendar: noop, prices, setPrices: noop, pxBusy: false, setPxBusy: noop, sheet: null, openSheet: noop };
@@ -80,7 +82,7 @@ function screens(docs) {
   return {
     header: h(Header),
     court: h(CourtLayout, { s: slots }),
-    calendar: h("div", null, h(EconLive), h(NextLiquidityLine), h(MomoCard), h(CalendarTab, { noWeek: true })),
+    calendar: h("div", null, h(NextLiquidityLine), h(CalendarTab), h(CalendarPage, { main: h(CalendarTab, { noWeek: true }), econ: h(EconLive), momo: h(MomoCard) })),
     trades: h("div", null, h(TradeLive), h(TradesPage, { left: h("div", null, h(LiveWatch), h(MoversCard, { list: docs.filter((d) => d.key === "movers") }), h(TechLive)), scan: docOf("scan"), intel: docOf("intel") })),
     news: h("div", null, h(BriefsLibrary, { history: docs }), h(NewsLive, { top5: ["The Fed holds."] })),
     garden: h("div", null, h(KumoPick), h(GardenLive)),
