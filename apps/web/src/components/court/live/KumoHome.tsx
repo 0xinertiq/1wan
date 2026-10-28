@@ -83,17 +83,6 @@ function QuickLine() {
   );
 }
 
-// Observatory page (New look): Luna's full sky. In Classic, Luna's sky stays on the Court.
-export function Observatory({ luna }: { luna: React.ReactNode }) {
-  const ui = useUi();
-  return (
-    <div className="tabcol obs-page">
-      <a className="btn sm ghost obs-back" href="#court">← Back to Court</a>
-      {ui === "new" ? luna : <p className="note">In the Classic look, Luna&apos;s sky is on the Court.</p>}
-    </div>
-  );
-}
-
 // One Today card: Now / Next / Later from the calendar, the glance numbers in one row, then parked thoughts.
 function TodayCard() {
   const { k, nm, events, cal } = useCourt();
@@ -177,7 +166,7 @@ function LunaCard() {
   const w = base && enrich(base, ast.map((p) => p.dos).filter(Boolean).join(" ") || null, ast.map((p) => p.donts).filter(Boolean).join(" ") || null);
   const ing = nextIngress(k), range = lunaRange();
   return (
-    <section className="win kluna" aria-labelledby="klunaT">
+    <section className="win kluna" id="luna-card" aria-labelledby="klunaT">
       <div className="win-title"><h2 id="klunaT"><span className="mini sm"><PixelSprite name="luna" /></span>Luna · the stars align for you</h2></div>
       <div className="win-body">
         {!w ? <p className="note">My sky data covers {prettyDay(range.from)} to {prettyDay(range.to)}. Nothing for this day yet.</p> : <>
@@ -199,7 +188,7 @@ function LunaCard() {
           {w.merc && <p className="kluna-call">{w.merc}</p>}
           <h3 className="kluna-h">Self-care for today</h3>
           <ul className="kluna-l">{w.care.slice(0, 5).map((x) => <li key={x}>{x}</li>)}</ul>
-          <p className="kluna-sm">Traditional meanings applied to your own chart: a mood forecast, not a prediction. Gentle ideas, not medical advice. <a href="#observatory">Full sky →</a></p>
+          <p className="kluna-sm">Traditional meanings applied to your own chart: a mood forecast, not a prediction. Gentle ideas, not medical advice.</p>
         </>}
       </div>
     </section>

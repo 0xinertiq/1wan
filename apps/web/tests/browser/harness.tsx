@@ -8,17 +8,22 @@ import { PricesLoader } from "@/components/court/Prices";
 import { PixelDefs } from "@/components/PixelSprite";
 import { Header } from "@/components/court/Header";
 import { AppTabs } from "@/components/court/AppTabs";
-import { CourtLayout, Observatory } from "@/components/court/live/KumoHome";
+import { CourtLayout } from "@/components/court/live/KumoHome";
+import { NewOnly } from "@/components/kumo/NewOnly";
+import { TradesPage } from "@/components/court/pages/TradesPage";
+import { CalendarPage } from "@/components/court/pages/CalendarPage";
+import { LifeHub } from "@/components/court/pages/LifeHub";
+import { DungeonPage } from "@/components/court/pages/Dungeon";
+import { GardenPage } from "@/components/court/pages/GardenPage";
 import { CrewRoster, LivingWorld } from "@/components/court/live/LivingWorld";
 import { NeedsNow, WeekAhead } from "@/components/court/live/CourtHome";
 import { BriefsBlock, BriefsLibrary, MoversCard, ReviewCard, type DeskMem } from "@/components/court/CourtBriefs";
 import { StatusLine } from "@/components/court/StatusLine";
 import { EconLive } from "@/components/court/live/EconLive";
-import { KumoPick, MomoCard, TodayLive } from "@/components/court/live/TodayLive";
+import { MomoCard, TodayLive } from "@/components/court/live/TodayLive";
 import { CalendarTab } from "@/components/court/live/CalendarTab";
 import { LiveWatch } from "@/components/court/live/LiveWatch";
 import { TechLive } from "@/components/court/live/TechLive";
-import { TradeLive } from "@/components/court/live/TradeLive";
 import { NewsLive } from "@/components/court/NewsLive";
 import { DiaryLive, GardenLive, WinsButton } from "@/components/court/live/GrowLive";
 import { LifeTabs } from "@/components/court/LifeTabs";
@@ -81,16 +86,15 @@ export function buildTree(d: Data) {
         <Header />
         <AppTabs
           extra={{
-            trades: <div className="tgrid"><div className="tcol"><LiveWatch /><MoversCard list={docs.filter((x) => x.key === "movers")} /><TechLive /></div><div className="tcol"><TradeLive /></div></div>,
+            trades: <NewOnly><TradesPage left={<><LiveWatch /><MoversCard list={docs.filter((x) => x.key === "movers")} /><TechLive /></>} scan={docOf("scan")} intel={docOf("intel")} /></NewOnly>,
             news: <div className="tgrid news"><div className="tcol"><BriefsLibrary history={docs} /></div><div className="tcol"><NewsLive top5={["The Fed holds."]} /></div></div>,
-            observatory: <Observatory luna={<LunaSky />} />,
           }}
           panels={{
             court: <CourtLayout s={s} />,
-            calendar: <div className="tgrid cal"><div className="tcol"><EconLive /><MomoCard /></div><div className="tcol"><CalendarTab noWeek /></div></div>,
-            garden: <div className="tabcol"><KumoPick /><GardenLive /></div>,
-            diary: <div className="tabcol"><WinsButton /><DiaryLive open /></div>,
-            life: <div className="tabcol"><LifeTabs /></div>,
+            calendar: <NewOnly classic={<CalendarTab />}><CalendarPage main={<CalendarTab noWeek />} econ={<EconLive />} momo={<MomoCard />} /></NewOnly>,
+            garden: <NewOnly classic={<div className="tabcol"><GardenLive /></div>}><GardenPage /></NewOnly>,
+            diary: <NewOnly classic={<div className="tabcol"><WinsButton /><DiaryLive open /></div>}><DungeonPage /></NewOnly>,
+            life: <NewOnly classic={<div className="tabcol"><LifeTabs /></div>}><LifeHub /></NewOnly>,
           }}
         />
         <CourtSheet latest={latest} />

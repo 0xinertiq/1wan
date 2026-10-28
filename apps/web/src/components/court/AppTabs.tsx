@@ -3,20 +3,20 @@
 import { useEffect, useState } from "react";
 import { useUi } from "@/components/kumo/useUi";
 import { useReview } from "@/components/kumo/reviewRead";
-import { useCourt } from "./CourtState";
 import { Boundary } from "./Boundary";
 
 // Main tabs: bottom bar on phone, left rail on desktop. Every panel stays mounted so nothing she typed is lost
 // when she switches; the open tab lives in the address (#garden) so reload and back keep her place.
-// Classic: the five v52 tabs. New look: Trades, News and Observatory join the rail; on the phone the bar is
-// Home, Calendar, Hub, Dungeon and More (More holds Garden, Observatory, Trades, News and Settings).
+// Classic: the five v52 tabs. New look (round 6): Trades, News, Notifications, Settings, Kingdom Mode and the
+// welcome tour join the rail; on the phone the bar is Home, Calendar, Hub, Diary (the Dungeon) and More.
+// There is no Observatory: old links (#observatory, #samsara, #money, #trade) are redirected (resolveHash).
 
 export const TABS = ["court", "calendar", "garden", "diary", "life"] as const;
-const EXTRA = ["trades", "news", "observatory"] as const;
+const EXTRA = ["trades", "news", "inbox", "settings", "kingdom", "welcome"] as const;
 export type TabId = (typeof TABS)[number];
 type ExtraId = (typeof EXTRA)[number];
 type PageId = TabId | ExtraId;
-const LABEL: Record<PageId, string> = { court: "Court", calendar: "Calendar", garden: "Garden", diary: "Dungeon", life: "Life", trades: "Trades", news: "News", observatory: "Observatory" };
+const LABEL: Record<PageId, string> = { court: "Court", calendar: "Calendar", garden: "Garden", diary: "Dungeon", life: "Life", trades: "Trades", news: "News", inbox: "Notifications", settings: "Settings", kingdom: "Kingdom Mode", welcome: "Welcome tour" };
 const PHONE_BAR: PageId[] = ["court", "calendar", "life", "diary"];
 
 // 9x8 pixel icons: X outline, o fill, g gold accent, p blossom pink.
@@ -28,7 +28,10 @@ const ICONS: Record<PageId | "more", string[]> = {
   life: [".XX...XX.", "XppX.XppX", "XpppXpppX", "XpppppppX", ".XpppppX.", "..XpppX..", "...XpX...", "....X...."],
   trades: ["........g", ".......X.", "......X..", ".X...X...", "X.X.X....", "X..X.....", "X........", "XXXXXXXXX"],
   news: ["XXXXXXXX.", "XooooooXX", "XoXXXXoXX", "XooooooXX", "XoXXoXoXX", "XooooooXX", "XoXXXgoXX", "XXXXXXXX."],
-  observatory: ["......g..", "....XX...", "...XooX..", "..XoooX..", ".XoooX...", "X.XXX....", "..X.X....", ".X...X..."],
+  inbox: ["....g....", "...XXX...", "..XoooX..", "..XoooX..", ".XoooooX.", "XXXXXXXXX", "...XoX...", "....X...."],
+  settings: ["...XXX...", ".X.XoX.X.", "XXXoooXXX", ".XoogooX.", ".XoooooX.", "XXXoooXXX", ".X.XoX.X.", "...XXX..."],
+  kingdom: ["g.......g", "X...X...X", "XX.XoX.XX", "XoXXoXXoX", "XoooooooX", "XooXXXooX", "XooXoXooX", "XXXXXXXXX"],
+  welcome: ["....g....", "...XXX...", "..XpppX..", ".XpppppX.", ".XpppppX.", "..XpppX..", "...XpX...", "....X...."],
   more: [".........", ".........", ".........", "XX.XX.XX.", "XX.XX.XX.", ".........", ".........", "........."],
 };
 // pixel-art palette (nav icons, Classic). The New look colours the same rects through tokens by class
@@ -43,16 +46,26 @@ function Icon({ id }: { id: PageId | "more" }) {
   );
 }
 
+// Old or retired places and where they live now.
+const ALIAS: Record<string, PageId> = { observatory: "court", sky: "court", samsara: "life", money: "life", trade: "trades", grid: "life", notifications: "inbox", more: "settings", onboarding: "welcome" };
+/** The tab for an address hash, and whether the address should be rewritten (a retired link). */
+export function resolveHash(h: string): { tab: PageId; rewrite: boolean } {
+  if (([...TABS, ...EXTRA] as readonly string[]).includes(h)) return { tab: h as PageId, rewrite: false };
+  if (h in ALIAS) return { tab: ALIAS[h], rewrite: true };
+  return { tab: "court", rewrite: false };
+}
 const fromHash = (): PageId => {
-  const h = window.location.hash.slice(1);
-  return ([...TABS, ...EXTRA] as readonly string[]).includes(h) ? (h as PageId) : "court";
+  const h = window.location.hash.slice(1), r = resolveHash(h);
+  if (r.rewrite) history.replaceState(null, "", window.location.pathname + window.location.search + (r.tab === "court" ? "" : "#" + r.tab));
+  // a card on a page (for example #luna-card on the Court): show its tab, then scroll to it
+  else if (h && !([...TABS, ...EXTRA] as readonly string[]).includes(h)) window.requestAnimationFrame(() => document.getElementById(h)?.scrollIntoView({ block: "start" }));
+  return r.tab;
 };
 
 export function AppTabs({ panels, extra = {} }: { panels: Record<TabId, React.ReactNode>; extra?: Partial<Record<ExtraId, React.ReactNode>> }) {
   const [tab, setTab] = useState<PageId>("court");
   const [more, setMore] = useState(false);
   const ui = useUi();
-  const { openSheet } = useCourt();
   // A small dot on News while Kumo's newest weekly review is unread (New look).
   const review = useReview(null);
   const dot = (id: PageId) => (ui === "new" && id === "news" && review.unread ? <i className="nav-dot" aria-label="new weekly review" /> : null);
@@ -80,7 +93,7 @@ export function AppTabs({ panels, extra = {} }: { panels: Record<TabId, React.Re
         {nav.map((id) => (
           <button key={id} type="button" className={ui === "new" && !PHONE_BAR.includes(id) ? "nav-more-item" : undefined} aria-current={tab === id ? "page" : undefined} onClick={() => go(id)}>
             <Icon id={id} />{dot(id)}
-            <span>{ui === "new" && id === "life" ? <><span className="nl-desk">Life</span><span className="nl-phone">Hub</span></> : LABEL[id]}</span>
+            <span>{ui === "new" && id === "life" ? <><span className="nl-desk">Life Hub</span><span className="nl-phone">Hub</span></> : ui === "new" && id === "diary" ? <><span className="nl-desk">Dungeon</span><span className="nl-phone">Diary</span></> : LABEL[id]}</span>
           </button>
         ))}
         {ui === "new" && (
@@ -91,7 +104,6 @@ export function AppTabs({ panels, extra = {} }: { panels: Record<TabId, React.Re
         {ui === "new" && more && (
           <div className="nav-sheet" role="menu">
             {inMore.map((id) => <button key={id} type="button" role="menuitem" aria-current={tab === id ? "page" : undefined} onClick={() => go(id)}><Icon id={id} />{dot(id)}<span>{LABEL[id]}</span></button>)}
-            <button type="button" role="menuitem" onClick={() => { setMore(false); openSheet({ kind: "settings" }); }}><Icon id="more" /><span>Settings</span></button>
           </div>
         )}
       </nav>

@@ -9,7 +9,8 @@ import { renderToString } from "react-dom/server";
 import { CourtCtx } from "../src/components/court/CourtState.tsx";
 import { normalize } from "../src/lib/court/state.ts";
 import { mdLite } from "../src/components/court/mdLite.ts";
-import { CourtLayout, Observatory } from "../src/components/court/live/KumoHome.tsx";
+import { CourtLayout } from "../src/components/court/live/KumoHome.tsx";
+import { resolveHash } from "../src/components/court/AppTabs.tsx";
 import { LivingWorld, CrewRoster } from "../src/components/court/live/LivingWorld.tsx";
 import { NeedsNow, WeekAhead } from "../src/components/court/live/CourtHome.tsx";
 import { BriefsBlock, BriefsLibrary, MoversCard, ReviewCard } from "../src/components/court/CourtBriefs.tsx";
@@ -92,8 +93,7 @@ function screens(docs) {
     garden: h("div", null, h(KumoPick), h(GardenLive)),
     diary: h("div", null, h(WinsButton), h(DiaryLive, { open: true })),
     life: h(LifeTabs), lifeHub: h(LifeHub), dungeon: h(DungeonPage), gardenPage: h(GardenPage), settings: h(SettingsLive, { open: true }),
-    observatory: h(Observatory, { luna: h(LunaSky) }),
-    tabs: h(AppTabs, { panels: { court: h("p", null, "c"), calendar: null, garden: null, diary: null, life: null }, extra: { trades: h("p"), news: h("p"), observatory: h("p") } }),
+    tabs: h(AppTabs, { panels: { court: h("p", null, "c"), calendar: null, garden: null, diary: null, life: null }, extra: { trades: h("p"), news: h("p"), inbox: h("p"), settings: h("p"), kingdom: h("p"), welcome: h("p") } }),
   };
 }
 
@@ -110,3 +110,15 @@ for (const [sName, st] of Object.entries(STATES)) for (const [dName, docs] of Ob
     assert.deepEqual(errors, []);
   });
 }
+
+// Round 6: the Observatory is gone; old links land on the Court, and the retired Life sub-tabs on their new homes.
+test("old links redirect: Observatory to the Court, Samsara and Money to the Life Hub, Trade to Trades", () => {
+  assert.deepEqual(resolveHash("observatory"), { tab: "court", rewrite: true });
+  assert.deepEqual(resolveHash("samsara"), { tab: "life", rewrite: true });
+  assert.deepEqual(resolveHash("money"), { tab: "life", rewrite: true });
+  assert.deepEqual(resolveHash("trade"), { tab: "trades", rewrite: true });
+  assert.deepEqual(resolveHash("trades"), { tab: "trades", rewrite: false });
+  assert.deepEqual(resolveHash("luna-card"), { tab: "court", rewrite: false });
+  const html = renderToString(h(CourtCtx.Provider, { value: ctx(STATES.partial, [], null) }, screens(DOCS.full).tabs));
+  assert.ok(!/Observatory/.test(html), "no Observatory tab in the nav");
+});

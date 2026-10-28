@@ -103,7 +103,7 @@ export function geometry(W: number, H: number, top = 0) {
   const places: Place[] = [
     { id: "castle", label: "The Castle", href: "#court", x: cx, y: gy - 108, desk: [cx, gy + 8] },
     { id: "clock", label: "Clock Tower", href: "#calendar", x: ct, y: gy - 104, desk: [ct, gy + 6] },
-    { id: "obs", label: "Observatory", href: "#observatory", x: ob, y: gy - 46, desk: [ob - 6, gy + 8] },
+    { id: "obs", label: "Observatory", href: "#luna-card", x: ob, y: gy - 46, desk: [ob - 6, gy + 8] },
     { id: "garden", label: "Sakura Garden", href: "#garden", x: tx, y: gy - 50, desk: [tx + 6, gy + 14] },
     { id: "life", label: "Life Hub", href: "#life", x: lh, y: gy - 30, desk: [lh + 6, gy + 20] },
     { id: "diary", label: "Dungeon", href: "#diary", x: cx + 152, y: gy - 14, desk: [cx + 146, gy + 24] },

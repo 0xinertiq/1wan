@@ -23,7 +23,7 @@ import { SPRINT_MIN, type SprintTag } from "@/lib/court/sprint";
 // The animation pauses off-screen and in hidden tabs, and shows a still scene under reduced motion.
 
 const PLACE_DESC: Record<string, string> = {
-  castle: "The Castle: home, your Court", clock: "Clock Tower: calendar", obs: "Observatory: Luna's sky and research",
+  castle: "The Castle: home, your Court", clock: "Clock Tower: calendar", obs: "Observatory: Luna's card on the Court",
   garden: "Sakura Garden: habits and growth", life: "Life Hub: life admin and money", diary: "Dungeon: reflection, your diary",
 };
 const CREW = ["olli", "pip", "fenn", "tilly", "luna", "momo", "coco", "poppy", "dundun"];

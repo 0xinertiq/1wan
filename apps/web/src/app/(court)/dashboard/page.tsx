@@ -25,7 +25,7 @@ import { CalendarLoader } from "@/components/court/CalendarLoader";
 import { PricesLoader } from "@/components/court/Prices";
 import { watchlistFrom } from "@/lib/prices";
 import { KumoPick, MomoCard, TodayLive } from "@/components/court/live/TodayLive";
-import { CourtLayout, Observatory } from "@/components/court/live/KumoHome";
+import { CourtLayout } from "@/components/court/live/KumoHome";
 import { CrewRoster, LivingWorld } from "@/components/court/live/LivingWorld";
 import { BriefsBlock, BriefsLibrary, MoversCard, ReviewCard, type DeskMem } from "@/components/court/CourtBriefs";
 import { LiveWatch } from "@/components/court/live/LiveWatch";
@@ -127,7 +127,6 @@ export default async function Dashboard() {
               </div>
             </NewOnly>
           ),
-          observatory: <Observatory luna={<LunaSky />} />,
         }}
         panels={{
           court: (
