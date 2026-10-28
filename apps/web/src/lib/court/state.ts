@@ -1,5 +1,6 @@
 import { QUESTS, QPRI, CKPRI, needFor, type Quest } from "./quests";
 import { addDays, dayGap, domDate, prettyDay, wdOf, weekKey, wdName } from "./time";
+import { normGridDefs, type GridDefs } from "./harada";
 
 // Her state document from the old dashboard (user_state.data), typed for the keys this UI reads and writes.
 // Every other key in the document is left exactly as it is.
@@ -65,7 +66,7 @@ export type CourtState = {
   tg: { channels: { handle: string; enabled: boolean; title?: string }[] };   // public Telegram channels she follows
   birth: { date: string; time: string; place: string; lat: number; lon: number; tz: string } | null;   // private, never shared
   grid: Ticks; swins: Ticks & { log: Record<string, string[]> }; money: MoneyW; samsara: Samsara; defs: Defs;
-  prefs: Prefs; hab: Habits;
+  prefs: Prefs; hab: Habits; gridDefs: GridDefs;   // gridDefs: her own Grid & Wins chart (addendum 1); defs.grid stays the original
   spr: { run: { at: string; tag: "study" | "other" } | null; log: { at: string; tag: "study" | "other"; min: number }[] };   // focus sprints, tagged
   last: Record<string, unknown>; prev: Record<string, unknown> | null;
 };
@@ -81,7 +82,7 @@ function lifeFlags(i: LifeItem): LifeItem {
   return o;
 }
 
-export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "news", "tg", "birth", "grid", "swins", "money", "samsara", "spr", "last", "prev", "prefs", "hab"] as const;
+export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "news", "tg", "birth", "grid", "swins", "money", "samsara", "spr", "last", "prev", "prefs", "hab", "gridDefs"] as const;
 export type OwnedKey = (typeof OWNED_KEYS)[number];
 
 export type Recap = { old: string; done: number; total: number; newWeek: boolean; lost: boolean; restY: boolean };
@@ -154,7 +155,7 @@ export function normalize(raw: unknown, today: string): CourtState {
       const run = obj<Record<string, unknown>>(w.run, {});
       return { run: typeof run.at === "string" ? { at: run.at, tag: tag(run.tag) } : null,
         log: arr<Record<string, unknown>>(w.log).filter((x) => x && typeof x.at === "string" && typeof x.min === "number").map((x) => ({ at: x.at as string, tag: tag(x.tag), min: x.min as number })).slice(-200) }; })(),
-    prefs: normPrefs(r.prefs), hab: normHab(r.hab),
+    prefs: normPrefs(r.prefs), hab: normHab(r.hab), gridDefs: normGridDefs(r.gridDefs),
     last: obj(r.last, {}), prev: r.prev && typeof r.prev === "object" ? (r.prev as Record<string, unknown>) : null,
   };
 }

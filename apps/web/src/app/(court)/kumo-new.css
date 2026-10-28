@@ -991,3 +991,29 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kgarden .tree{transform-origin:50% 100%;transform-box:fill-box;transition:transform .6s}
 :root[data-ui="new"] .kgarden.wilt .tree{transform:rotate(-4deg) scaleY(.94)}
 @media (prefers-reduced-motion:reduce){:root[data-ui="new"] .kgarden .tree{transition:none}}
+
+/* ---------- Round 6: Grid & Wins Harada 9x9 chart (pixel style: plum outline, stepped corners, one gold accent) ---------- */
+:root[data-ui="new"] .hwrap{display:grid;gap:var(--sp-3)}
+:root[data-ui="new"] .hgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-2)}
+:root[data-ui="new"] .hblock{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-1);padding:var(--sp-1);border:var(--bw-2) solid var(--k-outline);border-radius:var(--r-chip);background:var(--k-surface-2);position:relative}
+:root[data-ui="new"] .hblock.centre{background:var(--k-tint-lav)}
+:root[data-ui="new"] .hblock.sparkle::after{content:"";position:absolute;top:-4px;right:-4px;width:8px;height:8px;background:var(--k-gold-500);clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%)}
+:root[data-ui="new"] .hcell{min-height:var(--tap);min-width:0;padding:var(--sp-1);border:var(--bw) solid var(--k-line);border-radius:var(--r-chip);background:var(--k-surface);color:var(--k-text);font:400 var(--fs-cap)/1.25 var(--k-font-body);text-align:center;cursor:pointer;overflow:hidden}
+:root[data-ui="new"] .hcell span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+:root[data-ui="new"] .hcell.pillar{font-weight:700;background:var(--k-tint-sakura)}
+:root[data-ui="new"] .hcell.goal{font:700 var(--fs-ui)/1.25 var(--k-font-head);background:var(--k-tint-gold);border-color:var(--k-outline)}
+:root[data-ui="new"] .hcell.act.on{background:var(--k-tint-mint);color:var(--k-text)}
+:root[data-ui="new"] .hcell.full{background:var(--k-tint-mint)}
+:root[data-ui="new"] .hcell.sel{outline:var(--bw-2) solid var(--k-focus);outline-offset:1px}
+:root[data-ui="new"] .hpick{display:none}
+:root[data-ui="new"] .hedit{padding:var(--sp-3);border:var(--bw-2) solid var(--k-outline);border-radius:var(--r-card);background:var(--k-surface-2)}
+:root[data-ui="new"] .hlist{display:grid;gap:var(--sp-2)}
+@media (max-width:899px){
+  :root[data-ui="new"] .hpick{display:flex;flex-wrap:wrap;gap:var(--sp-1)}
+  :root[data-ui="new"] .hpick button{min-width:var(--tap);min-height:var(--tap);border:var(--bw) solid var(--k-line);border-radius:var(--r-chip);background:var(--k-surface);color:var(--k-text);font:700 var(--fs-ui)/1 var(--k-font-body)}
+  :root[data-ui="new"] .hpick button.on{background:var(--k-accent);color:var(--k-accent-ink)}
+  :root[data-ui="new"] .hgrid{grid-template-columns:minmax(0,1fr)}
+  :root[data-ui="new"] .hblock{display:none}
+  :root[data-ui="new"] .hblock.focus{display:grid}
+  :root[data-ui="new"] .hcell{min-height:72px;font-size:var(--fs-ui)}
+}

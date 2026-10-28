@@ -12,18 +12,20 @@ import { lateNight } from "./TradeLive";
 // ladder (money). Wording comes from her private defs. Every tick waters the garden; undo takes it back.
 type Done = Record<string, boolean>;
 
-export function GridWins() {
-  const { st, k, update } = useCourt();
-  const g = st.defs.grid, sw = st.defs.swins, mw = st.defs.money;
-  const [trades, setTrades] = useState<{ at?: string }[] | null>(null);
-  useEffect(() => { getOnce<any>("/api/ledger").then((j) => setTrades(Array.isArray(j.trades) ? j.trades : [])).catch(() => setTrades([])); }, []);
-
-  if (!g && !sw && !mw) return <p className="note">Your grid and ladders arrive with the tracker import. Nothing to show yet.</p>;
-
-  const set = (key: "grid" | "swins" | "money", id: string, on: boolean, src: "grid" | "milestone") => {
+// One tick function for the grid and both ladders (also used by the New look's Life Hub and Garden): every tick
+// waters the garden and undo takes it back, exactly as before.
+export function useTick() {
+  const { update } = useCourt();
+  return (key: "grid" | "swins" | "money", id: string, on: boolean, src: "grid" | "milestone") => {
     update((d: CourtState) => { const x = { ...d[key].done }; if (on) x[id] = true; else delete x[id]; d[key].done = x; }, [key]);
     water(src, `${key}:${id}`, on, src === "milestone" ? 2 : 1);
   };
+}
+// The derived (AUTO) Small Wins: b3 from trade times, b6 from the d6 log, both "14 days in a row".
+export function useWinsAuto() {
+  const { st, k } = useCourt();
+  const [trades, setTrades] = useState<{ at?: string }[] | null>(null);
+  useEffect(() => { getOnce<any>("/api/ledger").then((j) => setTrades(Array.isArray(j.trades) ? j.trades : [])).catch(() => setTrades([])); }, []);
 
   // Derived (AUTO) Small Wins: b3 from trade times, b6 from the d6 log, both "14 days in a row".
   const run = (ok: (day: string) => boolean) => { let c = 0; for (let i = 0; i < 60 && ok(addDays(k, -i)); i++) c++; return c; };
@@ -34,6 +36,14 @@ export function GridWins() {
     b6: `auto: ${Math.min(teaRun, 14)} of 14 days in a row from your d6 ticks`,
     b3: trades == null ? "auto: checking trades…" : lastLate ? `auto: ${Math.min(cleanDays!, 14)} of 14 days since the last 11pm to 6am trade` : "auto: no late-night trades on record",
   };
+  return auto;
+}
+
+export function GridWins() {
+  const { st } = useCourt();
+  const g = st.defs.grid, sw = st.defs.swins, mw = st.defs.money;
+  const set = useTick(), auto = useWinsAuto();
+  if (!g && !sw && !mw) return <p className="note">Your grid and ladders arrive with the tracker import. Nothing to show yet.</p>;
 
   const total = g ? g.pillars.length * 8 : 0;
   const gdone = Object.keys(st.grid.done).filter((id) => st.grid.done[id]).length;
@@ -72,7 +82,7 @@ export function GridWins() {
   );
 }
 
-function Ladder({ title, phases, done, auto, onTick }: { title: string; phases: Phase[]; done: Done; auto: Record<string, string>; onTick: (id: string, on: boolean) => void }) {
+export function Ladder({ title, phases, done, auto, onTick }: { title: string; phases: Phase[]; done: Done; auto: Record<string, string>; onTick: (id: string, on: boolean) => void }) {
   const all = phases.flatMap((p) => p.items.map((i) => i[0]));
   const n = all.filter((id) => done[id]).length;
   return (

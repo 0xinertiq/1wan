@@ -29,6 +29,7 @@ import { AppTabs } from "../src/components/court/AppTabs.tsx";
 import { SettingsLive } from "../src/components/court/live/SettingsLive.tsx";
 import { TradesPage } from "../src/components/court/pages/TradesPage.tsx";
 import { CalendarPage } from "../src/components/court/pages/CalendarPage.tsx";
+import { LifeHub } from "../src/components/court/pages/LifeHub.tsx";
 
 const K = "2026-10-28", NOW = "2026-10-28T03:02:00Z";
 const h = React.createElement;
@@ -50,6 +51,7 @@ const DOCS = {
 const STATES = {
   empty: normalize({}, K),
   partial: normalize({ lvl: 3, xp: 40, streak: 2, dump: [{ id: "d1", t: "call mum", done: false, ts: 1 }], life: [{ id: "l1", name: "Dog grooming", cat: "pet", amt: null, rule: { type: "dom", d: 29 }, lead: 3 }] }, K),
+  chart: normalize({ defs: { grid: { goal: "G", pillars: [{ name: "P1", acts: [{ t: "a", why: "w", when: "x" }] }] }, money: { phases: [] } }, grid: { done: { "1.1": true } }, gridDefs: { cur: null, hist: [], draft: { step: 3, g: {} } } }, K),
   old: normalize({ v: 1, life: [{ id: "x", name: "Spotify", cat: "bill", amt: 9.9, rule: { type: "dom", d: 28 }, lead: 0, autoPaid: "yes", important: 1 }, { name: "broken" }, null], spr: { run: { at: "2026-10-28T02:50:00Z", tag: "study" }, log: [{ at: "bad", tag: "x", min: 25 }] }, tails: [0, 1, "x"], restDay: K, uq: ["A quote she saved."], days: { "2026-10-27": { d: 3, t: 8 } } }, K),
 };
 const EVENTS = [
@@ -87,7 +89,7 @@ function screens(docs) {
     news: h("div", null, h(BriefsLibrary, { history: docs }), h(NewsLive, { top5: ["The Fed holds."] })),
     garden: h("div", null, h(KumoPick), h(GardenLive)),
     diary: h("div", null, h(WinsButton), h(DiaryLive, { open: true })),
-    life: h(LifeTabs), settings: h(SettingsLive, { open: true }),
+    life: h(LifeTabs), lifeHub: h(LifeHub), settings: h(SettingsLive, { open: true }),
     observatory: h(Observatory, { luna: h(LunaSky) }),
     tabs: h(AppTabs, { panels: { court: h("p", null, "c"), calendar: null, garden: null, diary: null, life: null }, extra: { trades: h("p"), news: h("p"), observatory: h("p") } }),
   };

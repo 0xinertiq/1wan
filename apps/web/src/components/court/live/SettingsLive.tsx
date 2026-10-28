@@ -102,6 +102,28 @@ const WDS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 // Settings from dashboard-v52 (moreDet), life admin part: Coco's list behind Coming up.
 export function SettingsLive({ open = false }: { open?: boolean }) {
+  return (
+    <details className="win" id="moreDet" open={open}>
+      <summary className="win-title"><h2>Settings</h2><span className="sub">Life admin, your data</span></summary>
+      <div className="win-body">
+        <LookSwitch />
+        <div className="sec-h">Your data</div>
+        <p className="note xd">Everything here is private to you. Download a full copy any time.</p>
+        <div className="rep-act"><a className="btn sm ghost" href="/api/export">Export my data</a></div>
+        <BirthForm />
+        <NewsSettings />
+        <NewsLens />
+        <SourceHealth />
+        <div className="sec-h">Life admin</div>
+        <LifeAdmin />
+      </div>
+    </details>
+  );
+}
+
+// Life admin (Coco): bills, bookings, renewals and subscriptions with the Auto-paid and Important toggles. One
+// component, two homes by look: the Settings sheet in Classic, the Life Hub card in the New look.
+export function LifeAdmin() {
   const ui = useUi();
   const { st, k, update } = useCourt();
   const [f, setF] = useState({ name: "", amt: "", kind: "dom", num: "", date: "", cat: "bill", lead: "", wk: [] as number[] });
@@ -126,18 +148,7 @@ export function SettingsLive({ open = false }: { open?: boolean }) {
   }
 
   return (
-    <details className="win" id="moreDet" open={open}>
-      <summary className="win-title"><h2>Settings</h2><span className="sub">Life admin, your data</span></summary>
-      <div className="win-body">
-        <LookSwitch />
-        <div className="sec-h">Your data</div>
-        <p className="note xd">Everything here is private to you. Download a full copy any time.</p>
-        <div className="rep-act"><a className="btn sm ghost" href="/api/export">Export my data</a></div>
-        <BirthForm />
-        <NewsSettings />
-        <NewsLens />
-        <SourceHealth />
-        <div className="sec-h">Life admin</div>
+    <>
         <p className="note xd">Coco keeps bills, care and renewals. Momo slots them into free time.</p>
         <div id="lifeList">
           {st.life.length ? st.life.map((it) => (
@@ -183,8 +194,7 @@ export function SettingsLive({ open = false }: { open?: boolean }) {
           </div>
           {msg && <p className="note" role="status">{msg}</p>}
         </form>
-      </div>
-    </details>
+    </>
   );
 }
 

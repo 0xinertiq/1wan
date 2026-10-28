@@ -46,3 +46,9 @@ test("no astro event or sky layer can appear anywhere on the Calendar tab", () =
   assert.ok(!/Moon trine|Astro calendar|Luna&#x27;s sky|Luna's sky/i.test(html), "astro text found on the Calendar");
   assert.ok(/Calendar/.test(html));
 });
+
+test("finance CSV: dated rows only, spending and income told apart", async () => {
+  const { parseCsv } = await import("../src/components/court/pages/LifeHub.tsx");
+  const rows = parseCsv("date,amount,category,note\n2026-10-01,-12.5,food,lunch\n2026-10-02,3000,income,salary\nbad,1,food\n2026-10-03,9,weird,x");
+  assert.deepEqual(rows.map((r) => [r.cat, r.type, r.amt]), [["food", "out", 12.5], ["income", "in", 3000], ["other", "out", 9]]);
+});
