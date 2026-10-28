@@ -1,6 +1,6 @@
 import { PixelSprite } from "@/components/PixelSprite";
 import { HeaderMenu } from "./HeaderMenu";
-import { HeaderProgress, HeaderStats } from "./live/SettingsLive";
+import { HeaderDate, HeaderProgress, HeaderStats } from "./live/SettingsLive";
 
 // Pixel clock icon from dashboard-v52 pxClock(): X outline, o face, H hands.
 const CLOCK_GRID = ["XX.XXXXX.XX", ".XoooooooX.", "XooooHooooX", "XooooHooooX", "XooooHooooX", "XooooHHHooX", "XoooooooooX", "XoooooooooX", ".XoooooooX.", "..XXXXXXX..", ".X.......X."];
@@ -25,6 +25,7 @@ export function Header() {
         </div>
       </div>
       <div className="pills">
+        <HeaderDate />
         <div className="pill clockpill" title="Time in Singapore"><svg id="clkIcon" width="22" height="22" viewBox="0 0 11 11" shapeRendering="crispEdges" aria-hidden="true">{CLOCK_ICON}</svg><b id="clk" aria-label={`Time in Singapore, ${hh}:${mm}`}>{hh}<i>:</i>{mm}</b></div>
         <HeaderProgress />
         <HeaderStats />

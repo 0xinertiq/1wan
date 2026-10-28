@@ -18,6 +18,7 @@ import { DungeonIcon } from "@/components/kumo/DungeonIcon";
 import { NUDGE } from "@/lib/gardenMap";
 import { water } from "@/lib/court/water";
 import { TAILS, earned } from "@/lib/court/tails";
+import { useUi } from "@/components/kumo/useUi";
 
 // Growth column from dashboard-v52: Sakura Garden (with Habit Quests inside), Tonight count your wins,
 // Dungeon with the weekly recap, and the "You" status card. Everything saves to her state.
@@ -143,6 +144,8 @@ export function GardenLive() {
   const [evs, setEvs] = useState<WaterEvt[] | null>(null);
   const [ledger, setLedger] = useState<{ trades: Record<string, unknown>[]; plans: Record<string, unknown>[] } | null>(null);
   const [arm, setArm] = useState("");
+  const ui = useUi();
+  const [seg, setSeg] = useState<"anchors" | "branches" | "quests">("anchors");
   useEffect(() => {
     getOnce<any>("/api/water?days=30").then((j) => setEvs(Array.isArray(j.events) ? j.events : [])).catch(() => setEvs([]));
     getOnce<any>("/api/ledger").then((j) => j.trades && setLedger(j)).catch(() => {});
@@ -190,34 +193,56 @@ export function GardenLive() {
   const blossoms = list.reduce((a, b) => a + b.blossoms, 0);
   const petals = ["swins", "money", "samsara"].reduce((a, key) => a + Object.values((st[key as "swins"]).done).filter(Boolean).length, 0);
 
+  const head = <>
+    <h3><Mini name="coco" />Sakura Garden <span className="cnj">灵园</span></h3>
+    <p className="gtag">Eight branches, one per grid pillar. Real activity waters them; each ticked actionable opens a blossom that stays.</p>
+    <div dangerouslySetInnerHTML={{ __html: bonsaiSvg(items, 0) }} />
+    <p className="gsum"><b>{blossoms}</b> of 64 blossoms · <b>{petals}</b> golden petals from ladder milestones{trunk.resting ? " · resting today, decay paused" : ""}</p>
+    {evs == null && <p className="note">Reading your activity…</p>}
+  </>;
+  const anchorList = <>
+    {anchors.length ? <div className="ganchors">{anchors.map(([id, t, d]) => (
+      <label className="filed-row" key={id}><input type="checkbox" checked={todayA.includes(id)} onChange={(e) => tickAnchor(id, e.target.checked)} /><span>{t} <span className="note">{d}</span></span></label>
+    ))}</div> : <p className="note">Your daily anchors arrive with the tracker import.</p>}
+    <p className="note">Trunk: {STAGE_TXT[trunk.stage]}{trunk.last ? `, last watered ${prettyDay(trunk.last)}` : ""}.</p>
+  </>;
+  const branchList = <div className="gbranches">{list.map((b) => (
+    <div className="gk" data-st={b.stage === "blooming" || b.stage === "sprout" ? "ok" : b.stage === "thirsty" ? "thirsty" : "wilting"} key={b.n}>
+      <span className="gnm"><b>{b.n}. {b.name}</b><small>{STAGE_TXT[b.stage]} · {b.blossoms}/8 blossoms{b.last ? ` · last ${prettyDay(b.last)}` : ""}</small></span>
+      {b.stage === "dead" && <button className="btn sm ghost gx" type="button" onClick={() => weedOut(b.n)}>{arm === String(b.n) ? "Yes, weed it out" : "Weed it out"}</button>}
+    </div>
+  ))}</div>;
+  const nudge = care.length > 0 && <>
+    <div className="sec-h">A gentle nudge</div>
+    {care.slice(0, 3).map((b) => <p className="note" key={b.n}><Mini name={NUDGE[b.n].crew} sm /> {b.n ? b.name : "Trunk"}: {NUDGE[b.n].t}</p>)}
+    <p className="note">Any real activity revives a branch at once. Weeding a bare branch regrows a sprout; blossoms and history are never lost.</p>
+  </>;
+
+  // New look (COURT_SPEC Part 5): the scene, tree and summary on the left; a segmented control on the right
+  // (Daily anchors | Branches | Quests). The tails live with the fox in the world, so they are not repeated here.
+  if (ui === "new") return (
+    <div id="gardenBox" className="ggrid">
+      <div className="gleft"><GardenScene list={list} /><div className="tcard garden">{head}{nudge}</div></div>
+      <div className="tcard gright">
+        <div className="kseg" role="tablist" aria-label="Garden">
+          {([["anchors", `Daily anchors ${todayA.length}/${anchors.length || 8}`], ["branches", "Branches"], ["quests", "Quests"]] as const).map(([id, t]) => (
+            <button key={id} type="button" role="tab" aria-selected={seg === id} className={seg === id ? "on" : ""} onClick={() => setSeg(id)}>{t}</button>
+          ))}
+        </div>
+        {seg === "anchors" ? anchorList : seg === "branches" ? branchList : <div id="gQuestSlot"><QuestLive /></div>}
+      </div>
+    </div>
+  );
   return (
     <div id="gardenBox">
       <GardenScene list={list} />
       <div className="tcard garden">
-        <h3><Mini name="coco" />Sakura Garden <span className="cnj">灵园</span></h3>
-        <p className="gtag">Eight branches, one per grid pillar. Real activity waters them; each ticked actionable opens a blossom that stays.</p>
-        <div dangerouslySetInnerHTML={{ __html: bonsaiSvg(items, 0) }} />
-        <p className="gsum"><b>{blossoms}</b> of 64 blossoms · <b>{petals}</b> golden petals from ladder milestones{trunk.resting ? " · resting today, decay paused" : ""}</p>
-        {evs == null && <p className="note">Reading your activity…</p>}
-
+        {head}
         <div className="sec-h">Daily anchors <span className="note">{todayA.length}/{anchors.length || 8} today · waters the trunk</span></div>
-        {anchors.length ? anchors.map(([id, t, d]) => (
-          <label className="filed-row" key={id}><input type="checkbox" checked={todayA.includes(id)} onChange={(e) => tickAnchor(id, e.target.checked)} /><span>{t} <span className="note">{d}</span></span></label>
-        )) : <p className="note">Your daily anchors arrive with the tracker import.</p>}
-        <p className="note">Trunk: {STAGE_TXT[trunk.stage]}{trunk.last ? `, last watered ${prettyDay(trunk.last)}` : ""}.</p>
-
+        {anchorList}
         <div className="sec-h">Branches</div>
-        {list.map((b) => (
-          <div className="gk" data-st={b.stage === "blooming" || b.stage === "sprout" ? "ok" : b.stage === "thirsty" ? "thirsty" : "wilting"} key={b.n}>
-            <span className="gnm"><b>{b.n}. {b.name}</b><small>{STAGE_TXT[b.stage]} · {b.blossoms}/8 blossoms{b.last ? ` · last ${prettyDay(b.last)}` : ""}</small></span>
-            {b.stage === "dead" && <button className="btn sm ghost gx" type="button" onClick={() => weedOut(b.n)}>{arm === String(b.n) ? "Yes, weed it out" : "Weed it out"}</button>}
-          </div>
-        ))}
-        {care.length > 0 && <>
-          <div className="sec-h">A gentle nudge</div>
-          {care.slice(0, 3).map((b) => <p className="note" key={b.n}><Mini name={NUDGE[b.n].crew} sm /> {b.n ? b.name : "Trunk"}: {NUDGE[b.n].t}</p>)}
-          <p className="note">Any real activity revives a branch at once. Weeding a bare branch regrows a sprout; blossoms and history are never lost.</p>
-        </>}
+        {branchList}
+        {nudge}
         <div id="gQuestSlot"><QuestLive /></div>
         <details className="pillar"><summary><b>Kumo&apos;s nine tails</b> <span className="note">{earned(st, k).filter(Boolean).length}/9</span></summary>
           {TAILS.map((t, i) => <div className="filed-row" key={t.n}><span>{earned(st, k)[i] ? "✓ " : ""}<b>{t.n}</b> <span className="note">{t.h}</span></span></div>)}

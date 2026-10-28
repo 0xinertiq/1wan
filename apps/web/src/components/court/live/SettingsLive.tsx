@@ -12,6 +12,7 @@ import { useUi } from "@/components/kumo/useUi";
 
 // Header numbers (streak, stars) from her state.
 export function HeaderStats() {
+  const ui = useUi();
   const { st, k, update } = useCourt();
   const on = earned(st, k), n = on.filter(Boolean).length;
   // Keep newly earned tails for good, as v52 did.
@@ -30,8 +31,21 @@ export function HeaderStats() {
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z" fill="#FFD95E" stroke="#A34876" strokeWidth="1.8" strokeLinejoin="round" /></svg>
         <b id="stars">{st.stars}</b> stars
       </div>
-      <div className="pill" title="Kumo's nine tails">tails <b>{n}/9</b></div>
+      {ui === "classic" && <div className="pill" title="Kumo's nine tails">tails <b>{n}/9</b></div>}
     </>
+  );
+}
+
+// New look: the date sits to the left of the clock chip; on a rest day one small line says so.
+export function HeaderDate() {
+  const ui = useUi();
+  const { st, k } = useCourt();
+  if (ui !== "new") return null;
+  return (
+    <span className="hdate">
+      {prettyDay(k)}
+      {st.restDay === k && <span className="hrest">Rest day, streak protected</span>}
+    </span>
   );
 }
 

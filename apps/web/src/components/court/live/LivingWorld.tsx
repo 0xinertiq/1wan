@@ -8,7 +8,8 @@ import type { BriefKind } from "@/lib/briefKinds";
 import { crewDuty } from "@/lib/court/duty";
 import type { WaterEvt } from "@/lib/court/garden";
 import { getOnce } from "@/lib/court/once";
-import { greetWord, prettyDay } from "@/lib/court/time";
+import { greetWord } from "@/lib/court/time";
+import { WorldFox } from "@/components/kumo/Fox";
 import { quoteOfDay } from "@/lib/court/quotes";
 import { useCourt } from "../CourtState";
 import { useSprint } from "./SprintLive";
@@ -36,15 +37,23 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
   useEffect(() => { fetch("/api/weather").then((r) => r.json()).then(setWx).catch(() => setWx({ now: null })); }, []);
   useEffect(() => { getOnce<{ events?: WaterEvt[] }>("/api/water?days=1").then((j) => setWater(Array.isArray(j.events) ? j.events : [])).catch(() => {}); }, []);
 
-  // Integer pixel scale: 2 on desktop and tablet, 1 on the phone strip.
+  // Zoomed camera: the scale (in half steps, at least 2 on desktop and tablet, 1 on the phone strip) is chosen so
+  // the island fills about 85-90% of the width; the sky above and the rock below are cropped.
   useEffect(() => {
     const el = box.current; if (!el) return;
-    const ro = new ResizeObserver(() => { const w = el.clientWidth, h = el.clientHeight, s = h >= 280 ? 2 : 1; setSize({ W: Math.ceil(w / s), H: Math.floor(h / s), s, px: Math.round(h * (s === 2 ? 0.085 : 0.15)) }); });
+    const ro = new ResizeObserver(() => { const w = el.clientWidth, h = el.clientHeight, s = h >= 280 ? Math.max(2, Math.round((w / 410) * 2) / 2) : 1; setSize({ W: Math.ceil(w / s), H: Math.floor(h / s), s, px: Math.round(h * (s > 1 ? 0.09 : 0.15)) }); });
     ro.observe(el); return () => ro.disconnect();
   }, []);
 
   const phase = phaseAt(nm), weather = weatherFrom(wx?.sky), stage = stageFor(st.lvl);
   const world = useMemo(() => (size ? makeWorld({ W: size.W, H: size.H, phase, weather, stage: stage.n }) : null), [size, phase, weather, stage.n]);
+  // Hearts and a happy fox when she earns XP (a habit, a trade or any logged win); cosmetic only.
+  const xpSeen = useRef<number | null>(null), [cheer, setCheer] = useState(0);
+  const xpKey = st.lvl * 100000 + st.xp;
+  useEffect(() => {
+    if (xpSeen.current != null && xpKey > xpSeen.current) { world?.cheer(performance.now()); setCheer((n) => n + 1); }
+    xpSeen.current = xpKey;
+  }, [xpKey, world]);
 
   useEffect(() => {
     const cv = cvRef.current; if (!cv || !world || !size) return;
@@ -76,7 +85,7 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
   const quote = quoteOfDay(k, st.uq);
 
   return (
-    <section className="lw" aria-label="Your kingdom">
+    <section className={"lw ph-" + phase} aria-label="Your kingdom">
       <div className="lw-box" ref={box}>
         <canvas ref={cvRef} className="lw-cv" aria-hidden="true" style={size ? { width: size.W * size.s, height: size.H * size.s } : undefined} />
         {g && size && g.places.map((p) => (
@@ -86,16 +95,17 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
         ))}
         {g && size && (
           <>
-            <span className="lw-crew lw-kumo" style={{ left: (g.cx - 44) * size.s, top: (g.gy + 24) * size.s, width: size.px, height: size.px }} title="Chief Kumo"><PixelSprite name="kumo" /></span>
+            <span className="lw-crew lw-kumo" style={{ left: (g.cx + 58) * size.s, top: (g.gy - 54) * size.s, width: size.px, height: size.px }} title="Chief Kumo"><PixelSprite name="kumo" /></span>
             {CREW.map((id) => {
               const p = spot(id);
               return <span key={id} className={"lw-crew" + (p.on ? " on" : " in")} style={{ left: p.x, top: p.y, width: size.px, height: size.px }} title={`${id[0].toUpperCase() + id.slice(1)}: ${duty[id]?.why ?? ""}`} aria-hidden={!p.on}><PixelSprite name={id as SpriteName} /></span>;
             })}
           </>
         )}
+        {g && size && <WorldFox perches={g.perches} s={size.s} px={Math.round(size.px * 1.1)} cheer={cheer} />}
         <SprintIcon />
         <div className="lw-top">
-          <p className="lw-greet">{greetWord(nm)}, Queen · {prettyDay(k)}</p>
+          <p className="lw-greet">{greetWord(nm)}, Queen</p>
           <div className="lw-badges">
             <span className="lw-badge">Lv {st.lvl}</span>
             <span className="lw-badge">{at} at work</span>
@@ -104,7 +114,7 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
         </div>
         <div className="lvl" id="lvlBanner" hidden><b id="lvlTxt">LEVEL UP</b><span id="lvlSub"></span></div>
       </div>
-      {g && size && <CloudSay text={quote} open={qOpen} onToggle={() => setQOpen(!qOpen)} night={phase === "night"} style={{ left: (g.cx - 44) * size.s, top: (g.gy + 24) * size.s + 6 }} />}
+      {g && size && <CloudSay text={quote} open={qOpen} onToggle={() => setQOpen(!qOpen)} night={phase === "night"} style={{ left: (g.cx + 68) * size.s, top: (g.gy - 60) * size.s }} />}
     </section>
   );
 }
@@ -165,14 +175,18 @@ function CloudSay({ text, open, onToggle, night, style }: { text: string; open: 
     const along = (x0: number, y0: number, x1: number, y1: number) => { const n = Math.max(1, Math.round(Math.hypot(x1 - x0, y1 - y0) / (b * 1.35))); for (let i = 0; i < n; i++) puffs.push([x0 + ((x1 - x0) * i) / n, y0 + ((y1 - y0) * i) / n, b]); };
     along(b, b, w - b, b); along(w - b, b, w - b, h - b); along(w - b, h - b, b, h - b); along(b, h - b, b, b);
   }
-  const tail: [number, number, number][] = [[Math.min(w * 0.18, 40) + 6, -6, 5], [Math.min(w * 0.18, 40) - 2, -15, 3]];
+  // Kumo sits below-left of the bubble, so the tail puffs trail down-left to him. The fill is about 60%
+  // opaque (the scene shows through, blurred by the button's backdrop filter); the outline stays solid.
+  const tail: [number, number, number][] = [[4, h + 3, 5], [-5, h + 10, 3]];
   const fill = night ? "#4B3F86" : "#FFF8EE";
   return (
-    <button ref={ref} type="button" className={"lw-say" + (open ? " open" : "") + (night ? " night" : "")} style={style} aria-expanded={open} onClick={onToggle} title="Quote of the day">
+    <button ref={ref} type="button" className={"lw-say r5" + (open ? " open" : "") + (night ? " night" : "")} style={style} aria-expanded={open} onClick={onToggle} title="Quote of the day">
       <svg className="lw-cloud" width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden="true">
         {[...puffs, ...tail].map(([x, y, r], i) => <circle key={"o" + i} cx={x} cy={y} r={r + 1.5} fill="#4a2538" />)}
-        {[...puffs, ...tail].map(([x, y, r], i) => <circle key={"f" + i} cx={x} cy={y} r={r} fill={fill} />)}
-        {w > 0 && <rect x={b} y={b} width={Math.max(0, w - 2 * b)} height={Math.max(0, h - 2 * b)} fill={fill} />}
+        <g opacity=".6">
+          {[...puffs, ...tail].map(([x, y, r], i) => <circle key={"f" + i} cx={x} cy={y} r={r} fill={fill} />)}
+          {w > 0 && <rect x={b} y={b} width={Math.max(0, w - 2 * b)} height={Math.max(0, h - 2 * b)} fill={fill} />}
+        </g>
         {[[w - 4, 4], [10, h - 2]].map(([x, y], i) => <path key={i} d={`M${x} ${y - 4}L${x + 1} ${y - 1}L${x + 4} ${y}L${x + 1} ${y + 1}L${x} ${y + 4}L${x - 1} ${y + 1}L${x - 4} ${y}L${x - 1} ${y - 1}Z`} fill="#FFD95E" stroke="#4a2538" strokeWidth=".6" />)}
       </svg>
       <span className="lw-say-t">{text}</span>

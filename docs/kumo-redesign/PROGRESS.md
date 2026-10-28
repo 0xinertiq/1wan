@@ -73,3 +73,30 @@ NEEDS OWNER APPROVAL:
 - An "auto-paid / hide on Court" flag for life items. Until then the Court hides bills and money items whose name or note mentions GIRO, auto pay or deduct, instalment, income tax, property tax, subscription, Spotify, Claude, Netflix, iCloud, Google One, YouTube, Disney or Apple One/Music/TV. Adding the flag would change the saved state shape, so it waits for you.
 - Focus sprint pause: the existing sprint has Start and Stop only. A pause would need a new saved field, so the hourglass offers Stop for now.
 - "Marked important" for Coming up: there is no such field today; it would need the same kind of flag.
+
+## R5 (full Court update + art direction, on preview)
+Done:
+- World redrawn to the art direction (COURT_SPEC Part 9): pastel sky, big moon, faceted island with roots and crystals, gnarled sakura, waterfall pool, castle, clock tower, observatory, Life Hub cottage, pagoda, Dungeon gate, picnic, goose, hearts, square petals. Zoomed framing: island about 88% of the width.
+- The fox: new pixel kitsune with fanned tails from the existing tails value (read-only), hops between perches, naps on roofs, jumps with hearts when XP rises, tap card with each tail and progress to the next. Tails chip removed from the New-look header (Classic keeps it). `crew/fox.md` added.
+- Greeting as plain text (no chip, no date); quote bubble about 60% opaque with blur, rising from Kumo on his own cloud.
+- Header: date left of the clock, rest-day line under it.
+- Rail: Today, Luna, Needs you now, Coming up, Kumo's weekly review.
+- Luna's card ported from v52 (renderLuna, explain, lean and ease lists, lunaCare) with the v52 sky table (`lib/court/astroTable.json`, `lib/court/luna.ts`). The calendar's DO / DON'T text only adds Luna's own fixed phrases by keyword. Rule-based.
+- Needs you now redesigned; releases at the same time grouped (one Seen per card, stable across minutes). The calendar has forecast and previous only; no actuals, so none are shown.
+- Briefs contrast fixed (below) and one reading layout.
+- Garden (New look): two columns, Daily anchors | Branches | Quests.
+- Fox Diary: no user-facing mentions left in the app; `docs/status.md` and `docs/build-dashboard-v2.md` now say Dungeon (was Fox Diary). Your handoff docs are left as you wrote them.
+
+Contrast fixes (night): the "From this brief" / "Top 5 headlines" / "Today's plan" panel was #F0EAFF behind #ECE8F5 text (about 1.1:1); now #2A2340 behind #ECE8F5 (about 12:1), secondary #BDB4D6 (about 7.5:1), links #B9A6FF (about 6.9:1). Plan table zebra rows were 50% white at night; now 5%. Day: cream #FFFDF8 panel with #2A2340 text (about 15:1).
+
+Already in place from R3/R4 (checked, unchanged): Park a thought is the old Quick capture (same "dump" list, one entry point); one-line prices; Briefs Intel | Scan with Top 5 and Today's plan; Trades; News with Expand all, sticky zebra tables that stack on the phone and "In today's top 5" tags; Calendar's merged Week ahead and Economic calendar; Coming up hides auto-paid and subscriptions on the Court only; roster wraps; "More on your court" removed (where each widget went: R3 above).
+
+Honest notes (weaker than the direction):
+- Screenshots: the scene (day, dusk, night), the phone strip and the fox were rendered and checked in headless Chrome. The full Court page could not be screenshot: the preview and the local app need your login, and I do not use your password or browser session.
+- The fox's tails are small spiky plumes; at nine tails they crowd. Fluffier layered tails need a bigger sprite.
+- On the phone strip (168px) buildings are small; places there are 44px hotspots without text, as before.
+- Hearts and the fox's jump fire on any XP gain (the closest existing signal for a logged habit or trade).
+- Luna's sky table ends on 7 Jan 2027 (as in v52); after that the card says the day is not covered. Extending it is a code task with lib/sky.ts (no AI).
+- Cloud faces are only a few pixels.
+
+NEEDS OWNER APPROVAL (new): an AI rewrite of the astro calendar text in Luna's voice would need a paid call; for now Luna only adds her own fixed phrases by keyword. (The three items above still stand.)

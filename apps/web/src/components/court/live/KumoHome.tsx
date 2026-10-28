@@ -8,6 +8,8 @@ import { hm, prettyDay } from "@/lib/court/time";
 import { ComingUpCourt, ParkedList, RecapBox, TodayChips } from "./TodayLive";
 import { PricesStrip } from "./LivingWorld";
 import { astroParts } from "@/components/kumo/astroParts";
+import { PixelSprite } from "@/components/PixelSprite";
+import { TONEMSG, enrich, explain, lunaDay, lunaRange, nextIngress } from "@/lib/court/luna";
 
 // The Court tab. Classic: the v52 three columns, exactly as before. New look (COURT_SPEC): the world, Park a
 // thought, prices, Briefs (Intel | Scan) beside a rail (Today, Needs you now, Coming up, Kumo's review, Luna),
@@ -40,9 +42,9 @@ export function CourtLayout({ s }: { s: CourtSlots }) {
         {s.briefs}
         <div className="krail">
           <TodayCard />
+          <LunaCard />
           {s.needs}
           <ComingUpCourt />
-          <AstroForecast />
           {s.review}
         </div>
       </div>
@@ -115,30 +117,39 @@ function TodayCard() {
   );
 }
 
-// Luna's forecast (owner's brief): the energy line as the calendar gives it, the transit line in small type,
-// then "DOs:" and "DON'Ts:" exactly as written (a line the text lacks is left out). Nothing repeated, nothing
-// written by the app; anything else in the calendar text shows only on the Observatory.
-function AstroForecast() {
-  const { k, events, cal } = useCourt();
-  const today = eventsOn(events, k, true).filter((e) => isAstro(e));
+// Luna's card, ported from the v52 renderLuna() (lib/court/luna.ts): chips, one summary, the next Moon sign
+// change, up to three contacts with her chart, the lean / gentle lists, a care callout and self-care. The astro
+// calendar's DO / DON'T text only feeds Luna's own phrases (enrich); its words are not shown here. Without a
+// calendar entry the calculated reading stands alone, as in v52. No colour coding; times in SGT.
+function LunaCard() {
+  const { k, events } = useCourt();
+  const base = lunaDay(k);
+  const ast = eventsOn(events, k, true).filter((e) => isAstro(e)).map((e) => astroParts(e.desc));
+  const w = base && enrich(base, ast.map((p) => p.dos).filter(Boolean).join(" ") || null, ast.map((p) => p.donts).filter(Boolean).join(" ") || null);
+  const ing = nextIngress(k), range = lunaRange();
   return (
-    <section className="win kastro" aria-labelledby="kastroT">
-      <div className="win-title"><h2 id="kastroT">Luna&apos;s forecast</h2><a className="sub" href="#observatory">Full sky →</a></div>
+    <section className="win kluna" aria-labelledby="klunaT">
+      <div className="win-title"><h2 id="klunaT"><span className="mini sm"><PixelSprite name="luna" /></span>Luna · the stars align for you</h2></div>
       <div className="win-body">
-        {cal.state === "loading" ? <p className="note">Astro calendar loading…</p>
-          : cal.state !== "live" ? <p className="note">Astro calendar not reachable right now.</p>
-          : today.length ? today.slice(0, 2).map((e, i) => {
-            const p = astroParts(e.desc);
-            return (
-              <div className="kastro-ev" key={i}>
-                {p.energy && <p className="kastro-en">{p.energy}</p>}
-                {p.transits.length > 0 && <p className="kastro-tr">{p.transits.join(" · ")}</p>}
-                {p.dos && <p className="kdo"><b>DOs:</b> {p.dos}</p>}
-                {p.donts && <p className="kdo"><b>DON&apos;Ts:</b> {p.donts}</p>}
-              </div>
-            );
-          }) : <p className="note">No astro calendar entries today.</p>}
-        <span className="kastro-src">astro calendar</span>
+        {!w ? <p className="note">My sky data covers {prettyDay(range.from)} to {prettyDay(range.to)}. Nothing for this day yet.</p> : <>
+          <div className="kluna-chips">
+            <span>Moon in {w.moon}</span><span>{w.el[0].toUpperCase() + w.el.slice(1)} Moon</span><span>{w.phase}</span><span>{w.tone}</span>{w.mrx && <span>Mercury Rx</span>}
+          </div>
+          <p>{TONEMSG[w.tone]} The Moon is {w.mood}.</p>
+          {ing && <p className="kluna-sm">Moon moves into {ing.s} {ing.day === k ? "" : `on ${prettyDay(ing.day)} `}at {ing.t} SGT.</p>}
+          {w.items.length > 0 && <>
+            <h3 className="kluna-h">Today in your chart</h3>
+            <ul className="kluna-l">{w.items.slice(0, 3).map((e, i) => <li key={i}>{explain(e)} <span className="kluna-sm">{e.back ? `(in orb, ${e.o}°)` : `(${e.t} SGT)`}</span></li>)}</ul>
+          </>}
+          <div className="kluna-two">
+            <div><h3 className="kluna-h">The day leans toward</h3><p>{w.lean.join(", ")}.</p></div>
+            <div><h3 className="kluna-h">Be gentle with</h3><p>{w.ease.join(", ")}.</p></div>
+          </div>
+          {w.merc && <p className="kluna-call">{w.merc}</p>}
+          <h3 className="kluna-h">Self-care for today</h3>
+          <ul className="kluna-l">{w.care.slice(0, 5).map((x) => <li key={x}>{x}</li>)}</ul>
+          <p className="kluna-sm">Traditional meanings applied to your own chart: a mood forecast, not a prediction. Gentle ideas, not medical advice. <a href="#observatory">Full sky →</a></p>
+        </>}
       </div>
     </section>
   );
