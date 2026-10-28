@@ -1,5 +1,6 @@
 import { PixelSprite } from "@/components/PixelSprite";
 import { HeaderMenu } from "./HeaderMenu";
+import { Bell } from "./pages/Inbox";
 import { HeaderClock, HeaderProgress, HeaderStats } from "./live/SettingsLive";
 import { clock } from "@/lib/court/time";
 
@@ -28,6 +29,7 @@ export function Header() {
         <div className="pill clockpill hclock-classic" title="Time in Singapore"><svg id="clkIcon" width="22" height="22" viewBox="0 0 11 11" shapeRendering="crispEdges" aria-hidden="true">{CLOCK_ICON}</svg><b id="clk" aria-label={`Time in Singapore, ${hh}:${mm}`}>{hh}<i>:</i>{mm}</b></div>
         <HeaderProgress />
         <HeaderStats />
+        <Bell />
         <HeaderMenu />
       </div>
     </header>

@@ -88,3 +88,18 @@ test("Saved and research follows the market lens; macro notes stay on the Macro 
   assert.deepEqual(forLens(rows, "any").map((r) => r.id), ["a", "b", "c"]);
   assert.deepEqual(forLens(rows, "off"), []);
 });
+
+test("inbox: rules only, de-duplicated, grouped, and quiet by default", async () => {
+  const { buildInbox, groupOf } = await import("../src/lib/court/inbox.ts");
+  const { notifOn } = await import("../src/components/court/pages/SettingsPage.tsx");
+  const base = { k: K, nowIso: "2026-10-28T02:00:00Z", due: [{ id: "a", name: "Rent", d: K, dd: 0 }, { id: "a", name: "Rent", d: K, dd: 0 }, { id: "b", name: "Insurance", d: "2026-10-30", dd: 2 }],
+    vdue: [{ id: "t1", name: "Call bank", d: K, dd: 0, kind: "task" }], briefs: [{ key: "intel", label: "Intelligence", at: "2026-10-27T23:52:00Z" }],
+    review: { at: "2026-10-25T00:50:00Z", unread: true }, releases: [{ at: "2026-10-29T18:00:00Z", name: "FOMC decision" }], habits: [{ id: "h", name: "Stretch" }], streak: 7 };
+  const quiet = buildInbox({ ...base, notif: (id) => notifOn(undefined, id) });
+  assert.deepEqual(quiet.map((n) => n.src), ["needs", "needs", "brief", "review", "kingdom"], "only the morning summary is on by default; duplicates dropped");
+  assert.equal(groupOf(quiet[0], K), "High priority");
+  assert.equal(groupOf(quiet[1], K), "Today");
+  const all = buildInbox({ ...base, notif: () => true });
+  assert.ok(["routine", "liquidity", "habit"].every((s) => all.some((n) => n.src === s)));
+  assert.equal(new Set(all.map((n) => n.id)).size, all.length);
+});

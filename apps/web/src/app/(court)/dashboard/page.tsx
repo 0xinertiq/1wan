@@ -43,6 +43,8 @@ import { LifeHub } from "@/components/court/pages/LifeHub";
 import { DungeonPage } from "@/components/court/pages/Dungeon";
 import { GardenPage } from "@/components/court/pages/GardenPage";
 import { NewsPage } from "@/components/court/pages/NewsPage";
+import { InboxPage, InboxProvider } from "@/components/court/pages/Inbox";
+import { SettingsPage } from "@/components/court/pages/SettingsPage";
 import { topFive } from "@/components/kumo/briefParse";
 import { DiaryLive, GardenLive, StatusLive, WinsButton } from "@/components/court/live/GrowLive";
 import { bootState } from "@/lib/court/actions";
@@ -106,6 +108,7 @@ export default async function Dashboard() {
   const unrated = docs.filter((d) => ["pulse", "intel", "scan"].includes(d.key) && !d.vote && dayKey(new Date(d.at)) === today).map((d) => d.label);
 
   return (
+    <InboxProvider briefs={docs.map((d) => ({ key: d.key, label: d.label, at: d.at }))} review={docOf("review")?.at ?? null}>
     <CourtProvider initial={boot.st} version={row?.version ?? 0} recap={boot.recap} dirty={boot.dirty} nowIso={now.toISOString()}>
     <CalendarLoader />
     <PricesLoader symbols={watchlistFrom(rows.find((r) => r.kind === "scan")?.body)} />
@@ -120,6 +123,8 @@ export default async function Dashboard() {
               <TradesPage left={<><LiveWatch /><MoversCard list={history.filter((d) => d.key === "movers")} /><TechLive /></>} scan={scanDoc} intel={docOf("intel")} />
             </NewOnly>
           ),
+          inbox: <NewOnly><InboxPage /></NewOnly>,
+          settings: <NewOnly><SettingsPage /></NewOnly>,
           news: (
             <NewOnly>
               <NewsPage headlines={<NewsLive top5={top5} />} library={<BriefsLibrary history={history} />} />
@@ -161,6 +166,7 @@ export default async function Dashboard() {
       <Boundary name="Sheet"><CourtSheet latest={latest} /></Boundary>
     </div>
     </CourtProvider>
+    </InboxProvider>
   );
 }
 

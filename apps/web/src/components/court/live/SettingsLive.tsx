@@ -61,7 +61,7 @@ export function HeaderClock({ icon }: { icon: React.ReactNode }) {
 }
 
 // Design version: New is the default; Classic brings back the v52 look in one click. Saved on this device only.
-function LookSwitch() {
+export function LookSwitch() {
   const [ui, setUi] = useState<"new" | "classic">("new");
   useEffect(() => { setUi(document.documentElement.getAttribute("data-ui") === "classic" ? "classic" : "new"); }, []);
   function pick(v: "new" | "classic") {
@@ -236,7 +236,7 @@ export function BirthForm() {
 }
 
 // Settings > News: public Telegram channels she follows (lane A). Handles only; nothing private.
-function NewsSettings() {
+export function NewsSettings() {
   const { st, update } = useCourt();
   const [h, setH] = useState("");
   const [msg, setMsg] = useState("");
@@ -287,7 +287,7 @@ function NewsSettings() {
 
 // Region lens for Headlines and the in-app alert settings (price move threshold, quiet hours).
 const REGION_LIST = ["Global", "US", "Asia", "Singapore", "Crypto"];
-function NewsLens() {
+export function NewsLens() {
   const { st, update } = useCourt();
   const n = st.news, on = n.regions.length ? n.regions : REGION_LIST;
   const set = (patch: Partial<typeof n>) => update((d) => { d.news = { ...d.news, ...patch }; }, ["news"]);
@@ -309,7 +309,7 @@ function NewsLens() {
 }
 
 // Source health (docs/build-intel.md D): status per source and its last success.
-function SourceHealth() {
+export function SourceHealth() {
   const [rows, setRows] = useState<{ group: string; name: string; status: string; lastOk: string | null; note: string }[] | null>(null);
   const [open, setOpen] = useState(false);
   useEffect(() => { if (open && !rows) fetch("/api/health").then((r) => r.json()).then((j) => setRows(j.rows ?? [])).catch(() => setRows([])); }, [open, rows]);

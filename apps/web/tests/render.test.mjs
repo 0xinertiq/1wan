@@ -34,6 +34,8 @@ import { LifeHub } from "../src/components/court/pages/LifeHub.tsx";
 import { DungeonPage } from "../src/components/court/pages/Dungeon.tsx";
 import { GardenPage } from "../src/components/court/pages/GardenPage.tsx";
 import { NewsPage } from "../src/components/court/pages/NewsPage.tsx";
+import { InboxPage, Bell } from "../src/components/court/pages/Inbox.tsx";
+import { SettingsPage } from "../src/components/court/pages/SettingsPage.tsx";
 
 const K = "2026-10-28", NOW = "2026-10-28T03:02:00Z";
 const h = React.createElement;
@@ -93,7 +95,7 @@ function screens(docs) {
     news: h(NewsPage, { headlines: h(NewsLive, { top5: ["The Fed holds."] }), library: h(BriefsLibrary, { history: docs }) }),
     garden: h("div", null, h(KumoPick), h(GardenLive)),
     diary: h("div", null, h(WinsButton), h(DiaryLive, { open: true })),
-    life: h(LifeTabs), lifeHub: h(LifeHub), dungeon: h(DungeonPage), gardenPage: h(GardenPage), settings: h(SettingsLive, { open: true }),
+    life: h(LifeTabs), lifeHub: h(LifeHub), dungeon: h(DungeonPage), gardenPage: h(GardenPage), inbox: h("div", null, h(Bell), h(InboxPage)), settingsPage: h(SettingsPage), settings: h(SettingsLive, { open: true }),
     tabs: h(AppTabs, { panels: { court: h("p", null, "c"), calendar: null, garden: null, diary: null, life: null }, extra: { trades: h("p"), news: h("p"), inbox: h("p"), settings: h("p"), kingdom: h("p"), welcome: h("p") } }),
   };
 }
