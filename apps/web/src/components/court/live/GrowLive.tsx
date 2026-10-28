@@ -15,12 +15,15 @@ import { addDays, prettyDay, weekKey, dayIdx, sgtKeyOf } from "@/lib/court/time"
 import { branches, needsCare, type Branch, type WaterEvt } from "@/lib/court/garden";
 import { DecorSprite } from "@/components/kumo/DecorSprite";
 import { GardenPixel } from "@/components/kumo/decor/GardenPixel";
+import { GardenTree } from "@/components/kumo/decor/GardenTree";
+import { WILT_CAPTION, wiltOf } from "@/components/kumo/decor/treeArt";
 import { DungeonIcon } from "@/components/kumo/DungeonIcon";
 import { NUDGE } from "@/lib/gardenMap";
 import { water } from "@/lib/court/water";
 import { TAILS, earned } from "@/lib/court/tails";
 import { useUi } from "@/components/kumo/useUi";
 import { habitWeek, gardenStage, GROW_AT } from "@/lib/court/habits";
+import { chartBranches } from "@/lib/court/branchChart";
 import { Card as GCard } from "../ui";
 
 // Growth column from dashboard-v52: Sakura Garden (with Habit Quests inside), Gratitude (round 11 name),
@@ -36,7 +39,8 @@ export function QuestLive() {
   const { st, k, nm, events, update, levelUp } = useCourt();
   const [all, setAll] = useState(false);
   const [qf, setQf] = useState("all");
-  const aq = activeQ(st, k), done = aq.filter((q) => isDone(st, q.id)).length;
+  // round 12: built-in quests she switched off are hidden here (display only; what quests award is unchanged)
+  const aq = activeQ(st, k).filter((q) => !st.questsOff.includes(q.id)), done = aq.filter((q) => isDone(st, q.id)).length;
   const today = eventsOn(events, k);
   const calReady = (re?: RegExp) => !!re && today.some((e) => !e.allDay && re.test(e.t) && e.b <= nm);
   const log = (id: string) => update((d) => { const r = logQuest(d, id); if (r.leveled) levelUp(r.leveled); }, [...QKEYS]);
@@ -45,7 +49,7 @@ export function QuestLive() {
   if (all) {
     const l = aq.filter((q) => qf === "all" || q.crew === qf);
     list = l.filter((q) => !isDone(st, q.id)).concat(l.filter((q) => isDone(st, q.id)));
-  } else list = openQuests(st, k, nm).filter((q) => qScore(q, k, nm) < 60 && (q.auto || q.cal || q.calCat)).slice(0, 3);
+  } else list = openQuests(st, k, nm).filter((q) => !st.questsOff.includes(q.id) && qScore(q, k, nm) < 60 && (q.auto || q.cal || q.calCat)).slice(0, 3);
   const ck = manualOpen(st, k);
 
   return (
@@ -143,6 +147,8 @@ function bonsaiSvg(items: { f: SeedInfo }[], nroots: number) {
 const STAGE_TXT: Record<string, string> = { sprout: "sprout, waiting for its first activity", blooming: "blooming", thirsty: "thirsty", wilting: "wilting", withered: "withered", dead: "bare, ready to weed out" };
 
 // extra: more segments for the New-look Garden page (wins ladder, her own habits, the week).
+const STAGE_NAMES = ["Bare", "Sprout", "Leafy", "Blossoming", "Full bloom"];
+
 export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode; quests?: React.ReactNode; wins?: React.ReactNode; pick?: React.ReactNode } }) {
   const { st, k, update, levelUp } = useCourt();
   const [evs, setEvs] = useState<WaterEvt[] | null>(null);
@@ -154,7 +160,10 @@ export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode;
     getOnce<any>("/api/ledger").then((j) => j.trades && setLedger(j)).catch(() => {});
   }, []);
 
-  const { trunk, list } = branches(st, k, evs ?? []);
+  const { trunk, list: raw } = branches(st, k, evs ?? []);
+  // round 12: Branches follow the chart she edits, for the year chosen on the Branches card
+  const [byear, setByear] = useState<"2026" | "2027">("2026");
+  const list = chartBranches(raw, st, byear);
   const anchors = st.defs.swins?.phases.find((p) => p.daily)?.items ?? [];
   const todayA = st.swins.log[k] || [];
 
@@ -232,12 +241,15 @@ export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode;
     // the tree a seed in normal weeks): quests done, anchor ticks and her own habits ticked.
     const got = wkh.d + hw.done + hw.anchors;
     const stage = gardenStage(got), fill = Math.min(1, got / GROW_AT[4]);
-    const thirsty = ["thirsty", "wilting", "withered", "dead"].includes(trunk.stage);
+    const wilt = evs == null ? 0 : wiltOf(trunk.idle);
     return (
       <div id="gardenBox" className="kgarden-page">
+        {/* round 12: the pixel sakura bonsai is the centrepiece. Stage from this week's real ticks (round 10 rule),
+            wilting drawn from the trunk's days without activity (decay rules unchanged), golden petals for milestones */}
         <section className="kgarden-hero" aria-label="Sakura garden">
-          <GardenPixel bare stage={stage} petals={Math.round(fill * 14)} wilt={thirsty} label={`Sakura garden: the tree is a ${STAGES[stage].toLowerCase()} this week${thirsty ? ", a little thirsty" : ""}`} />
-          <p className="kgarden-line">This week: <b>{wkh.d}</b> of {wkh.t} quests · <b>{hw.anchors}</b> anchor tick{hw.anchors === 1 ? "" : "s"}{hw.planned ? <> · <b>{hw.done}</b> of {hw.planned} of your habits</> : null} · the tree is a {STAGES[stage].toLowerCase()}{trunk.resting ? " · resting today" : ""}</p>
+          <GardenTree stage={stage} wilt={wilt} gold={petals} petals={Math.round(fill * 6)} label={`Sakura bonsai: ${STAGE_NAMES[stage].toLowerCase()} this week${wilt ? ", " + WILT_CAPTION[wilt].toLowerCase() : ""}`} />
+          <p className="kgarden-line">This week: <b>{got}</b> tick{got === 1 ? "" : "s"} ({wkh.d} quests · {hw.anchors} anchors{hw.planned ? ` · ${hw.done} of your habits` : ""}) · {STAGE_NAMES[stage]}{stage < 4 ? <span className="note"> · next stage at {GROW_AT[stage + 1] - got} more tick{GROW_AT[stage + 1] - got === 1 ? "" : "s"}</span> : null}{trunk.resting ? " · resting today" : ""}</p>
+          {wilt > 0 && <p className="note kgarden-cap">{WILT_CAPTION[wilt]}</p>}
           {evs == null && <p className="note">Reading your activity…</p>}
           {care.length > 0 && <div className="kgarden-nudge">{care.slice(0, 3).map((b) => <p className="note" key={b.n}><Mini name={NUDGE[b.n].crew} sm /> <span><b>{b.n ? b.name : "Trunk"}</b>: {NUDGE[b.n].t}</span></p>)}</div>}
         </section>
@@ -245,7 +257,7 @@ export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode;
             branches, quests); the Wins ladder spans the width below */}
         <div className="kpg two kgarden-cards">
           <GCard title="Daily anchors" sub={`${todayA.length}/${anchors.length || 8} today · waters the trunk`}>{anchorList}</GCard>
-          <GCard title="Branches" sub={`${blossoms} of 64 blossoms`}>{branchList}<p className="note">Any real activity revives a branch at once. Weeding a bare branch regrows a sprout; blossoms and history are never lost.</p></GCard>
+          <GCard title="Branches" sub={`${blossoms} of 64 blossoms`} actions={<div className="kseg" role="group" aria-label="Chart year">{(["2026", "2027"] as const).map((y) => <button key={y} type="button" aria-pressed={byear === y} className={byear === y ? "on" : ""} onClick={() => setByear(y)}>{y}</button>)}</div>}>{branchList}<p className="note">Any real activity revives a branch at once. Weeding a bare branch regrows a sprout; blossoms and history are never lost.</p></GCard>
           {slots.habits}
           <GCard title="Quests">{slots.pick}<div id="gQuestSlot"><QuestLive /></div>{slots.quests}</GCard>
           {slots.wins}

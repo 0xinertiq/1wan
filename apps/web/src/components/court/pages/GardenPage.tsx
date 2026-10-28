@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { QUESTS } from "@/lib/court/quests";
 import { useCourt } from "../CourtState";
 import { GardenLive } from "../live/GrowLive";
 import { KumoPick } from "../live/TodayLive";
@@ -89,6 +90,19 @@ function HabitQuests() {
 
 export { habitWeek };
 
+/** Round 12: switch built-in quests on or off (stored in questsOff). Display only: XP and what quests award are unchanged. */
+function EditQuests() {
+  const { st, update } = useCourt();
+  return (
+    <details className="kfold kquests-edit">
+      <summary className="note">Edit quests ({QUESTS.length - st.questsOff.filter((id) => QUESTS.some((q) => q.id === id)).length} of {QUESTS.length} on)</summary>
+      {QUESTS.map((q) => (
+        <label className="kcheck" key={q.id}><input type="checkbox" checked={!st.questsOff.includes(q.id)} onChange={(e) => update((d) => { d.questsOff = e.target.checked ? d.questsOff.filter((x) => x !== q.id) : [...new Set([...d.questsOff, q.id])]; }, ["questsOff"])} />{q.title} <span className="note">{q.cad}</span></label>
+      ))}
+    </details>
+  );
+}
+
 export function GardenPage() {
   return (
     <div className="kpage">
@@ -96,7 +110,7 @@ export function GardenPage() {
       <GardenLive slots={{
         pick: <div className="kpick-in"><div className="sec-h">Kumo&apos;s pick</div><KumoPick /></div>,
         habits: <Card title="My habits" sub="the one place to add or edit">{<HabitEditor />}</Card>,
-        quests: <HabitQuests />,
+        quests: <><HabitQuests /><p className="note">Add your own in My habits. Built-in quests can be switched off in Edit quests.</p><EditQuests /></>,
         wins: <Card title="Wins ladder" className="kfull"><WinsLadder /></Card>,
       }} />
     </div>

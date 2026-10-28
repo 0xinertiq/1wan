@@ -24,20 +24,12 @@ test("Calendar: the Calendar and Economic calendar cards sit in one stack with t
   assert.match(css, /\.kcal-stack \.tabcol\{max-width:none;margin:0;width:100%\}/, "the old 900px centred column no longer narrows the Calendar card");
 });
 
-test("research notes: the New note form makes a note, it lists, attaches and exports", async () => {
-  const { noteFromForm } = await import("../src/components/court/pages/Dungeon.tsx");
-  assert.equal(noteFromForm({ title: " ", text: "", url: "", tag: "" }), null);
-  const n = noteFromForm({ title: "SOL unlock", text: "Unlock on the 12th", url: "https://example.com/a", tag: "#SOL" });
-  assert.deepEqual(n, { kind: "note", title: "SOL unlock", text: "Unlock on the 12th", url: "https://example.com/a", tags: ["sol"] });
-  assert.equal(noteFromForm({ title: "x", text: "", url: "javascript:alert(1)", tag: "" }).url, undefined);
+test("research notes: no longer in the Dungeon (round 12), and their data, cleaning and export are unchanged", async () => {
   const { cleanRows } = await import("../src/lib/vault.ts");
-  const kept = cleanRows("research_notes", [{ id: "n1", at: "a", up: "a", ...n }]);
+  const kept = cleanRows("research_notes", [{ id: "n1", at: "a", up: "a", kind: "note", title: "SOL unlock", text: "x", tags: ["sol"], url: "https://example.com/a" }]);
   assert.equal(kept[0].title, "SOL unlock"); assert.equal(kept[0].kind, "note"); assert.deepEqual(kept[0].tags, ["sol"]);
-  const d = src("components/court/pages/Dungeon.tsx");
-  assert.match(d, /<NewNote onSave=\{\(n\) => notes\.put\(n as Partial<Note>\)\} \/>/);
-  assert.match(d, /notes: on \? cur\.notes\.filter\(\(x\) => x !== n\.id\) : \[\.\.\.\(cur\.notes \?\? \[\]\), n\.id\]/, "attach still links the note from the page");
-  assert.ok(!/Save them in News/.test(d));
   assert.match(src("app/api/export/route.ts"), /research_notes/);
+  assert.match(src("components/court/pages/TradesPage.tsx"), /research_notes/, "the Trades macro desk still reads its notes");
 });
 
 test("net worth shows 'hidden' until hovered or tapped; the Show net worth button is gone from the New look", async () => {

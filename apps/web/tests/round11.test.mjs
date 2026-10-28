@@ -19,14 +19,14 @@ test("Gratitude: entries save under the existing key, list newest first, edit in
   const { gratitudeLog } = await import("../src/components/court/pages/Dungeon.tsx");
   const st = normalize({ wins: { "2026-10-26": { w: "Walked", g: "Mum" }, "2026-10-28": { w: "Shipped", g: "Tea", n: "calm" }, "2026-10-27": {}, bad: { w: "x" } } }, K);
   assert.deepEqual(gratitudeLog(st.wins).map((x) => x.day), ["2026-10-28", "2026-10-26"], "newest first, empty days left out");
-  assert.deepEqual(gratitudeLog(st.wins)[0], { day: "2026-10-28", w: "Shipped", g: "Tea", n: "calm" });
+  assert.deepEqual(gratitudeLog(st.wins)[0], { day: "2026-10-28", w: "Shipped", g: "Tea", s: "", n: "calm" });
   const { DungeonPage } = await import("../src/components/court/pages/Dungeon.tsx");
   const html = renderToString(h(CourtCtx.Provider, { value: ctx(st) }, h(DungeonPage))).replace(/<!-- -->/g, "");
   assert.match(html, /Gratitude log/);
   const log = html.slice(html.indexOf("Gratitude log"));
   assert.ok(log.indexOf("Wed 28 Oct") > 0 && log.indexOf("Wed 28 Oct") < log.indexOf("Mon 26 Oct"), "newest first on the page");
   const d = src("components/court/pages/Dungeon.tsx");
-  assert.match(d, /update\(\(d\) => \{ d\.wins = \{ \.\.\.d\.wins, \[f\.day\]: \{ w: f\.w\.slice\(0, 2000\), g: f\.g\.slice\(0, 2000\), n: f\.n\.slice\(0, 6000\) \} \}; \}, \["wins"\]\)/, "an edit writes only the words, under the same key");
+  assert.match(d, /update\(\(d\) => \{ d\.wins = \{ \.\.\.d\.wins, \[f\.day\]: \{ \.\.\.d\.wins\[f\.day\], w: f\.w\.slice\(0, 2000\), g: f\.g\.slice\(0, 2000\), s: f\.s\.slice\(0, 300\), n: f\.n\.slice\(0, 6000\) \} \}; \}, \["wins"\]\)/, "an edit writes only the words, under the same key");
   assert.ok(!/logQuest|levelUp|d\.xp|d\.streak/.test(d.slice(d.indexOf("function GratitudeLog"), d.indexOf("export function WeeklyLookBack"))), "editing never touches quests, XP or the streak");
   assert.match(src("components/court/live/GrowLive.tsx"), /d\.wins\[k\] = \{ w: w\.slice\(0, 2000\), g: g\.slice\(0, 2000\), n: n\.slice\(0, 6000\) \}; \}, \["wins"\]/, "the evening sheet saves exactly as before");
   const { OWNED_KEYS } = await import("../src/lib/court/state.ts");

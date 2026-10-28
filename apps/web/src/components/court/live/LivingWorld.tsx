@@ -12,6 +12,7 @@ import { getOnce } from "@/lib/court/once";
 import { greetWord, clock } from "@/lib/court/time";
 import { WorldFox } from "@/components/kumo/Fox";
 import { QUOTES, nextQuote, quoteOfDay, trimQuote } from "@/lib/court/quotes";
+import { quotePool } from "@/lib/court/quoteLib";
 import { readSaved, writeSaved } from "@/lib/court/store";
 import { useCourt } from "../CourtState";
 import { AlertMark } from "../Alerts";
@@ -52,15 +53,17 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
   const duty = crewDuty({ k, filed, water, st, sky: true });
   const crewOn = CREW.filter((id) => duty[id]?.on).map((id) => ({ id, place: Object.entries(CREW_AT).find(([, ids]) => ids.includes(id))?.[0] ?? "castle" }));
   // round 10: a new quote on each load and every few minutes, none repeated until the library has been used up
-  const all = useMemo(() => QUOTES.concat(st.uq), [st.uq]);
+  // round 12: from the set she chose in Settings (built-in, hers, or both); hers fall back to built-in when empty
+  const all = useMemo(() => quotePool(QUOTES, st.quotes.mine, st.uq, st.quotes.src), [st.quotes, st.uq]);
   const [qi, setQi] = useState<number | null>(null);
   const lastQ = useRef<number | null>(null);
   useEffect(() => {
-    const turn = () => { const r = nextQuote(all.length, readSaved("quotes.seen", isNums, []), lastQ.current); lastQ.current = r.i; writeSaved("quotes.seen", r.seen); setQi(r.i); };
+    const seenKey = "quotes.seen." + st.quotes.src + "." + all.length;
+    const turn = () => { const r = nextQuote(all.length, readSaved(seenKey, isNums, []), lastQ.current); lastQ.current = r.i; writeSaved(seenKey, r.seen); setQi(r.i); };
     turn();
     const t = window.setInterval(turn, 4 * 60e3);
     return () => window.clearInterval(t);
-  }, [all.length]);
+  }, [all.length, st.quotes.src]); // eslint-disable-line react-hooks/exhaustive-deps
   const quote = qi != null && qi >= 0 && all[qi] ? trimQuote(all[qi]) : quoteOfDay(k, st.uq);
   const crewKey = crewOn.map((c) => c.id).join();
   // eslint-disable-next-line react-hooks/exhaustive-deps

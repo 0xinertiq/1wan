@@ -1,3 +1,4 @@
+import { normQuotes, type MyQuote, type QuoteSrc } from "./quoteLib";
 import { QUESTS, QPRI, CKPRI, needFor, type Quest } from "./quests";
 import { addDays, dayGap, domDate, prettyDay, wdOf, weekKey, wdName } from "./time";
 import { normGridDefs, type GridDefs } from "./harada";
@@ -6,7 +7,7 @@ import { normGridDefs, type GridDefs } from "./harada";
 // Every other key in the document is left exactly as it is.
 
 export type Day = { d: number; t: number; n?: string[] };
-export type Win = { w?: string; g?: string; n?: string };
+export type Win = { w?: string; g?: string; n?: string; s?: string };   // s: one small win (round 12, Today's gratitude)
 export type Dump = { id: string; t: string; done: boolean; ts: number };
 export type LifeRule =
   | { type: "dom"; d: number; from?: string }
@@ -73,6 +74,7 @@ export type CourtState = {
   prefs: Prefs; hab: Habits; gridDefs: GridDefs;   // gridDefs: her own Grid & Wins chart (addendum 1); defs.grid stays the original
   lenses: LensId[];   // round 7: the news lenses she follows (several at once)
   gridDefs2027: GridDefs; grid2027done: Record<string, boolean>;   // round 10: her separate 2027 chart and its own ticks
+  questsOff: string[]; quotes: { mine: MyQuote[]; src: QuoteSrc };   // round 12: built-in quests she switched off; her quote library
   spr: { run: { at: string; tag: "study" | "other" } | null; log: { at: string; tag: "study" | "other"; min: number }[] };   // focus sprints, tagged
   last: Record<string, unknown>; prev: Record<string, unknown> | null;
 };
@@ -88,7 +90,7 @@ function lifeFlags(i: LifeItem): LifeItem {
   return o;
 }
 
-export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "news", "tg", "birth", "grid", "swins", "money", "samsara", "spr", "last", "prev", "prefs", "hab", "gridDefs", "lenses", "gridDefs2027", "grid2027done"] as const;
+export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "news", "tg", "birth", "grid", "swins", "money", "samsara", "spr", "last", "prev", "prefs", "hab", "gridDefs", "lenses", "gridDefs2027", "grid2027done", "questsOff", "quotes"] as const;
 export type OwnedKey = (typeof OWNED_KEYS)[number];
 
 export type Recap = { old: string; done: number; total: number; newWeek: boolean; lost: boolean; restY: boolean };
@@ -173,6 +175,8 @@ export function normalize(raw: unknown, today: string): CourtState {
     prefs: normPrefs(r.prefs), hab: normHab(r.hab), gridDefs: normGridDefs(r.gridDefs),
     lenses: normLenses(r.lenses, obj<Record<string, unknown>>(r.prefs, {}).lens),
     gridDefs2027: normGridDefs(r.gridDefs2027),
+    questsOff: [...new Set(arr<unknown>(r.questsOff).filter((x): x is string => typeof x === "string" && /^[a-z]\d{1,2}$/.test(x)))],
+    quotes: normQuotes(r.quotes),
     grid2027done: Object.fromEntries(Object.entries(obj<Record<string, unknown>>(r.grid2027done, {})).filter(([id, on]) => /^[1-8]\.[1-8]$/.test(id) && on === true)) as Record<string, boolean>,
     last: obj(r.last, {}), prev: r.prev && typeof r.prev === "object" ? (r.prev as Record<string, unknown>) : null,
   };

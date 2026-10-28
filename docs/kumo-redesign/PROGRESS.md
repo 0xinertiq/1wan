@@ -635,3 +635,53 @@ Fixed:
 
 Noted, not changed:
 - The Gratitude log is New look only. Classic has the renamed button and its diary.
+
+## Round 12 and addendum 2 (on preview)
+
+Nothing protected was edited; decay, XP, stars, streak and tails are unchanged. The new art is in new files: `components/kumo/decor/treeArt.ts` (the pure drawing) and `GardenTree.tsx`.
+
+### Branches diagnosis
+The Branches card took its names from the old imported chart (`st.defs.grid` in lib/court/garden.ts), not from her edits (`gridDefs`). Its blossoms counted only the 2026 ticks.
+
+Now `lib/court/branchChart.ts` maps the branches onto the effective chart: her edits over the import for 2026, or the separate 2027 chart, with that year's ticks. A 2026 | 2027 switch sits on the card. Ticks are keyed by position, so renames keep them. Decay stays in garden.ts, untouched.
+
+### The bonsai
+- **Stages,** from this week's real ticks (round 10 rule):
+  - Bare: 0 ticks
+  - Sprout: 1
+  - Leafy: 5
+  - Blossoming: 12
+  - Full bloom: 20, with the moon and extra petals
+- **Wilting,** drawn from the trunk's days since real activity (yesterday counts as fine):
+  - 1 missed day (idle 2): paler leaves, a drooping twig, a few fallen petals.
+  - 3 missed days (idle 4): drooping branches, yellow-brown leaves, thinner blossoms, more petals on the ground.
+  - 7 missed days (idle 8): mostly bare, drooping, petals scattered.
+  - Recovery: any activity restores the earned stage, with a sparkle.
+- **Extras:**
+  - Golden petals on the tray, up to 8.
+  - Sway and drifting petals pause under reduced motion, a hidden tab or off screen.
+  - Day and night palettes.
+  - A "next stage at N more ticks" hint.
+
+### Other items
+- **Dungeon on one screen:** at desktop sizes (1200px wide, 540px tall or more) it fits the window. The banner is compact, the columns scroll inside themselves, and Today's page fills its column. It's checked in the browser at 1280×720 and 1440×900.
+- **Quests:**
+  - Edit quests switches built-in quests on or off (new optional key `questsOff`); display only, with XP unchanged.
+  - Caption added under Habit Quests.
+- **Quotes:**
+  - A Settings card: add one, paste many, upload .txt or .csv, with a preview and counts.
+  - Blank lines and duplicates are skipped, quotes are cut to 160 characters, and the library holds at most 500.
+  - Choose Both, Built-in only or Mine only; Remove all my quotes asks first.
+  - New optional key `quotes`, included in Export. Her old dashboard quotes (`uq`) count as hers and are untouched.
+- **Addendum 2:**
+  - Today's gratitude sits at the top of the right column: three lines, autosave, Save, and a saved tick. It writes today's entry under the existing `wins` key (same quest and XP behaviour), and the Gratitude button on Today's page jumps to it.
+  - The Research notes card and the attach control are gone from the Dungeon. The research_notes data, the macro desk, the export and the notes already attached to a page are all kept.
+
+### NEEDS OWNER APPROVAL
+- **New optional keys** `questsOff` and `quotes`. The diff in lib/court/state.ts covers the CourtState fields, the OWNED_KEYS entries, and the normalize lines (`normQuotes` in lib/court/quoteLib.ts).
+
+### Checks
+- Typecheck is clean.
+- 182 tests pass.
+- All 58 browser runs are clean, including the two one-screen checks.
+- The build passes.

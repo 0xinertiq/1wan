@@ -11,38 +11,13 @@ import { Btn, Card, Chip, EmptyState, PageHead, SectionLabel, StoreNote, TabPill
 
 // Dungeon (round 6, private journal): left, the month calendar and a text-only list with search; middle, the
 // day's entry (Inter) with autosave and an honest saved status, plus the Gratitude sheet and its log; right, mood,
-// tags, trade reflection prompts, attached research notes and the one weekly look-back (rule-based, no AI).
+// tags, trade reflection prompts, Today's gratitude and the one weekly look-back (rule-based, no AI).
 // Owner-only, never shown to friends, included in Export my data. A research note never exposes an entry:
 // the link is stored on the entry only.
 
 export type Entry = VRow & { day: string; text: string; mood?: number; tags: string[]; plan?: string; feel?: string; change?: string; tradeId?: string; notes: string[] };
 type Note = VRow & { kind?: string; title?: string; text?: string; tags?: string[]; url?: string };
 
-/** Round 9: a research note from the New note form (title or text needed; link only http(s); one optional tag). */
-export function noteFromForm(f: { title: string; text: string; url: string; tag: string }) {
-  const title = f.title.trim().slice(0, 120), text = f.text.trim().slice(0, 4000);
-  if (!title && !text) return null;
-  const url = /^https?:\/\/\S+$/.test(f.url.trim()) ? f.url.trim().slice(0, 500) : undefined;
-  const tag = f.tag.trim().replace(/^#/, "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 24);
-  return { kind: "note" as const, title, text, ...(url ? { url } : {}), tags: tag ? [tag] : [] };
-}
-
-function NewNote({ onSave }: { onSave: (n: NonNullable<ReturnType<typeof noteFromForm>>) => void }) {
-  const [f, setF] = useState({ title: "", text: "", url: "", tag: "" });
-  const [msg, setMsg] = useState("");
-  return (
-    <form className="kform knote-form" aria-label="New note" onSubmit={(e) => { e.preventDefault(); const n = noteFromForm(f); if (!n) return setMsg("Give the note a title or some text."); onSave(n); setF({ title: "", text: "", url: "", tag: "" }); setMsg(f.url.trim() && !n.url ? "Saved without the link: a link must start with https://" : "Saved."); }}>
-      <div className="sec-h">New note</div>
-      <input aria-label="Note title" placeholder="Title" maxLength={120} value={f.title} onChange={(e) => { setF({ ...f, title: e.target.value }); setMsg(""); }} />
-      <textarea aria-label="Note text" placeholder="What you found, in your words" maxLength={4000} value={f.text} onChange={(e) => setF({ ...f, text: e.target.value })} />
-      <div className="kform-row">
-        <input aria-label="Link (optional)" placeholder="Link, optional (https://…)" value={f.url} onChange={(e) => setF({ ...f, url: e.target.value })} />
-        <input aria-label="Tag (optional)" placeholder="Tag, optional" maxLength={24} value={f.tag} onChange={(e) => setF({ ...f, tag: e.target.value })} />
-      </div>
-      <div className="kbtn-row"><button className="btn" type="submit">Save note</button>{msg && <span className="note" role="status">{msg}</span>}</div>
-    </form>
-  );
-}
 const MOODS = ["Low", "Flat", "Okay", "Good", "Bright"];
 const idOf = (day: string) => "j" + day;
 
@@ -80,15 +55,15 @@ function Editor({ day, e, put, status, storeNote }: { day: string; e: Entry | un
           {w.w && <p><b>Went well</b> {w.w}</p>}{w.g && <p><b>Grateful for</b> {w.g}</p>}{w.n && <p className="pre"><b>Notes</b> {w.n}</p>}
         </div>
       )}
-      {day === k && <div className="kform-row"><Btn kind="sm" onClick={() => openSheet({ kind: "wins" })}>Gratitude</Btn><span className="note">{w ? "Saved for today; you can add more." : "The evening sheet: what went well and what you are grateful for."}</span></div>}
+      {day === k && <div className="kform-row"><Btn kind="sm" onClick={() => { const el = document.getElementById("today-gratitude"); el?.scrollIntoView({ block: "nearest" }); el?.querySelector<HTMLElement>("textarea,input")?.focus(); }}>Gratitude</Btn><span className="note">{w ? "Saved for today; you can add more." : "The evening sheet: what went well and what you are grateful for."}</span></div>}
     </Card>
   );
 }
 
-// part (round 8): "side" is mood, tags and trade reflection (right column); "notes" is Research notes (left column).
-function Side({ day, e, put, part }: { day: string; e: Entry | undefined; put: (x: Partial<Entry> & { id: string }) => void; part: "side" | "notes" }) {
+// Mood and tags, then the trade reflection (right column). Round 12: research notes left the Dungeon; any notes
+// already attached to a page stay in its record (the notes field) and in Export my data.
+function Side({ day, e, put }: { day: string; e: Entry | undefined; put: (x: Partial<Entry> & { id: string }) => void }) {
   const { st } = useCourt();
-  const notes = useVault<Note>("research_notes");
   const [tag, setTag] = useState("");
   const [trades, setTrades] = useState<{ id: string; inst?: string; date?: string }[]>([]);
   useEffect(() => { getOnce<{ trades?: { id: string }[] }>("/api/ledger").then((j) => setTrades(Array.isArray(j?.trades) ? j.trades.slice(0, 40) : [])).catch(() => {}); }, []);
@@ -97,7 +72,6 @@ function Side({ day, e, put, part }: { day: string; e: Entry | undefined; put: (
   const old = st.mood[day];
   return (
     <>
-      {part === "side" && <>
       <Card title="Mood and tags">
         <div className="kmood" role="group" aria-label="Mood">
           {MOODS.map((m, i) => <button key={m} type="button" className="chipb" aria-pressed={(cur.mood ?? old?.m) === i + 1} onClick={() => put({ ...base, mood: i + 1 })}>{m}</button>)}
@@ -117,40 +91,23 @@ function Side({ day, e, put, part }: { day: string; e: Entry | undefined; put: (
         <label className="kform">How do you feel about it?<textarea key={day + "f"} maxLength={1000} defaultValue={cur.feel ?? ""} onBlur={(ev) => ev.target.value !== (cur.feel ?? "") && put({ ...base, feel: ev.target.value })} /></label>
         <label className="kform">After: what would you change?<textarea key={day + "c"} maxLength={1000} defaultValue={cur.change ?? ""} onBlur={(ev) => ev.target.value !== (cur.change ?? "") && put({ ...base, change: ev.target.value })} /></label>
       </Card>
-      </>}
-      {part === "notes" && <Card title="Research notes" sub="write one, attach it to this page">
-        <NewNote onSave={(n) => notes.put(n as Partial<Note>)} />
-        {!notes.rows.length ? <EmptyState who="tilly">No research notes yet. Write your first one above.</EmptyState>
-          : [...notes.rows].sort((a, b) => b.up.localeCompare(a.up)).slice(0, 20).map((n) => {
-            const on = (cur.notes ?? []).includes(n.id);
-            return (
-              <div className="krow" key={n.id}>
-                <span className="krow-main"><b>{n.title || (n.text ?? "").slice(0, 60) || "Untitled note"}</b> {n.kind === "macro" && <Chip>macro</Chip>}{(n.tags ?? []).map((t) => <Chip key={t}>#{t}</Chip>)}
-                  {n.title && n.text && <><br /><span className="note">{n.text.slice(0, 140)}</span></>}
-                  {n.url && <><br /><a href={n.url} target="_blank" rel="noreferrer">{n.url.replace(/^https?:\/\/(www\.)?/, "").split("/")[0]}</a></>}</span>
-                <Btn kind="sm ghost" aria-pressed={on} onClick={() => put({ ...base, notes: on ? cur.notes.filter((x) => x !== n.id) : [...(cur.notes ?? []), n.id] })}>{on ? "Attached ✓" : "Attach"}</Btn>
-              </div>
-            );
-          })}
-        <p className="note">A note stays separate: attaching links it from this page only.</p>
-      </Card>}
     </>
   );
 }
 
 /** Round 11: the Gratitude log, newest first: each evening's lines (what went well, what I'm grateful for, notes),
  *  from the same saved key the sheet writes (wins). Private like the journal; included in Export my data. */
-export function gratitudeLog(wins: Record<string, { w?: string; g?: string; n?: string }>) {
-  return Object.entries(wins ?? {}).filter(([d, x]) => /^\d{4}-\d{2}-\d{2}$/.test(d) && x && (x.w || x.g || x.n)).map(([day, x]) => ({ day, w: x.w ?? "", g: x.g ?? "", n: x.n ?? "" })).sort((a, b) => b.day.localeCompare(a.day));
+export function gratitudeLog(wins: Record<string, { w?: string; g?: string; n?: string; s?: string }>) {
+  return Object.entries(wins ?? {}).filter(([d, x]) => /^\d{4}-\d{2}-\d{2}$/.test(d) && x && (x.w || x.g || x.n || x.s)).map(([day, x]) => ({ day, w: x.w ?? "", g: x.g ?? "", s: x.s ?? "", n: x.n ?? "" })).sort((a, b) => b.day.localeCompare(a.day));
 }
 function GratitudeLog() {
   const { st, update } = useCourt();
   const list = gratitudeLog(st.wins);
   const [open, setOpen] = useState<string | null>(null);
   const [all, setAll] = useState(false);
-  const [f, setF] = useState<{ day: string; w: string; g: string; n: string } | null>(null);
+  const [f, setF] = useState<{ day: string; w: string; g: string; s: string; n: string } | null>(null);
   // editing changes the words only: no quest, XP or streak logic runs here
-  const save = () => { if (!f) return; update((d) => { d.wins = { ...d.wins, [f.day]: { w: f.w.slice(0, 2000), g: f.g.slice(0, 2000), n: f.n.slice(0, 6000) } }; }, ["wins"]); setF(null); };
+  const save = () => { if (!f) return; update((d) => { d.wins = { ...d.wins, [f.day]: { ...d.wins[f.day], w: f.w.slice(0, 2000), g: f.g.slice(0, 2000), s: f.s.slice(0, 300), n: f.n.slice(0, 6000) } }; }, ["wins"]); setF(null); };
   return (
     <Card title="Gratitude log" sub="private, newest first">
       {!list.length ? <EmptyState who="coco">Nothing yet. The Gratitude sheet opens at 21:30, or tap Gratitude on today&apos;s page.</EmptyState>
@@ -162,17 +119,44 @@ function GratitudeLog() {
                 ? <form className="kform" aria-label={`Edit gratitude for ${prettyDay(x.day)}`} onSubmit={(e) => { e.preventDefault(); save(); }}>
                     <label className="kform">What went well<textarea maxLength={2000} value={f.w} onChange={(e) => setF({ ...f, w: e.target.value })} /></label>
                     <label className="kform">What I&apos;m grateful for<textarea maxLength={2000} value={f.g} onChange={(e) => setF({ ...f, g: e.target.value })} /></label>
+                    <label className="kform">One small win<input maxLength={300} value={f.s} onChange={(e) => setF({ ...f, s: e.target.value })} /></label>
                     <label className="kform">Notes<textarea maxLength={6000} value={f.n} onChange={(e) => setF({ ...f, n: e.target.value })} /></label>
                     <div className="kbtn-row"><button className="btn sm" type="submit">Save</button><Btn kind="sm ghost" onClick={() => setF(null)}>Cancel</Btn></div>
                   </form>
                 : <div className="kgrat-read">
-                    {x.w && <p><b>Went well</b> {x.w}</p>}{x.g && <p><b>Grateful for</b> {x.g}</p>}{x.n && <p className="pre"><b>Notes</b> {x.n}</p>}
+                    {x.w && <p><b>Went well</b> {x.w}</p>}{x.g && <p><b>Grateful for</b> {x.g}</p>}{x.s && <p><b>Small win</b> {x.s}</p>}{x.n && <p className="pre"><b>Notes</b> {x.n}</p>}
                     <Btn kind="sm ghost" onClick={() => setF({ ...x })}>Edit</Btn>
                   </div>)}
             </span>
           </div>
         ))}
       {list.length > 30 && <Btn kind="sm ghost" aria-expanded={all} onClick={() => setAll(!all)}>{all ? "Show fewer" : `Show all (${list.length})`}</Btn>}
+    </Card>
+  );
+}
+
+/** Round 12: Today's gratitude, always in view at the top of the right column. Three short lines; autosaves as she
+ *  types and on Save. It writes today's entry under the same key the evening sheet uses (wins), so the Gratitude log,
+ *  the garden watering and the quest and XP behaviour work exactly as before; saving again edits today's entry. */
+export const gratitudePatch = (cur: { w?: string; g?: string; n?: string; s?: string } | undefined, f: { w: string; g: string; s: string }) => ({ ...(cur ?? {}), w: f.w.slice(0, 2000), g: f.g.slice(0, 2000), s: f.s.slice(0, 300) });
+function TodaysGratitude() {
+  const { st, k, update } = useCourt();
+  const cur = st.wins[k];
+  const [f, setF] = useState({ w: cur?.w ?? "", g: cur?.g ?? "", s: cur?.s ?? "" });
+  const [saved, setSaved] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => { setF({ w: st.wins[k]?.w ?? "", g: st.wins[k]?.g ?? "", s: st.wins[k]?.s ?? "" }); }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  const save = (next = f) => { window.clearTimeout(timer.current); if (!next.w.trim() && !next.g.trim() && !next.s.trim() && !cur) return; update((d) => { d.wins = { ...d.wins, [k]: gratitudePatch(d.wins[k], next) }; }, ["wins"]); setSaved(true); };
+  const change = (next: typeof f) => { setF(next); setSaved(false); window.clearTimeout(timer.current); timer.current = window.setTimeout(() => save(next), 800); };
+  return (
+    <Card title="Today's gratitude" sub={saved ? "saved ✓" : "autosaves as you type"} id="today-gratitude" className="kgrat-today">
+      <form className="kform" aria-label="Today's gratitude" onSubmit={(e) => { e.preventDefault(); save(); }}>
+        <input aria-label="What went well" placeholder="What went well" maxLength={2000} value={f.w} onChange={(e) => change({ ...f, w: e.target.value })} />
+        <input aria-label="What I'm grateful for" placeholder="What I'm grateful for" maxLength={2000} value={f.g} onChange={(e) => change({ ...f, g: e.target.value })} />
+        <input aria-label="One small win" placeholder="One small win" maxLength={300} value={f.s} onChange={(e) => change({ ...f, s: e.target.value })} />
+        <div className="kbtn-row"><button className="btn sm" type="submit">Save</button><span className="note">Private, in your Gratitude log.</span></div>
+      </form>
     </Card>
   );
 }
@@ -209,12 +193,27 @@ export function DungeonPage() {
   const hits = days.filter((d) => !needle || [byDay.get(d)?.text, ...(byDay.get(d)?.tags ?? []), st.wins[d]?.w, st.wins[d]?.g, st.wins[d]?.n].some((x) => String(x ?? "").toLowerCase().includes(needle)));
   // only the changed fields are sent; the storage layer merges them into the latest copy of the page
   const put = (x: Partial<Entry> & { id: string }) => v.put((byDay.has(x.day ?? day) ? x : { tags: [], notes: [], text: "", ...x }) as Partial<Entry> & { id: string });
+  // round 12: at desktop sizes the page fits the window: the grid takes the height left under the page head (keeping
+  // the 48px footer buffer) and each column scrolls inside itself. Small screens scroll as normal.
+  const grid = useRef<HTMLDivElement>(null);
+  const [fitH, setFitH] = useState<number | null>(null);
+  useEffect(() => {
+    const look = () => {
+      const el = grid.current, panel = el?.closest(".tabpanel") as HTMLElement | null;
+      if (!el || (panel && panel.hidden) || window.innerWidth < 1200 || window.innerHeight < 540) return setFitH(null);
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      setFitH(Math.max(260, Math.floor(window.innerHeight - top - 48)));
+    };
+    const t = window.setTimeout(look, 60);
+    window.addEventListener("resize", look); window.addEventListener("hashchange", look);
+    return () => { window.clearTimeout(t); window.removeEventListener("resize", look); window.removeEventListener("hashchange", look); };
+  }, []);
   return (
-    <div className="kpage">
+    <div className={"kpage kdun-page" + (fitH ? " fit" : "")} style={fitH ? ({ "--dun-h": fitH + "px" } as React.CSSProperties) : undefined}>
       <PageHead scene="gate" title="Dungeon" sub="Your private journal. Never shown to friends; included in Export my data." />
       {/* round 7: Your pages | Today's page (stretches to the row, the writing area fills it) | the weekly look-back,
           then mood, tags, reflections and notes. On a tablet the page sits left with the other two stacked right. */}
-      <div className="kpg kdun even">
+      <div className="kpg kdun even" ref={grid}>
         <div className="kcol kd-pages">
           <Card title="Your pages">
             <TabPills label="Pages" value={tab} options={[["month", "Month"], ["list", "List"]] as const} onChange={setTab} />
@@ -232,10 +231,9 @@ export function DungeonPage() {
             {dayGap(day, k) < 0 && <p className="note">That day has not come yet; the page will wait for you.</p>}
           </Card>
           <GratitudeLog />
-          <Side day={day} e={byDay.get(day)} put={put} part="notes" />
         </div>
         <div className="kcol kd-edit"><Editor day={day} e={byDay.get(day)} put={put} status={v.status} storeNote={<StoreNote status={v.status} failed={v.failed} />} /></div>
-        <div className="kcol kd-side"><WeeklyLookBack /><Side day={day} e={byDay.get(day)} put={put} part="side" /></div>
+        <div className="kcol kd-side"><TodaysGratitude /><WeeklyLookBack /><Side day={day} e={byDay.get(day)} put={put} /></div>
       </div>
     </div>
   );

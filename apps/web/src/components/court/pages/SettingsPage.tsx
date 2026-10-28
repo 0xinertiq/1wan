@@ -10,6 +10,8 @@ import { TABLES, VAULT_LABEL, vaultMode } from "@/lib/vault";
 import { LENS_IDS } from "@/lib/court/state";
 import { LENS_LABEL, toggleLens } from "@/lib/court/lenses";
 import { INTERESTS } from "./Welcome";
+import { QUOTES } from "@/lib/court/quotes";
+import { LIBRARY_MAX, parseQuotes, type MyQuote } from "@/lib/court/quoteLib";
 import { Btn, Callout, Card, Chip, EmptyState, PageHead } from "../ui";
 
 // Settings (round 8): two even columns. Left: look, market lens (several at once), rooms, connections, news and
@@ -52,6 +54,45 @@ function downloadDevice() {
   const url = URL.createObjectURL(new Blob([JSON.stringify(out, null, 2)], { type: "application/json" }));
   const a = document.createElement("a"); a.href = url; a.download = "1wan-device-records.json"; a.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/** Round 12: her quote library. Add one, paste many, or upload a .txt or .csv; a preview before saving. Private to
+ *  her account (user_state quotes), in Export my data. Nothing is fetched from the internet. */
+function QuotesCard() {
+  const { st, update } = useCourt();
+  const [one, setOne] = useState({ t: "", a: "" });
+  const [paste, setPaste] = useState("");
+  const [prev, setPrev] = useState<ReturnType<typeof parseQuotes> | null>(null);
+  const [msg, setMsg] = useState("");
+  const mine = st.quotes.mine;
+  const save = (add: MyQuote[]) => { update((d) => { d.quotes = { ...d.quotes, mine: [...d.quotes.mine, ...add].slice(0, LIBRARY_MAX) }; }, ["quotes"]); setMsg(`Added ${add.length} quote${add.length === 1 ? "" : "s"}.`); };
+  const file = (f: File | undefined) => { if (!f) return; if (!/\.(txt|csv)$/i.test(f.name) || f.size > 512000) return setMsg("Choose a .txt or .csv file under 500 KB."); const r = new FileReader(); r.onload = () => setPrev(parseQuotes(String(r.result ?? ""), mine, /\.csv$/i.test(f.name))); r.readAsText(f); };
+  return (
+    <Card title="Quotes" sub={`${QUOTES.length} built-in · ${mine.length + st.uq.length} yours`}>
+      <div className="kchips" role="group" aria-label="Which quotes Kumo shows">
+        {([["both", "Both"], ["builtin", "Built-in only"], ["mine", "Mine only"]] as const).map(([v, l]) => <button key={v} type="button" className="chipb" aria-pressed={st.quotes.src === v} onClick={() => update((d) => { d.quotes = { ...d.quotes, src: v }; }, ["quotes"])}>{l}</button>)}
+      </div>
+      <form className="kform-row" aria-label="Add one quote" onSubmit={(e) => { e.preventDefault(); const r = parseQuotes(one.a.trim() ? `${one.t} | ${one.a}` : one.t, mine); if (!r.add.length) return setMsg(r.dup ? "You already have that quote." : "Type a quote first."); save(r.add); setOne({ t: "", a: "" }); }}>
+        <input aria-label="Quote" placeholder="A quote (up to 160 characters)" maxLength={200} value={one.t} onChange={(e) => setOne({ ...one, t: e.target.value })} />
+        <input aria-label="Author (optional)" placeholder="Author (optional)" maxLength={60} value={one.a} onChange={(e) => setOne({ ...one, a: e.target.value })} />
+        <button className="btn sm" type="submit">Add</button>
+      </form>
+      <label className="kform">Paste many (one per line, "quote | author")<textarea value={paste} onChange={(e) => { setPaste(e.target.value); setPrev(null); }} /></label>
+      <div className="kbtn-row">
+        <Btn kind="sm ghost" onClick={() => setPrev(parseQuotes(paste, mine))}>Preview</Btn>
+        <label className="btn sm ghost">Upload .txt or .csv<input type="file" accept=".txt,.csv,text/plain,text/csv" className="sr" onChange={(e) => { file(e.target.files?.[0]); e.target.value = ""; }} /></label>
+      </div>
+      {prev && <div className="kcallout t-lav">
+        <p>{prev.add.length} new quote{prev.add.length === 1 ? "" : "s"} ready{prev.dup ? ` · ${prev.dup} duplicate${prev.dup === 1 ? "" : "s"} skipped` : ""}{prev.blank ? ` · ${prev.blank} blank line${prev.blank === 1 ? "" : "s"} skipped` : ""}{prev.long ? ` · ${prev.long} cut to 160 characters` : ""}{prev.over ? ` · ${prev.over} over the 500 limit left out` : ""}.</p>
+        {prev.add.slice(0, 5).map((q, i) => <p className="note" key={i}>“{q.t}”{q.a ? ` — ${q.a}` : ""}</p>)}
+        <div className="kbtn-row"><Btn kind="sm" disabled={!prev.add.length} onClick={() => { save(prev.add); setPrev(null); setPaste(""); }}>Save {prev.add.length}</Btn><Btn kind="sm ghost" onClick={() => setPrev(null)}>Cancel</Btn></div>
+      </div>}
+      {mine.length > 0 && <div className="kbtn-row"><Btn kind="sm ghost" onClick={() => { if (window.confirm(`Remove all ${mine.length} of your quotes? The built-in ones stay.`)) { update((d) => { d.quotes = { ...d.quotes, mine: [] }; }, ["quotes"]); setMsg("Your quotes were removed."); } }}>Remove all my quotes</Btn></div>}
+      {st.uq.length > 0 && <p className="note">{st.uq.length} quote{st.uq.length === 1 ? "" : "s"} from your old dashboard also count as yours and stay as they are.</p>}
+      {msg && <p className="note" role="status">{msg}</p>}
+      <p className="note">Private to your account and included in Export my data. Never fetched from the internet.</p>
+    </Card>
+  );
 }
 
 export function SettingsPage({ review }: { review?: React.ReactNode }) {
@@ -115,6 +156,7 @@ export function SettingsPage({ review }: { review?: React.ReactNode }) {
             <p className="kstore dev">{VAULT_LABEL[mode]}{mode === "device" ? ": journal pages, notes, goals, tasks, routines and budgets are kept in this browser until the new tables are switched on." : "."}</p>
             <div className="kbtn-row"><Btn kind="sm ghost" onClick={() => { if (window.confirm("Reset look, folds, seen items and other saved settings on this device? Your data on the server and your preview records stay.")) { resetDevice(); window.location.reload(); } }}>Reset saved settings on this device</Btn></div>
           </Card>
+          <QuotesCard />
           <Card title="Usage and tokens"><Usage /></Card>
           <Card title="Luna's birth details" sub="private"><BirthForm /></Card>
         </div>

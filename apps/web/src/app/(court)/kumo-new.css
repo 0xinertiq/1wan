@@ -1234,3 +1234,35 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kgrat-read{display:grid;gap:var(--sp-1);padding:var(--sp-2) 0}
 :root[data-ui="new"] .kgrat-read p{margin:0}
 :root[data-ui="new"] .kpage-act form{margin:0}
+
+/* ---------- Round 12 ---------- */
+/* the sakura bonsai centrepiece: on the page, crisp, centred, gentle sway and drifting petals (paused when hidden or reduced motion) */
+:root[data-ui="new"] .ktree{width:100%;max-width:760px;justify-self:center}
+:root[data-ui="new"] .ktree svg{display:block;width:100%;height:auto;image-rendering:pixelated;overflow:visible}
+@media (prefers-reduced-motion:no-preference){
+  :root[data-ui="new"] .ktree .ktree-sway{transform-box:view-box;transform-origin:64px 66px;animation:ktree-sway 6s ease-in-out infinite alternate}
+  :root[data-ui="new"] .ktree .ktree-petal{animation:ktree-fall 7s linear infinite}
+  :root[data-ui="new"] .ktree .ktree-petal.tp1{animation-delay:1.7s}
+  :root[data-ui="new"] .ktree .ktree-petal.tp2{animation-delay:3.4s}
+  :root[data-ui="new"] .ktree .ktree-petal.tp3{animation-delay:5.1s}
+  :root[data-ui="new"] .ktree .ktree-spark{animation:ktree-spark 0.8s steps(2) 3}
+}
+:root[data-ui="new"] .ktree.still :is(.ktree-sway,.ktree-petal,.ktree-spark){animation-play-state:paused}
+@keyframes ktree-sway{from{transform:rotate(-0.6deg)}to{transform:rotate(0.6deg)}}
+@keyframes ktree-fall{from{transform:translate(0,0);opacity:1}to{transform:translate(6px,28px);opacity:0}}
+@keyframes ktree-spark{50%{opacity:0}}
+:root[data-ui="new"] .kgarden-cap{text-align:center;margin:0}
+/* Dungeon: one screen on a desktop; columns scroll inside themselves; long lists scroll inside their card */
+@media (min-width:1200px) and (min-height:540px){
+  :root[data-ui="new"] .kdun-page.fit{gap:var(--sp-3)}
+  :root[data-ui="new"] .kdun-page.fit .kscene{aspect-ratio:auto;height:64px;min-height:0}
+  :root[data-ui="new"] .kdun-page.fit .kpage-title h1{font-size:var(--fs-h2)}
+  :root[data-ui="new"] .kdun-page.fit .kdun{height:var(--dun-h);align-items:stretch;gap:var(--sp-3)}
+  :root[data-ui="new"] .kdun-page.fit .kdun>.kcol{min-height:0;max-height:100%;overflow-y:auto;gap:var(--sp-3);scrollbar-width:thin}
+  :root[data-ui="new"] .kdun-page.fit .kd-edit>.kjournal{height:100%}
+  :root[data-ui="new"] .kdun-page.fit .kd-edit>.kjournal textarea{min-height:0}
+  :root[data-ui="new"] .kdun-page.fit .kcard .win-body{gap:var(--sp-2)}
+  :root[data-ui="new"] .kdun-page.fit .kmini button{min-height:32px}
+  :root[data-ui="new"] .kdun-page.fit .kcard textarea{min-height:56px}
+}
+:root[data-ui="new"] .kdun .kgrat-read,:root[data-ui="new"] .kdun .klib-bare{max-height:240px;overflow-y:auto}

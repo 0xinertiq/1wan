@@ -29,13 +29,15 @@ const oddRecords = encodeURIComponent(JSON.stringify({ "1wanvault.v1.journal_ent
 for (const tab of ["trades", "calendar", "life", "diary", "garden", "news", "settings", "kingdom", "welcome", "observatory"]) for (const [theme, size] of [["light", "1280,900"], ["dark", "390,844"]]) runs.push({ c: "full", theme, size, ssr: false, ls: oddRecords, hash: tab });
 for (const tab of ["life", "diary", "news"]) runs.push({ c: "empty", theme: "light", size: "1280,900", ssr: false, ls: "", hash: tab }, { c: "broken-old", theme: "dark", size: "820,1180", ssr: false, ls: oldStorage, hash: tab });
 
+// Round 12: the Dungeon fits one screen at common desktop sizes (no page scroll), with full sample data.
+for (const size of ["1280,720", "1440,900"]) runs.push({ c: "full", theme: "light", size, ssr: false, ls: "", hash: "diary", fit: true });
 let failed = 0;
 for (const r of runs) {
-  const url = `http://localhost:${PORT}/harness.html?case=${r.c}&theme=${r.theme}${r.ssr ? "&ssr=1" : ""}${r.ls ? "&ls=" + r.ls : ""}${r.hash ? "#" + r.hash : ""}`;
+  const url = `http://localhost:${PORT}/harness.html?case=${r.c}&theme=${r.theme}${r.ssr ? "&ssr=1" : ""}${r.ls ? "&ls=" + r.ls : ""}${r.fit ? "&fit=1" : ""}${r.hash ? "#" + r.hash : ""}`;
   let out = "";
   try { out = execFileSync(CHROME, ["--headless=new", "--disable-gpu", `--window-size=${r.size}`, "--virtual-time-budget=10000", "--dump-dom", url], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 90000 }); } catch (e) { out = String(e.stdout ?? ""); }
   const m = out.match(/ERRS:(\[.*?\]):END/s), errs = m ? JSON.parse(m[1].replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&")) : ["no result (page did not finish)"];
-  const label = `${r.c} ${r.theme} ${r.size}${r.ssr ? " ssr" : ""}${r.ls ? " saved-values" : ""}${r.hash ? " #" + r.hash : ""}`;
+  const label = `${r.c} ${r.theme} ${r.size}${r.ssr ? " ssr" : ""}${r.ls ? " saved-values" : ""}${r.hash ? " #" + r.hash : ""}${r.fit ? " fits" : ""}`;
   if (errs.length) { failed++; console.log("FAIL", label, "\n  " + errs.join("\n  ")); } else console.log("ok  ", label);
 }
 server.kill();
