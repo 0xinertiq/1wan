@@ -2,17 +2,13 @@
 
 import { useState } from "react";
 import { useCourt } from "../CourtState";
-import { eventsOn, isSkyItem } from "@/lib/court/state";
-import { addDays, hm, monthTitle, prettyDay, weekKey, wdName, wdOf } from "@/lib/court/time";
-import { openTab } from "@/lib/court/nav";
-import { useVault, type VRow } from "@/lib/vault";
-import { dueSoon, type Task } from "@/lib/court/vaultDue";
-import { Btn, Card, Chip, EmptyState, PageHead, StoreNote, TabPills, confirmDelete } from "../ui";
+import { addDays, monthTitle, prettyDay, weekKey } from "@/lib/court/time";
+import { Btn, PageHead } from "../ui";
 import { ClockRoom } from "@/components/kumo/decor/ClockRoom";
 
 // Calendar (round 8): the clock-tower room banner, the Calendar card full width (Day | Week | Month | Agenda of her
-// read-only Google Calendar), then the economic calendar full width. My tasks, Month at a glance and Upcoming left
-// this tab: her tasks stay saved and still show in Needs you now and Today's Coming up. No astrology on this tab.
+// read-only Google Calendar), then the economic calendar full width. My tasks moved to the Life Hub; Month at a
+// glance and Upcoming left this tab (Needs you now and Today's Coming up still show what is due). No astrology here.
 
 // The selected day (and today) wear a pixel heart in transparent pink: outline and light fill, never a solid block.
 const HEART = [".XX.XX.", "XppXppX", "XpppppX", ".XpppX.", "..XpX..", "...X..."];

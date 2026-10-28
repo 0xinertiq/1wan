@@ -9,13 +9,13 @@ import { GridAndWins } from "./GridChart";
 
 import { getOnce } from "@/lib/court/once";
 import { useVault, type VRow } from "@/lib/vault";
-import { routineNext, type Routine } from "@/lib/court/vaultDue";
-import { dayGap, prettyDay, sgtKeyOf } from "@/lib/court/time";
+import { routineNext, type Routine, type Task } from "@/lib/court/vaultDue";
+import { addDays, dayGap, prettyDay, sgtKeyOf } from "@/lib/court/time";
 import { money } from "@/lib/court/state";
 import { Bar, Btn, Callout, Card, Chip, EmptyState, PageHead, StoreNote, TabPills, confirmDelete } from "../ui";
 
 // Life Hub (round 7): Grid & Wins full width on top, then one full-width card for Life admin and the Finance
-// overview side by side, then Routine. Long-term planning and life management; tracking only, never advice.
+// overview side by side, then Routine | My tasks (round 8: tasks moved here from the Calendar). Long-term planning and life management; tracking only, never advice.
 
 // Round 7: the Goals card is retired from the page (progress lives in Grid & Wins). Saved goals stay in the goals
 // table and in Export my data; nothing is deleted.
@@ -115,6 +115,45 @@ function MoneyWins() {
   return mw ? <Ladder title="Money Wins Q4 ladder" phases={mw.phases} done={st.money.done} auto={{}} onTick={(id, on) => tick("money", id, on, "milestone")} />
     : <EmptyState who="coco">Your Money Wins ladder arrives with the tracker import.</EmptyState>;
 }
+/* ---------- My tasks ---------- */
+type T = VRow & Task;
+const PRI = { high: "High", normal: "Normal", low: "Low" } as const;
+
+/** My tasks (round 8: moved from the Calendar to the Life Hub, the same records): add, tick off, delete. */
+function Tasks() {
+  const { k } = useCourt();
+  const v = useVault<T>("tasks");
+  const [f, setF] = useState({ title: "", due: "", pri: "normal" as T["pri"] });
+  const [show, setShow] = useState<"open" | "done">("open");
+  const rank = { high: 0, normal: 1, low: 2 } as const;
+  const list = v.rows.filter((t) => !!t.done === (show === "done"))
+    .sort((a, b) => (a.due ?? "9999").localeCompare(b.due ?? "9999") || rank[a.pri ?? "normal"] - rank[b.pri ?? "normal"]);
+  const when = (d?: string) => (!d ? "" : d === k ? "today" : d < k ? "overdue" : d === addDays(k, 1) ? "tomorrow" : prettyDay(d));
+  return (
+    <Card title="My tasks" sub="Kumo tasks · not synced to Google">
+      <form className="kform" aria-label="Quick add a task" onSubmit={(e) => { e.preventDefault(); const title = f.title.trim().slice(0, 120); if (!title) return; v.put({ title, due: f.due || undefined, pri: f.pri, done: false }); setF({ ...f, title: "" }); }}>
+        <input placeholder="Add a task" aria-label="Task" maxLength={120} value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} />
+        <div className="kform-row">
+          <input type="date" aria-label="Due date" value={f.due} onChange={(e) => setF({ ...f, due: e.target.value })} />
+          <select aria-label="Priority" value={f.pri} onChange={(e) => setF({ ...f, pri: e.target.value as T["pri"] })}><option value="high">High</option><option value="normal">Normal</option><option value="low">Low</option></select>
+          <button className="btn" type="submit">Add</button>
+        </div>
+      </form>
+      <TabPills label="Tasks" value={show} options={[["open", "Open"], ["done", "Done"]] as const} onChange={setShow} />
+      {!v.ready ? <EmptyState kind="loading" who="momo">Fetching your tasks…</EmptyState>
+        : !list.length ? <EmptyState who="momo">{show === "open" ? "Nothing on your list. Add a task above." : "Nothing ticked off yet."}</EmptyState>
+        : list.slice(0, 40).map((t) => (
+          <div className={"krow" + (t.done ? " done" : "")} key={t.id}>
+            <label className="kcheck"><input type="checkbox" checked={!!t.done} onChange={(e) => v.put({ id: t.id, done: e.target.checked })} /><span className="sr">Done: {t.title}</span></label>
+            <span className="krow-main">{t.title} {t.pri === "high" && <Chip tone="sakura">{PRI.high}</Chip>}{t.due && <><br /><time className="ts">{when(t.due)}</time></>}</span>
+            <span className="krow-act"><Btn kind="sm ghost" onClick={() => confirmDelete(`“${t.title}”`) && v.remove(t.id)} aria-label={`Delete ${t.title}`}>Delete</Btn></span>
+          </div>
+        ))}
+      <StoreNote status={v.status} />
+    </Card>
+  );
+}
+
 /** Life admin and the Finance overview in one full-width card, side by side (stacked on the phone). */
 function AdminAndMoney() {
   const [tab, setTab] = useState<"month" | "budgets" | "wins">("month");
@@ -142,7 +181,10 @@ export function LifeHub() {
       <PageHead scene="cottage" title="Life Hub" sub="Long-term planning and life management: your chart, life admin, money and routine." />
       <GridAndWins />
       <AdminAndMoney />
-      <Routines />
+      <div className="kpg two even">
+        <div className="kcol"><Routines /></div>
+        <div className="kcol"><Tasks /></div>
+      </div>
     </div>
   );
 }

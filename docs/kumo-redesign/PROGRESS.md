@@ -418,3 +418,31 @@ Nothing protected was edited, and no records are deleted.
 - All 56 browser runs are clean.
 - The build passes, with only the existing Supabase realtime warning.
 
+
+### Independent review (fresh reviewer, read-only) and the one fix round
+The reviewer found no protected file touched and nothing deleted.
+
+**Must-fix:** with My tasks off the Calendar, tasks could not be added or ticked anywhere.
+- My tasks now sits in the Life Hub, beside Routine. They are the same records.
+- Needs you now and Coco's alert link there.
+
+**Also fixed:**
+- A double press now ticks the cell and closes the editor.
+- Grid cells no longer zoom the page on a double tap.
+- Weekly rhythm sits in the same soft box as the milestones.
+- Midday movers line up flush with Scan details.
+- On the phone the Garden cards read anchors, habits, branches, quests.
+- The Look row is labelled "Version".
+- The briefing's count leaves out Telegram items.
+- The scan note points to Briefs on the Court.
+- Unused Calendar imports and a dead CSS rule were removed.
+
+**Kept:**
+- Branches and Daily anchors share a row, so the shorter card stretches to the longer one.
+- The unused non-bare paths in BriefsLibrary and MoversCard stay for now; they are small.
+
+After the fix round:
+- Typecheck is clean.
+- 148 tests pass.
+- All 56 browser runs are clean.
+- The build passes.

@@ -38,7 +38,7 @@ test("grid: a double press marks an action done with the same key and watering a
   assert.ok(!isDoublePress({ key: "a2", at: 1000 }, "a3", 1100), "a different cell");
   assert.ok(!isDoublePress(null, "a3", 1100));
   const g = src("components/court/pages/GridChart.tsx");
-  assert.match(g, /isDoublePress\(last\.current, key, now\)\) \{ last\.current = null; const id = tickId\(c\.p, c\.a\); tick\("grid", id, !done\[id\], "grid"\); return; \}/);
+  assert.match(g, /isDoublePress\(last\.current, key, now\)\) \{ last\.current = null; const id = tickId\(c\.p, c\.a\); tick\("grid", id, !done\[id\], "grid"\); setSel\(null\); return; \}/, "a double press ticks and closes the editor");
   assert.match(g, /last\.current = \{ key, at: now \};\n\s+setSel\(c\);/);
   assert.match(g, /tick\("grid", id!, e\.target\.checked, "grid"\)/, "the editor's Done box is still there");
 });
@@ -85,7 +85,7 @@ test("Today's briefing: near-duplicates grouped, top five by score, only her len
   assert.equal(all.stories.length, 5);
   assert.deepEqual(all.stories.map((s) => s.title.slice(0, 12)), ["Fed holds ra", "Bitcoin tops", "Nvidia earni", "Local MRT li", "Solana ETF f"]);
   assert.deepEqual(all.stories[0].sources, ["Reuters", "AP", "CNBC"], "the near-duplicate's sources are added up");
-  assert.equal(all.headlines, 9, "social-only stories are left out of the count");
+  assert.equal(all.headlines, 9, "social items are left out of the count");
   const crypto = briefing(clusters, ["crypto"]);
   assert.deepEqual(crypto.stories.map((s) => s.group), ["Crypto", "Crypto", "Crypto"]);
   assert.deepEqual(briefing(clusters, ["off"]).stories, []);

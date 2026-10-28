@@ -66,7 +66,7 @@ export function SettingsPage({ review }: { review?: React.ReactNode }) {
           <Card title="Look">
             {/* round 8: label left, buttons in a row, on one shared grid */}
             <div className="klook">
-              <span className="klook-l">Look</span><LookSwitch bare />
+              <span className="klook-l">Version</span><LookSwitch bare />
               <span className="klook-l">Day or night</span><Theme />
             </div>
           </Card>

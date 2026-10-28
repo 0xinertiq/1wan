@@ -39,7 +39,7 @@ function Chart() {
   const last = useRef<{ key: string; at: number } | null>(null);
   const press = (c: Cell, key: string) => {
     const now = Date.now();
-    if (c.kind === "act" && isDoublePress(last.current, key, now)) { last.current = null; const id = tickId(c.p, c.a); tick("grid", id, !done[id], "grid"); return; }
+    if (c.kind === "act" && isDoublePress(last.current, key, now)) { last.current = null; const id = tickId(c.p, c.a); tick("grid", id, !done[id], "grid"); setSel(null); return; }
     last.current = { key, at: now };
     setSel(c);
   };

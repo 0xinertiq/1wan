@@ -49,8 +49,8 @@ function useRecords() {
 type Need = { id: string; crew: SpriteName; t: string; sub?: string; rows?: string[]; go?: string; rank: number };
 export function needs(st: CourtState, k: string, nm: number, events: CalEvent[], unrated: string[], vdue: DueThing[] = []): Need[] {
   const out: Need[] = [];
-  // Round 6: her own tasks (Calendar) and routines (Life Hub) due within 3 days, one row each.
-  for (const x of vdue) out.push({ id: x.id + x.d, crew: x.kind === "task" ? "momo" : "coco", rank: x.dd <= 0 ? 1 : 3, go: x.kind === "task" ? "calendar" : "life",
+  // Round 6: her own tasks and routines (both in the Life Hub since round 8) due within 3 days, one row each.
+  for (const x of vdue) out.push({ id: x.id + x.d, crew: x.kind === "task" ? "momo" : "coco", rank: x.dd <= 0 ? 1 : 3, go: "life",
     t: `${x.name} ${x.dd < 0 ? "overdue" : x.dd === 0 ? "due today" : x.dd === 1 ? "due tomorrow" : "due " + prettyDay(x.d)}`, sub: prettyDay(x.d) });
   const due = dueList(st, k, events).filter((x) => !isAutoPaid(x.it) && (x.dd <= 3 || x.it.important === true));
   const byDay = new Map<string, typeof due>();

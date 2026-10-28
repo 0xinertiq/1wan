@@ -46,7 +46,7 @@ export function ScanDetails({ doc }: { doc: BriefDoc | null }) {
         if (!sec) return null;
         return <details key={label} className="klib-item" open={label === "Style Map"}><summary><b>{label}</b></summary><article className="read" dangerouslySetInnerHTML={{ __html: mdLite(sec.replace(/^##[^\n]*\n/, "")) }} /></details>;
       })}
-      <p className="note xd">The full scan text stays in News. Tracking only, not advice.</p>
+      <p className="note xd">The morning scan itself is in Briefs on the Court. Tracking only, not advice.</p>
     </div>
   );
 }

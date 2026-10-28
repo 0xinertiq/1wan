@@ -61,7 +61,7 @@ test("alerts: one agent per rule, the calm morning summary, explicit offs, and D
   const am = buildAlerts(base);
   assert.deepEqual(am.map((a) => a.agent), ["momo", "olli", "coco", "kumo"], "morning: Momo's one summary speaks for the briefs; no habit nudge before 17:00");
   assert.match(am[0].text, /^Good morning\. 2 new briefs: Intelligence and Pulse\.$/);
-  assert.equal(am[2].go, "needWin"); assert.match(am[2].text, /Renew passport/); assert.ok(!/Dog grooming/.test(am[2].text), "only due today or overdue");
+  assert.equal(am[2].go, "life"); assert.match(am[2].text, /Renew passport/); assert.ok(!/Dog grooming/.test(am[2].text), "only due today or overdue");
   const pm = buildAlerts({ ...base, hour: 18, briefs: [...base.briefs, { key: "movers", label: "Midday movers", at: "2026-10-28T06:30:00Z" }] });
   assert.deepEqual(pm.map((a) => a.agent), ["pip", "olli", "coco", "momo", "kumo"], "the morning's briefs never alert twice; Pip announces the 14:30 one");
   assert.match(pm[0].text, /Midday movers/);

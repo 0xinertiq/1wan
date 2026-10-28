@@ -1117,7 +1117,6 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kgarden-cards .kempty{padding:var(--sp-2)}
 /* Dungeon: Your pages and Research notes keep their natural height */
 :root[data-ui="new"] .kpg.even>.kd-pages{display:grid;align-content:start}
-:root[data-ui="new"] .kpg.even>.kd-pages>:last-child{flex:none}
 /* Trades: movers then scan details in one card; a compact Macro desk */
 :root[data-ui="new"] .kscan{display:grid;gap:var(--sp-3);padding-top:var(--sp-3);border-top:var(--bw) solid var(--k-hairline)}
 :root[data-ui="new"] .kscan-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--sp-2)}
@@ -1158,3 +1157,8 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kweekly .filed-row.col{grid-template-columns:minmax(0,1fr)}
 :root[data-ui="new"] .kweekly .filed-row:last-child{border-bottom:0}
 :root[data-ui="new"] .kweekly .filed-row label{display:flex;align-items:baseline;gap:var(--sp-2)}
+/* Round 8 review fixes: double tap never zooms the grid; Weekly rhythm in the same soft box; movers flush in the shared card */
+:root[data-ui="new"] .hcell{touch-action:manipulation}
+:root[data-ui="new"] .kweekly .samsara>div:has(>.filed-row){margin:0 0 var(--sp-2);padding:var(--sp-2) var(--sp-3);border:var(--bw) solid var(--k-hairline);border-radius:var(--r-control);background:var(--k-soft)}
+:root[data-ui="new"] .kcard .kmovers>.win-body{padding:0}
+@media (max-width:767px){:root[data-ui="new"] .kgarden-cards>:nth-child(3){order:-1}:root[data-ui="new"] .kgarden-cards>:first-child{order:-2}}

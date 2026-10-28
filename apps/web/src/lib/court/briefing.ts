@@ -10,7 +10,7 @@ export type Story = { title: string; link: string; group: string; at: string | n
 
 export function briefing(clusters: Cluster[], lenses: LensId[], n = 5, near = 0.35): { stories: Story[]; headlines: number } {
   const keep = clusters.filter((c) => c.items.some((x) => x.tier !== "social") && headlineShown(c.lead.group ?? "", lenses));
-  const headlines = keep.reduce((t, c) => t + c.items.length, 0);
+  const headlines = keep.reduce((t, c) => t + c.items.filter((x) => x.tier !== "social").length, 0);
   const groups: { g: Set<string>; s: Story }[] = [];
   for (const c of [...keep].sort((a, b) => b.score - a.score)) {
     const g = grams(c.lead.title), names = [...new Set(c.items.map((x) => x.source))];
