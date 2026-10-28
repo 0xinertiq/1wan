@@ -1266,3 +1266,4 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
   :root[data-ui="new"] .kdun-page.fit .kcard textarea{min-height:56px}
 }
 :root[data-ui="new"] .kdun .kgrat-read,:root[data-ui="new"] .kdun .klib-bare{max-height:240px;overflow-y:auto}
+:root[data-ui="new"] .kupload:focus-within{outline:var(--bw-2) solid var(--k-focus);outline-offset:2px}

@@ -14,7 +14,6 @@ import {
 import { addDays, prettyDay, weekKey, dayIdx, sgtKeyOf } from "@/lib/court/time";
 import { branches, needsCare, type Branch, type WaterEvt } from "@/lib/court/garden";
 import { DecorSprite } from "@/components/kumo/DecorSprite";
-import { GardenPixel } from "@/components/kumo/decor/GardenPixel";
 import { GardenTree } from "@/components/kumo/decor/GardenTree";
 import { WILT_CAPTION, wiltOf } from "@/components/kumo/decor/treeArt";
 import { DungeonIcon } from "@/components/kumo/DungeonIcon";
@@ -318,7 +317,7 @@ export function WinsLive({ onDone }: { onDone?: () => void }) {
     ["Posts this week", String(T.posts)],
     ["Streak", `${st.streak} day${st.streak === 1 ? "" : "s"}`],
   ];
-  const save = () => { update((d) => { d.wins[k] = { w: w.slice(0, 2000), g: g.slice(0, 2000), n: n.slice(0, 6000) }; }, ["wins"]); };
+  const save = () => { update((d) => { d.wins[k] = { ...d.wins[k], w: w.slice(0, 2000), g: g.slice(0, 2000), n: n.slice(0, 6000) }; }, ["wins"]); };
   return (
     <div id="winBox">
       <div className="tcard" id="winCard">
@@ -392,7 +391,7 @@ function DiaryEdit({ day, onDone }: { day: string; onDone: () => void }) {
   const e0 = st.wins[day] ?? {};
   const [w, setW] = useState(e0.w ?? ""), [g, setG] = useState(e0.g ?? ""), [n, setN] = useState(e0.n ?? "");
   return (
-    <form className="field wr" onSubmit={(e) => { e.preventDefault(); update((d) => { d.wins[day] = { w: w.slice(0, 2000), g: g.slice(0, 2000), n: n.slice(0, 6000) }; }, ["wins"]); onDone(); }}>
+    <form className="field wr" onSubmit={(e) => { e.preventDefault(); update((d) => { d.wins[day] = { ...d.wins[day], w: w.slice(0, 2000), g: g.slice(0, 2000), n: n.slice(0, 6000) }; }, ["wins"]); onDone(); }}>
       <label>What went well<textarea rows={2} maxLength={2000} value={w} onChange={(e) => setW(e.target.value)} /></label>
       <label>What I&apos;m grateful for<textarea rows={2} maxLength={2000} value={g} onChange={(e) => setG(e.target.value)} /></label>
       <label>Notes<textarea rows={5} maxLength={6000} value={n} onChange={(e) => setN(e.target.value)} /></label>

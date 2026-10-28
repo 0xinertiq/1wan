@@ -8,5 +8,5 @@ import type { CourtState } from "./state";
 export function chartBranches(list: Branch[], st: Pick<CourtState, "defs" | "gridDefs" | "gridDefs2027" | "grid" | "grid2027done">, year: "2026" | "2027") {
   const chart = year === "2027" ? chartOf(null, st.gridDefs2027) : chartOf(st.defs.grid, st.gridDefs);
   const done = year === "2027" ? st.grid2027done : st.grid.done;
-  return list.map((b) => ({ ...b, name: chart?.pillars[b.n - 1]?.name?.trim() || (year === "2027" ? `Sub-goal ${b.n}` : b.name), blossoms: Array.from({ length: 8 }, (_, i) => done[`${b.n}.${i + 1}`]).filter(Boolean).length }));
+  return list.map((b) => ({ ...b, name: chart?.pillars[b.n - 1]?.name?.trim() || `Sub-goal ${b.n}`, blossoms: Array.from({ length: 8 }, (_, i) => done[`${b.n}.${i + 1}`]).filter(Boolean).length }));
 }

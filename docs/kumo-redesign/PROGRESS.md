@@ -685,3 +685,35 @@ Now `lib/court/branchChart.ts` maps the branches onto the effective chart: her e
 - 182 tests pass.
 - All 58 browser runs are clean, including the two one-screen checks.
 - The build passes.
+
+### Independent review (fresh reviewer, read-only) and the one fix round
+The reviewer found no protected file touched and the decay rules unchanged. It confirmed the bonsai matches the brief, and that research notes and quotes are kept.
+
+**Fixed (must-fix):**
+- **Dungeon fit after normal navigation.** The Dungeon now fits one screen when opened from the nav too: it measures when its tab is shown, measures again once the compact head applies, then trims any leftover overflow.
+- **Small win wiped.** The evening sheet and the Classic diary editor no longer wipe the small win.
+- **Today's gratitude text.** The card picks up newer words from the sheet or the log when she isn't typing, and saves what was typed when she leaves or hides the tab.
+- **Quotes:**
+  - Quotes in any script are accepted.
+  - The `"Quote" — Author` form and `"Be kind" — | — Pip` split correctly.
+  - BOM and CRLF are handled; a CSV header row is skipped; a `|` inside a CSV cell stays in the quote.
+  - Duplicates of built-in or older quotes are skipped.
+
+**Fixed (minor):**
+- Kumo's pick respects the quest switches.
+- A blank pillar name shows "Sub-goal n", from the chart only.
+- The tray now draws over the trunk base, so its rim stays crisp.
+- Thirsty leaves are paler.
+- The recovery sparkle can no longer stick.
+- The upload button shows a focus ring.
+- Diary search includes the small win.
+- The stale News comment is corrected.
+
+**Noted:**
+- **Notes out of sight.** Her own research notes, and the notes already attached to pages, no longer show anywhere in the app. They are kept in research_notes and in Export my data, as asked.
+- **Browser flake.** One server-render browser run once showed a hydration flake. It passed on rerun; it is a known minute-boundary flake from the header clock.
+
+After the fix round:
+- 182 tests pass.
+- All 58 browser runs are clean.
+- The build passes.

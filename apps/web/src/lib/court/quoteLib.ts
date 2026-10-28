@@ -6,7 +6,9 @@ export type QuoteSrc = "both" | "builtin" | "mine";
 export const QUOTE_MAX = 160, LIBRARY_MAX = 500;
 
 const clean = (s: string) => s.replace(/\s+/g, " ").trim();
-const key = (s: string) => clean(s).toLowerCase().replace(/[^a-z0-9 ]+/g, "");
+// letters and numbers in any script (a Chinese or Japanese quote has a key too)
+const key = (s: string) => clean(s).toLowerCase().replace(/[^\p{L}\p{N} ]+/gu, "");
+const unquote = (s: string) => clean(s).replace(/[\s—–-]+$/, "").replace(/^[\s—–-]+/, "").replace(/^["“”']+|["“”']+$/g, "").trim();
 const cut = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
 
 /** One CSV line into cells (quoted cells may hold commas and doubled quotes). */
@@ -22,16 +24,18 @@ function csvCells(line: string) {
 }
 
 /** Parse pasted or uploaded text. csv: read a second column as the author. existing: what she already has. */
-export function parseQuotes(text: string, existing: { t: string }[] = [], csv = false) {
-  const seen = new Set(existing.map((x) => key(x.t)));
+export function parseQuotes(text: string, existing: { t: string }[] = [], csv = false, builtin: string[] = []) {
+  const seen = new Set([...existing.map((x) => key(x.t)), ...builtin.map(key)]);
   const add: MyQuote[] = []; let blank = 0, dup = 0, long = 0;
-  for (const raw of text.split(/\r?\n/)) {
+  const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/);
+  for (const [i, raw] of lines.entries()) {
     if (!raw.trim()) { blank++; continue; }
+    if (i === 0 && csv && /^\s*"?quote"?\s*(,|$)/i.test(raw)) continue;   // a header row
     let t: string, a: string | undefined;
-    if (raw.includes("|")) { const [q, ...rest] = raw.split("|"); t = q; a = rest.join("|"); }
-    else if (csv) { const cells = csvCells(raw); t = cells[0] ?? ""; a = cells[1]; }
-    else t = raw;
-    t = clean(t).replace(/^["“]|["”]$/g, ""); a = a ? clean(a).replace(/^[-—–]\s*/, "") : undefined;
+    if (csv) { const cells = csvCells(raw); t = cells[0] ?? ""; a = cells[1]; }
+    else if (raw.includes("|")) { const [q, ...rest] = raw.split("|"); t = q; a = rest.join("|"); }
+    else { const m = raw.match(/^(.*\S)\s+[—–-]{1,2}\s+([^—–-][^"“”]{0,60})$/); if (m) { t = m[1]; a = m[2]; } else t = raw; }   // "Quote" — Author
+    t = unquote(t); a = a ? unquote(a) || undefined : undefined;
     if (!t) { blank++; continue; }
     if (t.length > QUOTE_MAX) { long++; t = cut(t, QUOTE_MAX); }
     const k = key(t);

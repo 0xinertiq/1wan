@@ -22,7 +22,7 @@ export function GardenTree({ stage, wilt, gold = 0, petals = 0, label }: { stage
   // recovery: when real activity lifts a wilt, a small happy sparkle for a moment
   const prev = useRef(wilt), [sparkle, setSparkle] = useState(false);
   useEffect(() => {
-    if (prev.current > 0 && wilt === 0) { setSparkle(true); const t = window.setTimeout(() => setSparkle(false), 2600); prev.current = wilt; return () => window.clearTimeout(t); }
+    if (prev.current > 0 && wilt === 0) { setSparkle(true); const t = window.setTimeout(() => setSparkle(false), 2600); prev.current = wilt; return () => { window.clearTimeout(t); setSparkle(false); }; }
     prev.current = wilt;
   }, [wilt]);
   useEffect(() => {

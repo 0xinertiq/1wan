@@ -66,21 +66,21 @@ function QuotesCard() {
   const [msg, setMsg] = useState("");
   const mine = st.quotes.mine;
   const save = (add: MyQuote[]) => { update((d) => { d.quotes = { ...d.quotes, mine: [...d.quotes.mine, ...add].slice(0, LIBRARY_MAX) }; }, ["quotes"]); setMsg(`Added ${add.length} quote${add.length === 1 ? "" : "s"}.`); };
-  const file = (f: File | undefined) => { if (!f) return; if (!/\.(txt|csv)$/i.test(f.name) || f.size > 512000) return setMsg("Choose a .txt or .csv file under 500 KB."); const r = new FileReader(); r.onload = () => setPrev(parseQuotes(String(r.result ?? ""), mine, /\.csv$/i.test(f.name))); r.readAsText(f); };
+  const file = (f: File | undefined) => { if (!f) return; if (!/\.(txt|csv)$/i.test(f.name) || f.size > 512000) return setMsg("Choose a .txt or .csv file under 500 KB."); const r = new FileReader(); r.onload = () => setPrev(parseQuotes(String(r.result ?? ""), mine.concat(st.uq.map((t) => ({ t }))), /\.csv$/i.test(f.name), QUOTES)); r.readAsText(f); };
   return (
     <Card title="Quotes" sub={`${QUOTES.length} built-in · ${mine.length + st.uq.length} yours`}>
       <div className="kchips" role="group" aria-label="Which quotes Kumo shows">
         {([["both", "Both"], ["builtin", "Built-in only"], ["mine", "Mine only"]] as const).map(([v, l]) => <button key={v} type="button" className="chipb" aria-pressed={st.quotes.src === v} onClick={() => update((d) => { d.quotes = { ...d.quotes, src: v }; }, ["quotes"])}>{l}</button>)}
       </div>
-      <form className="kform-row" aria-label="Add one quote" onSubmit={(e) => { e.preventDefault(); const r = parseQuotes(one.a.trim() ? `${one.t} | ${one.a}` : one.t, mine); if (!r.add.length) return setMsg(r.dup ? "You already have that quote." : "Type a quote first."); save(r.add); setOne({ t: "", a: "" }); }}>
+      <form className="kform-row" aria-label="Add one quote" onSubmit={(e) => { e.preventDefault(); const r = parseQuotes(one.a.trim() ? `${one.t} | ${one.a}` : one.t, mine, false, QUOTES); if (!r.add.length) return setMsg(r.dup ? "You already have that quote." : "Type a quote first."); save(r.add); setOne({ t: "", a: "" }); }}>
         <input aria-label="Quote" placeholder="A quote (up to 160 characters)" maxLength={200} value={one.t} onChange={(e) => setOne({ ...one, t: e.target.value })} />
         <input aria-label="Author (optional)" placeholder="Author (optional)" maxLength={60} value={one.a} onChange={(e) => setOne({ ...one, a: e.target.value })} />
         <button className="btn sm" type="submit">Add</button>
       </form>
       <label className="kform">Paste many (one per line, "quote | author")<textarea value={paste} onChange={(e) => { setPaste(e.target.value); setPrev(null); }} /></label>
       <div className="kbtn-row">
-        <Btn kind="sm ghost" onClick={() => setPrev(parseQuotes(paste, mine))}>Preview</Btn>
-        <label className="btn sm ghost">Upload .txt or .csv<input type="file" accept=".txt,.csv,text/plain,text/csv" className="sr" onChange={(e) => { file(e.target.files?.[0]); e.target.value = ""; }} /></label>
+        <Btn kind="sm ghost" onClick={() => setPrev(parseQuotes(paste, mine.concat(st.uq.map((t) => ({ t }))), false, QUOTES))}>Preview</Btn>
+        <label className="btn sm ghost kupload">Upload .txt or .csv<input type="file" accept=".txt,.csv,text/plain,text/csv" className="sr" onChange={(e) => { file(e.target.files?.[0]); e.target.value = ""; }} /></label>
       </div>
       {prev && <div className="kcallout t-lav">
         <p>{prev.add.length} new quote{prev.add.length === 1 ? "" : "s"} ready{prev.dup ? ` · ${prev.dup} duplicate${prev.dup === 1 ? "" : "s"} skipped` : ""}{prev.blank ? ` · ${prev.blank} blank line${prev.blank === 1 ? "" : "s"} skipped` : ""}{prev.long ? ` · ${prev.long} cut to 160 characters` : ""}{prev.over ? ` · ${prev.over} over the 500 limit left out` : ""}.</p>

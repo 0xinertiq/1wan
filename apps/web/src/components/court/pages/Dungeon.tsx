@@ -145,10 +145,24 @@ function TodaysGratitude() {
   const [f, setF] = useState({ w: cur?.w ?? "", g: cur?.g ?? "", s: cur?.s ?? "" });
   const [saved, setSaved] = useState(false);
   const timer = useRef<number | undefined>(undefined);
-  useEffect(() => { setF({ w: st.wins[k]?.w ?? "", g: st.wins[k]?.g ?? "", s: st.wins[k]?.s ?? "" }); }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-  const save = (next = f) => { window.clearTimeout(timer.current); if (!next.w.trim() && !next.g.trim() && !next.s.trim() && !cur) return; update((d) => { d.wins = { ...d.wins, [k]: gratitudePatch(d.wins[k], next) }; }, ["wins"]); setSaved(true); };
-  const change = (next: typeof f) => { setF(next); setSaved(false); window.clearTimeout(timer.current); timer.current = window.setTimeout(() => save(next), 800); };
+  // the latest typed lines, not yet saved (null when nothing is pending)
+  const pending = useRef<typeof f | null>(null);
+  const save = (next = f) => {
+    window.clearTimeout(timer.current); pending.current = null;
+    if (!next.w.trim() && !next.g.trim() && !next.s.trim() && !st.wins[k]) return;
+    update((d) => { d.wins = { ...d.wins, [k]: gratitudePatch(d.wins[k], next) }; }, ["wins"]); setSaved(true);
+  };
+  // newer words from the evening sheet or the log show here, unless she is typing in this card right now
+  useEffect(() => { if (!pending.current) setF({ w: cur?.w ?? "", g: cur?.g ?? "", s: cur?.s ?? "" }); }, [k, cur?.w, cur?.g, cur?.s]);
+  // leaving the page or hiding the tab saves what was typed, never drops it
+  const saveRef = useRef(save); saveRef.current = save;
+  useEffect(() => {
+    const flush = () => { if (pending.current) saveRef.current(pending.current); };
+    const vis = () => { if (document.visibilityState === "hidden") flush(); };
+    document.addEventListener("visibilitychange", vis);
+    return () => { document.removeEventListener("visibilitychange", vis); flush(); };
+  }, []);
+  const change = (next: typeof f) => { setF(next); setSaved(false); pending.current = next; window.clearTimeout(timer.current); timer.current = window.setTimeout(() => save(next), 800); };
   return (
     <Card title="Today's gratitude" sub={saved ? "saved ✓" : "autosaves as you type"} id="today-gratitude" className="kgrat-today">
       <form className="kform" aria-label="Today's gratitude" onSubmit={(e) => { e.preventDefault(); save(); }}>
@@ -190,7 +204,7 @@ export function DungeonPage() {
   const has = (d: string) => !!(byDay.get(d)?.text?.trim() || st.wins[d]?.w || st.wins[d]?.g || st.wins[d]?.n);
   const days = [...new Set([...v.rows.map((e) => e.day), ...Object.keys(st.wins)])].filter(has).sort().reverse();
   const needle = q.trim().toLowerCase();
-  const hits = days.filter((d) => !needle || [byDay.get(d)?.text, ...(byDay.get(d)?.tags ?? []), st.wins[d]?.w, st.wins[d]?.g, st.wins[d]?.n].some((x) => String(x ?? "").toLowerCase().includes(needle)));
+  const hits = days.filter((d) => !needle || [byDay.get(d)?.text, ...(byDay.get(d)?.tags ?? []), st.wins[d]?.w, st.wins[d]?.g, st.wins[d]?.s, st.wins[d]?.n].some((x) => String(x ?? "").toLowerCase().includes(needle)));
   // only the changed fields are sent; the storage layer merges them into the latest copy of the page
   const put = (x: Partial<Entry> & { id: string }) => v.put((byDay.has(x.day ?? day) ? x : { tags: [], notes: [], text: "", ...x }) as Partial<Entry> & { id: string });
   // round 12: at desktop sizes the page fits the window: the grid takes the height left under the page head (keeping
@@ -199,15 +213,34 @@ export function DungeonPage() {
   const [fitH, setFitH] = useState<number | null>(null);
   useEffect(() => {
     const look = () => {
+      settled.current = 0;
       const el = grid.current, panel = el?.closest(".tabpanel") as HTMLElement | null;
       if (!el || (panel && panel.hidden) || window.innerWidth < 1200 || window.innerHeight < 540) return setFitH(null);
       const top = el.getBoundingClientRect().top + window.scrollY;
       setFitH(Math.max(260, Math.floor(window.innerHeight - top - 48)));
     };
+    // measure on load, on resize, and whenever the Dungeon tab is shown (the nav shows it without a hashchange)
     const t = window.setTimeout(look, 60);
     window.addEventListener("resize", look); window.addEventListener("hashchange", look);
-    return () => { window.clearTimeout(t); window.removeEventListener("resize", look); window.removeEventListener("hashchange", look); };
+    const panel = grid.current?.closest(".tabpanel");
+    const mo = panel && typeof MutationObserver !== "undefined" ? new MutationObserver(() => window.requestAnimationFrame(look)) : null;
+    if (mo && panel) mo.observe(panel, { attributes: true, attributeFilter: ["hidden"] });
+    return () => { window.clearTimeout(t); window.removeEventListener("resize", look); window.removeEventListener("hashchange", look); mo?.disconnect(); };
   }, []);
+  // once the compact head is applied the grid moves up: measure again so the grid uses that space
+  // then trim any leftover overflow (spacing below the grid), so the page itself never scrolls
+  const settled = useRef(0);
+  useEffect(() => {
+    if (!fitH) { settled.current = 0; return; }
+    if (settled.current >= 2) return;
+    const step = ++settled.current;
+    window.requestAnimationFrame(() => {
+      const el = grid.current, se = document.scrollingElement; if (!el || !se) return;
+      if (step === 1) { const top = el.getBoundingClientRect().top + window.scrollY; const h = Math.max(260, Math.floor(window.innerHeight - top - 48)); if (Math.abs(h - fitH) > 2) return setFitH(h); settled.current = 2; }
+      const over = se.scrollHeight - window.innerHeight;
+      if (over > 0) setFitH(Math.max(260, fitH - over));
+    });
+  }, [fitH]);
   return (
     <div className={"kpage kdun-page" + (fitH ? " fit" : "")} style={fitH ? ({ "--dun-h": fitH + "px" } as React.CSSProperties) : undefined}>
       <PageHead scene="gate" title="Dungeon" sub="Your private journal. Never shown to friends; included in Export my data." />

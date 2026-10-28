@@ -28,7 +28,7 @@ test("Gratitude: entries save under the existing key, list newest first, edit in
   const d = src("components/court/pages/Dungeon.tsx");
   assert.match(d, /update\(\(d\) => \{ d\.wins = \{ \.\.\.d\.wins, \[f\.day\]: \{ \.\.\.d\.wins\[f\.day\], w: f\.w\.slice\(0, 2000\), g: f\.g\.slice\(0, 2000\), s: f\.s\.slice\(0, 300\), n: f\.n\.slice\(0, 6000\) \} \}; \}, \["wins"\]\)/, "an edit writes only the words, under the same key");
   assert.ok(!/logQuest|levelUp|d\.xp|d\.streak/.test(d.slice(d.indexOf("function GratitudeLog"), d.indexOf("export function WeeklyLookBack"))), "editing never touches quests, XP or the streak");
-  assert.match(src("components/court/live/GrowLive.tsx"), /d\.wins\[k\] = \{ w: w\.slice\(0, 2000\), g: g\.slice\(0, 2000\), n: n\.slice\(0, 6000\) \}; \}, \["wins"\]/, "the evening sheet saves exactly as before");
+  assert.match(src("components/court/live/GrowLive.tsx"), /d\.wins\[k\] = \{ \.\.\.d\.wins\[k\], w: w\.slice\(0, 2000\), g: g\.slice\(0, 2000\), n: n\.slice\(0, 6000\) \}; \}, \["wins"\]/, "the evening sheet saves as before and keeps the small win");
   const { OWNED_KEYS } = await import("../src/lib/court/state.ts");
   assert.ok(OWNED_KEYS.includes("wins"), "wins is part of her saved state, so Export my data includes it");
 });

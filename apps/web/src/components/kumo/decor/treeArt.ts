@@ -11,7 +11,7 @@ export const TREE_W = 128, TREE_H = 84;
 // pixel-art palette (fallbacks; the page sets --kt-* for day and night)
 export const TREE_PAL: Record<string, string> = {
   X: "#4a2538", b: "#9a6450", B: "#7b4b3c", w: "#c98e7e", k: "#a8705f", r: "#b7b2c4", R: "#8f8aa3", m: "#9bd8ae", M: "#6fbf8a",
-  l: "#9bd8ae", L: "#6fbf8a", p: "#ffc2dd", P: "#f48fb8", q: "#ff9dbf", y: "#d9c27a", u: "#b58a5c", g: "#ffd95e", o: "#fff6e3", v: "#e7deff", n: "#bfd9ff", s: "#ffffff",
+  l: "#9bd8ae", L: "#6fbf8a", a: "#cfe9c9", A: "#a9d2a4", p: "#ffc2dd", P: "#f48fb8", q: "#ff9dbf", y: "#d9c27a", u: "#b58a5c", g: "#ffd95e", o: "#fff6e3", v: "#e7deff", n: "#bfd9ff", s: "#ffffff",
 };
 
 type Px = Map<string, string>;
@@ -45,15 +45,6 @@ export function treeModel({ stage, wilt, gold = 0, petals = 0 }: { stage: number
   // a soft pale moon behind the canopy at full bloom
   if (S === 4 && W === 0) disc(m, 96, 14, 9, "o");
 
-  // the tray: rim, wood, feet; rocks and moss on the soil
-  for (let x = 40; x <= 88; x++) { put(m, x, 66, "X"); put(m, x, 72, "X"); }
-  for (let y = 66; y <= 72; y++) { put(m, 40, y, "X"); put(m, 88, y, "X"); }
-  for (let y = 67; y <= 71; y++) for (let x = 41; x <= 87; x++) put(m, x, y, y === 69 ? "k" : "w");
-  for (const fx of [44, 83]) for (let y = 73; y <= 75; y++) { put(m, fx, y, "X"); put(m, fx + 1, y, "X"); }
-  for (let x = 42; x <= 86; x++) put(m, x, 65, "B");
-  disc(m, 48, 63, 3, "R"); disc(m, 48, 62, 2, "r"); disc(m, 79, 63, 2, "R"); disc(m, 79, 62, 1, "r");
-  for (const x of [52, 53, 55, 70, 72, 73, 75]) put(m, x, 64, W >= 2 ? "u" : "m");
-
   // the S-curved trunk; branches lower as the garden wilts
   const droop = W === 0 ? 0 : W === 1 ? 0.35 : W === 2 ? 0.8 : 1.2;
   stroke(m, [[64, 65], [68, 58], [60, 50], [66, 41], [62, 32], [64, 24]], 5, "b");
@@ -62,8 +53,17 @@ export function treeModel({ stage, wilt, gold = 0, petals = 0 }: { stage: number
   TIPS.forEach((t, i) => { const [x, y] = tip(t), [fx, fy] = from[i]; stroke(m, [[fx, fy], [(fx + x) / 2, Math.min(fy, y) - 3 + droop * 2], [x, y]], i < 2 || i > 5 ? 2 : 1, "B"); });
   if (W >= 1) { const [x, y] = tip(TIPS[1]); stroke(m, [[x, y], [x - 3, y + 4]], 1, "B"); }   // the drooping twig
 
+  // the tray (drawn over the trunk base, so its rim stays crisp): rim, wood, feet; rocks and moss on the soil
+  for (let x = 40; x <= 88; x++) { put(m, x, 66, "X"); put(m, x, 72, "X"); }
+  for (let y = 66; y <= 72; y++) { put(m, 40, y, "X"); put(m, 88, y, "X"); }
+  for (let y = 67; y <= 71; y++) for (let x = 41; x <= 87; x++) put(m, x, y, y === 69 ? "k" : "w");
+  for (const fx of [44, 83]) for (let y = 73; y <= 75; y++) { put(m, fx, y, "X"); put(m, fx + 1, y, "X"); }
+  for (let x = 42; x <= 86; x++) put(m, x, 65, "B");
+  disc(m, 48, 63, 3, "R"); disc(m, 48, 62, 2, "r"); disc(m, 79, 63, 2, "R"); disc(m, 79, 62, 1, "r");
+  for (const x of [52, 53, 55, 70, 72, 73, 75]) put(m, x, 64, W >= 2 ? "u" : "m");
+
   // foliage: which clusters, how big, leaf colour and how many blossoms, by stage and wilt
-  const leafC = W === 0 ? "l" : W === 1 ? "m" : "y", leafD = W === 0 ? "L" : W === 1 ? "M" : "u";
+  const leafC = W === 0 ? "l" : W === 1 ? "a" : "y", leafD = W === 0 ? "L" : W === 1 ? "A" : "u";   // paler when thirsty
   const keepBloom = W === 0 ? 1 : W === 1 ? 0.85 : W === 2 ? 0.45 : 0.1;
   const keepLeaf = W === 3 ? 0.2 : 1;
   const tips = TIPS.map(tip);

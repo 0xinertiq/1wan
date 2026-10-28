@@ -83,7 +83,9 @@ test("quote library: paste and upload parsing, the source switch, export, and no
   const { parseQuotes, quotePool, normQuotes } = await import("../src/lib/court/quoteLib.ts");
   const long = "x".repeat(200);
   const r = parseQuotes(`Stay calm | Kumo\n\n  \nStay  calm\nSmall steps count\n"Be kind" — | — Pip\n${long}`, [{ t: "Small steps count" }]);
-  assert.deepEqual(r.add.map((q) => [q.t.slice(0, 10), q.a ?? null]), [["Stay calm", "Kumo"], ["Be kind\" —", "Pip"], ["xxxxxxxxxx", null]]);
+  assert.deepEqual(r.add.map((q) => [q.t.slice(0, 10), q.a ?? null]), [["Stay calm", "Kumo"], ["Be kind", "Pip"], ["xxxxxxxxxx", null]]);
+  assert.deepEqual(parseQuotes(`﻿"Stay curious" — Marcus Aurelius\r\n不忘初心\r\nWell-being matters\r\nBuilt in`, [], false, ["Built in"]).add, [{ t: "Stay curious", a: "Marcus Aurelius" }, { t: "不忘初心" }, { t: "Well-being matters" }], "BOM, CRLF, the quote — author form, any script, built-in duplicates");
+  assert.deepEqual(parseQuotes(`quote,author\n"A | B",C`, [], true).add, [{ t: "A | B", a: "C" }], "a CSV header row is skipped; a | inside a CSV cell stays in the quote");
   assert.equal(r.blank, 2); assert.equal(r.dup, 2); assert.equal(r.long, 1); assert.equal(r.add[2].t.length, 160);
   const csv = parseQuotes(`"Patience, then action",Olli\nOne more,`, [], true);
   assert.deepEqual(csv.add, [{ t: "Patience, then action", a: "Olli" }, { t: "One more" }]);

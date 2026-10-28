@@ -154,7 +154,7 @@ export function KumoPick() {
   const { st, k, nm, update, levelUp } = useCourt();
   const [pickI, setPickI] = useState(0);
   const canRest = st.restDay !== k && st.restWeek !== weekKey(k);
-  const picks = openQuests(st, k, nm).filter((q) => qScore(q, k, nm) < 60 && !q.auto).slice(0, 3);
+  const picks = openQuests(st, k, nm).filter((q) => !st.questsOff.includes(q.id) && qScore(q, k, nm) < 60 && !q.auto).slice(0, 3);
   const pick = picks.length ? picks[pickI % picks.length] : null;
   return (
     <div className="pick">
