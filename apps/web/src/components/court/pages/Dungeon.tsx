@@ -10,7 +10,7 @@ import { Archive, downloadDiary } from "../live/GrowLive";
 import { Btn, Card, Chip, EmptyState, PageHead, SectionLabel, StoreNote, TabPills } from "../ui";
 
 // Dungeon (round 6, private journal): left, the month calendar and a text-only list with search; middle, the
-// day's entry (Inter) with autosave and an honest saved status, plus the "Count your wins" sheet; right, mood,
+// day's entry (Inter) with autosave and an honest saved status, plus the Gratitude sheet and its log; right, mood,
 // tags, trade reflection prompts, attached research notes and the one weekly look-back (rule-based, no AI).
 // Owner-only, never shown to friends, included in Export my data. A research note never exposes an entry:
 // the link is stored on the entry only.
@@ -77,10 +77,10 @@ function Editor({ day, e, put, status, storeNote }: { day: string; e: Entry | un
       {storeNote}
       {w && (w.w || w.g || w.n) && (
         <div className="kcallout t-lav">
-          {w.w && <p><b>Win</b> {w.w}</p>}{w.g && <p><b>Thanks</b> {w.g}</p>}{w.n && <p className="pre"><b>Notes</b> {w.n}</p>}
+          {w.w && <p><b>Went well</b> {w.w}</p>}{w.g && <p><b>Grateful for</b> {w.g}</p>}{w.n && <p className="pre"><b>Notes</b> {w.n}</p>}
         </div>
       )}
-      {day === k && <div className="kform-row"><Btn kind="sm" onClick={() => openSheet({ kind: "wins" })}>Count your wins</Btn><span className="note">{w ? "Saved for today; you can add more." : "The evening sheet: what went well and what you are grateful for."}</span></div>}
+      {day === k && <div className="kform-row"><Btn kind="sm" onClick={() => openSheet({ kind: "wins" })}>Gratitude</Btn><span className="note">{w ? "Saved for today; you can add more." : "The evening sheet: what went well and what you are grateful for."}</span></div>}
     </Card>
   );
 }
@@ -138,6 +138,43 @@ function Side({ day, e, put, part }: { day: string; e: Entry | undefined; put: (
   );
 }
 
+/** Round 11: the Gratitude log, newest first: each evening's lines (what went well, what I'm grateful for, notes),
+ *  from the same saved key the sheet writes (wins). Private like the journal; included in Export my data. */
+export function gratitudeLog(wins: Record<string, { w?: string; g?: string; n?: string }>) {
+  return Object.entries(wins ?? {}).filter(([d, x]) => /^\d{4}-\d{2}-\d{2}$/.test(d) && x && (x.w || x.g || x.n)).map(([day, x]) => ({ day, w: x.w ?? "", g: x.g ?? "", n: x.n ?? "" })).sort((a, b) => b.day.localeCompare(a.day));
+}
+function GratitudeLog() {
+  const { st, update } = useCourt();
+  const list = gratitudeLog(st.wins);
+  const [open, setOpen] = useState<string | null>(null);
+  const [f, setF] = useState<{ day: string; w: string; g: string; n: string } | null>(null);
+  // editing changes the words only: no quest, XP or streak logic runs here
+  const save = () => { if (!f) return; update((d) => { d.wins = { ...d.wins, [f.day]: { w: f.w.slice(0, 2000), g: f.g.slice(0, 2000), n: f.n.slice(0, 6000) } }; }, ["wins"]); setF(null); };
+  return (
+    <Card title="Gratitude log" sub="private, newest first">
+      {!list.length ? <EmptyState who="coco">Nothing yet. The Gratitude sheet opens at 21:30, or tap Gratitude on today&apos;s page.</EmptyState>
+        : list.slice(0, 60).map((x) => (
+          <div className="krow kgrat" key={x.day}>
+            <span className="krow-main">
+              <button type="button" className="klink-row" aria-expanded={open === x.day} onClick={() => { setOpen(open === x.day ? null : x.day); setF(null); }}><b>{prettyDay(x.day)}</b><br /><span className="note">{(x.w || x.g || x.n).slice(0, 80)}</span></button>
+              {open === x.day && (f?.day === x.day
+                ? <form className="kform" aria-label={`Edit gratitude for ${prettyDay(x.day)}`} onSubmit={(e) => { e.preventDefault(); save(); }}>
+                    <label className="kform">What went well<textarea maxLength={2000} value={f.w} onChange={(e) => setF({ ...f, w: e.target.value })} /></label>
+                    <label className="kform">What I&apos;m grateful for<textarea maxLength={2000} value={f.g} onChange={(e) => setF({ ...f, g: e.target.value })} /></label>
+                    <label className="kform">Notes<textarea maxLength={6000} value={f.n} onChange={(e) => setF({ ...f, n: e.target.value })} /></label>
+                    <div className="kbtn-row"><button className="btn sm" type="submit">Save</button><Btn kind="sm ghost" onClick={() => setF(null)}>Cancel</Btn></div>
+                  </form>
+                : <div className="kgrat-read">
+                    {x.w && <p><b>Went well</b> {x.w}</p>}{x.g && <p><b>Grateful for</b> {x.g}</p>}{x.n && <p className="pre"><b>Notes</b> {x.n}</p>}
+                    <Btn kind="sm ghost" onClick={() => setF({ ...x })}>Edit</Btn>
+                  </div>)}
+            </span>
+          </div>
+        ))}
+    </Card>
+  );
+}
+
 export function WeeklyLookBack() {
   const { st, k } = useCourt();
   const v = useVault<Entry>("journal_entries");
@@ -192,6 +229,7 @@ export function DungeonPage() {
             <Archive />
             {dayGap(day, k) < 0 && <p className="note">That day has not come yet; the page will wait for you.</p>}
           </Card>
+          <GratitudeLog />
           <Side day={day} e={byDay.get(day)} put={put} part="notes" />
         </div>
         <div className="kcol kd-edit"><Editor day={day} e={byDay.get(day)} put={put} status={v.status} storeNote={<StoreNote status={v.status} failed={v.failed} />} /></div>

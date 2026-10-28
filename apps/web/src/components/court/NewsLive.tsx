@@ -80,7 +80,8 @@ export function NewsLive({ top5 = [], follow = false }: { top5?: string[]; follo
   const lensOff = follow && st.lenses.includes("off");
   // A Telegram post that clustered with a news story still shows under the Telegram chip (never lost to topic filing).
   const list = tab === "All" ? items : tab === "Telegram" ? items.filter((c) => c.items.some((x) => x.group === "Telegram")) : items.filter((c) => c.lead.group === tab);
-  const shown = list.slice(0, more ? 40 : 8);
+  // round 11: a category chip opens every headline in it at once; Collapse goes back to the first eight
+  const shown = more ? list : list.slice(0, 8);
   const down = (Array.isArray(data?.feeds) ? data.feeds : []).filter((f) => f && !f.ok).map((f) => f.name);
 
   // round 8: on the News tab, Today's briefing (rules only) sits above the headlines
@@ -116,7 +117,7 @@ export function NewsLive({ top5 = [], follow = false }: { top5?: string[]; follo
           {data && !lensOff && <>
             <div className="ntabs" role="group" aria-label="Headline topics">
               {["All", ...groups, ...(tgItems.length ? ["Telegram"] : [])].map((g) => (
-                <button key={g} className="chipb" type="button" aria-pressed={tab === g} onClick={() => { setTab(g); setMore(false); }}>
+                <button key={g} className="chipb" type="button" aria-pressed={tab === g} onClick={() => { setTab(g); setMore(true); }}>
                   {g} {g === "All" ? items.length : items.filter((c) => c.lead.group === g).length}
                 </button>
               ))}
@@ -133,7 +134,7 @@ export function NewsLive({ top5 = [], follow = false }: { top5?: string[]; follo
                 ))}
               </ul>
             ) : <p className="note">Nothing in this topic right now.</p>}
-            {list.length > 8 && <button className="btn sm ghost" type="button" id="newsMoreBtn" onClick={() => setMore(!more)}>{more ? "Fewer headlines" : "More headlines"}</button>}
+            {list.length > 8 && <button className="btn sm ghost" type="button" id="newsMoreBtn" aria-expanded={more} onClick={() => setMore(!more)}>{more ? "Collapse" : "More headlines"}</button>}
             <p className="note">Updated {data ? ago(data.at) : ""}{tg?.health?.length ? ` · ${tg.health.filter((x) => x.ok).length} of ${tg.health.length} Telegram channels reachable` : ""}. Not real time.</p>
             <p className="note xd">Free RSS feeds, refreshed every 15 minutes. Headlines only; open the original to read more.{down.length ? ` Not reachable now: ${down.join(", ")}.` : ""}</p>
           </>}

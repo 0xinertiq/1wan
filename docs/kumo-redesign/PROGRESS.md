@@ -611,3 +611,19 @@ After the fix round:
 - 169 tests pass.
 - All 56 browser runs are clean.
 - The build passes.
+
+## Round 11: small fixes (on preview)
+- **Gratitude:**
+  - "Count your wins" is now "Gratitude" everywhere: button, sheet title, helper text and Dungeon labels.
+  - The evening sheet still saves to the existing `wins` key (date, what went well, what I'm grateful for, notes), with the same quest and XP behaviour. That key is part of her saved state, so Export my data includes it.
+  - The Dungeon has a "Gratitude log" (newest first, tap to read, Edit to change the words only).
+  - Decision: kept the existing key rather than journal_entries, because the code already uses it.
+- **Trades:** no "Fenn" tag beside the Trade log title.
+- **News:** a category chip opens every headline in that category at once, and Collapse goes back to eight.
+- **Settings:** Sign out sits beside Replay the tour in the page header. It uses the existing POST /auth/signout route, which signs out and returns to the login screen; auth is unchanged. The Account card no longer repeats either button.
+
+Checks:
+- Typecheck is clean.
+- 174 tests pass.
+- All 56 browser runs are clean.
+- The build passes.

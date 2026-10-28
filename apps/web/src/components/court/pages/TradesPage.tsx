@@ -155,7 +155,7 @@ function TradeLog({ L }: { L: ReturnType<typeof useLedger> }) {
   const list = L.rows.filter((t) => (!flt.setup || t.setup === flt.setup) && (!flt.month || String(t.date ?? "").startsWith(flt.month)) && (flt.status === "all" || (flt.status === "open") === (derive(t).status === "open")));
   const set = (key: keyof Form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => f && setF({ ...f, [key]: e.target.value });
   return (
-    <Card title="Trade log" id="tlog" sub="Fenn" actions={!f && L.state === "ok" ? <Btn kind="sm" onClick={() => setF(blank)}>Add a trade</Btn> : null}>
+    <Card title="Trade log" id="tlog" actions={!f && L.state === "ok" ? <Btn kind="sm" onClick={() => setF(blank)}>Add a trade</Btn> : null}>
       {L.state === "loading" && <EmptyState kind="loading" who="fenn">Opening your ledger…</EmptyState>}
       {L.state === "setup" && <EmptyState who="fenn">The trade ledger needs one setup step first (docs/manual-steps.md, section G).</EmptyState>}
       {L.state === "error" && <EmptyState kind="error" who="fenn">Could not load the ledger. Try again later.</EmptyState>}

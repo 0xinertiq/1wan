@@ -57,7 +57,7 @@ export function CourtSheet({ latest }: { latest: Latest }) {
   const { st, k, nm, sheet, openSheet } = useCourt();
   const closeRef = useRef<HTMLButtonElement>(null);
 
-  // "Tonight, count your wins" opens once at 21:30 SGT if nothing is saved for today yet.
+  // The Gratitude sheet opens once at 21:30 SGT if nothing is saved for today yet.
   useEffect(() => {
     if (nm < 1290 || st.wins[k] || sheet) return;
     const key = "1wan-wins-asked";
@@ -76,7 +76,7 @@ export function CourtSheet({ latest }: { latest: Latest }) {
   if (!sheet) return null;
   return (
     <div className="sheet-bg" onPointerDown={(e) => { if (e.target === e.currentTarget) openSheet(null); }}>
-      <div className="sheet" role="dialog" aria-modal="true" aria-labelledby={sheet.kind === "crew" ? "sheetT" : undefined} aria-label={sheet.kind === "settings" ? "Settings" : sheet.kind === "wins" ? "Count your wins" : sheet.kind === "birth" ? "Birth details" : sheet.kind === "packet" ? "Kumo's weekly review" : undefined}>
+      <div className="sheet" role="dialog" aria-modal="true" aria-labelledby={sheet.kind === "crew" ? "sheetT" : undefined} aria-label={sheet.kind === "settings" ? "Settings" : sheet.kind === "wins" ? "Gratitude" : sheet.kind === "birth" ? "Birth details" : sheet.kind === "packet" ? "Kumo's weekly review" : undefined}>
         <button ref={closeRef} className="btn sm ghost sheet-x" type="button" onClick={() => openSheet(null)}>Close</button>
         {sheet.kind === "crew" ? <CrewDetail id={sheet.id} latest={latest} /> : sheet.kind === "wins" ? <WinsLive onDone={() => openSheet(null)} /> : sheet.kind === "birth" ? <div className="detail"><BirthForm /></div> : sheet.kind === "packet" ? <PacketLive /> : <SettingsLive open />}
       </div>

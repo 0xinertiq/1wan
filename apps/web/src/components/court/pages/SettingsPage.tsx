@@ -60,7 +60,12 @@ export function SettingsPage({ review }: { review?: React.ReactNode }) {
   const mode = vaultMode();
   return (
     <div className="kpage">
-      <PageHead scene="castle" title="Settings" sub="Look, lenses, connections, Kumo's weekly review and your data. Private to you." />
+      <PageHead scene="castle" title="Settings" sub="Look, lenses, connections, Kumo's weekly review and your data. Private to you."
+        actions={<>
+          <a className="btn sm ghost" href="#welcome">Replay the tour</a>
+          {/* the existing sign-out route (POST /auth/signout): it signs out, then returns to the login screen */}
+          <form action="/auth/signout" method="post" className="kbtn-row"><button className="btn sm" type="submit">Sign out</button></form>
+        </>} />
       <div className="kpg two even">
         <div className="kcol">
           <Card title="Look">
@@ -91,9 +96,8 @@ export function SettingsPage({ review }: { review?: React.ReactNode }) {
             <div className="kbtn-row">
               <a className="btn sm ghost" href="#kingdom">Kingdom Mode</a>
               <a className="btn sm ghost" href="/progress">Progress</a>
-              <a className="btn sm ghost" href="#welcome">Replay the tour</a>
             </div>
-            <form action="/auth/signout" method="post" className="kbtn-row"><button className="btn ghost" type="submit">Sign out</button></form>
+            <p className="note">Replay the tour and Sign out are at the top of this page.</p>
           </Card>
         </div>
         <div className="kcol">

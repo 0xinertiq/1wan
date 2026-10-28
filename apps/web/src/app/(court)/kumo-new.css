@@ -1230,3 +1230,7 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 .lw-say.r5.clamp:not(.open) .lw-say-t{display:-webkit-box;-webkit-line-clamp:var(--lines,2);-webkit-box-orient:vertical;overflow:hidden}
 .lw-say.r5.clamp{cursor:pointer}
 .lw-say.r5.clamp.open{z-index:20;height:auto}
+/* Round 11: the Gratitude log */
+:root[data-ui="new"] .kgrat-read{display:grid;gap:var(--sp-1);padding:var(--sp-2) 0}
+:root[data-ui="new"] .kgrat-read p{margin:0}
+:root[data-ui="new"] .kpage-act form{margin:0}

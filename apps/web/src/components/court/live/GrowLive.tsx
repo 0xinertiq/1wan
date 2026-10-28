@@ -23,7 +23,7 @@ import { useUi } from "@/components/kumo/useUi";
 import { habitWeek, gardenStage, GROW_AT } from "@/lib/court/habits";
 import { Card as GCard } from "../ui";
 
-// Growth column from dashboard-v52: Sakura Garden (with Habit Quests inside), Tonight count your wins,
+// Growth column from dashboard-v52: Sakura Garden (with Habit Quests inside), Gratitude (round 11 name),
 // Dungeon with the weekly recap, and the "You" status card. Everything saves to her state.
 
 const short = (id: string) => AGENTS.find((a) => a.id === id)?.short ?? id;
@@ -281,8 +281,9 @@ function winLines(st: CourtState, k: string) {
   return L;
 }
 
-// Guided "Tonight, count your wins" sheet (v2 section 5): opens at 21:30 or on demand. Step 1 counts the
-// same real events that water the garden; steps 2 and 3 are her own words, private, saved under wins.
+// Guided Gratitude sheet (v2 section 5; renamed in round 11): opens at 21:30 or on demand. Step 1 counts the
+// same real events that water the garden; steps 2 and 3 are her own words, private, saved under wins (the same
+// key, quest and XP behaviour as before; only the name changed). The Dungeon keeps them as the Gratitude log.
 export function WinsLive({ onDone }: { onDone?: () => void }) {
   const { st, k, nm, update } = useCourt();
   const saved = st.wins[k] ?? {};
@@ -309,16 +310,16 @@ export function WinsLive({ onDone }: { onDone?: () => void }) {
   return (
     <div id="winBox">
       <div className="tcard" id="winCard">
-        <h3><Mini name="coco" />{late ? "Tonight, count your wins" : "Today's wins"} <span className="note">step {step + 1} of 3</span></h3>
+        <h3><Mini name="coco" />{late ? "Tonight's gratitude" : "Today's gratitude"} <span className="note">step {step + 1} of 3</span></h3>
         {step === 0 && <>
           <p className="note">Here is what you really did today, counted from your own records.</p>
           {evs == null ? <p className="note">Counting…</p> : rows.map(([a, b]) => <div className="filed-row" key={a}><span>{a}</span><b>{b}</b></div>)}
           <div className="rep-act"><button className="btn sm" type="button" onClick={() => setStep(1)}>Next</button></div>
         </>}
         {step === 1 && <div className="field wr">
-          <label htmlFor="winIn">One thing that went well</label>
+          <label htmlFor="winIn">What went well</label>
           <textarea id="winIn" rows={3} maxLength={2000} placeholder={sug[0] ?? "Small counts"} value={w} onChange={(e) => setW(e.target.value)} />
-          <label htmlFor="gratIn">What you are grateful for</label>
+          <label htmlFor="gratIn">What I'm grateful for</label>
           <textarea id="gratIn" rows={3} maxLength={2000} placeholder="A person, a moment, a thing" value={g} onChange={(e) => setG(e.target.value)} />
           <div className="rep-act"><button className="btn sm ghost" type="button" onClick={() => setStep(0)}>Back</button><button className="btn sm" type="button" onClick={() => setStep(2)}>Next</button></div>
         </div>}
@@ -328,7 +329,7 @@ export function WinsLive({ onDone }: { onDone?: () => void }) {
           <div className="rep-act"><button className="btn sm ghost" type="button" onClick={() => setStep(1)}>Back</button><button className="btn sm" type="button" onClick={() => { save(); setStep(3); }}>Save to my diary</button></div>
         </div>}
         {step === 3 && <>
-          <p className="note">Saved. Private to you, in your diary.</p>
+          <p className="note">Saved to your Gratitude log. Private to you, never shown to friends.</p>
           <div className="rep-act">{onDone && <button className="btn sm" type="button" onClick={onDone}>Close</button>}<button className="btn sm ghost" type="button" onClick={() => setStep(0)}>Look again</button></div>
         </>}
       </div>
@@ -341,9 +342,9 @@ export function WinsButton() {
   const { st, k, openSheet } = useCourt();
   return (
     <div className="tcard">
-      <h3><Mini name="coco" />Tonight, count your wins</h3>
+      <h3><Mini name="coco" />Tonight&apos;s gratitude</h3>
       <p className="note">{st.wins[k] ? "Saved for today. You can look again or add more." : "Opens by itself at 21:30, or any time now."}</p>
-      <div className="rep-act"><button className="btn sm" type="button" onClick={() => openSheet({ kind: "wins" })}>Count your wins</button></div>
+      <div className="rep-act"><button className="btn sm" type="button" onClick={() => openSheet({ kind: "wins" })}>Gratitude</button></div>
     </div>
   );
 }
