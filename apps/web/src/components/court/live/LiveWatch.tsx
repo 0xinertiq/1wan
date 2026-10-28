@@ -28,7 +28,7 @@ export function LiveWatch() {
       <div className="win-body">
         {!prices ? <p className="note">Prices loading…</p> : !prices.prices.length ? <p className="note">Prices are not reachable right now.</p> : (
           <table className="kwatch">
-            <thead><tr><th>Ticker</th><th>Price</th><th>Day</th><th>1-month range</th></tr></thead>
+            <thead><tr><th>Ticker</th><th>Price</th><th>Day</th><th>Range<span className="kth-sub">30-day low to high</span></th></tr></thead>
             <tbody>
               {prices.prices.map((p) => {
                 const r = rng[p.sym], pos = r && r.hi > r.lo ? Math.min(100, Math.max(0, ((p.usd - r.lo) / (r.hi - r.lo)) * 100)) : null;

@@ -93,7 +93,7 @@ function screens(docs) {
     header: h(Header),
     court: h(CourtLayout, { s: slots }),
     calendar: h("div", null, h(NextLiquidityLine), h(CalendarTab), h(CalendarPage, { main: h(CalendarTab, { noWeek: true }), econ: h(EconLive) }), h(MomoCard), h(MomoIdeas)),
-    trades: h("div", null, h(TradeLive), h(TradesPage, { left: h("div", null, h(LiveWatch), h(MoversCard, { list: docs.filter((d) => d.key === "movers") }), h(TechLive)), scan: docOf("scan"), intel: docOf("intel") })),
+    trades: h("div", null, h(TradeLive), h(LiveWatch), h(TradesPage, { movers: h(MoversCard, { list: docs.filter((d) => d.key === "movers") }), tech: h(TechLive), scan: docOf("scan"), intel: docOf("intel") })),
     news: h(NewsPage, { headlines: h(NewsLive, { top5: ["The Fed holds."] }), library: h(BriefsLibrary, { history: docs }) }),
     garden: h("div", null, h(KumoPick), h(GardenLive)),
     diary: h("div", null, h(WinsButton), h(DiaryLive, { open: true })),

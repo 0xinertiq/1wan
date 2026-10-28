@@ -28,7 +28,6 @@ import { KumoPick, TodayLive } from "@/components/court/live/TodayLive";
 import { CourtLayout } from "@/components/court/live/KumoHome";
 import { CrewRoster, LivingWorld } from "@/components/court/live/LivingWorld";
 import { BriefsBlock, BriefsLibrary, MoversCard, ReviewCard, type DeskMem } from "@/components/court/CourtBriefs";
-import { LiveWatch } from "@/components/court/live/LiveWatch";
 import { noBigdata } from "@/lib/noBigdata";
 
 // Desk notes go through the same Bigdata scrubber; a note left empty is dropped.
@@ -123,7 +122,7 @@ export default async function Dashboard() {
         extra={{
           trades: (
             <NewOnly>
-              <TradesPage left={<><LiveWatch /><MoversCard list={history.filter((d) => d.key === "movers")} /><TechLive /></>} scan={scanDoc} intel={docOf("intel")} />
+              <TradesPage movers={<MoversCard list={history.filter((d) => d.key === "movers")} />} tech={<TechLive />} scan={scanDoc} intel={docOf("intel")} />
             </NewOnly>
           ),
           settings: <NewOnly><SettingsPage /></NewOnly>,

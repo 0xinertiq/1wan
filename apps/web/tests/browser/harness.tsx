@@ -93,7 +93,7 @@ export function buildTree(d: Data) {
         <Header />
         <AppTabs
           extra={{
-            trades: <NewOnly><TradesPage left={<><LiveWatch /><MoversCard list={docs.filter((x) => x.key === "movers")} /><TechLive /></>} scan={docOf("scan")} intel={docOf("intel")} /></NewOnly>,
+            trades: <NewOnly><TradesPage movers={<MoversCard list={docs.filter((x) => x.key === "movers")} />} tech={<TechLive />} scan={docOf("scan")} intel={docOf("intel")} /></NewOnly>,
             settings: <NewOnly><SettingsPage /></NewOnly>,
             kingdom: <NewOnly><KingdomPage world={<LivingWorld filed={filed} />} /></NewOnly>,
             welcome: <NewOnly><WelcomePage /></NewOnly>,

@@ -9,7 +9,7 @@ import { todaysPlan, type PlanRow } from "@/components/kumo/briefParse";
 import { noBigdata } from "@/lib/noBigdata";
 import { liquidityList } from "@/lib/liquidity";
 import { useEcon } from "../live/EconLive";
-import { derive, TradeLive } from "../live/TradeLive";
+import { derive } from "../live/TradeLive";
 import { readSaved, writeSaved } from "@/lib/court/store";
 import { useVault, type VRow } from "@/lib/vault";
 import { dayStamp, inText, monthTitle, prettyDay, stamp, weekKey } from "@/lib/court/time";
@@ -202,24 +202,49 @@ export function sizeCalc(equity: number, riskPct: number, entry: number, stop: n
   const rr = target && target > 0 && Math.sign(target - entry) === Math.sign(entry - stop) ? Math.abs(target - entry) / dist : null;
   return { risk, size, notional: size * entry, rr };
 }
+/** Plain-words check before sizing (round 7): a stop on the wrong side or a price at or below zero gets a message. */
+export function sizeCheck(dir: "long" | "short", equity: number, riskPct: number, entry: number, stop: number, target?: number | null): string | null {
+  if (!(equity > 0)) return "Enter your equity, above zero.";
+  if (!(riskPct > 0 && riskPct <= 100)) return "Enter a risk percent between 0 and 100.";
+  if (!(entry > 0)) return "Enter an entry price above zero.";
+  if (!(stop > 0)) return "Enter a stop price above zero.";
+  if (dir === "long" && stop >= entry) return "Enter a stop below your entry for a long.";
+  if (dir === "short" && stop <= entry) return "Enter a stop above your entry for a short.";
+  if (target != null && target > 0 && (dir === "long" ? target <= entry : target >= entry)) return dir === "long" ? "Enter a target above your entry for a long, or leave it empty." : "Enter a target below your entry for a short, or leave it empty.";
+  if (target != null && target <= 0) return "Enter a target above zero, or leave it empty.";
+  return null;
+}
 function Sizer() {
-  const [f, setF] = useState({ equity: "", risk: "1", entry: "", stop: "", target: "" });
+  const [f, setF] = useState({ dir: "long" as "long" | "short", equity: "", risk: "1", entry: "", stop: "", target: "" });
+  const [out, setOut] = useState<{ msg: string } | { size: number; risk: number; rr: number | null } | null>(null);
   useEffect(() => { const e = readSaved("calc.equity", isNum, 0); if (e) setF((x) => ({ ...x, equity: String(e) })); }, []);
-  const r = sizeCalc(+f.equity, +f.risk, +f.entry, +f.stop, n(f.target));
-  const set = (key: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => { setF({ ...f, [key]: e.target.value }); if (key === "equity" && +e.target.value > 0) writeSaved("calc.equity", +e.target.value); };
+  const set = (key: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => { setF({ ...f, [key]: e.target.value }); setOut(null); if (key === "equity" && +e.target.value > 0) writeSaved("calc.equity", +e.target.value); };
+  const calc = () => {
+    const msg = sizeCheck(f.dir, +f.equity, +f.risk, +f.entry, +f.stop, n(f.target));
+    if (msg) return setOut({ msg });
+    const r = sizeCalc(+f.equity, +f.risk, +f.entry, +f.stop, n(f.target));
+    setOut(r ? { size: r.size, risk: r.risk, rr: r.rr } : { msg: "Check the numbers: the entry and stop need to differ." });
+  };
   return (
     <Card title="Position size calculator" sub="calculator, not advice">
-      <div className="kform-row">
-        <input type="number" step="any" min="0" placeholder="Equity" aria-label="Equity" value={f.equity} onChange={set("equity")} />
-        <input type="number" step="any" min="0" placeholder="Risk %" aria-label="Risk percent" value={f.risk} onChange={set("risk")} />
+      <form className="kform" aria-label="Position size" onSubmit={(e) => { e.preventDefault(); calc(); }}>
+        <div className="kform-row">
+          <select aria-label="Direction" value={f.dir} onChange={set("dir")}><option value="long">Long</option><option value="short">Short</option></select>
+          <input type="number" step="any" min="0" placeholder="Equity" aria-label="Equity" value={f.equity} onChange={set("equity")} />
+          <input type="number" step="any" min="0" placeholder="Risk %" aria-label="Risk percent" value={f.risk} onChange={set("risk")} />
+        </div>
+        <div className="kform-row">
+          <input type="number" step="any" placeholder="Entry" aria-label="Entry price" value={f.entry} onChange={set("entry")} />
+          <input type="number" step="any" placeholder="Stop" aria-label="Stop price" value={f.stop} onChange={set("stop")} />
+          <input type="number" step="any" placeholder="Target (optional)" aria-label="Target price" value={f.target} onChange={set("target")} />
+        </div>
+        <button className="btn" type="submit">Calculate</button>
+      </form>
+      <div className="kresult" role="status" aria-live="polite">
+        {!out ? <p className="note">Fill in the boxes, then Calculate.</p>
+          : "msg" in out ? <p className="kresult-msg">{out.msg}</p>
+          : <div className="kstat"><div><b>{fx(out.size, 4)}</b><span>size (units)</span></div><div><b>{fx(out.risk)}</b><span>risk amount</span></div><div><b>{out.rr != null ? fx(out.rr) + "R" : "–"}</b><span>R to target</span></div></div>}
       </div>
-      <div className="kform-row">
-        <input type="number" step="any" placeholder="Entry" aria-label="Entry price" value={f.entry} onChange={set("entry")} />
-        <input type="number" step="any" placeholder="Stop" aria-label="Stop price" value={f.stop} onChange={set("stop")} />
-        <input type="number" step="any" placeholder="Target (optional)" aria-label="Target price" value={f.target} onChange={set("target")} />
-      </div>
-      {r ? <div className="kstat"><div><b>{fx(r.size, 4)}</b><span>size (units)</span></div><div><b>{fx(r.risk)}</b><span>risk amount</span></div><div><b>{r.rr != null ? fx(r.rr) + " : 1" : "–"}</b><span>reward to risk</span></div></div>
-        : <p className="note">Enter equity, risk %, an entry and a stop.</p>}
       <p className="note xd">Equity is remembered on this device only. A calculator, not advice.</p>
     </Card>
   );
@@ -299,18 +324,27 @@ export function LongTerm() {
 }
 
 /* ---------- The page ---------- */
-export function TradesPage({ left, scan, intel }: { left: React.ReactNode; scan: BriefDoc | null; intel: BriefDoc | null }) {
+// Round 7 order, top to bottom: Midday movers | Scan details, Macro desk, Technicals (full width), Trade log,
+// Position size calculator | Performance stats, Long-term watchlist. The Watchlist card is gone (prices live in
+// the Technicals rows and on the Court; the price feed is unchanged). The ledger review, plans, rules and gamble
+// log card is hidden: its records and the late-night flag logic are untouched (TradeLive, GridWins).
+export function TradesPage({ movers, tech, scan, intel }: { movers: React.ReactNode; tech: React.ReactNode; scan: BriefDoc | null; intel: BriefDoc | null }) {
   const L = useLedger();
   return (
     <div className="kpage">
-      <PageHead scene="desk" title="Trades" sub="Your trades, the trading watchlist and the macro desk. Tracking only, never advice." actions={<a className="btn sm ghost" href="#tlog">Trade log</a>} />
-      <div className="kpg two">
-        <div className="kcol">{left}<ScanDetails doc={scan} /><MacroDesk intel={intel} /></div>
-        <div className="kcol">
-          <TradeLog L={L} /><Sizer /><Stats L={L} /><LongTerm />
-          <Card title="Ledger review, plans, rules and gamble log" sub="from your ledger"><details><summary className="btn sm ghost">Open</summary><TradeLive extras /></details></Card>
-        </div>
+      <PageHead scene="desk" title="Trades" sub="Your trades, the trading watchlist and the macro desk. Tracking only, never advice." />
+      <div className="kpg two even">
+        <div className="kcol">{movers}</div>
+        <div className="kcol"><ScanDetails doc={scan} /></div>
       </div>
+      <MacroDesk intel={intel} />
+      {tech}
+      <TradeLog L={L} />
+      <div className="kpg two even">
+        <div className="kcol"><Sizer /></div>
+        <div className="kcol"><Stats L={L} /></div>
+      </div>
+      <LongTerm />
     </div>
   );
 }
