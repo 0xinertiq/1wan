@@ -229,11 +229,12 @@ export function DungeonPage() {
     return () => { window.clearTimeout(t); window.removeEventListener("resize", look); window.removeEventListener("hashchange", look); mo?.disconnect(); };
   }, []);
   // once the compact head is applied the grid moves up: measure again so the grid uses that space
-  // then trim any leftover overflow (spacing below the grid), so the page itself never scrolls
+  // then trim any leftover overflow (spacing below the grid), so the page itself never scrolls (round 19: a few
+  // passes, as the tighter header can still settle after the first trim)
   const settled = useRef(0);
   useEffect(() => {
     if (!fitH) { settled.current = 0; return; }
-    if (settled.current >= 2) return;
+    if (settled.current >= 4) return;
     const step = ++settled.current;
     window.requestAnimationFrame(() => {
       const el = grid.current, se = document.scrollingElement; if (!el || !se) return;
@@ -242,6 +243,17 @@ export function DungeonPage() {
       if (over > 0) setFitH(Math.max(260, fitH - over));
     });
   }, [fitH]);
+  // round 19: whenever the page grows past the window later (a header settling, fonts loading), trim again
+  const fitOn = fitH != null;
+  useEffect(() => {
+    if (!fitOn || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => {
+      const se = document.scrollingElement, over = se ? se.scrollHeight - window.innerHeight : 0;
+      if (over > 0) setFitH((h) => (h ? Math.max(260, h - over) : h));
+    });
+    ro.observe(document.body);
+    return () => ro.disconnect();
+  }, [fitOn]);
   return (
     <div className={"kpage kdun-page" + (fitH ? " fit" : "")} style={fitH ? ({ "--dun-h": fitH + "px" } as React.CSSProperties) : undefined}>
       <PageHead room={<DungeonStudy />} title="Dungeon" sub="Your private journal. Never shown to friends; included in Export my data." />
