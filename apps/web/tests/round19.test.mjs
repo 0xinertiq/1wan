@@ -1,4 +1,4 @@
-// Round 19: the Dungeon fits one screen from 900px tall windows. The browser checks (tests/browser/run.mjs,
+// Round 19 (switched off in round 20, code kept): the Dungeon fits one screen from 900px tall windows. The browser checks (tests/browser/run.mjs,
 // "nocolscroll") measure the page and every column at 1440x900, 1920x1080 and 1280x900, also with a full
 // six-line look-back; 1280x720 keeps the page-never-scrolls check.
 import { test } from "node:test";
@@ -30,7 +30,5 @@ test("every card stays: left look-back, Your pages, Gratitude log; middle Today'
   for (const c of ["<WeeklyLookBack />", '<Card title="Your pages"', "<GratitudeLog />", "<Editor ", "<TodaysGratitude />", "<Side "]) assert.ok(page.includes(c), c);
   assert.match(page, /actions=\{<TabPills label="Pages" value=\{tab\}/, "the Month / List switch sits in the header row");
   assert.match(page, /Download my diary<\/Btn><\/div>\n\s*<Archive \/>/);
-  const run = fs.readFileSync(path.resolve(import.meta.dirname, "browser/run.mjs"), "utf8");
-  assert.match(run, /for \(const size of \["1440,900", "1920,1080", "1280,900"\]\) for \(const full6 of \[false, true\]\)/);
-  assert.match(run, /for \(const size of \["1280,720", "1440,900"\]\) runs\.push\(\{ c: "full", theme: "light", size, ssr: false, ls: "", hash: "diary", fit: true \}\)/, "1280x720: the page never scrolls");
+  // (round 20: the fit is off and its browser runs replaced; tests/round20.test.mjs)
 });

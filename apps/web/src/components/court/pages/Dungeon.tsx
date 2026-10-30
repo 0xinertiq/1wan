@@ -110,7 +110,7 @@ function GratitudeLog() {
   // editing changes the words only: no quest, XP or streak logic runs here
   const save = () => { if (!f) return; update((d) => { d.wins = { ...d.wins, [f.day]: { ...d.wins[f.day], w: f.w.slice(0, 2000), g: f.g.slice(0, 2000), s: f.s.slice(0, 300), n: f.n.slice(0, 6000) } }; }, ["wins"]); setF(null); };
   return (
-    <Card title="Gratitude log" sub="private, newest first">
+    <Card title="Gratitude log" sub="private, newest first" className="kgrat-log">
       {!list.length ? <EmptyState who="coco">Nothing yet. The Gratitude sheet opens at 21:30, or tap Gratitude on today&apos;s page.</EmptyState>
         : (all ? list : list.slice(0, 30)).map((x) => (
           <div className="krow kgrat" key={x.day}>
@@ -195,6 +195,8 @@ export function WeeklyLookBack() {
   );
 }
 
+const DUN_FIT = false;
+
 export function DungeonPage() {
   const { st, k } = useCourt();
   const v = useVault<Entry>("journal_entries");
@@ -210,13 +212,15 @@ export function DungeonPage() {
   const put = (x: Partial<Entry> & { id: string }) => v.put((byDay.has(x.day ?? day) ? x : { tags: [], notes: [], text: "", ...x }) as Partial<Entry> & { id: string });
   // round 12: at desktop sizes the page fits the window: the grid takes the height left under the page head (keeping
   // a 16px buffer, round 19) and each column scrolls inside itself only if it must. Small screens scroll as normal.
+  // round 20: off. The Dungeon now scrolls like the other tabs (same banner, spacing and card sizes); the fit code
+  // is kept and switches back on with DUN_FIT.
   const grid = useRef<HTMLDivElement>(null);
   const [fitH, setFitH] = useState<number | null>(null);
   useEffect(() => {
     const look = () => {
       settled.current = 0;
       const el = grid.current, panel = el?.closest(".tabpanel") as HTMLElement | null;
-      if (!el || (panel && panel.hidden) || window.innerWidth < 1200 || window.innerHeight < 540) return setFitH(null);
+      if (!DUN_FIT || !el || (panel && panel.hidden) || window.innerWidth < 1200 || window.innerHeight < 540) return setFitH(null);
       const top = el.getBoundingClientRect().top + window.scrollY;
       setFitH(Math.max(260, Math.floor(window.innerHeight - top - 16)));
     };

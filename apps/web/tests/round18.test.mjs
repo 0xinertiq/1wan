@@ -80,7 +80,7 @@ test("Dungeon columns: look-back, Your pages, Gratitude log | Today's page | Tod
   assert.match(left, /<Btn kind="sm ghost" onClick=\{\(\) => downloadDiary\(st, k\)\}>Download my diary<\/Btn><\/div>\n\s*<Archive \/>/);
   // the compact look-back: same lines and closing sentence, tighter spacing
   assert.match(d, /"Steady beats loud\. Whatever you wrote this week counts\." : "The week is open\. One line is enough\."/);
-  assert.match(css, /\.kdun \.kd-week\.kcard \.win-body\{gap:var\(--sp-1\)/);
+  // (round 20: the look-back is no longer compact; tests/round20.test.mjs)
   const run = fs.readFileSync(path.resolve(import.meta.dirname, "browser/run.mjs"), "utf8");
   assert.match(run, /nobanner: true/); assert.match(run, /luna: true/);
 });
