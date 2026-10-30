@@ -3,15 +3,16 @@
 import { useMemo, useState } from "react";
 import { useCourt } from "../CourtState";
 import { eventsOn, isAstro } from "@/lib/court/state";
-import { addDays, hm, prettyDay } from "@/lib/court/time";
+import { addDays, hm, prettyDay, sgtKeyOf, clock } from "@/lib/court/time";
 import { OBS_BANNER, PaintedBanner } from "@/components/kumo/PaintedBanner";
 import { AstroText } from "./AstroText";
+import { astroParts } from "@/components/kumo/astroParts";
 import { GLYPH, SIGNS, birthMoment, fmtDeg, houses, moonPhase, positions, signOf, skyEvents, transits, lonOf, type BodyName, type SkyEvent } from "@/lib/sky";
 
 // Luna's sky: "From your astro calendar" first (the astrologer's title and description, quoted as written,
 // private), then Luna's own calculated sky beneath it, labelled as a cross-check only. Never overrides one
 // with the other, never predicts outcomes.
-const sgtKey = (d: Date) => new Date(d.getTime() + 8 * 3600000).toISOString().slice(0, 10);
+const sgtKey = (d: Date) => sgtKeyOf(d);
 const noon = (k: string) => new Date(k + "T04:00:00Z");   // 12:00 SGT
 
 export function useSky() {
@@ -76,10 +77,8 @@ export function LunaSky() {
     <section className="win" id="lunaWin" aria-labelledby="lunaT">
       <div className="win-title"><h2 id="lunaT">Luna&apos;s sky</h2><span className="sub">{phase.name} · Moon in {pos[1].sign}</span></div>
       <div className="win-body">
-        <ObsBanner phase={phase.name} sign={pos[1].sign} />
         <LunaCaption />
         {!st.birth && <p className="note">Luna can read transits to your own chart. <button className="btn sm" type="button" onClick={() => openSheet({ kind: "birth" })}>Add birth details</button></p>}
-        <Obs7 k={k} astro={astro} ev={ev} />
         <div className="sec-h obs-classic">From your astro calendar</div>
         {astro.length ? <div className="lunaq">
           {astro.map((x, i) => <div className={"filed-row" + (x.desc ? " hasd" : "")} key={i}><span className="note">{x.d === k ? "Today" : prettyDay(x.d)}</span><div className="ftx"><span>{x.t}</span><AstroText text={x.desc} /></div></div>)}
@@ -108,49 +107,4 @@ export function LunaSky() {
   );
 }
 
-// New look only (hidden in Classic): painted night banner (concept image 24, prototype crop). The painted
-// title and speech bubble are covered by the real title and Luna's calculated moon for today.
-function ObsBanner({ phase, sign }: { phase: string; sign: string }) {
-  const bubble = <span className="pb-bubble">☽ {phase}, Moon in {sign}</span>;
-  return (
-    <PaintedBanner set={OBS_BANNER} label="Observatory" className="obanner"
-      fill={{ title: <div className="pb-greet"><h2>The Observatory</h2><p>Luna&apos;s sky, quoted and calculated.</p></div>, bubble }}
-      fillMobile={{ bubble }} />
-  );
-}
 
-// New look only: the next 7 days, one fold per day (today open). Calendar entries are quoted as written with
-// their source; Luna's calculated events sit apart and are labelled. Times are Singapore time.
-type AstroRow = { d: string; t: string; desc?: string; cal: string; allDay: boolean; a: number; b: number };
-function Obs7({ k, astro, ev }: { k: string; astro: AstroRow[]; ev: SkyEvent[] }) {
-  const days = Array.from({ length: 7 }, (_, i) => addDays(k, i));
-  return (
-    <div className="obs7">
-      <div className="sec-h">Next 7 days · Singapore time</div>
-      {days.map((d, i) => {
-        const rows = astro.filter((x) => x.d === d);
-        const calc = ev.filter((e) => sgtKey(e.at) === d);
-        return (
-          <details className="obs-day" key={d} open={i === 0}>
-            <summary><b>{i === 0 ? "Today" : i === 1 ? "Tomorrow" : prettyDay(d)}</b>{i < 2 && <span className="note"> {prettyDay(d)}</span>}<span className="obs-n">{rows.length + calc.length}</span></summary>
-            {rows.map((x, j) => (
-              <div className="obs-ev" key={j}>
-                <div><b>{x.t}</b> <span className="note">{x.allDay ? "All day" : `${hm(x.a)}–${hm(x.b)} SGT`}</span></div>
-                <AstroText text={x.desc} />
-                <p className="note obs-src">Source: {x.cal}, your astro calendar. Quoted as written.</p>
-              </div>
-            ))}
-            {calc.map((e, j) => (
-              <div className="obs-ev obs-calc" key={"c" + j}>
-                <div><b>{e.t}</b> <span className="note">{hm(Math.round((e.at.getTime() + 8 * 3600000) % 86400000 / 60000))} SGT</span></div>
-                <p className="note obs-src">Calculated by Luna (cross-check, not a reading).</p>
-              </div>
-            ))}
-            {!rows.length && !calc.length && <p className="note">Nothing on this day.</p>}
-          </details>
-        );
-      })}
-      <p className="note">The sky gives timing context only, never outcomes, and never trade calls.</p>
-    </div>
-  );
-}

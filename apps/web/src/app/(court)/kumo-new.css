@@ -4,44 +4,7 @@
    Day mode remaps the v52 colour variables to the cream / sakura / lavender / plum palette. Night mode keeps the
    v52 night palette (the kit asks for a separate contrast pass) and takes only the new shapes and type. */
 
-:root{
-  --kumo-pink:#F65A9B; --kumo-pink-hover:#E6498A; --kumo-pink-soft:#FCE8F1; --kumo-pink-pale:#FFF0F6;
-  --kumo-lavender:#A78BFA; --kumo-lavender-soft:#F0EAFF;
-  --kumo-sky:#7DA7FF; --kumo-sky-soft:#EAF2FF;
-  --kumo-canvas:#FFF8FB; --kumo-surface:#FFFFFF; --kumo-surface-muted:#F8F5FC;
-  --kumo-text:#2A2340; --kumo-text-muted:#655B78; --kumo-line:#E9DCE8; --kumo-plum:#4A2538;
-  --kumo-success:#21866F; --kumo-warning:#9B6300; --kumo-danger:#B83858;
-  --kumo-font-display:var(--nf-playfair),Georgia,var(--nf-noto),serif;
-  --kumo-font-body:var(--nf-nunito),system-ui,var(--nf-noto),sans-serif;
-  --kumo-space-1:4px; --kumo-space-2:8px; --kumo-space-3:12px; --kumo-space-4:16px; --kumo-space-6:24px; --kumo-space-8:32px; --kumo-space-12:48px;
-  --kumo-radius-chip:8px; --kumo-radius-control:12px; --kumo-radius-card:16px; --kumo-radius-modal:24px;
-  --kumo-shadow-card:0 4px 20px rgba(42,35,64,.06);
-  --kumo-shadow-floating:0 12px 32px rgba(42,35,64,.12);
-}
-
-/* Day palette. Written twice (system day, and her saved "day" choice) so night always wins when chosen. */
-@media (prefers-color-scheme: light){
-  :root[data-ui="new"]:not([data-theme="dark"]){
-    --bg:var(--kumo-canvas); --bg2:#FDF1F7; --grid:transparent; --hard:rgba(42,35,64,.08);
-    --ink:var(--kumo-text); --ink-soft:var(--kumo-text-muted); --line:var(--kumo-line); --edge:rgba(42,35,64,.06); --fx-line:var(--kumo-plum);
-    --win:var(--kumo-surface); --win-hi:var(--kumo-surface); --tint:var(--kumo-pink-pale); --win-dim:var(--kumo-surface-muted);
-    --title-a:var(--kumo-surface); --title-b:var(--kumo-surface);
-    --lav:#E9DCF5; --lav-strong:var(--kumo-pink);
-    --btn-bg:var(--kumo-pink); --btn-ink:#FFFFFF; --btn-alt:#FBBF24;
-    --chip-mint:#DDF5EC; --chip-lav:var(--kumo-lavender-soft); --chip-peach:#FFEBDD; --chip-butter:#FFF4CF; --chip-pink:var(--kumo-pink-soft); --chip-sky:var(--kumo-sky-soft);
-    --track:#F6EAF1;
-  }
-}
-:root[data-ui="new"][data-theme="light"]{
-  --bg:var(--kumo-canvas); --bg2:#FDF1F7; --grid:transparent; --hard:rgba(42,35,64,.08);
-  --ink:var(--kumo-text); --ink-soft:var(--kumo-text-muted); --line:var(--kumo-line); --edge:rgba(42,35,64,.06); --fx-line:var(--kumo-plum);
-  --win:var(--kumo-surface); --win-hi:var(--kumo-surface); --tint:var(--kumo-pink-pale); --win-dim:var(--kumo-surface-muted);
-  --title-a:var(--kumo-surface); --title-b:var(--kumo-surface);
-  --lav:#E9DCF5; --lav-strong:var(--kumo-pink);
-  --btn-bg:var(--kumo-pink); --btn-ink:#FFFFFF; --btn-alt:#FBBF24;
-  --chip-mint:#DDF5EC; --chip-lav:var(--kumo-lavender-soft); --chip-peach:#FFEBDD; --chip-butter:#FFF4CF; --chip-pink:var(--kumo-pink-soft); --chip-sky:var(--kumo-sky-soft);
-  --track:#F6EAF1;
-}
+/* Tokens and the day / night palette live in kumo-tokens.css. */
 
 /* Type, both modes. CJK seals keep their own fonts (they set font-family directly). */
 :root[data-ui="new"]{
@@ -55,16 +18,16 @@
 /* Cards and windows: 16px corners, one soft shadow, hairline border, plain white title bar. */
 :root[data-ui="new"] .win,
 :root[data-ui="new"] .card{border:1px solid var(--line);border-radius:var(--kumo-radius-card);box-shadow:var(--kumo-shadow-card)}
-:root[data-ui="new"] .win-title{background:var(--win);border-bottom:1px solid var(--line);padding:12px 16px}
+:root[data-ui="new"] .win-title{background:var(--win);border-bottom:1px solid var(--line);padding:var(--sp-3) var(--sp-4)}
 :root[data-ui="new"] .win-title h2{font:600 18px var(--kumo-font-display);letter-spacing:0}
-:root[data-ui="new"] .win-body{padding:16px}
+:root[data-ui="new"] .win-body{padding:var(--sp-4)}
 :root[data-ui="new"] .sec-h{font:700 12px var(--kumo-font-body);letter-spacing:.06em}
 
-/* Buttons: filled pink primary, white secondary, no hard drop. */
-:root[data-ui="new"] .btn{font:700 14px var(--kumo-font-body);letter-spacing:0;padding:10px 16px;min-height:40px;border:1px solid transparent;border-radius:var(--kumo-radius-control);background:var(--btn-bg);color:var(--btn-ink);box-shadow:none;transition:background-color .15s,box-shadow .15s}
+/* Buttons: transparent pink (round 7; the shared rule is in the Round 6 block below), no hard drop. */
+:root[data-ui="new"] .btn{font:700 14px var(--kumo-font-body);letter-spacing:0;padding:var(--sp-3) var(--sp-4);min-height:40px;border:1.5px solid var(--k-btn-line);border-radius:var(--kumo-radius-control);background:var(--k-btn-fill);color:var(--k-btn-ink);box-shadow:none;transition:background-color .15s,box-shadow .15s}
 :root[data-ui="new"] .btn:hover:not(:disabled){box-shadow:var(--kumo-shadow-card)}
 :root[data-ui="new"] .btn:active:not(:disabled){transform:translateY(1px);box-shadow:none}
-:root[data-ui="new"] .btn.sm{padding:6px 12px;min-height:32px;font-size:13px}
+:root[data-ui="new"] .btn.sm{padding:var(--sp-2) var(--sp-3);min-height:32px;font-size:13px}
 :root[data-ui="new"] .btn.ghost{background:var(--win);color:var(--ink);border-color:var(--line);box-shadow:none}
 :root[data-ui="new"] .btn:disabled{opacity:.5}
 
@@ -89,16 +52,16 @@
 :root[data-ui="new"] select,
 :root[data-ui="new"] .trade input,:root[data-ui="new"] .trade select,:root[data-ui="new"] .trade textarea,
 :root[data-ui="new"] #kbText,:root[data-ui="new"] .field textarea{border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win-hi);font-family:var(--kumo-font-body)}
-:root[data-ui="new"] .field-row input:focus,:root[data-ui="new"] select:focus,:root[data-ui="new"] textarea:focus{border-color:var(--kumo-lavender);outline:none;box-shadow:0 0 0 3px var(--kumo-lavender-soft)}
+:root[data-ui="new"] .field-row input:focus,:root[data-ui="new"] select:focus,:root[data-ui="new"] textarea:focus{border-color:var(--k-focus);outline:none;box-shadow:0 0 0 3px var(--k-select)}
 
 /* Main navigation: white bar (phone) or rail (desktop), hairline edge, pink pill on the open tab. */
-:root[data-ui="new"] .tabnav{background:var(--win);border-top:1px solid var(--line);box-shadow:0 -4px 20px rgba(42,35,64,.05)}
+:root[data-ui="new"] .tabnav{background:var(--win);border-top:1px solid var(--line);box-shadow:0 -4px 20px var(--k-edge)}
 :root[data-ui="new"] .tabnav button{font:700 12px var(--kumo-font-body);color:var(--ink-soft);min-height:52px}
 :root[data-ui="new"] .tabnav button:hover{color:var(--ink)}
 :root[data-ui="new"] .tabnav button[aria-current=page]{background:var(--chip-pink);color:var(--lav-strong)}
-:root[data-ui="new"] .tabnav button:focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:2px}
+:root[data-ui="new"] .tabnav button:focus-visible{outline:3px solid var(--k-focus);outline-offset:2px}
 @media (min-width:980px){
-  :root[data-ui="new"] .tabnav{border-top:0;border-right:1px solid var(--line);box-shadow:4px 0 20px rgba(42,35,64,.04)}
+  :root[data-ui="new"] .tabnav{border-top:0;border-right:1px solid var(--line);box-shadow:4px 0 20px var(--k-edge)}
 }
 
 /* Empty, loading and quiet states: soft dashed box, muted text. */
@@ -113,42 +76,40 @@
 
 /* Court home (New look only; Classic renders the v52 columns instead). 12 columns, 24px gaps:
    banner; Today / Needs you now / Kingdom progress / Quick capture (equal height); Luna's forecast; More. */
-:root[data-ui="new"] .khome{display:grid;gap:24px}
-:root[data-ui="new"] .khome>.statusline{margin:-12px 4px 0;font:600 14px var(--kumo-font-body);color:var(--ink-soft)}
-:root[data-ui="new"] .krow{display:grid;gap:24px;grid-template-columns:repeat(12,minmax(0,1fr));align-items:stretch}
+:root[data-ui="new"] .khome{display:grid;gap:var(--sp-6)}
+:root[data-ui="new"] .khome>.statusline{margin:calc(-1 * var(--sp-3)) var(--sp-1) 0;font:600 14px var(--kumo-font-body);color:var(--ink-soft)}
+:root[data-ui="new"] .krow{display:grid;gap:var(--sp-6);grid-template-columns:repeat(12,minmax(0,1fr));align-items:stretch}
 :root[data-ui="new"] .krow>*{grid-column:span 12;height:100%;margin:0}
 @media (min-width:760px){:root[data-ui="new"] .krow>*{grid-column:span 6}}
 @media (min-width:1180px){:root[data-ui="new"] .krow>*{grid-column:span 3}}
-:root[data-ui="new"] .kprog{display:grid;gap:12px;align-content:start}
+:root[data-ui="new"] .kprog{display:grid;gap:var(--sp-3);align-content:start}
 :root[data-ui="new"] .kprog .stage{border:1px solid var(--line);border-radius:var(--kumo-radius-card);box-shadow:var(--kumo-shadow-card);aspect-ratio:16/10;filter:saturate(.8)}
 :root[data-ui="new"] .kprog .status{margin:0}
 :root[data-ui="new"] .khome .win-title a.sub,:root[data-ui="new"] .khome .win-title .sub a{font:700 14px var(--kumo-font-body);color:var(--lav-strong);text-decoration:none}
-:root[data-ui="new"] .knl .win-body{gap:10px}
-:root[data-ui="new"] .knl-list{display:grid;gap:4px}
-:root[data-ui="new"] .knl-row{display:flex;align-items:center;gap:10px;min-height:32px;font-size:15px}
+:root[data-ui="new"] .knl .win-body{gap:var(--sp-3)}
+:root[data-ui="new"] .knl-list{display:grid;gap:var(--sp-1)}
+:root[data-ui="new"] .knl-row{display:flex;align-items:center;gap:var(--sp-3);min-height:32px;font-size:15px}
 :root[data-ui="new"] .knl-t{font:700 14px var(--kumo-font-body);color:var(--ink-soft);font-variant-numeric:tabular-nums;width:46px;flex:none}
 :root[data-ui="new"] .knl-dot{width:8px;height:8px;border-radius:50%;flex:none}
-:root[data-ui="new"] .tchips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-:root[data-ui="new"] .tchip{display:grid;gap:0;padding:6px 8px;border-radius:var(--kumo-radius-control);background:var(--win-dim);text-align:center}
+:root[data-ui="new"] .tchips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--sp-2)}
+:root[data-ui="new"] .tchip{display:grid;gap:0;padding:var(--sp-2) var(--sp-2);border-radius:var(--kumo-radius-control);background:var(--win-dim);text-align:center}
 :root[data-ui="new"] .tchip i{font:700 12px/1.2 var(--kumo-font-body);font-style:normal;color:var(--ink-soft)}
 :root[data-ui="new"] .tchip b{font:700 16px var(--kumo-font-body);font-variant-numeric:tabular-nums}
 :root[data-ui="new"] .kfold>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font:700 14px var(--kumo-font-body);color:var(--lav-strong)}
-:root[data-ui="new"] .kfold[open]>summary{margin-bottom:8px}
-:root[data-ui="new"] .today-bare{display:grid;gap:12px}
-:root[data-ui="new"] .kastro .win-title{background:linear-gradient(90deg,var(--kumo-lavender-soft),var(--win))}
+:root[data-ui="new"] .kfold[open]>summary{margin-bottom:var(--sp-2)}
+:root[data-ui="new"] .today-bare{display:grid;gap:var(--sp-3)}
 :root[data-ui="new"] .kastro-h{font:600 18px var(--kumo-font-display);color:var(--ink)}
-:root[data-ui="new"] .kastro-evs{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-:root[data-ui="new"] .kastro-ev{display:grid;gap:4px;align-content:start;padding:12px;border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win)}
-:root[data-ui="new"] .kdo{margin:4px 0 0;padding:0;list-style:none;display:grid;gap:4px;font-size:14px}
-:root[data-ui="new"] .kdo b{display:inline-block;min-width:48px;padding:0 6px;margin-right:6px;border-radius:var(--kumo-radius-chip);font-size:12px;text-align:center}
-:root[data-ui="new"] .kdo .pos b{background:#DDF5EC;color:var(--kumo-success)}
+:root[data-ui="new"] .kastro-evs{display:grid;gap:var(--sp-3);grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+:root[data-ui="new"] .kastro-ev{display:grid;gap:var(--sp-1);align-content:start;padding:var(--sp-3);border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win)}
+:root[data-ui="new"] .kdo{margin:var(--sp-1) 0 0;padding:0;list-style:none;display:grid;gap:var(--sp-1);font-size:14px}
+:root[data-ui="new"] .kdo b{display:inline-block;min-width:48px;padding:0 var(--sp-2);margin-right:var(--sp-2);border-radius:var(--kumo-radius-chip);font-size:12px;text-align:center}
+:root[data-ui="new"] .kdo .pos b{background:var(--k-mint-100);color:var(--kumo-success)}
 :root[data-ui="new"] .kdo .neg b{background:var(--kumo-pink-soft);color:var(--kumo-danger)}
 :root[data-ui="new"] .kmore{border:1px solid var(--line);border-radius:var(--kumo-radius-card);background:var(--win);box-shadow:var(--kumo-shadow-card)}
-:root[data-ui="new"] .kmore>summary{cursor:pointer;min-height:52px;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:12px 16px;font:600 18px var(--kumo-font-display)}
+:root[data-ui="new"] .kmore>summary{cursor:pointer;min-height:52px;display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-1) var(--sp-3);padding:var(--sp-3) var(--sp-4);font:600 18px var(--kumo-font-display)}
 :root[data-ui="new"] .kmore[open]>summary{border-bottom:1px solid var(--line)}
-:root[data-ui="new"] .kmore-grid{display:grid;gap:24px;padding:16px;grid-template-columns:minmax(0,1fr);align-items:start}
+:root[data-ui="new"] .kmore-grid{display:grid;gap:var(--sp-6);padding:var(--sp-4);grid-template-columns:minmax(0,1fr);align-items:start}
 @media (min-width:980px){:root[data-ui="new"] .kmore-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-:root[data-ui="new"] .obs-back{justify-self:start;margin-bottom:12px}
 
 /* Type floor (New look): body and controls at least 14px; 12px only for captions and eyebrow labels. */
 :root[data-ui="new"] .note,:root[data-ui="new"] .wx,:root[data-ui="new"] .statusline{font-size:14px;color:var(--ink-soft)}
@@ -157,47 +118,38 @@
 :root[data-ui="new"] .qod figcaption{font:700 12px var(--kumo-font-body);opacity:1;color:var(--ink-soft)}
 :root[data-ui="new"] .btn.sm,:root[data-ui="new"] .chipb,:root[data-ui="new"] .filed-row{font-size:14px}
 
-/* Observatory (Luna's sky), New look only: moonlit banner and the 7-day folds. Classic keeps its flat list. */
-.obanner,.obs7{display:none}
-:root[data-ui="new"] .obanner{display:block}
-:root[data-ui="new"] .obs-classic,:root[data-ui="new"] .lunaq{display:none}
-:root[data-ui="new"] .obs7{display:grid;gap:8px}
-:root[data-ui="new"] .obs-day{border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win)}
-:root[data-ui="new"] .obs-day>summary{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 12px;cursor:pointer;font-family:var(--kumo-font-body)}
-:root[data-ui="new"] .obs-day[open]>summary{border-bottom:1px solid var(--line);background:var(--kumo-lavender-soft);border-radius:var(--kumo-radius-control) var(--kumo-radius-control) 0 0}
-:root[data-ui="new"] .obs-n{margin-left:auto;min-width:24px;padding:0 8px;border-radius:999px;background:var(--chip-lav);font:700 12px/22px var(--kumo-font-body);text-align:center;color:var(--ink)}
-:root[data-ui="new"] .obs-day>.obs-ev,:root[data-ui="new"] .obs-day>p{margin:0;padding:10px 12px}
-:root[data-ui="new"] .obs-ev{display:grid;gap:4px}
+:root[data-ui="new"] .obs-n{margin-left:auto;min-width:24px;padding:0 var(--sp-2);border-radius:var(--r-pill);background:var(--chip-lav);font:700 12px/22px var(--kumo-font-body);text-align:center;color:var(--ink)}
+:root[data-ui="new"] .obs-ev{display:grid;gap:var(--sp-1)}
 :root[data-ui="new"] .obs-ev+.obs-ev{border-top:1px solid var(--line)}
 :root[data-ui="new"] .obs-calc{background:var(--win-dim)}
 :root[data-ui="new"] .obs-src{font-size:12px}
 
 /* Shared rows (filed briefs, list items, calendar rows): white, hairline, rounded. */
-:root[data-ui="new"] .filed-row{border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);padding:8px 12px}
+:root[data-ui="new"] .filed-row{border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);padding:var(--sp-2) var(--sp-3)}
 :root[data-ui="new"] .filed-row .vt{border:0;border-radius:var(--kumo-radius-chip);font-family:var(--kumo-font-body)}
 :root[data-ui="new"] .adesc{border-left-color:var(--kumo-lavender)}
 
 /* Calendar (Clock Tower): soft day cells, pink ring on today, gold on the picked day, event pills. */
-:root[data-ui="new"] #calWin .ntabs:first-of-type{display:inline-flex;gap:0;padding:4px;border-radius:var(--kumo-radius-control);background:var(--win-dim);width:max-content;max-width:100%}
+:root[data-ui="new"] #calWin .ntabs:first-of-type{display:inline-flex;gap:0;padding:var(--sp-1);border-radius:var(--kumo-radius-control);background:var(--win-dim);width:max-content;max-width:100%}
 :root[data-ui="new"] #calWin .ntabs:first-of-type .chipb{border:0;background:transparent;min-width:72px}
 :root[data-ui="new"] #calWin .ntabs:first-of-type .chipb[aria-pressed="true"]{background:var(--win);box-shadow:var(--kumo-shadow-card);color:var(--lav-strong)}
 :root[data-ui="new"] .cdot{border:0}
-:root[data-ui="new"] .cweek{gap:8px}
-:root[data-ui="new"] .cmonth{gap:6px}
-:root[data-ui="new"] .cday{border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);padding:6px;font-family:var(--kumo-font-body);transition:box-shadow .15s}
+:root[data-ui="new"] .cweek{gap:var(--sp-2)}
+:root[data-ui="new"] .cmonth{gap:var(--sp-2)}
+:root[data-ui="new"] .cday{border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);padding:var(--sp-2);font-family:var(--kumo-font-body);transition:box-shadow .15s}
 :root[data-ui="new"] .cday:hover{box-shadow:var(--kumo-shadow-card)}
 :root[data-ui="new"] .cday .cd-h{font-weight:700;color:var(--ink-soft)}
 :root[data-ui="new"] .cday.today{background:var(--chip-pink);border-color:var(--lav-strong)}
 :root[data-ui="new"] .cday.today .cd-h{color:var(--lav-strong)}
-:root[data-ui="new"] .cday.sel{outline:2px solid #FBBF24;outline-offset:1px}
-:root[data-ui="new"] .cev{border-left-width:3px;border-radius:4px;padding:1px 4px;background:var(--win-dim)}
+:root[data-ui="new"] .cday.sel{outline:2px solid var(--k-gold-500);outline-offset:1px}
+:root[data-ui="new"] .cev{border-left-width:3px;border-radius:var(--r-chip);padding:var(--sp-1) var(--sp-1);background:var(--win-dim)}
 :root[data-ui="new"] .cm-h{font-weight:700}
-:root[data-ui="new"] .agday{display:grid;gap:6px}
+:root[data-ui="new"] .agday{display:grid;gap:var(--sp-2)}
 :root[data-ui="new"] #calWin .filed-row{border-left-width:4px!important}
 
 /* Sakura Garden, New look only: scene banner with pixel decorations, then the eight branch trees. */
 .gscene{display:none}
-:root[data-ui="new"] .gscene{display:grid;gap:12px;margin-bottom:16px}
+:root[data-ui="new"] .gscene{display:grid;gap:var(--sp-3);margin-bottom:var(--sp-4)}
 :root[data-ui="new"] .gscene-view{position:relative;height:clamp(150px,22vw,220px);border-radius:var(--kumo-radius-card);overflow:hidden;border:1px solid var(--line);box-shadow:var(--kumo-shadow-card)}
 :root[data-ui="new"] .gscene-bg{position:absolute;inset:0;background-image:url(./kumo/layers/06_foreground.svg),url(./kumo/layers/05_trees.svg),url(./kumo/layers/04_castle.svg),url(./kumo/layers/03_floating_island.svg),url(./kumo/layers/02_clouds.svg),url(./kumo/layers/01_sky.svg);background-size:cover;background-position:center 80%;background-repeat:no-repeat}
 :root[data-ui="new"] .gdec{position:absolute;bottom:6%;width:clamp(40px,6vw,64px);height:auto;image-rendering:pixelated;transform:translateX(-50%)}
@@ -206,10 +158,10 @@
 :root[data-ui="new"] .gdec-m{left:72%;width:clamp(34px,5vw,50px)}
 :root[data-ui="new"] .gdec-f2{left:84%;width:clamp(36px,5vw,52px)}
 :root[data-ui="new"] .gdec-r{left:93%}
-:root[data-ui="new"] .gscene-tag{position:absolute;left:10px;top:8px;padding:2px 8px;border-radius:var(--kumo-radius-chip);background:rgba(255,255,255,.85);color:var(--kumo-text-muted);font:700 11px var(--kumo-font-body)}
-:root[data-ui="new"] .gtrees{list-style:none;margin:0;padding:0;display:grid;gap:8px;grid-template-columns:repeat(4,minmax(0,1fr))}
+:root[data-ui="new"] .gscene-tag{position:absolute;left:10px;top:8px;padding:var(--sp-1) var(--sp-2);border-radius:var(--kumo-radius-chip);background:var(--k-glass-hi);color:var(--kumo-text-muted);font:700 11px var(--kumo-font-body)}
+:root[data-ui="new"] .gtrees{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-2);grid-template-columns:repeat(4,minmax(0,1fr))}
 @media (min-width:760px){:root[data-ui="new"] .gtrees{grid-template-columns:repeat(8,minmax(0,1fr))}}
-:root[data-ui="new"] .gtree{display:grid;justify-items:center;gap:2px;padding:8px 4px;border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);text-align:center;font:600 12px/1.25 var(--kumo-font-body);min-width:0}
+:root[data-ui="new"] .gtree{display:grid;justify-items:center;gap:var(--sp-1);padding:var(--sp-2) var(--sp-1);border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);text-align:center;font:600 12px/1.25 var(--kumo-font-body);min-width:0}
 :root[data-ui="new"] .gtree b{overflow-wrap:anywhere}
 :root[data-ui="new"] .gtree .note{font-size:11px}
 :root[data-ui="new"] .gtree-art{width:56px;height:56px;image-rendering:pixelated}
@@ -219,10 +171,7 @@
 
 /* Painted banners (New look): prototype crops from the concept images, drawn "cover", top-anchored, with a
    horizontal focus point (--fx). Live overlays sit in crop coordinates on top of the painted mock UI. */
-.pbanner{position:relative;overflow:hidden;border-radius:var(--kumo-radius-card);border:1px solid var(--line);box-shadow:var(--kumo-shadow-card);background:#EDE4FF}
-.pbanner.kbanner{height:clamp(220px,22vw,280px)}
-.pbanner.obanner{height:clamp(200px,20vw,240px)}
-@media (max-width:759px){.pbanner.kbanner{height:clamp(130px,44vw,180px)}.pbanner.obanner{height:clamp(130px,42vw,170px)}}
+.pbanner{position:relative;overflow:hidden;border-radius:var(--kumo-radius-card);border:1px solid var(--line);box-shadow:var(--kumo-shadow-card);background:var(--k-lav-100)}
 .pb{position:absolute;inset:0;container-type:size}
 .pb-m{display:none}
 @media (max-width:759px){.pb-d{display:none}.pb-m{display:block}}
@@ -231,81 +180,1237 @@
 .pb-box{position:absolute;display:flex;overflow:hidden}
 .pb-d .pb-box{font-size:max(11px,.95cqw)}
 .pb-m .pb-box{font-size:max(10px,2.5cqw)}
-.pb-chip{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;border-radius:8px;background:#fff;color:#4a2538;font:700 1em/1.2 var(--kumo-font-body);text-decoration:none;box-shadow:0 2px 8px rgba(42,35,64,.12);text-align:center;padding:0 4px}
+.pb-chip{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;border-radius:var(--r-chip);background:var(--k-white);color:var(--k-plum-700);font:700 1em/1.2 var(--kumo-font-body);text-decoration:none;box-shadow:0 2px 8px var(--k-edge);text-align:center;padding:0 var(--sp-1)}
 a.pb-chip:hover{color:var(--kumo-pink)}
-a.pb-chip:focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:-3px}
-.pb-greet{flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 4%;border-radius:12px;background:rgba(255,255,255,.96);color:var(--kumo-text);box-shadow:0 2px 10px rgba(42,35,64,.12)}
+a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
+.pb-greet{flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 4%;border-radius:var(--r-control);background:var(--k-glass-hi);color:var(--kumo-text);box-shadow:0 2px 10px var(--k-edge)}
 .pb-d .pb-greet h2{font:700 max(18px,2.2cqw)/1.15 var(--kumo-font-display);color:var(--kumo-text)}
-.pb-d .pb-greet p{font:600 max(13px,1.15cqw)/1.3 var(--kumo-font-body);color:var(--kumo-text-muted);margin-top:2px}
+.pb-d .pb-greet p{font:600 max(13px,1.15cqw)/1.3 var(--kumo-font-body);color:var(--kumo-text-muted);margin-top:var(--sp-1)}
 .pb-m .pb-greet h2{font:700 max(14px,4cqw)/1.15 var(--kumo-font-display);color:var(--kumo-text)}
-.pb-bubble{flex:1;display:flex;align-items:center;justify-content:center;padding:0 6px;border-radius:12px;background:#fff;color:#4A3A78;font:700 1em/1.25 var(--kumo-font-body);text-align:center;box-shadow:0 2px 8px rgba(42,35,64,.15)}
-.pb-tag{position:absolute;right:10px;bottom:8px;padding:2px 8px;border-radius:var(--kumo-radius-chip);background:rgba(255,255,255,.88);color:var(--kumo-text-muted);font:700 12px var(--kumo-font-body)}
+.pb-bubble{flex:1;display:flex;align-items:center;justify-content:center;padding:0 var(--sp-2);border-radius:var(--r-control);background:var(--k-white);color:var(--k-night-lav);font:700 1em/1.25 var(--kumo-font-body);text-align:center;box-shadow:0 2px 8px var(--k-edge)}
+.pb-tag{position:absolute;right:10px;bottom:8px;padding:var(--sp-1) var(--sp-2);border-radius:var(--kumo-radius-chip);background:var(--k-glass-hi);color:var(--kumo-text-muted);font:700 12px var(--kumo-font-body)}
 /* Gentle motion: two slow cloud wisps and a few falling petals. Off under reduced motion (rule below). */
 .pb-fx{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-.pb-cloud{position:absolute;top:4%;left:-30%;width:26%;height:34%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.55),rgba(255,255,255,0));animation:pbdrift 90s linear infinite}
+.pb-cloud{position:absolute;top:4%;left:-30%;width:26%;height:34%;border-radius:50%;background:radial-gradient(closest-side,var(--k-glass),transparent);animation:pbdrift 90s linear infinite}
 .pb-cloud.c2{top:14%;width:18%;height:24%;animation-duration:120s;animation-delay:-60s}
 @keyframes pbdrift{to{transform:translateX(560%)}}
-.obanner .pb-cloud{display:none}
-.pb-petal{position:absolute;top:-8%;width:8px;height:6px;border-radius:70% 0 70% 0;background:#FFB3D1;opacity:.9;animation:pbfall 12s linear infinite}
+.pb-petal{position:absolute;top:-8%;width:8px;height:6px;border-radius:70% 0 70% 0;background:var(--k-sakura-200);opacity:.9;animation:pbfall 12s linear infinite}
 .pb-petal.p0{left:8%;animation-delay:-1s}.pb-petal.p1{left:22%;animation-delay:-7s;animation-duration:14s}.pb-petal.p2{left:37%;animation-delay:-4s}
 .pb-petal.p3{left:53%;animation-delay:-10s;animation-duration:15s}.pb-petal.p4{left:66%;animation-delay:-2s;animation-duration:13s}
 .pb-petal.p5{left:79%;animation-delay:-8s}.pb-petal.p6{left:92%;animation-delay:-5s;animation-duration:16s}
 @keyframes pbfall{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(18px,120px) rotate(160deg)}100%{transform:translate(-6px,260px) rotate(320deg);opacity:0}}
 @media (prefers-reduced-motion:reduce){.pb-fx{display:none}}
 
-/* Living Kingdom card (New look): painted scene at its own aspect ratio, place chips over the painted ones
-   (they may grow past the painted chip to stay readable, always centred on it), crew sprites under a place. */
-.lk .pbanner.lkscene{height:auto;aspect-ratio:760/528;border:0;border-radius:0 0 var(--kumo-radius-card) var(--kumo-radius-card);box-shadow:none}
-.lk .pbanner.lk-growing{aspect-ratio:772/528}
-@media (max-width:759px){.lk .pbanner.lkscene{aspect-ratio:680/500}.lk .pbanner.lk-growing{aspect-ratio:700/500}}
-.lkscene .pb-box{overflow:visible;align-items:center;justify-content:center}
-.lkscene .pb-box{font-size:max(10px,1.5cqw)}
-.lkscene .lk-chip{flex:none;min-width:100%;min-height:100%;white-space:nowrap;padding:2px 6px;font-weight:800}
-.lkscene .pb-castle .lk-chip{gap:0}
-.lkscene .lk-title{padding:2px 6%}
-.lkscene .lk-title h2{font:700 max(12px,2.6cqw)/1.1 var(--kumo-font-display)!important;color:var(--kumo-text)}
-.lkscene .lk-title p{font:700 max(10px,1.6cqw)/1.2 var(--kumo-font-body)!important;color:var(--kumo-text-muted);margin-top:1px}
-.lkscene .lk-bubble{flex-direction:column;gap:1px;font-size:max(10px,1.6cqw)}
-.lkscene .lk-bubble i{font-style:normal}
-.lkscene .lk-bubble .up{color:var(--kumo-success)}.lkscene .lk-bubble .dn{color:var(--kumo-danger)}
-.lkscene .lk-crew{position:absolute;top:100%;left:50%;transform:translateX(-50%);display:flex;gap:1px;margin-top:2px}
-.lkscene .lk-crew span{display:block;width:max(16px,3.2cqw);height:max(16px,3.2cqw);filter:drop-shadow(0 1px 0 rgba(74,37,56,.3))}
-.lkscene .lk-crew svg{width:100%;height:100%}
-.lkscene .lk-add{position:absolute;height:auto;image-rendering:pixelated}
-.lkscene .pb-tag{font-size:11px;padding:1px 6px}
-/* Night after 19:00 SGT: moonlit recolour, a soft gradient, twinkling stars and warm lantern glow. */
-.lk-night .pb-art img{filter:brightness(.72) saturate(.85) hue-rotate(-18deg)}
-.lk-night.lk-growing .pb-art img{filter:brightness(.85) saturate(.95)}
-.lk-night .pb-fx{background:linear-gradient(180deg,rgba(28,22,64,.35),rgba(28,22,64,0) 55%)}
-.lk-night .pb-fx::after{content:"";position:absolute;inset:auto 0 0 0;height:45%;background:radial-gradient(18% 30% at 18% 70%,rgba(255,206,120,.35),transparent),radial-gradient(14% 26% at 82% 68%,rgba(255,206,120,.32),transparent);animation:lkglow 4s ease-in-out infinite}
-@keyframes lkglow{50%{opacity:.6}}
-.lkscene .lk-star{position:absolute;width:2.2%;height:auto;image-rendering:pixelated;animation:lktw 3s ease-in-out infinite}
-@keyframes lktw{50%{opacity:.4}}
-.lk .lvl{position:absolute;left:50%;top:40%;z-index:5;transform:translate(-50%,-50%);padding:8px 16px;border-radius:var(--kumo-radius-control);background:linear-gradient(var(--chip-butter),var(--chip-pink));border:1px solid var(--line);box-shadow:var(--kumo-shadow-floating);text-align:center;display:grid;font-family:var(--kumo-font-body)}
-.lk .lvl[hidden]{display:none}
-.lk>.win-title{border-bottom:0}
 
 /* R1 (COURT_SPEC): row 1 = Today + Needs you now | Briefs and scans, equal height; row 2 = Luna, progress, capture. */
-:root[data-ui="new"] .krow1{display:grid;gap:24px;grid-template-columns:minmax(0,1fr);align-items:stretch}
+:root[data-ui="new"] .krow1{display:grid;gap:var(--sp-6);grid-template-columns:minmax(0,1fr);align-items:stretch}
 @media (min-width:980px){:root[data-ui="new"] .krow1{grid-template-columns:repeat(2,minmax(0,1fr))}}
-:root[data-ui="new"] .kcol{display:grid;gap:24px;align-content:start}
+:root[data-ui="new"] .kcol{display:grid;gap:var(--sp-6);align-content:start}
 :root[data-ui="new"] .kcol>*{margin:0}
 :root[data-ui="new"] .kbriefs{height:100%;margin:0}
-:root[data-ui="new"] .bcards{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+:root[data-ui="new"] .bcards{display:grid;gap:var(--sp-4);grid-template-columns:minmax(0,1fr)}
 @media (min-width:1280px){:root[data-ui="new"] .bcards{grid-template-columns:repeat(2,minmax(0,1fr))}}
-:root[data-ui="new"] .bcard{display:grid;gap:8px;align-content:start;padding:16px;border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);min-width:0}
-:root[data-ui="new"] .bcard-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 8px}
+:root[data-ui="new"] .bcard{display:grid;gap:var(--sp-2);align-content:start;padding:var(--sp-4);border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);min-width:0}
+:root[data-ui="new"] .bcard-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--sp-1) var(--sp-2)}
 :root[data-ui="new"] .bcard-k{font:700 13px var(--kumo-font-body);letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}
 :root[data-ui="new"] .bcard h3{font:600 17px/1.35 var(--kumo-font-display);color:var(--ink);overflow-wrap:anywhere}
-:root[data-ui="new"] .bcard .brtop ol{margin:4px 0 0;padding-left:20px;font-size:14px}
+:root[data-ui="new"] .bcard .brtop ol{margin:var(--sp-1) 0 0;padding-left:var(--sp-6);font-size:14px}
 :root[data-ui="new"] .bcard .btn{justify-self:start}
 :root[data-ui="new"] .krow>*{grid-column:span 12}
 @media (min-width:760px){:root[data-ui="new"] .krow>*{grid-column:span 6}}
 @media (min-width:1180px){:root[data-ui="new"] .krow>*{grid-column:span 4}}
 
+/* Fonts (COURT_SPEC Part 6 as amended by the owner): Nunito for body, interface and numbers, tabular figures;
+   Inter only for the diary writing area and journal entries. Replaces the v52 Quicksand override (New look only). */
+:root[data-ui="new"] body{font-variant-numeric:tabular-nums}
+:root[data-ui="new"] input:not([type=checkbox]):not([type=file]):not([type=range]),:root[data-ui="new"] textarea,:root[data-ui="new"] select{font-family:var(--kumo-font-body)!important;font-weight:inherit}
+:root[data-ui="new"] .tp-diary textarea,:root[data-ui="new"] .tp-diary .pre,:root[data-ui="new"] .tp-diary .jn{font-family:var(--k-font-journal)!important;font-size:16px;line-height:1.5}
+:root[data-ui="new"] .cnj{font-family:var(--k-font-cjk)}
+
+/* R2 Living World and Court layout (COURT_SPEC). The world: full width, about half the viewport, max 520px;
+   a short strip on the phone. Place labels are small; their hit area is 44px. */
+:root[data-ui="new"] .lw{margin:0}
+:root[data-ui="new"] .lw-box{position:relative;height:clamp(320px,50vh,520px);border-radius:var(--kumo-radius-card);overflow:hidden;border:1px solid var(--line);box-shadow:var(--kumo-shadow-card);background:var(--k-lav-100)}
+.lw-cv{position:absolute;left:50%;top:0;transform:translateX(-50%);image-rendering:pixelated;display:block}
+.lw-place{position:absolute;transform:translate(-50%,-100%);display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:var(--sp-1) var(--sp-3);border-radius:var(--kumo-radius-chip);background:var(--k-glass-hi);border:1px solid var(--line);color:var(--kumo-text);font:700 14px/1.2 var(--kumo-font-body);text-decoration:none;white-space:nowrap;box-shadow:0 2px 8px var(--k-edge);z-index:3}
+.lw-place::before{content:"";position:absolute;inset:-8px -4px}
+.lw-place:hover{color:var(--kumo-pink);border-color:var(--kumo-pink)}
+.lw-place:focus-visible{outline:3px solid var(--k-focus);outline-offset:2px}
+.lw-crew{position:absolute;width:32px;height:32px;transform:translate(-50%,-100%);transition:left 4s linear,top 4s linear;z-index:2;image-rendering:pixelated}
+.lw-crew svg{width:100%;height:100%;display:block}
+.lw-crew.on{animation:lwwork 1.2s steps(2,end) infinite}
+.lw-kumo{animation:lwbob 2.4s ease-in-out infinite}
+@keyframes lwwork{50%{transform:translate(-50%,calc(-100% - 2px))}}
+@keyframes lwbob{50%{transform:translate(-50%,calc(-100% - 3px))}}
+.lw-top{position:absolute;left:12px;top:10px;right:12px;display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2);z-index:4;pointer-events:none}
+.lw-greet{padding:var(--sp-1) var(--sp-3);border-radius:var(--kumo-radius-chip);background:var(--k-glass-hi);font:600 16px/1.5 var(--kumo-font-display);color:var(--kumo-text)}
+.lw-badges{display:flex;flex-wrap:wrap;gap:var(--sp-2)}
+.lw-badge{padding:var(--sp-1) var(--sp-2);border-radius:var(--kumo-radius-chip);background:var(--k-glass-hi);font:700 13px/1.6 var(--kumo-font-body);color:var(--kumo-text-muted);font-variant-numeric:tabular-nums}
+.lw .lvl{position:absolute;left:50%;top:40%;z-index:6;transform:translate(-50%,-50%);display:grid;padding:var(--sp-3) var(--sp-4);border-radius:var(--kumo-radius-control);background:linear-gradient(var(--chip-butter),var(--chip-pink));border:1px solid var(--line);box-shadow:var(--kumo-shadow-floating);text-align:center;font-family:var(--kumo-font-body)}
+.lw .lvl[hidden]{display:none}
+@media (max-width:767px){
+  :root[data-ui="new"] .lw-box{height:168px}
+  .lw-place{min-height:0;padding:0;width:44px;height:44px;background:transparent;border:0;box-shadow:none;transform:translate(-50%,-60%)}
+  .lw-place span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .lw-crew{width:20px;height:20px}
+  .lw-greet{font-size:14px}.lw-badge{font-size:13px}
+}
+@media (prefers-reduced-motion:reduce){.lw-crew,.lw-kumo{animation:none;transition:none}}
+
+/* Prices strip under the world */
+:root[data-ui="new"] .kprices{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--sp-2) var(--sp-4);margin-top:0;padding:var(--sp-3) var(--sp-4);border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);box-shadow:var(--kumo-shadow-card)}
+:root[data-ui="new"] .kprices ul{display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-4);margin:0;padding:0;list-style:none;font:600 14px var(--kumo-font-body);font-variant-numeric:tabular-nums}
+:root[data-ui="new"] .kprices b{font-weight:800}
+:root[data-ui="new"] .kprices i{font-style:normal}
+:root[data-ui="new"] .kprices .up{color:var(--kumo-success)}:root[data-ui="new"] .kprices .dn{color:var(--kumo-danger)}
+
+/* Row 3: crew roster, Kumo's pick, quote (quiet) */
+:root[data-ui="new"] .krow3{display:grid;gap:var(--sp-6);grid-template-columns:minmax(0,1fr);align-items:stretch}
+@media (min-width:980px){:root[data-ui="new"] .krow3{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr)}}
+:root[data-ui="new"] .krow3>*{margin:0;height:100%}
+:root[data-ui="new"] .kroster-list{list-style:none;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:var(--sp-2)}
+:root[data-ui="new"] .kroster-list li{display:grid;grid-template-columns:32px minmax(0,1fr);grid-template-rows:auto auto;column-gap:var(--sp-3);align-items:center;min-height:44px;opacity:.72}
+:root[data-ui="new"] .kroster-list li.on{opacity:1}
+:root[data-ui="new"] .kroster-px{grid-row:span 2;width:32px;height:32px}
+:root[data-ui="new"] .kroster-px svg{width:100%;height:100%}
+:root[data-ui="new"] .kroster-list b{font:700 14px var(--kumo-font-body)}
+:root[data-ui="new"] .kroster-list .note{font-size:13px;line-height:1.3}
+:root[data-ui="new"] .kpick .pick{display:grid;gap:var(--sp-2)}
+:root[data-ui="new"] .kpick .pick small{font:700 13px var(--kumo-font-body);text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft)}
+:root[data-ui="new"] .kpick .pick>span{font:600 18px/1.35 var(--kumo-font-display)}
+:root[data-ui="new"] .kquote .qod{margin:0;border:0;padding:0;background:none}
+:root[data-ui="new"] .kstage{margin:0 var(--sp-1)}
+
+/* Phone: Quick capture as a floating button; information first in the spec's order */
+.kfab{display:none}
+@media (max-width:767px){
+  :root[data-ui="new"] .kfab{display:block;position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:60}
+  :root[data-ui="new"] .kfab-btn{width:56px;height:56px;border-radius:50%;font-size:28px;line-height:1;box-shadow:var(--kumo-shadow-floating)}
+  :root[data-ui="new"] .kfab-sheet{position:fixed;left:16px;right:16px;bottom:calc(152px + env(safe-area-inset-bottom,0px))}
+  :root[data-ui="new"] .kfab-sheet .kqc{box-shadow:var(--kumo-shadow-floating)}
+  :root[data-ui="new"] .khome{gap:var(--sp-4)}
+  :root[data-ui="new"] .krow1,:root[data-ui="new"] .kcol,:root[data-ui="new"] .krow{display:contents}
+  :root[data-ui="new"] .khome>.lw{order:1}
+  :root[data-ui="new"] .khome #needWin{order:2}
+  :root[data-ui="new"] .khome .knl{order:3}
+  :root[data-ui="new"] .khome .kbriefs{order:4}
+  :root[data-ui="new"] .khome>.kprices{order:5;margin-top:0}
+  :root[data-ui="new"] .khome .kastro{order:6}
+  :root[data-ui="new"] .khome .kprog{order:7}
+  :root[data-ui="new"] .khome>.statusline{order:8;margin:0}
+  :root[data-ui="new"] .khome>.krow3{order:9}
+  :root[data-ui="new"] .khome>.kmore{order:10}
+  :root[data-ui="new"] .krow>.kqc{display:none}
+}
+
+/* R2b (owner's preview feedback): glass place labels, bigger crew, Kumo's quote bubble, one-line prices,
+   briefs 2/3 + rail 1/3, roster line, progress in the header. */
+.lw-place{background:var(--k-glass);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-color:var(--k-glass-line);box-shadow:none;font:600 14px/1.2 var(--kumo-font-body);color:var(--k-text);padding:var(--sp-1) var(--sp-2);min-height:24px;transition:background-color .15s,color .15s}
+.lw-place:hover,.lw-place:focus-visible{background:var(--k-white);color:var(--kumo-text);border-color:var(--line)}
+.lw-crew{transition:left 4s linear,top 4s linear,opacity .6s}
+.lw-crew.in{opacity:0;pointer-events:none}
+.lw-say{position:absolute;transform:translate(-50%,-100%);z-index:5;max-width:min(260px,44%);padding:var(--sp-2) var(--sp-3);border-radius:var(--r-control);border:1px solid var(--line);background:var(--k-glass-hi);color:var(--kumo-text);font:500 14px/1.35 var(--kumo-font-body);text-align:left;cursor:pointer;box-shadow:0 2px 10px var(--k-edge);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;animation:lwpop .5s ease-out both}
+.lw-say::after{content:"";position:absolute;left:50%;bottom:-6px;width:10px;height:10px;background:inherit;border-right:1px solid var(--line);border-bottom:1px solid var(--line);transform:translateX(-50%) rotate(45deg)}
+.lw-say.open{-webkit-line-clamp:unset;display:block;max-width:min(360px,80%)}
+.lw-say-k{font-weight:800;color:var(--kumo-text-muted)}
+.lw-say:focus-visible{outline:3px solid var(--k-focus);outline-offset:2px}
+@keyframes lwpop{from{opacity:0;transform:translate(-50%,calc(-100% + 6px))}}
+@media (prefers-reduced-motion:reduce){.lw-say{animation:none}}
+@media (max-width:767px){.lw-say{font-size:13px;max-width:62%;padding:var(--sp-1) var(--sp-2)}.lw-say.open{max-width:90%}}
+
+/* Prices: one line, never wraps; extra tickers scroll sideways */
+:root[data-ui="new"] .kprices{flex-wrap:nowrap;gap:var(--sp-4);padding:var(--sp-2) var(--sp-4);margin-top:0}
+:root[data-ui="new"] .kprices ul{flex:1;min-width:0;flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+:root[data-ui="new"] .kprices ul::-webkit-scrollbar{display:none}
+:root[data-ui="new"] .kprices li{flex:none}
+.kprices-at{flex:none;font:600 13px var(--kumo-font-body);color:var(--ink-soft);white-space:nowrap}
+
+/* Under the strip: briefs 2/3 left, rail 1/3 right */
+:root[data-ui="new"] .kmain{display:grid;gap:var(--sp-6);grid-template-columns:minmax(0,1fr);align-items:start}
+@media (min-width:980px){:root[data-ui="new"] .kmain{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}}
+:root[data-ui="new"] .krail{display:grid;gap:var(--sp-6);align-content:start}
+:root[data-ui="new"] .krail>*{margin:0}
+:root[data-ui="new"] .kmain .kbriefs{height:auto}
+@media (min-width:980px){:root[data-ui="new"] .kmain .bcards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Luna: transits small, DOs / DON'Ts as written, tiny source tag */
+:root[data-ui="new"] .kastro-ev{padding:0;border:0;background:none;gap:var(--sp-2)}
+:root[data-ui="new"] .kastro-ev+.kastro-ev{padding-top:var(--sp-3);border-top:1px solid var(--line)}
+:root[data-ui="new"] .kastro-tr{font:500 13px/1.4 var(--kumo-font-body);color:var(--ink-soft)}
+:root[data-ui="new"] .kastro .kdo{display:block;margin:0;font:500 15px/1.45 var(--kumo-font-body);color:var(--ink)}
+:root[data-ui="new"] .kastro .kdo b{display:inline;min-width:0;padding:0;margin-right:var(--sp-1);background:none;font-size:13px;letter-spacing:.03em}
+:root[data-ui="new"] .kastro .kdo.pos b{color:var(--kumo-success)}:root[data-ui="new"] .kastro .kdo.neg b{color:var(--kumo-danger)}
+:root[data-ui="new"] .kastro-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--sp-1) var(--sp-3)}
+:root[data-ui="new"] .kastro-foot .kfold{flex-basis:100%}
+:root[data-ui="new"] .kastro-foot .kfold>summary{min-height:32px}
+.kastro-src{font:600 13px var(--kumo-font-body);color:var(--ink-soft)}
+
+/* Crew roster: one quiet line, not a card */
+:root[data-ui="new"] .kroster{margin:0}
+:root[data-ui="new"] .kroster ul{display:flex;gap:var(--sp-6);margin:0;padding:var(--sp-1) var(--sp-1) var(--sp-2);list-style:none;overflow-x:auto;scrollbar-width:thin}
+:root[data-ui="new"] .kroster li{flex:none;display:flex;align-items:center;gap:var(--sp-2);min-height:44px;max-width:280px;opacity:.7;font:500 13px/1.3 var(--kumo-font-body);color:var(--ink-soft)}
+:root[data-ui="new"] .kroster li.on{opacity:1}
+:root[data-ui="new"] .kroster li b{font:700 14px var(--kumo-font-body);color:var(--ink)}
+:root[data-ui="new"] .kroster-px{flex:none;width:28px;height:28px}
+:root[data-ui="new"] .kroster-px svg{width:100%;height:100%;display:block}
+
+/* The Queen's progress in the header, right after the clock */
+.hprog{display:none}
+:root[data-ui="new"] .hprog{display:inline-flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-3);border:1px solid var(--line);border-radius:var(--r-pill);background:var(--win);box-shadow:var(--kumo-shadow-card);font:600 13px var(--kumo-font-body);color:var(--ink-soft)}
+:root[data-ui="new"] .hprog-lv b{font:700 13px var(--k-font-label);color:var(--ink)}
+:root[data-ui="new"] .hprog-bar{position:relative;width:64px;height:6px;border-radius:var(--r-pill);background:var(--track);overflow:hidden}
+:root[data-ui="new"] .hprog-bar i{position:absolute;inset:0 auto 0 0;background:var(--kumo-pink);border-radius:var(--r-pill)}
+:root[data-ui="new"] .hprog-save.warn{color:var(--kumo-danger)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Phone order: world, Needs you now, Today, Briefs and scans, Luna, Quick capture (+), prices, roster */
+@media (max-width:767px){
+  :root[data-ui="new"] .kmain,:root[data-ui="new"] .krail{display:contents}
+  :root[data-ui="new"] .khome #needWin{order:2}
+  :root[data-ui="new"] .khome .knl{order:3}
+  :root[data-ui="new"] .khome .kbriefs{order:4}
+  :root[data-ui="new"] .khome .kastro{order:5}
+  :root[data-ui="new"] .khome>.kprices{order:6;margin-top:0}
+  :root[data-ui="new"] .khome>.kroster{order:7}
+  :root[data-ui="new"] .khome>.statusline{order:8}
+  :root[data-ui="new"] .khome>.kmore{order:9}
+  :root[data-ui="new"] .krail>.kqc{display:none}
+  :root[data-ui="new"] .hprog-hab{display:none}
+}
+
+/* Kumo's bubble hangs below him, over the cloud bank, so it never covers buildings or labels. */
+.lw-say{transform:translate(-50%,0)}
+.lw-say::after{top:-6px;bottom:auto;transform:translateX(-50%) rotate(225deg)}
+@keyframes lwpop{from{opacity:0;transform:translate(-50%,-6px)}}
+.lw-say:not(.open){max-height:calc(2.7em + 14px)}
+@media (max-width:767px){
+  .lw-say{-webkit-line-clamp:1;top:auto!important;bottom:6px}
+  .lw-say:not(.open){max-height:calc(1.35em + 10px)}
+  .lw-greet{display:none}
+  .lw-top{flex-wrap:nowrap;left:8px;top:6px}
+  .lw-badges{flex-wrap:nowrap;gap:var(--sp-1)}
+}
+
+/* R3 (owner's round 3): quick line, Briefs block with Intel | Scan, rail, Trades / News / Calendar grids,
+   reading layout, New-look nav with More, Luna header fix, roster without sideways scroll. */
+:root[data-ui="new"] .kqline{display:flex;align-items:center;gap:var(--sp-2);margin-top:0}
+:root[data-ui="new"] .kqline input{flex:1;min-width:0;min-height:44px;padding:var(--sp-2) var(--sp-4);border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);font:500 15px var(--kumo-font-body);color:var(--ink)}
+:root[data-ui="new"] .kqline .note{flex:none;font-size:13px}
+:root[data-ui="new"] .kqline+.kprices{margin-top:0}
+/* segmented control */
+:root[data-ui="new"] .kseg{display:inline-flex;gap:var(--sp-1);padding:var(--sp-1);border-radius:var(--kumo-radius-control);background:var(--win-dim);max-width:100%;overflow-x:auto}
+:root[data-ui="new"] .kseg button{min-height:36px;padding:var(--sp-2) var(--sp-4);border:0;border-radius:var(--r-control);background:transparent;font:700 14px var(--kumo-font-body);color:var(--ink-soft);cursor:pointer;white-space:nowrap}
+:root[data-ui="new"] .kseg button.on{background:var(--win);color:var(--ink);box-shadow:var(--kumo-shadow-card)}
+/* brief panes */
+:root[data-ui="new"] .bpane{display:grid;gap:var(--sp-3)}
+:root[data-ui="new"] .bhead{font:600 15px/1.4 var(--kumo-font-body)}
+:root[data-ui="new"] .bcall{display:grid;gap:var(--sp-3);padding:var(--sp-4) var(--sp-4);border-radius:var(--kumo-radius-control);background:var(--kumo-lavender-soft)}
+:root[data-ui="new"] .bcall-h{font:600 18px/1.3 var(--kumo-font-display);color:var(--ink)}
+:root[data-ui="new"] .top5{margin:0;padding-left:var(--sp-6);display:grid;gap:var(--sp-3);font:400 15px/1.5 var(--kumo-font-body);color:var(--ink)}
+:root[data-ui="new"] .top5 b{font-weight:700}
+:root[data-ui="new"] .top5-src{display:inline-flex;flex-wrap:wrap;gap:var(--sp-2);margin-left:var(--sp-2);font-size:13px}
+:root[data-ui="new"] .top5-src a,:root[data-ui="new"] .blink{color:var(--k-link);text-decoration:underline;text-decoration-color:var(--k-link);text-underline-offset:2px}
+:root[data-ui="new"] .blink{justify-self:start;font:700 14px var(--kumo-font-body)}
+:root[data-ui="new"] .bread{font:500 15px/1.5 var(--kumo-font-body)}
+:root[data-ui="new"] .plan{width:100%;border-collapse:collapse;font:500 14px var(--kumo-font-body);font-variant-numeric:tabular-nums}
+:root[data-ui="new"] .plan th{text-align:left;font-weight:700;font-size:13px;color:var(--ink-soft);padding:var(--sp-2) var(--sp-2);border-bottom:1px solid var(--k-line-strong)}
+:root[data-ui="new"] .plan td{padding:var(--sp-2);border-bottom:1px solid var(--k-line-soft)}
+:root[data-ui="new"] .plan tbody tr:nth-child(even){background:var(--k-glass)}
+/* review, movers */
+:root[data-ui="new"] .rv-sum{font:400 15px/1.5 var(--kumo-font-body)}
+:root[data-ui="new"] .rv-sug{margin:0;padding-left:var(--sp-6);display:grid;gap:var(--sp-1);font-size:14px}
+:root[data-ui="new"] .kreview .btn,:root[data-ui="new"] .kmovers .btn{justify-self:start}
+/* Luna: readable header with a 1px line, no colour labels */
+:root[data-ui="new"] .kastro .win-title h2{color:var(--ink)}
+:root[data-ui="new"] .kastro .kdo.pos b,:root[data-ui="new"] .kastro .kdo.neg b{color:var(--ink);font-weight:800}
+/* roster: wraps, never scrolls sideways */
+:root[data-ui="new"] .kroster ul{flex-wrap:wrap;overflow:visible;gap:var(--sp-2) var(--sp-6)}
+:root[data-ui="new"] .kroster li{max-width:none;flex:0 1 auto;min-width:0}
+:root[data-ui="new"] .kroster li span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px}
+/* tab grids: Trades, News, Calendar */
+:root[data-ui="new"] .tgrid{display:grid;gap:var(--sp-6);grid-template-columns:minmax(0,1fr);align-items:start}
+@media (min-width:980px){
+  :root[data-ui="new"] .tgrid{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}
+  :root[data-ui="new"] .tgrid.news{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+  :root[data-ui="new"] .tgrid.cal{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+}
+:root[data-ui="new"] .tcol{display:grid;gap:var(--sp-6);align-content:start;min-width:0}
+:root[data-ui="new"] .tcol>*{margin:0}
+/* reading layout for full briefs (News) */
+:root[data-ui="new"] .klib .klib-all{justify-self:end;margin-top:0}
+:root[data-ui="new"] .klib-item{border-top:1px solid var(--k-line-strong);padding-top:var(--sp-2)}
+:root[data-ui="new"] .klib-item>summary{cursor:pointer;min-height:44px;display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-1) var(--sp-3);font:600 16px var(--kumo-font-body)}
+:root[data-ui="new"] .read{max-width:72ch;font:400 17px/1.65 var(--kumo-font-body);color:var(--ink)}
+:root[data-ui="new"] .read h1,:root[data-ui="new"] .read h2,:root[data-ui="new"] .read h3{position:relative;margin:var(--sp-6) 0 var(--sp-2);padding-left:var(--sp-3);font:600 20px/1.35 var(--kumo-font-display)}
+:root[data-ui="new"] .read h1::before,:root[data-ui="new"] .read h2::before,:root[data-ui="new"] .read h3::before{content:"";position:absolute;left:0;top:.25em;bottom:.25em;width:3px;border-radius:var(--r-chip);background:var(--kumo-pink)}
+:root[data-ui="new"] .read a{color:var(--k-link);text-decoration:underline;text-decoration-color:var(--k-link)}
+:root[data-ui="new"] .read hr{border:0;border-top:1px solid var(--k-line-strong)}
+:root[data-ui="new"] .read table{width:100%;border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}
+:root[data-ui="new"] .read th{position:sticky;top:0;background:var(--win);text-align:left;padding:var(--sp-2) var(--sp-2);border-bottom:1px solid var(--k-line-strong)}
+:root[data-ui="new"] .read td{padding:var(--sp-2) var(--sp-2);border-bottom:1px solid var(--k-line-soft)}
+:root[data-ui="new"] .read tbody tr:nth-child(even){background:var(--win-dim)}
+@media (max-width:767px){
+  :root[data-ui="new"] .read table,:root[data-ui="new"] .read tbody,:root[data-ui="new"] .read tr,:root[data-ui="new"] .read td{display:block;width:100%}
+  :root[data-ui="new"] .read thead{display:none}
+  :root[data-ui="new"] .read tr{margin:0 0 var(--sp-2);padding:var(--sp-2);border:1px solid var(--line);border-radius:var(--kumo-radius-control)}
+  :root[data-ui="new"] .read td{border:0;padding:var(--sp-1) 0}
+}
+:root[data-ui="new"] .intop5{display:inline-block;margin-left:var(--sp-2);padding:0 var(--sp-2);border-radius:var(--kumo-radius-chip);background:var(--kumo-lavender-soft);color:var(--k-chip-text);font:700 12px/1.6 var(--kumo-font-body);vertical-align:middle}
+/* New-look nav: rail lists every tab; the phone bar shows Home, Calendar, Hub, Diary and More */
+.nav-more,.nav-sheet,.nl-phone{display:none}
+:root[data-ui="new"] .tabnav-new{overflow-y:auto}
+@media (min-width:980px){:root[data-ui="new"] .tabnav-new{gap:var(--sp-1)}}
+@media (max-width:979px){
+  :root[data-ui="new"] .tabnav-new .nav-more-item{display:none}
+  :root[data-ui="new"] .tabnav-new .nav-more{display:flex}
+  :root[data-ui="new"] .tabnav-new .nl-desk{display:none}
+  :root[data-ui="new"] .tabnav-new .nl-phone{display:inline}
+  :root[data-ui="new"] .nav-sheet{display:grid;position:fixed;right:8px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:70;min-width:200px;padding:var(--sp-2);gap:var(--sp-1);border:1px solid var(--line);border-radius:var(--kumo-radius-modal);background:var(--win);box-shadow:var(--kumo-shadow-floating)}
+  :root[data-ui="new"] .nav-sheet button{display:flex;flex-direction:row;justify-content:flex-start;gap:var(--sp-3);min-height:44px;padding:var(--sp-2) var(--sp-3);font:700 15px var(--kumo-font-body)}
+  :root[data-ui="new"] .nav-sheet svg{width:22px;height:20px}
+}
+@media (max-width:767px){
+  :root[data-ui="new"] .kqline{display:none}
+  :root[data-ui="new"] .khome .kreview{order:5}
+  :root[data-ui="new"] .khome .kastro{order:6}
+  :root[data-ui="new"] .khome>.kprices{order:7}
+  :root[data-ui="new"] .khome>.kroster{order:8}
+  :root[data-ui="new"] .khome>.statusline{order:9}
+}
+
+/* Kumo's cloud speech bubble (SVG outline; only the quote text). */
+.lw-say{background:none!important;border:0!important;box-shadow:none!important;padding:var(--sp-4) var(--sp-4)!important;max-width:min(300px,46%)!important;max-height:none!important;display:block!important;overflow:visible!important;-webkit-line-clamp:unset!important;transform:translate(-44px,0);animation:lwfloat 5s ease-in-out infinite!important;color:var(--k-plum-700);font:500 15px/1.4 var(--kumo-font-body);text-align:left}
+.lw-say::after{content:none!important}
+.lw-cloud{position:absolute;inset:0;overflow:visible;pointer-events:none}
+.lw-say-t{position:relative;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.lw-say.open .lw-say-t{-webkit-line-clamp:unset;display:block}
+.lw-say.open{max-width:min(380px,80%)!important;z-index:7}
+.lw-say.night{color:var(--k-night-text)}
+.lw-say:focus-visible{outline:3px solid var(--k-focus);outline-offset:4px;border-radius:var(--r-card)}
+@keyframes lwfloat{0%,100%{transform:translate(-44px,0)}50%{transform:translate(-44px,-3px)}}
+@media (prefers-reduced-motion:reduce){.lw-say{animation:none!important}}
+.lw{position:relative}
+@media (max-width:767px){.lw-say{position:relative!important;display:block!important;font-size:14px;padding:var(--sp-3) var(--sp-4)!important;max-width:calc(100% - 24px)!important;top:auto!important;left:auto!important;margin:var(--sp-4) 0 0 var(--sp-3);transform:none;animation:none!important}.lw-say-t{-webkit-line-clamp:2}}
+
+/* Round 4: Luna order, Today with parked thoughts, Coming up, sprint hourglass, Dungeon icon. */
+:root[data-ui="new"] .kastro-en{font:600 15px/1.45 var(--kumo-font-body);color:var(--ink)}
+:root[data-ui="new"] .kastro .kdo{font:400 15px/1.5 var(--kumo-font-body)}
+:root[data-ui="new"] .kastro .kdo b{font-weight:800;font-size:15px;letter-spacing:0;color:var(--ink)}
+:root[data-ui="new"] .kastro .kastro-src{display:block;margin-top:var(--sp-1)}
+:root[data-ui="new"] .kparked{display:grid;gap:var(--sp-2)}
+:root[data-ui="new"] .kcoming .filed-row .note{font-size:13px}
+.lw-sprint{position:absolute;left:10px;top:8px;z-index:6}
+.lw-sprint-btn{position:relative;display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--k-glass-line);border-radius:var(--r-control);background:var(--k-glass);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);cursor:pointer;padding:0}
+.lw-sprint-btn:hover,.lw-sprint-btn:focus-visible{background:var(--k-white)}
+.lw-hg{width:22px;height:24px;image-rendering:pixelated}
+.lw-ring{position:absolute;inset:3px;width:36px;height:36px}
+.lw-sprint-btn.on .lw-hg{width:16px;height:18px}
+.lw-min{position:absolute;right:-6px;bottom:-6px;padding:0 var(--sp-1);border-radius:var(--r-chip);background:var(--k-plum-700);color:var(--k-white);font:700 11px/16px var(--kumo-font-body)}
+.lw-sprint-pop{position:absolute;left:0;top:52px;display:grid;gap:var(--sp-2);min-width:200px;padding:var(--sp-3);border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--win);box-shadow:var(--kumo-shadow-floating);font:500 14px var(--kumo-font-body);color:var(--ink)}
+.lw-top{left:62px!important}
+.mini.dicon svg{width:100%;height:100%;display:block}
+@media (max-width:767px){
+  :root[data-ui="new"] .kqline{display:flex;margin-top:0;order:2}
+  :root[data-ui="new"] .khome #needWin{order:3}
+  :root[data-ui="new"] .khome .knl{order:4}
+  :root[data-ui="new"] .khome .kcoming{order:5}
+  :root[data-ui="new"] .khome .kbriefs{order:6}
+  :root[data-ui="new"] .khome .kastro{order:7}
+  :root[data-ui="new"] .khome .kreview{order:8}
+  :root[data-ui="new"] .khome>.kprices{order:9}
+  :root[data-ui="new"] .khome>.kroster{order:10}
+  :root[data-ui="new"] .khome>.statusline{order:11}
+  .lw-top{left:58px!important}
+}
+
+/* Round 5 (full Court update): header date and rest line, plain greeting, translucent cloud bubble, the fox,
+   Needs you now cards, Briefs contrast and one reading layout, Luna's card. */
+.hdate{display:none}
+:root[data-ui="new"] .hdate{display:inline-flex;flex-direction:column;align-items:flex-end;justify-content:center;font:700 14px/1.2 var(--kumo-font-body);color:var(--ink);white-space:nowrap}
+:root[data-ui="new"] .hrest{font:600 12px/1.3 var(--kumo-font-body);color:var(--ink-soft)}
+.lw-greet{background:none!important;padding:0!important;font:600 20px/1.3 var(--kumo-font-display)!important;color:var(--k-plum-900);text-shadow:0 1px 0 var(--k-glass-hi),0 0 10px var(--k-glass-hi)}
+.lw.ph-night .lw-greet,.lw.ph-dusk .lw-greet{color:var(--k-cream-50);text-shadow:0 1px 2px var(--k-scene-shadow-night),0 0 10px var(--k-scene-shadow-night)}
+.lw-badge{background:var(--k-glass);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.lw-say.r5{transform:translate(0,-100%);animation:lwfloat5 5s ease-in-out infinite!important;border-radius:var(--r-modal);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);text-shadow:0 0 4px var(--k-scene-shadow-day),0 0 1px var(--k-scene-shadow-day)}
+.lw-say.r5.night{text-shadow:0 0 4px var(--k-scene-shadow-night),0 0 1px var(--k-scene-shadow-night)}
+@keyframes lwfloat5{0%,100%{transform:translate(0,-100%)}50%{transform:translate(0,calc(-100% - 3px))}}
+@media (prefers-reduced-motion:reduce){.lw-say.r5{animation:none!important}}
+@media (max-width:767px){.lw-say.r5{transform:none;animation:none!important;-webkit-backdrop-filter:none;backdrop-filter:none}}
+/* the fox */
+.lw-fox-at{position:absolute;z-index:3;transition:left .9s cubic-bezier(.4,0,.2,1),top .9s cubic-bezier(.4,0,.2,1)}
+.lw-fox{position:relative;display:block;transform:translate(-50%,-100%);aspect-ratio:29/20;min-height:32px;padding:0;border:0;background:none;cursor:pointer}
+.lw-fox::before{content:"";position:absolute;inset:-6px}
+.fox-svg{width:100%;height:100%;display:block;image-rendering:pixelated}
+.fox-flame{position:absolute;right:-10%;top:-30%;width:10%;animation:foxflame 2.4s ease-in-out infinite}
+.lw-fox.hop{animation:foxhop .9s ease-out}
+.lw-fox.joy{animation:foxjoy .45s ease-out 3}
+.lw-zz{position:absolute;right:0;top:-40%;font:700 13px var(--kumo-font-body);color:var(--k-plum-700);animation:foxzz 2.4s ease-in-out infinite}
+.lw-spark{position:absolute;right:10%;top:-45%;color:var(--k-gold-400);font-size:16px;text-shadow:0 0 2px var(--k-plum-700)}
+.lw-fox:focus-visible{outline:3px solid var(--k-focus);outline-offset:4px;border-radius:var(--r-chip)}
+@keyframes foxhop{0%{transform:translate(-50%,-100%)}40%{transform:translate(-50%,calc(-100% - 22px))}100%{transform:translate(-50%,-100%)}}
+@keyframes foxjoy{50%{transform:translate(-50%,calc(-100% - 10px))}}
+@keyframes foxflame{50%{transform:translateY(-3px)}}
+@keyframes foxzz{0%{opacity:0;transform:translateY(4px)}50%{opacity:1}100%{opacity:0;transform:translateY(-6px)}}
+@media (prefers-reduced-motion:reduce){.lw-fox-at{transition:none}.lw-fox,.fox-flame,.lw-zz{animation:none!important}}
+.lw-fox-card{position:absolute;right:12px;top:12px;z-index:8;width:min(340px,calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;display:grid;gap:var(--sp-2);padding:var(--sp-4) var(--sp-4);border:1px solid var(--line);border-radius:var(--kumo-radius-card);background:var(--win);box-shadow:var(--kumo-shadow-floating);font:400 14px/1.45 var(--kumo-font-body);color:var(--ink)}
+.lw-fox-h{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2)}
+.lw-fox-card ul{margin:0;padding:0;list-style:none;display:grid;gap:var(--sp-1)}
+.lw-fox-card li{display:flex;gap:var(--sp-2);color:var(--ink-soft)}.lw-fox-card li.on{color:var(--ink)}
+.lw-fox-card li b{color:var(--ink)}
+@media (max-width:767px){.lw-fox{min-height:24px}}
+/* Needs you now: owl beside the text, bold name, details below, actions at the end */
+:root[data-ui="new"] .kneed{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:var(--sp-1) var(--sp-3);align-items:start;padding:var(--sp-3) 0;border-top:1px solid var(--line)}
+:root[data-ui="new"] .kneed:first-child{border-top:0;padding-top:0}
+:root[data-ui="new"] .kneed .mini{width:32px;height:32px;margin:0}
+:root[data-ui="new"] .kneed-b{display:grid;gap:var(--sp-1);min-width:0}
+:root[data-ui="new"] .kneed-t{font:700 15px/1.4 var(--kumo-font-body);color:var(--ink)}
+:root[data-ui="new"] .kneed-s{font:500 13px/1.4 var(--kumo-font-body);color:var(--ink-soft)}
+:root[data-ui="new"] .kneed-r{font:400 13px/1.45 var(--kumo-font-body);color:var(--ink);font-variant-numeric:tabular-nums}
+:root[data-ui="new"] .kneed-r b{font-weight:700}
+:root[data-ui="new"] .kneed-a{display:flex;flex-wrap:wrap;gap:var(--sp-2);justify-content:flex-end}
+@media (max-width:420px){:root[data-ui="new"] .kneed{grid-template-columns:auto minmax(0,1fr)}:root[data-ui="new"] .kneed-a{grid-column:2;justify-content:flex-start}}
+/* Briefs: one reading layout everywhere (17/1.65 body, Playfair 20 section titles with an accent bar) */
+:root[data-ui="new"] .bcall{background:var(--k-cream-100);border:1px solid var(--line);gap:var(--sp-3);padding:var(--sp-4) var(--sp-6)}
+:root[data-ui="new"] .bcall-h,:root[data-ui="new"] .kluna-h{position:relative;padding-left:var(--sp-3);font:600 20px/1.35 var(--kumo-font-display);color:var(--ink)}
+:root[data-ui="new"] .bcall-h::before,:root[data-ui="new"] .kluna-h::before{content:"";position:absolute;left:0;top:.25em;bottom:.25em;width:3px;border-radius:var(--r-chip);background:var(--kumo-pink)}
+:root[data-ui="new"] .top5,:root[data-ui="new"] .bread,:root[data-ui="new"] .rv-sum,:root[data-ui="new"] .rv-sug{max-width:70ch;font:400 17px/1.65 var(--kumo-font-body);color:var(--ink)}
+:root[data-ui="new"] .top5{gap:var(--sp-3)}
+:root[data-ui="new"] .top5>li::marker{font-weight:800}
+:root[data-ui="new"] .top5-src{display:flex;margin:var(--sp-1) 0 0;font:500 13px/1.5 var(--kumo-font-body)}
+:root[data-ui="new"] .rv-sug{gap:var(--sp-2)}
+:root[data-ui="new"] .plan tbody tr:nth-child(even){background:var(--win-dim)}
+/* Luna's card (v52 structure in the New look): 1px header line, no colour coding */
+:root[data-ui="new"] .kluna .win-title h2{display:flex;align-items:center;gap:var(--sp-2);color:var(--ink)}
+:root[data-ui="new"] .kluna .win-title .mini{width:28px;height:28px;margin:0}
+:root[data-ui="new"] .kluna .win-body{display:grid;gap:var(--sp-3);font:400 15px/1.55 var(--kumo-font-body);color:var(--ink)}
+:root[data-ui="new"] .kluna-chips{display:flex;flex-wrap:wrap;gap:var(--sp-2)}
+:root[data-ui="new"] .kluna-chips span{padding:var(--sp-1) var(--sp-3);border:1px solid var(--line);border-radius:var(--r-pill);font:700 13px/1.6 var(--kumo-font-body);color:var(--ink)}
+:root[data-ui="new"] .kluna-h{font-size:16px;margin:var(--sp-1) 0 0}
+:root[data-ui="new"] .kluna-l{margin:0;padding-left:var(--sp-6);display:grid;gap:var(--sp-1)}
+:root[data-ui="new"] .kluna-sm{font:500 13px/1.45 var(--kumo-font-body);color:var(--ink-soft)}
+:root[data-ui="new"] .kluna-two{display:grid;gap:var(--sp-3);grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+:root[data-ui="new"] .kluna-two p{margin:0}
+:root[data-ui="new"] .kluna-call{margin:0;padding:var(--sp-3) var(--sp-3);border:1px solid var(--line);border-radius:var(--kumo-radius-control);background:var(--k-cream-100);font-weight:600}
+@media (max-width:767px){
+  :root[data-ui="new"] .khome .kluna{order:7}
+  :root[data-ui="new"] .hdate{display:none}
+}
+
+/* Garden (Part 5 worked example): scene, tree and summary left (sticky); Daily anchors | Branches | Quests right */
+@media (min-width:980px){
+  :root[data-ui="new"] #gardenBox.ggrid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:var(--sp-6);align-items:start}
+  :root[data-ui="new"] .ggrid .gleft{position:sticky;top:16px}
+}
+:root[data-ui="new"] .ggrid .gleft{display:grid;gap:var(--sp-4);min-width:0}
+:root[data-ui="new"] .ggrid .gright{display:grid;gap:var(--sp-3);align-content:start;min-width:0}
+:root[data-ui="new"] .ggrid .gscene{margin:0}
+:root[data-ui="new"] .ganchors,:root[data-ui="new"] .gbranches{display:grid;gap:var(--sp-2);grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+:root[data-ui="new"] .ganchors .filed-row{min-height:44px;margin:0}
+:root[data-ui="new"] .gbranches .gk{margin:0}
+
 /* Focus ring from the kit. */
-:root[data-ui="new"] :focus-visible{outline:3px solid var(--kumo-lavender);outline-offset:2px}
+:root[data-ui="new"] :focus-visible{outline:3px solid var(--k-focus);outline-offset:2px}
 
 @media (prefers-reduced-motion: reduce){
   :root[data-ui="new"] *,:root[data-ui="new"] *::before,:root[data-ui="new"] *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+/* Round 6: one system (tokens in kumo-tokens.css). One link colour, focus ring, selection, form accent and
+   scrollbar; one card, inner-row, chip, button, input and heading style. Classic (v52) card classes that still
+   render in the New look (Garden, Dungeon, Life) are brought onto the same tokens here, so no card keeps the
+   old 2-3px lavender borders or hard drop shadows. */
+:root[data-ui="new"]{accent-color:var(--k-accent)}
+:root[data-ui="new"] ::selection{background:var(--k-select);color:var(--k-text)}
+:root[data-ui="new"] *{scrollbar-color:var(--k-line-strong) transparent}
+:root[data-ui="new"] ::-webkit-scrollbar-thumb{background:var(--k-line-strong);border-radius:var(--r-pill)}
+:root[data-ui="new"] :focus-visible{outline:3px solid var(--k-focus);outline-offset:2px}
+:root[data-ui="new"] input[type=checkbox]:focus-visible{outline:3px solid var(--k-focus)}
+/* links: one colour, underlined, same hover and visited, everywhere (buttons and map labels keep their own look) */
+:root[data-ui="new"] a:not(.btn):not(.lw-place):not(.icon-btn):not(.wday),
+:root[data-ui="new"] a:not(.btn):not(.lw-place):not(.icon-btn):not(.wday):visited{color:var(--k-link);text-decoration:underline;text-decoration-color:currentColor;text-underline-offset:2px}
+:root[data-ui="new"] a:not(.btn):not(.lw-place):not(.icon-btn):not(.wday):hover{color:var(--k-link-hover)}
+/* cards: one style */
+:root[data-ui="new"] :is(.win,.card,.tcard,details.gdet){border:var(--bw) solid var(--k-line);border-radius:var(--r-card);background:var(--k-surface);box-shadow:var(--k-shadow-card);color:var(--k-text)}
+:root[data-ui="new"] .tcard{padding:var(--sp-4)}
+:root[data-ui="new"] :is(.win,.tcard) :is(.tcard,.win){box-shadow:none}
+/* inner rows and panels: one style (state borders such as dashed "thirsty" keep their style; only width and colour change) */
+:root[data-ui="new"] :is(.filed-row,.gk,.gs,.gr,.jp,.jt,.sc,.lp,.quest,.joyhero,.qod,.daycard,#mktWrap){border-width:var(--bw);border-color:var(--k-line);border-radius:var(--r-control);background:var(--k-surface);box-shadow:none}
+:root[data-ui="new"] :is(.bcall,.kluna-call){background:var(--k-panel);border:var(--bw) solid var(--k-line);border-radius:var(--r-control);color:var(--k-text)}
+/* headings: one style per level */
+:root[data-ui="new"] :is(.win-title h2,.tcard>h3){font:600 var(--fs-h3)/1.3 var(--kumo-font-display);color:var(--k-text);letter-spacing:0}
+:root[data-ui="new"] .sec-h{font:700 var(--fs-cap)/1.4 var(--kumo-font-body);color:var(--k-text-muted);letter-spacing:.04em;margin:var(--sp-3) 0 var(--sp-2)}
+/* chips: one style */
+:root[data-ui="new"] :is(.pillx,.chipb,.kluna-chips span,.intop5,.bitem-topic){display:inline-flex;align-items:center;gap:var(--sp-1);padding:var(--sp-1) var(--sp-2);border:var(--bw) solid var(--k-line);border-radius:var(--r-chip);background:var(--k-surface-2);color:var(--k-text);font:700 var(--fs-cap)/1.3 var(--kumo-font-body);box-shadow:none}
+/* buttons: one style */
+/* the one shared button: transparent pink (soft fill, 1.5px pink border, plum text), deeper on hover */
+:root[data-ui="new"] .btn{min-height:var(--tap);padding:0 var(--sp-4);border:1.5px solid var(--k-btn-line);border-radius:var(--r-control);background:var(--k-btn-fill);color:var(--k-btn-ink);font:700 var(--fs-ui)/1.2 var(--kumo-font-body);box-shadow:none}
+:root[data-ui="new"] .btn:hover{background:var(--k-btn-fill-hover);border-color:var(--k-btn-line)}
+:root[data-ui="new"] .btn.sm{min-height:36px;padding:0 var(--sp-3)}
+:root[data-ui="new"] .btn.ghost{background:transparent;border-color:var(--k-line);color:var(--k-text)}
+:root[data-ui="new"] .btn.ghost:hover{background:var(--k-surface-2)}
+@media (pointer:coarse){:root[data-ui="new"] .btn.sm{min-height:var(--tap)}}
+/* inputs: one style */
+:root[data-ui="new"] :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]),textarea,select){min-height:var(--tap);padding:var(--sp-2) var(--sp-3);border:var(--bw) solid var(--k-line);border-radius:var(--r-control);background:var(--k-surface);color:var(--k-text);font:500 var(--fs-body) var(--kumo-font-body)}
+:root[data-ui="new"] textarea{min-height:96px}
+/* one page rhythm: column and card gaps */
+:root[data-ui="new"] :is(.khome,.tabcol,.tgrid,.tcol,.kmain,.krail,.ggrid){gap:var(--sp-6)}
+@media (max-width:767px){:root[data-ui="new"] :is(.khome,.tabcol,.tgrid,.tcol,.kmain,.krail,.ggrid){gap:var(--sp-4)}}
+
+/* Briefs: content uses the full card width; one uniform item layout (Top 5 and every block in News) */
+:root[data-ui="new"] :is(.bcall,.read,.bitems,.top5,.bread,.rv-sum,.rv-sug){max-width:none}
+:root[data-ui="new"] .bitems{margin:0;padding-left:var(--sp-6);display:grid;gap:var(--sp-4);font:400 var(--fs-read)/var(--lh-read) var(--kumo-font-body);color:var(--k-text)}
+:root[data-ui="new"] .bitems>li::marker{font-weight:800;color:var(--k-text)}
+:root[data-ui="new"] .bitems>li{padding-left:var(--sp-1)}
+:root[data-ui="new"] .bitems>li>*{display:block}
+:root[data-ui="new"] .bitems>li>*+*{margin-top:var(--sp-1)}
+:root[data-ui="new"] .bitem-t{font-weight:700}
+:root[data-ui="new"] .bitems>li>.bitem-topic{display:inline-flex}
+:root[data-ui="new"] .bitems>li>.top5-src{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-left:0}
+:root[data-ui="new"] .top5-src a{padding:var(--sp-1) var(--sp-2);border:var(--bw) solid var(--k-line);border-radius:var(--r-chip);background:var(--k-surface);font:700 var(--fs-cap)/1.3 var(--kumo-font-body)}
+:root[data-ui="new"] .read section+section{margin-top:var(--sp-2)}
+/* weekly review */
+:root[data-ui="new"] .kreview .rep-act{display:flex;flex-wrap:wrap;gap:var(--sp-2)}
+:root[data-ui="new"] .kreview .rv-sum{font-size:var(--fs-body);line-height:var(--lh-ui)}
+:root[data-ui="new"] .kreview .rv-sug{font-size:var(--fs-ui)}
+/* News tab dot while a weekly review is unread */
+.nav-dot{display:none}
+:root[data-ui="new"] .nav-dot{display:inline-block;width:var(--sp-2);height:var(--sp-2);margin-left:calc(-1 * var(--sp-1));align-self:flex-start;border-radius:var(--r-pill);background:var(--k-accent)}
+
+/* Luna: two soft blocks side by side (stacked when narrow); the chart contacts stay quiet below them */
+:root[data-ui="new"] .kluna-two{display:grid;gap:var(--sp-3);grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+:root[data-ui="new"] .kluna-blk{display:grid;gap:var(--sp-1);padding:var(--sp-3);border:var(--bw) solid var(--k-line);border-radius:var(--r-control);color:var(--k-text)}
+:root[data-ui="new"] .kluna-blk.lean{background:var(--k-tint-lav)}
+:root[data-ui="new"] .kluna-blk.ease{background:var(--k-tint-sakura)}
+:root[data-ui="new"] .kluna-blk b{font:700 var(--fs-ui)/1.3 var(--kumo-font-body)}
+:root[data-ui="new"] .kluna-blk p{margin:0;font:400 var(--fs-body)/var(--lh-ui) var(--kumo-font-body)}
+:root[data-ui="new"] .kluna-chart{display:grid;gap:var(--sp-1);font:400 var(--fs-cap)/1.4 var(--kumo-font-body);color:var(--k-text-muted)}
+:root[data-ui="new"] .kluna-chart-h{font-weight:700}
+:root[data-ui="new"] .kluna-chart ul{margin:0;padding-left:var(--sp-4);display:grid;gap:0}
+
+/* World: crisp upscale fitted smoothly; taller phone strip; glass cloud bubble; slower fox */
+.lw-cv{image-rendering:auto}
+@media (max-width:767px){:root[data-ui="new"] .lw-box{height:196px}}
+.lw-say.r5{color:var(--k-plum-700);text-shadow:0 0 4px var(--k-scene-shadow-day)}
+.lw-say.r5.night{color:var(--k-night-text);text-shadow:0 0 4px var(--k-scene-shadow-night)}
+.lw-cloud-fill{color:var(--k-cloud-day);opacity:.4}
+.lw-say.night .lw-cloud-fill{color:var(--k-cloud-night);opacity:.45}
+.lw-cloud-line{fill:var(--k-plum-700)}
+.lw-ring-bg{stroke:var(--k-glass-line)}
+.lw-ring-fg{stroke:var(--k-accent)}
+.lw-fox-at{transition:left 1.8s cubic-bezier(.45,0,.55,1),top 1.8s cubic-bezier(.45,0,.55,1)}
+.lw-fox.hop{animation:foxhop 1.8s cubic-bezier(.45,0,.55,1)}
+@media (prefers-reduced-motion:reduce){.lw-fox-at{transition:none}.lw-fox.hop{animation:none}}
+
+/* Round 7 (owner's round 5): the old dashboard's day look (blush panels, lavender title bars, plum outline),
+   readable night icons, the world HUD band, small source lines, the full-brief card, Today | Week, Luna strips. */
+/* cards: 2px plum-pink outline, lavender title bar, blush panel */
+:root[data-ui="new"] :is(.win,.card,.tcard,details.gdet){border:var(--bw-2) solid var(--k-outline);background:var(--k-surface)}
+:root[data-ui="new"] .win-title{background:var(--k-title-bg);border-bottom:var(--bw-2) solid var(--k-outline)}
+:root[data-ui="new"] .win-title :is(h2,.sub),:root[data-ui="new"] .win-title a:not(.btn){color:var(--k-title-text)}
+:root[data-ui="new"] .win-title .sub{font:600 var(--fs-cap) var(--kumo-font-body)}
+/* rows: dashed blush dividers instead of boxes */
+:root[data-ui="new"] :is(.filed-row,.kneed,.knl-row){border:0;border-bottom:var(--bw) dashed var(--k-divider);border-radius:0;background:transparent;padding:var(--sp-2) 0}
+:root[data-ui="new"] :is(.filed-row,.kneed,.knl-row):last-child{border-bottom:0}
+:root[data-ui="new"] .kneed:first-child{padding-top:0}
+:root[data-ui="new"] :is(.gk,.gs,.gr,.jp,.jt,.sc,.lp,.quest,.joyhero,.qod,.daycard,#mktWrap){border-color:var(--k-divider);background:var(--k-surface)}
+:root[data-ui="new"] :is(.pillx,.chipb,.kluna-chips span,.intop5,.bitem-topic){border-color:var(--k-divider);background:var(--k-tint-lav);color:var(--k-chip-text)}
+:root[data-ui="new"] .chipb[aria-pressed="true"]{background:var(--k-tint-sakura);border-color:var(--k-outline)}
+
+/* night-readable icons: rail, phone bar, header and small pixel icons */
+:root[data-ui="new"] .tabnav .ic-X,:root[data-ui="new"] .ic-X{fill:var(--k-icon-line)}
+:root[data-ui="new"] .tabnav .ic-o{fill:var(--k-icon-fill)}
+:root[data-ui="new"] .tabnav button{color:var(--k-nav-text)}
+:root[data-ui="new"] .tabnav button[aria-current="page"]{background:var(--k-icon-on-bg);border-radius:var(--r-pill);color:var(--k-icon-on)}
+:root[data-ui="new"] .tabnav button[aria-current="page"] .ic-X{fill:var(--k-icon-on)}
+:root[data-ui="new"] .tabnav button:is(:hover,:focus-visible) .ic-X{fill:var(--k-icon-on)}
+:root[data-ui="new"] :is(.pills,#hmenu,.brand-mini,.mini,.kroster-px,.clockpill) svg{filter:var(--k-icon-glow)}
+
+/* the world HUD band: focus icon, greeting and chips; nothing else sits here */
+.lw-top{display:none}
+.lw-hud{position:absolute;left:0;right:0;top:0;height:var(--lw-hud,60px);display:flex;align-items:center;gap:var(--sp-2);padding:0 var(--sp-3);z-index:6;flex-wrap:nowrap;overflow:hidden;pointer-events:none}
+.lw-hud>*{pointer-events:auto;flex:none}
+.lw-hud .lw-sprint{position:relative;left:auto;top:auto}
+.lw-hud .lw-sprint-pop{position:fixed;left:auto;top:auto;margin-top:var(--sp-2)}
+.lw-hud .lw-badges{display:flex;flex-wrap:nowrap;gap:var(--sp-1);min-width:0;overflow:hidden}
+.lw-greet,.lw-badge,.lw-sprint-btn,.lw-place{-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.lw-greet{margin:0;padding:var(--sp-1) var(--sp-3)!important;border-radius:var(--r-pill);font:600 18px/1.3 var(--kumo-font-display)!important;text-shadow:none}
+.lw-badge{padding:var(--sp-1) var(--sp-2);border-radius:var(--r-chip);font:700 var(--fs-cap)/1.3 var(--kumo-font-body)}
+.scene-light :is(.lw-greet,.lw-badge,.lw-sprint-btn,.lw-place){background:var(--k-hud-light)!important;color:var(--k-plum-text)!important;border:var(--bw) solid var(--k-glass-line)}
+.scene-dark :is(.lw-greet,.lw-badge,.lw-sprint-btn,.lw-place){background:var(--k-hud-dark)!important;color:var(--k-night-text)!important;border:var(--bw) solid var(--k-night-icon-line)}
+.lw-place{transform:none!important;display:flex;align-items:center;justify-content:center;padding:0;min-height:0;z-index:5;font:700 var(--fs-ui)/1 var(--kumo-font-body)}
+.lw-place:hover,.lw-place:focus-visible{outline:3px solid var(--k-sakura-500);outline-offset:1px}
+.lw-crew{z-index:3}
+.lw-fox-at{z-index:4}
+@media (max-width:767px){.lw-greet{display:none}.lw-badge{font-size:12px}}
+/* quote bubble: positioned by the layout (no transform), a gentle float only */
+.lw-say.r5{transform:none;max-width:none!important;animation:lwfloat7 5s ease-in-out infinite!important}
+@keyframes lwfloat7{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@media (max-width:767px){.lw-say.r5{width:auto!important}}
+
+/* Next liquidity release line under the prices */
+:root[data-ui="new"] .knext{margin:0;padding:var(--sp-2) var(--sp-4);border:var(--bw) solid var(--k-divider);border-radius:var(--r-control);background:var(--k-surface);font:500 var(--fs-ui)/1.3 var(--kumo-font-body);color:var(--k-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Briefs card: the old dashboard's full brief style */
+:root[data-ui="new"] .kseg.pills{border-radius:var(--r-pill);background:var(--k-surface-2)}
+:root[data-ui="new"] .kseg.pills button{border-radius:var(--r-pill)}
+:root[data-ui="new"] .kseg button.on{background:var(--k-btn-fill-hover);color:var(--k-btn-ink);box-shadow:inset 0 0 0 1.5px var(--k-btn-line)}
+:root[data-ui="new"] .bsnap{display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-4);margin:0;font:600 var(--fs-cap) var(--kumo-font-body);color:var(--k-text-muted)}
+:root[data-ui="new"] .kbrb{position:relative;max-height:36em;overflow:hidden;font:400 var(--fs-read)/var(--lh-read) var(--kumo-font-body);color:var(--k-text)}
+:root[data-ui="new"] .kbrb.open{max-height:none}
+:root[data-ui="new"] .kbrb:not(.open)::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4em;background:linear-gradient(transparent,var(--k-surface));pointer-events:none}
+:root[data-ui="new"] .kbrb h4{margin:var(--sp-4) 0 var(--sp-2);padding-top:var(--sp-3);border-top:var(--bw) dashed var(--k-divider);font:800 var(--fs-cap)/1.3 var(--kumo-font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--k-text-muted)}
+:root[data-ui="new"] .kbrb>h4:first-child{border-top:0;padding-top:0;margin-top:0}
+:root[data-ui="new"] .kbrb p{margin:0 0 var(--sp-3)}
+:root[data-ui="new"] .kbrb p.lead{padding:var(--sp-3) var(--sp-4);border-radius:var(--r-control);background:var(--k-tint-sakura);border:var(--bw) solid var(--k-divider);font-size:var(--fs-body)}
+:root[data-ui="new"] .kbrb ul{margin:0 0 var(--sp-3);padding-left:var(--sp-6)}
+:root[data-ui="new"] .kbrb .bitems{margin:0 0 var(--sp-3)}
+:root[data-ui="new"] .kbrb .bitems li{margin-bottom:var(--sp-3)}
+:root[data-ui="new"] .kbrb .brt{overflow-x:auto;margin:0 0 var(--sp-3)}
+:root[data-ui="new"] .kbrb table{width:100%;border-collapse:collapse;font:500 var(--fs-ui)/1.4 var(--kumo-font-body);font-variant-numeric:tabular-nums}
+:root[data-ui="new"] .kbrb th{text-align:left;padding:var(--sp-1) var(--sp-2);border-bottom:var(--bw-2) solid var(--k-outline);color:var(--k-text)}
+:root[data-ui="new"] .kbrb td{padding:var(--sp-1) var(--sp-2);border-bottom:var(--bw) dashed var(--k-divider)}
+:root[data-ui="new"] .kbrb tbody tr:nth-child(even){background:var(--k-surface-2)}
+:root[data-ui="new"] .kbrb blockquote{margin:0 0 var(--sp-3);padding-left:var(--sp-3);border-left:3px solid var(--k-divider)}
+/* sources: one small muted line */
+:root[data-ui="new"] .brsrc-line{display:block;margin-top:var(--sp-1);font:500 12px/1.4 var(--kumo-font-body);color:var(--k-text-muted)}
+:root[data-ui="new"] .brsrc-line a:not(.btn):not(.lw-place):not(.icon-btn):not(.wday){color:var(--k-text-muted);text-decoration:underline;text-decoration-style:dotted}
+:root[data-ui="new"] .brsrc-line a:not(.btn):not(.lw-place):not(.icon-btn):not(.wday):hover{color:var(--k-link);text-decoration-style:solid}
+:root[data-ui="new"] .brmem{border-top:var(--bw) dashed var(--k-divider);padding-top:var(--sp-2);font:400 var(--fs-ui)/1.5 var(--kumo-font-body)}
+:root[data-ui="new"] .brmem summary{cursor:pointer;min-height:var(--tap);display:flex;align-items:center;font-weight:700}
+
+/* Today | Week */
+:root[data-ui="new"] .kweek{display:grid;gap:0}
+:root[data-ui="new"] .kweek-d:not(.btn){display:grid;gap:var(--sp-1);padding:var(--sp-2) var(--sp-2);border-bottom:var(--bw) dashed var(--k-divider);color:var(--k-text);text-decoration:none;border-radius:var(--r-chip)}
+:root[data-ui="new"] .kweek-d.today{background:var(--k-tint-sakura)}
+:root[data-ui="new"] .kweek-h{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-1) var(--sp-2);font:700 var(--fs-ui)/1.3 var(--kumo-font-body)}
+:root[data-ui="new"] .kweek-sky{font:600 var(--fs-cap) var(--kumo-font-body);color:var(--k-text-muted)}
+:root[data-ui="new"] .kweek-tag{padding:0 var(--sp-1);border-radius:var(--r-chip);background:var(--k-tint-gold);color:var(--k-text);font:700 12px/1.6 var(--kumo-font-body)}
+:root[data-ui="new"] .kweek-ev{font:400 var(--fs-cap)/1.4 var(--kumo-font-body);color:var(--k-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+:root[data-ui="new"] .kweek-glance{margin:var(--sp-2) 0 0;font:500 var(--fs-cap) var(--kumo-font-body);color:var(--k-text-muted)}
+
+/* Luna: two slim stacked strips */
+:root[data-ui="new"] .kluna-strips{display:grid;gap:var(--sp-2)}
+:root[data-ui="new"] .kluna-strip{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--sp-3);align-items:baseline;margin:0;padding:var(--sp-2) var(--sp-3);border-radius:var(--r-control);border:var(--bw) solid var(--k-divider);color:var(--k-text);font:400 var(--fs-ui)/1.45 var(--kumo-font-body)}
+:root[data-ui="new"] .kluna-strip.lean{background:var(--k-tint-lav)}
+:root[data-ui="new"] .kluna-strip.ease{background:var(--k-tint-sakura)}
+:root[data-ui="new"] .kluna-strip b{font-weight:800;white-space:nowrap}
+/* superseded by the round 18 shared label column (stacks below a 300px card instead) */
+@media (max-width:420px){:root[data-ui="new"] .kluna-strip{grid-template-columns:1fr}}
+
+/* Trades: Live tag, live watchlist with a 1-month range bar */
+:root[data-ui="new"] .livetag{display:inline-block;margin-right:var(--sp-1);padding:0 var(--sp-1);border-radius:var(--r-chip);background:var(--k-accent);color:var(--k-accent-ink);font:800 12px/1.6 var(--kumo-font-body);letter-spacing:.04em}
+:root[data-ui="new"] .kwatch{width:100%;border-collapse:collapse;font:500 var(--fs-ui)/1.4 var(--kumo-font-body);font-variant-numeric:tabular-nums}
+:root[data-ui="new"] .kwatch th{text-align:left;padding:var(--sp-1) var(--sp-2);border-bottom:var(--bw-2) solid var(--k-outline)}
+:root[data-ui="new"] .kwatch td{padding:var(--sp-2);border-bottom:var(--bw) dashed var(--k-divider)}
+:root[data-ui="new"] .krange{position:relative;display:block;min-width:80px;height:8px;border-radius:var(--r-pill);background:var(--k-track)}
+:root[data-ui="new"] .krange i{position:absolute;top:-3px;width:14px;height:14px;margin-left:-7px;border-radius:var(--r-pill);background:var(--k-accent);border:var(--bw-2) solid var(--k-surface)}
+
+/* Round 5b / 5c: full quote, the fox at crew scale, sprint pause, Needs you now buttons and closing, scan line */
+.lw-say.r5 .lw-say-t{display:block;margin:0;-webkit-line-clamp:unset;overflow:visible;white-space:normal}
+.lw-say.r5{cursor:default;margin:0}
+.lw-say.r5.below{position:relative!important;left:auto!important;top:auto!important;width:auto!important;max-width:min(560px,calc(100% - 24px))!important;margin:var(--sp-3) 0 0 var(--sp-3);animation:none!important}
+.lw-fox{aspect-ratio:40/32}
+.lw-fox .fox-tails{animation:px-swl 1.8s steps(1,end) infinite}
+.lw-fox.hop{transform-origin:50% 100%;animation:foxsquash 1.8s cubic-bezier(.45,0,.55,1)}
+@keyframes foxsquash{0%{transform:translate(-50%,-100%) scale(1,1)}12%{transform:translate(-50%,-100%) scale(1.12,.86)}40%{transform:translate(-50%,calc(-100% - 28px)) scale(.92,1.1)}78%{transform:translate(-50%,-100%) scale(1.1,.9)}100%{transform:translate(-50%,-100%) scale(1,1)}}
+.lw-fox.joy{transform-origin:50% 100%;animation:foxjoy2 .5s ease-out 3}
+@keyframes foxjoy2{0%,100%{transform:translate(-50%,-100%) scale(1,1)}20%{transform:translate(-50%,-100%) scale(1.08,.9)}55%{transform:translate(-50%,calc(-100% - 12px)) scale(.95,1.06)}}
+@media (prefers-reduced-motion:reduce){.lw-fox .fox-tails,.lw-fox.hop,.lw-fox.joy{animation:none!important}}
+.lw-sprint{display:flex;align-items:center;gap:var(--sp-1)}
+.lw-sprint-btn.paused .lw-ring-fg{stroke:var(--k-plum-soft);stroke-dasharray:3 3}
+.lw-sprint-stop{width:28px;height:28px;border-radius:var(--r-pill);border:var(--bw) solid var(--k-glass-line);background:var(--k-hud-light);color:var(--k-plum-text);font:800 var(--fs-ui)/1 var(--kumo-font-body);cursor:pointer}
+.lw-sprint-stop::before{content:"";position:absolute;inset:-8px}
+.lw-sprint-stop{position:relative}
+.scene-dark .lw-sprint-stop{background:var(--k-hud-dark);color:var(--k-night-text)}
+:root[data-ui="new"] .kneed{grid-template-columns:auto minmax(0,1fr) auto;align-items:center}
+:root[data-ui="new"] .kneed-a{display:flex;align-items:center;justify-content:flex-end;gap:var(--sp-2)}
+:root[data-ui="new"] .kneed-btn{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:var(--tap);min-width:72px;padding:0 var(--sp-3);line-height:1;text-decoration:none;font:700 var(--fs-ui)/1 var(--kumo-font-body)}
+@media (max-width:420px){:root[data-ui="new"] .kneed{grid-template-columns:auto minmax(0,1fr)}:root[data-ui="new"] .kneed-a{grid-column:2;justify-content:flex-start}}
+:root[data-ui="new"] .kneed-wrap{display:grid;grid-template-rows:1fr;transition:grid-template-rows .3s ease,opacity .3s ease}
+:root[data-ui="new"] .kneed-wrap>*{min-height:0;overflow:hidden}
+:root[data-ui="new"] .kneed-wrap.closing{grid-template-rows:0fr;opacity:0}
+@media (max-width:767px){:root[data-ui="new"] .khome .kneed-wrap{order:3}}
+:root[data-ui="new"] .bstrong{margin:0;padding:var(--sp-2) var(--sp-3);border-radius:var(--r-control);background:var(--k-tint-lav);font:500 var(--fs-ui)/1.4 var(--kumo-font-body);color:var(--k-text)}
+:root[data-ui="new"] .lflag{display:inline-flex;align-items:center;gap:var(--sp-1);min-height:var(--tap);font:600 var(--fs-cap) var(--kumo-font-body);color:var(--k-text)}
+
+/* Round 5d: briefs one type step up, sources as links only, pixel timestamps, the header date-and-time badge */
+:root[data-ui="new"] :is(.kbrb,.read,.bitems){font-size:var(--fs-read);line-height:var(--lh-read)}
+:root[data-ui="new"] .kbrb p.lead,:root[data-ui="new"] .kreview .rv-sum{font-size:var(--fs-lead);line-height:var(--lh-read)}
+:root[data-ui="new"] .kreview .rv-sug{font-size:var(--fs-body);line-height:1.6}
+:root[data-ui="new"] .read :is(h1,h2,h3){font-size:var(--fs-brief-h)}
+:root[data-ui="new"] .bhead b{font:700 var(--fs-lead)/1.4 var(--kumo-font-body)}
+:root[data-ui="new"] .kbrb h4{font-size:var(--fs-cap)}
+:root[data-ui="new"] :is(.kbrb,.read) :is(table){font-size:var(--fs-body)}
+:root[data-ui="new"] .brsrc-line{display:block;margin-top:var(--sp-1);font:600 var(--fs-cap)/1.4 var(--kumo-font-body);color:var(--k-text-muted)}
+:root[data-ui="new"] .brsrc-line a:not(.btn):not(.lw-place):not(.icon-btn):not(.wday){color:var(--k-link);text-decoration:underline;text-decoration-style:solid}
+:root[data-ui="new"] .brsrc-line a:not(.btn):not(.lw-place):not(.icon-btn):not(.wday):hover{color:var(--k-link-hover)}
+:root[data-ui="new"] :is(.kbrb,.read) .brsrc{display:none}
+/* timestamps as small pixel labels (running text stays in Nunito) */
+:root[data-ui="new"] .ts{font:400 12px/1.4 var(--k-font-label);letter-spacing:0;font-variant-numeric:tabular-nums;white-space:nowrap}
+:root[data-ui="new"] .kneed-s.ts{white-space:normal}
+/* the header badge: one pixel pill with stepped corners, plum outline, the clock with its gold hand */
+.hbadge-wrap,.hbadge{display:none}
+:root[data-ui="new"] .hclock-classic{display:none}
+:root[data-ui="new"] .hbadge-wrap{display:inline-flex;flex-direction:column;align-items:center;gap:0}
+:root[data-ui="new"] .hbadge{display:inline-block;padding:var(--bw-2);background:var(--k-icon-line);clip-path:polygon(0 6px,2px 6px,2px 4px,4px 4px,4px 2px,6px 2px,6px 0,calc(100% - 6px) 0,calc(100% - 6px) 2px,calc(100% - 4px) 2px,calc(100% - 4px) 4px,calc(100% - 2px) 4px,calc(100% - 2px) 6px,100% 6px,100% calc(100% - 6px),calc(100% - 2px) calc(100% - 6px),calc(100% - 2px) calc(100% - 4px),calc(100% - 4px) calc(100% - 4px),calc(100% - 4px) calc(100% - 2px),calc(100% - 6px) calc(100% - 2px),calc(100% - 6px) 100%,6px 100%,6px calc(100% - 2px),4px calc(100% - 2px),4px calc(100% - 4px),2px calc(100% - 4px),2px calc(100% - 6px),0 calc(100% - 6px))}
+:root[data-ui="new"] .hbadge-in{display:flex;align-items:center;gap:var(--sp-2);min-height:32px;padding:0 var(--sp-3);background:var(--k-surface);clip-path:inherit;color:var(--k-text)}
+:root[data-ui="new"] .hbadge-ic{width:18px;height:18px;flex:none;filter:var(--k-icon-glow)}
+:root[data-ui="new"] .hbadge-ic .px-o{fill:var(--k-icon-line)}
+:root[data-ui="new"] .hbadge-ic .px-f{fill:var(--k-surface-2)}
+:root[data-ui="new"] .hbadge-ic .px-h{fill:var(--k-gold-500)}
+:root[data-ui="new"] .hbadge-t{font:400 12px/1 var(--k-font-label);font-variant-numeric:tabular-nums;white-space:nowrap}
+:root[data-ui="new"] .hbadge-colon{font-style:normal;animation:hblink 1s steps(1,end) infinite}
+@keyframes hblink{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){:root[data-ui="new"] .hbadge-colon{animation:none}}
+@media (max-width:767px){:root[data-ui="new"] .hbadge-t{font-size:12px}:root[data-ui="new"] .hbadge-in{padding:0 var(--sp-2)}}
+
+/* Safety nets: a card that could not load, and the page-level fallback */
+:root[data-ui="new"] .kerr .win-body{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--sp-2);font:500 var(--fs-ui)/1.4 var(--kumo-font-body);color:var(--k-text)}
+:root[data-ui="new"] .kerr p{margin:0}
+.kcrash{max-width:560px;margin:var(--sp-12) auto;padding:0 var(--sp-4);font-family:var(--kumo-font-body);color:var(--k-text)}
+.kcrash h1{font:600 var(--fs-h2)/1.3 var(--kumo-font-display)}
+.kcrash-act{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin:var(--sp-4) 0}
+
+/* ---------- Round 6 shared: page header with pixel scene, page grids, cards, chips, callouts, tables, empty states ---------- */
+:root[data-ui="new"] .kpage{display:grid;gap:var(--sp-6)}
+:root[data-ui="new"] .kpage-head{display:grid;gap:var(--sp-3)}
+:root[data-ui="new"] .kscene{aspect-ratio:5/1;min-height:96px;max-width:100%;overflow:hidden;border:var(--bw-2) solid var(--k-outline);border-radius:var(--r-card);background:var(--k-surface-2)}
+:root[data-ui="new"] .kscene svg{display:block;width:100%;height:100%;overflow:visible;image-rendering:pixelated}
+@media (max-width:767px){:root[data-ui="new"] .kscene{aspect-ratio:4/1;min-height:80px}}
+:root[data-ui="new"] .ksc-tw{animation:ksc-tw 3.2s steps(2) infinite}
+:root[data-ui="new"] .ksc-tw.tw1{animation-delay:1.1s}
+:root[data-ui="new"] .ksc-tw.tw2{animation-delay:2.2s}
+:root[data-ui="new"] .kscene[data-off] .ksc-tw{animation-play-state:paused}
+@keyframes ksc-tw{50%{opacity:.2}}
+@media (prefers-reduced-motion:reduce){:root[data-ui="new"] .ksc-tw{animation:none}}
+:root[data-ui="new"] .kpage-title{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--sp-3)}
+:root[data-ui="new"] .kpage-title h1{margin:0;font:700 30px/1.2 var(--k-font-head);color:var(--k-text)}
+:root[data-ui="new"] .kpage-title p{margin:var(--sp-1) 0 0;font:400 var(--fs-body)/1.5 var(--k-font-body);color:var(--k-text-muted)}
+:root[data-ui="new"] .kpage-act{display:flex;flex-wrap:wrap;gap:var(--sp-2)}
+@media (max-width:767px){:root[data-ui="new"] .kpage-title h1{font-size:var(--fs-h2)}}
+/* page grids: no single long column at 1200px and up; two columns on tablet; one on the phone */
+:root[data-ui="new"] .kpg{display:grid;gap:var(--sp-6);grid-template-columns:minmax(0,1fr);align-items:start}
+:root[data-ui="new"] .kcol{display:grid;gap:var(--sp-6);min-width:0;align-content:start}
+@media (min-width:768px){
+  :root[data-ui="new"] .kpg.two,:root[data-ui="new"] .kpg.cal,:root[data-ui="new"] .kpg.quad,:root[data-ui="new"] .kpg.three{grid-template-columns:repeat(2,minmax(0,1fr))}
+  :root[data-ui="new"] .kpg.three>.kcol:last-child{grid-column:1/-1}
+}
+@media (min-width:1200px){
+  :root[data-ui="new"] .kpg.cal{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+  :root[data-ui="new"] .kpg.three{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr) minmax(0,1fr)}
+  :root[data-ui="new"] .kpg.three>.kcol:last-child{grid-column:auto}
+}
+@media (max-width:767px){:root[data-ui="new"] :is(.kpg,.kcol,.kpage){gap:var(--sp-4)}}
+:root[data-ui="new"] .kfull{grid-column:1/-1}
+:root[data-ui="new"] .kcard .win-title{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap}
+:root[data-ui="new"] .kcard-act{margin-left:auto;display:flex;gap:var(--sp-2)}
+:root[data-ui="new"] .kcard .win-body{display:grid;gap:var(--sp-3)}
+:root[data-ui="new"] .kchip{display:inline-flex;align-items:center;gap:var(--sp-1);padding:var(--sp-1) var(--sp-2);border-radius:var(--r-chip);font:700 var(--fs-cap)/1.3 var(--k-font-body);color:var(--k-chip-text);background:var(--k-tint-lav)}
+:root[data-ui="new"] .kchip.t-sakura{background:var(--k-tint-sakura)}
+:root[data-ui="new"] .kchip.t-gold{background:var(--k-tint-gold)}
+:root[data-ui="new"] .kchip.t-mint{background:var(--k-tint-mint)}
+:root[data-ui="new"] .kchip.t-peach{background:var(--k-tint-peach)}
+:root[data-ui="new"] .kchip.t-sky{background:var(--k-tint-sky)}
+:root[data-ui="new"] .kchips{display:flex;flex-wrap:wrap;gap:var(--sp-2)}
+:root[data-ui="new"] .kcallout{padding:var(--sp-3) var(--sp-4);border-radius:var(--r-control);border:var(--bw) dashed var(--k-divider);background:var(--k-tint-sakura);color:var(--k-text);font:400 var(--fs-body)/1.6 var(--k-font-body)}
+:root[data-ui="new"] .kcallout.t-lav{background:var(--k-tint-lav)}
+:root[data-ui="new"] .kcallout.t-gold{background:var(--k-tint-gold)}
+:root[data-ui="new"] .ktable-wrap{overflow-x:auto;max-width:100%;border-radius:var(--r-control)}
+:root[data-ui="new"] .ktable{width:100%;border-collapse:collapse;font:400 var(--fs-ui)/1.4 var(--k-font-body);color:var(--k-text)}
+:root[data-ui="new"] .ktable th{text-align:left;padding:var(--sp-2);font:700 var(--fs-cap)/1.3 var(--k-font-body);color:var(--k-text-muted);border-bottom:var(--bw) dashed var(--k-divider);white-space:nowrap}
+:root[data-ui="new"] .ktable td{padding:var(--sp-2);border-bottom:var(--bw) dashed var(--k-divider);vertical-align:top}
+:root[data-ui="new"] .kempty{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3);border-radius:var(--r-control);background:var(--k-surface-2);color:var(--k-text-muted);font:400 var(--fs-body)/1.5 var(--k-font-body)}
+:root[data-ui="new"] .kempty p{margin:0}
+:root[data-ui="new"] .kempty-art{flex:none;width:48px;height:40px;display:grid;place-items:center}
+:root[data-ui="new"] .kempty-art svg{width:100%;height:100%}
+:root[data-ui="new"] .kstore{margin:0;font:400 var(--fs-cap)/1.4 var(--k-font-body);color:var(--k-text-muted)}
+:root[data-ui="new"] .kstore.dev::before{content:"";display:inline-block;width:8px;height:8px;margin-right:var(--sp-2);border-radius:var(--r-pill);background:var(--k-gold-500);vertical-align:middle}
+:root[data-ui="new"] .kbar{display:inline-block;width:100%;height:8px;border-radius:var(--r-pill);background:var(--k-track);overflow:hidden;vertical-align:middle}
+:root[data-ui="new"] .kbar i{display:block;height:100%;background:var(--k-accent)}
+:root[data-ui="new"] .kbar.t-lav i{background:var(--k-lav-500)}
+:root[data-ui="new"] .kbar.t-mint i{background:var(--k-mint-500)}
+:root[data-ui="new"] .kbar.t-danger i{background:var(--k-danger)}
+/* list rows and forms */
+:root[data-ui="new"] .krow{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2) var(--sp-3);padding:var(--sp-2) 0;border-bottom:var(--bw) dashed var(--k-divider);color:var(--k-text);font:400 var(--fs-body)/1.5 var(--k-font-body)}
+:root[data-ui="new"] .krow:last-child{border-bottom:0}
+:root[data-ui="new"] .krow-main{flex:1 1 200px;min-width:0;overflow-wrap:anywhere}
+:root[data-ui="new"] .krow-act{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-left:auto}
+:root[data-ui="new"] .krow.done .krow-main{text-decoration:line-through;color:var(--k-text-muted)}
+:root[data-ui="new"] .kform{display:grid;gap:var(--sp-2)}
+:root[data-ui="new"] .kform-row{display:flex;flex-wrap:wrap;gap:var(--sp-2)}
+:root[data-ui="new"] .kform-row>*{flex:1 1 120px;min-width:0}
+:root[data-ui="new"] :is(.kform,.kcard) :is(input:not([type=checkbox]):not([type=radio]),select,textarea){min-height:var(--tap);padding:var(--sp-2) var(--sp-3);border:var(--bw) solid var(--k-line);border-radius:var(--r-control);background:var(--k-surface);color:var(--k-text);font:400 var(--fs-body)/1.4 var(--k-font-body)}
+:root[data-ui="new"] .kcard textarea{min-height:88px;resize:vertical}
+:root[data-ui="new"] .kcard label.kcheck{display:inline-flex;align-items:center;gap:var(--sp-2);min-height:var(--tap);cursor:pointer}
+:root[data-ui="new"] .kcard input[type=checkbox]{width:20px;height:20px;accent-color:var(--k-accent)}
+:root[data-ui="new"] .kcard .btn{min-height:var(--tap)}
+:root[data-ui="new"] .kstat{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:var(--sp-3)}
+:root[data-ui="new"] .kstat>div{padding:var(--sp-3);border-radius:var(--r-control);background:var(--k-surface-2)}
+:root[data-ui="new"] .kstat b{display:block;font:700 var(--fs-h3)/1.2 var(--k-font-head);color:var(--k-text)}
+:root[data-ui="new"] .kstat span{font:400 var(--fs-cap)/1.3 var(--k-font-body);color:var(--k-text-muted)}
+:root[data-ui="new"] .kbars{display:grid;grid-template-columns:minmax(80px,auto) minmax(0,1fr) auto;gap:var(--sp-2) var(--sp-3);align-items:center;font:400 var(--fs-ui)/1.3 var(--k-font-body)}
+/* mini month (Calendar, Dungeon) */
+:root[data-ui="new"] .kmini{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--sp-1);text-align:center}
+:root[data-ui="new"] .kmini>span{font:400 var(--fs-cap)/1.2 var(--k-font-label);color:var(--k-text-muted)}
+:root[data-ui="new"] .kmini button{min-height:var(--tap);min-width:0;padding:0;border:var(--bw) solid transparent;border-radius:var(--r-chip);background:transparent;color:var(--k-text);font:700 var(--fs-ui)/1 var(--k-font-body);cursor:pointer;position:relative}
+:root[data-ui="new"] .kmini button.out{color:var(--k-text-muted)}
+:root[data-ui="new"] .kmini button.is-today{border-color:var(--k-outline)}
+:root[data-ui="new"] .kmini button[aria-pressed=true]{background:var(--k-btn-fill-hover);border-color:var(--k-btn-line);color:var(--k-btn-ink)}
+:root[data-ui="new"] .kmini button.has::after{content:"";position:absolute;left:50%;bottom:6px;width:6px;height:6px;margin-left:-3px;border-radius:var(--r-pill);background:var(--k-accent)}
+:root[data-ui="new"] .kmini button[aria-pressed=true].has::after{background:var(--k-btn-line)}
+/* journal writing (Inter, journal only) */
+:root[data-ui="new"] .kjournal textarea{min-height:280px;font:400 var(--fs-read)/var(--lh-read) var(--k-font-journal)}
+:root[data-ui="new"] .kmood{display:flex;flex-wrap:wrap;gap:var(--sp-2)}
+/* kingdom mode */
+:root[data-ui="new"] .kcat{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--sp-3)}
+:root[data-ui="new"] .kcat>div{display:grid;gap:var(--sp-1);padding:var(--sp-3);border:var(--bw) dashed var(--k-divider);border-radius:var(--r-control);background:var(--k-surface-2)}
+/* onboarding */
+:root[data-ui="new"] .kstep{display:grid;gap:var(--sp-3)}
+:root[data-ui="new"] .kstep-dots{display:flex;gap:var(--sp-2)}
+:root[data-ui="new"] .kstep-dots i{width:10px;height:10px;border-radius:var(--r-pill);background:var(--k-track)}
+:root[data-ui="new"] .kstep-dots i.on{background:var(--k-accent)}
+:root[data-ui="new"] .kgrid-opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--sp-2)}
+/* garden pixel scene */
+:root[data-ui="new"] .kgarden{position:relative;border:var(--bw-2) solid var(--k-outline);border-radius:var(--r-card);overflow:hidden;background:var(--k-surface-2)}
+:root[data-ui="new"] .kgarden svg{display:block;width:100%;height:auto;image-rendering:pixelated}
+:root[data-ui="new"] .kgarden .tree{transform-origin:50% 100%;transform-box:fill-box;transition:transform .6s}
+:root[data-ui="new"] .kgarden.wilt .tree{transform:rotate(-4deg) scaleY(.94)}
+@media (prefers-reduced-motion:reduce){:root[data-ui="new"] .kgarden .tree{transition:none}}
+
+/* ---------- Round 6: Grid & Wins Harada 9x9 chart (pixel style: plum outline, stepped corners, one gold accent) ---------- */
+:root[data-ui="new"] .hwrap{display:grid;gap:var(--sp-3)}
+:root[data-ui="new"] .hgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-2)}
+:root[data-ui="new"] .hblock{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-1);padding:var(--sp-1);border:var(--bw-2) solid var(--k-outline);border-radius:var(--r-chip);background:var(--k-surface-2);position:relative}
+:root[data-ui="new"] .hblock.centre{background:var(--k-tint-lav)}
+:root[data-ui="new"] .hblock.sparkle::after{content:"";position:absolute;top:-4px;right:-4px;width:8px;height:8px;background:var(--k-gold-500);clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%)}
+:root[data-ui="new"] .hcell{min-height:var(--tap);min-width:0;padding:var(--sp-1);border:var(--bw) solid var(--k-line);border-radius:var(--r-chip);background:var(--k-surface);color:var(--k-text);font:400 var(--fs-cap)/1.25 var(--k-font-body);text-align:center;cursor:pointer;overflow:hidden}
+:root[data-ui="new"] .hcell span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+:root[data-ui="new"] .hcell.pillar{font-weight:700;background:var(--k-tint-sakura)}
+:root[data-ui="new"] .hcell.goal{font:700 var(--fs-ui)/1.25 var(--k-font-head);background:var(--k-tint-gold);border-color:var(--k-outline)}
+:root[data-ui="new"] .hcell.act.on{background:var(--k-tint-mint);color:var(--k-text)}
+:root[data-ui="new"] .hcell.full{background:var(--k-tint-mint)}
+:root[data-ui="new"] .hcell.sel{outline:var(--bw-2) solid var(--k-focus);outline-offset:1px}
+:root[data-ui="new"] .hpick{display:none}
+:root[data-ui="new"] .hedit{padding:var(--sp-3);border:var(--bw-2) solid var(--k-outline);border-radius:var(--r-card);background:var(--k-surface-2)}
+:root[data-ui="new"] .hlist{display:grid;gap:var(--sp-2)}
+@media (max-width:899px){
+  :root[data-ui="new"] .hpick{display:flex;flex-wrap:wrap;gap:var(--sp-1)}
+  :root[data-ui="new"] .hpick button{min-width:var(--tap);min-height:var(--tap);border:var(--bw) solid var(--k-line);border-radius:var(--r-chip);background:var(--k-surface);color:var(--k-text);font:700 var(--fs-ui)/1 var(--k-font-body)}
+  :root[data-ui="new"] .hpick button.on{background:var(--k-btn-fill-hover);border-color:var(--k-btn-line);color:var(--k-btn-ink)}
+  :root[data-ui="new"] .hgrid{grid-template-columns:minmax(0,1fr)}
+  :root[data-ui="new"] .hblock{display:none}
+  :root[data-ui="new"] .hblock.focus{display:grid}
+  :root[data-ui="new"] .hcell{min-height:72px;font-size:var(--fs-ui)}
+}
+:root[data-ui="new"] .klink-row{width:100%;min-height:var(--tap);border:0;border-bottom:var(--bw) dashed var(--k-divider);background:transparent;text-align:left;cursor:pointer}
+:root[data-ui="new"] .klink-row[aria-pressed=true]{background:var(--k-tint-sakura)}
+:root[data-ui="new"] .kcat-art{display:block;width:48px;height:48px;image-rendering:pixelated}
+/* Round 6 mobile pass: 44px targets for segmented tabs and chips on touch screens and the phone */
+@media (pointer:coarse),(max-width:767px){:root[data-ui="new"] :is(.kseg button,.chipb,.klink-row){min-height:var(--tap)}}
+:root[data-ui="new"] .kpage :focus-visible{outline:var(--bw-2) solid var(--k-focus);outline-offset:2px}
+
+/* Phone bar order: Home, Calendar, Hub, Diary, then More */
+@media (max-width:979px){:root[data-ui="new"] .tabnav-new>button{order:var(--ord,9)}:root[data-ui="new"] .tabnav-new>.nav-more{order:10}}
+
+/* ---------- Round 7: pilot room (Calendar: the clock tower), drag or swipe sideways; a little taller than banners ---------- */
+:root[data-ui="new"] .kroom{position:relative;aspect-ratio:4/1;min-height:140px;max-width:100%;border:var(--bw-2) solid var(--k-outline);border-radius:var(--r-card);overflow:hidden;background:var(--k-surface-2)}
+:root[data-ui="new"] .kroom-scroll{height:100%;overflow-x:auto;overflow-y:hidden;cursor:grab;scrollbar-width:thin;overscroll-behavior-x:contain}
+:root[data-ui="new"] .kroom-scroll.drag{cursor:grabbing;user-select:none}
+:root[data-ui="new"] .kroom-inner{position:relative;height:100%;aspect-ratio:20/3;width:auto}
+:root[data-ui="new"] .kroom-inner>svg{display:block;width:100%;height:100%;image-rendering:pixelated}
+:root[data-ui="new"] .kroom-momo{position:absolute;left:28%;bottom:15%;height:28%;aspect-ratio:1}
+:root[data-ui="new"] .kroom-px{display:block;width:100%;height:100%}
+:root[data-ui="new"] .kroom-px svg{display:block;width:100%;height:100%}
+:root[data-ui="new"] .kroom-alert{position:absolute;right:-30%;top:-34%}
+:root[data-ui="new"] .kroom-hint{position:absolute;top:50%;transform:translateY(-50%);width:var(--tap);height:var(--tap);border:1.5px solid var(--k-btn-line);border-radius:var(--r-pill);background:var(--k-surface);color:var(--k-btn-ink);font:700 22px/1 var(--k-font-body);cursor:pointer;box-shadow:var(--k-shadow-card)}
+:root[data-ui="new"] .kroom-hint.l{left:var(--sp-2)}
+:root[data-ui="new"] .kroom-hint.r{right:var(--sp-2)}
+@media (prefers-reduced-motion:no-preference){
+  :root[data-ui="new"] .kroom-pend{transform-box:view-box;transform-origin:190.5px 31px;animation:kroom-swing 2s steps(6) infinite alternate}
+}
+@keyframes kroom-swing{from{transform:rotate(-8deg)}to{transform:rotate(8deg)}}
+/* phones: no room banner below tablet width (the banner code stays; it is just not displayed there) */
+@media (max-width:767px){:root[data-ui="new"] .kroom{display:none}}
+
+/* ---------- Round 7: alert pop-ups, a pixel "!" on the agent and a small speech bubble ---------- */
+:root[data-ui="new"] .kalert{display:inline-grid;place-items:center;width:var(--tap);height:var(--tap);padding:0;border:0;background:transparent;cursor:pointer}
+:root[data-ui="new"] .kalert svg{width:14px;height:24px;image-rendering:pixelated}
+:root[data-ui="new"] .kalert .ka-X{fill:var(--k-plum-700)}
+:root[data-ui="new"] .kalert .ka-g{fill:var(--k-gold-500)}
+@media (prefers-reduced-motion:no-preference){:root[data-ui="new"] .kalert svg{animation:kalert-hop 1.6s steps(2) infinite}}
+@keyframes kalert-hop{50%{transform:translateY(-2px)}}
+:root[data-ui="new"] .kalert-pop{position:fixed;z-index:90;width:min(320px,calc(100vw - 32px));display:grid;gap:var(--sp-2);padding:var(--sp-3);border:var(--bw-2) solid var(--k-outline);border-radius:var(--r-card);background:var(--k-surface);box-shadow:var(--k-shadow-float);color:var(--k-text);font:400 var(--fs-body)/1.5 var(--k-font-body)}
+:root[data-ui="new"] .kalert-pop::before{content:"";position:absolute;top:-8px;left:var(--sp-6);width:12px;height:12px;background:var(--k-surface);border-left:var(--bw-2) solid var(--k-outline);border-top:var(--bw-2) solid var(--k-outline);transform:rotate(45deg)}
+:root[data-ui="new"] .kalert-who{font:700 var(--fs-ui)/1.2 var(--k-font-head)}
+:root[data-ui="new"] .kalert-item{display:grid;gap:var(--sp-2);padding-top:var(--sp-2);border-top:var(--bw) dashed var(--k-divider)}
+:root[data-ui="new"] .kalert-item p{margin:0}
+:root[data-ui="new"] .kalert-act{display:flex;flex-wrap:wrap;gap:var(--sp-2)}
+:root[data-ui="new"] .kroster li{position:relative}
+:root[data-ui="new"] .kroster li .kalert{position:absolute;left:14px;top:-14px}
+:root[data-ui="new"] .kroster ul{padding-top:var(--sp-4)}
+/* Round 7 aligned grids: two-column pages stretch both columns to the same height, and each column's last card
+   grows to meet the row, so the columns finish evenly */
+@media (min-width:768px){
+  :root[data-ui="new"] .kpg.even{align-items:stretch}
+  :root[data-ui="new"] .kpg.even>.kcol{display:flex;flex-direction:column}
+  :root[data-ui="new"] .kpg.even>.kcol>:last-child{flex:1 1 auto}
+}
+:root[data-ui="new"] .kmomo-ideas{display:grid;gap:var(--sp-2)}
+:root[data-ui="new"] .kmomo-ideas .sec-h{display:flex;align-items:center;gap:var(--sp-2)}
+/* Round 7 Garden: the pixel garden as the hero, one progress line, a small mascot beside each gentle nudge */
+:root[data-ui="new"] .kgarden-page{display:grid;gap:var(--sp-6)}
+:root[data-ui="new"] .kgarden-hero .win-body,:root[data-ui="new"] .kgarden-hero{display:grid;gap:var(--sp-3)}
+:root[data-ui="new"] .kgarden-hero{padding:var(--sp-3)}
+:root[data-ui="new"] .kgarden-hero .kgarden{width:100%;max-width:720px;justify-self:center}
+:root[data-ui="new"] .kgarden-line{margin:0;font:400 var(--fs-body)/1.5 var(--k-font-body);color:var(--k-text);text-align:center}
+:root[data-ui="new"] .kgarden-nudge{display:grid;gap:var(--sp-2)}
+:root[data-ui="new"] .kgarden-nudge p{display:flex;align-items:center;gap:var(--sp-2);margin:0}
+:root[data-ui="new"] .kgarden-nudge .mini{flex:none;width:24px;height:24px;margin:0}
+:root[data-ui="new"] .kgarden-nudge .mini svg{display:block;width:100%;height:100%}
+:root[data-ui="new"] .kpick-in{display:grid;gap:var(--sp-2);padding-bottom:var(--sp-3);border-bottom:var(--bw) dashed var(--k-divider)}
+/* Round 7 Dungeon: Your pages | Today's page | look-back and the side cards; on a tablet the page sits left */
+@media (min-width:768px) and (max-width:1199px){
+  :root[data-ui="new"] .kpg.kdun{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);grid-template-areas:"edit pages" "edit side"}
+  :root[data-ui="new"] .kpg.kdun>.kd-pages{grid-area:pages}
+  :root[data-ui="new"] .kpg.kdun>.kd-edit{grid-area:edit}
+  :root[data-ui="new"] .kpg.kdun>.kd-side{grid-area:side}
+}
+@media (min-width:1200px){:root[data-ui="new"] .kpg.kdun{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr) minmax(0,1fr)}}
+:root[data-ui="new"] .kd-edit>.kjournal{display:flex;flex-direction:column}
+:root[data-ui="new"] .kd-edit>.kjournal>.win-body{flex:1 1 auto;display:flex;flex-direction:column;gap:var(--sp-3)}
+:root[data-ui="new"] .kd-edit>.kjournal textarea{flex:1 1 auto;min-height:360px}
+/* mini month heading: arrows and title centred over the grid; the selected day and today wear a pixel heart */
+:root[data-ui="new"] .kmini-head{display:grid;grid-template-columns:var(--tap) minmax(0,1fr) var(--tap);align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-2);text-align:center}
+:root[data-ui="new"] .kmini-head .btn{min-width:var(--tap);padding:0}
+:root[data-ui="new"] .kmini button>span{position:relative}
+:root[data-ui="new"] .kmini button.is-today{border-color:transparent}
+:root[data-ui="new"] .kmini button[aria-pressed=true]{background:transparent;border-color:transparent;color:var(--k-btn-ink)}
+:root[data-ui="new"] .kheart{position:absolute;inset:0;margin:auto;width:80%;height:80%;max-width:40px;image-rendering:pixelated}
+:root[data-ui="new"] .kheart .kh-x{fill:var(--k-btn-line)}
+:root[data-ui="new"] .kheart .kh-p{fill:var(--k-btn-fill-hover)}
+/* Round 7 Life Hub: Life admin and the Finance overview side by side in one full-width card */
+:root[data-ui="new"] .ksplit{display:grid;gap:var(--sp-6);grid-template-columns:minmax(0,1fr)}
+@media (min-width:900px){:root[data-ui="new"] .ksplit{grid-template-columns:repeat(2,minmax(0,1fr))}:root[data-ui="new"] .ksplit-col+.ksplit-col{padding-left:var(--sp-6);border-left:var(--bw) dashed var(--k-divider)}}
+:root[data-ui="new"] .ksplit-col{display:grid;gap:var(--sp-3);align-content:start;min-width:0}
+:root[data-ui="new"] .kcard-act .kseg{margin:0}
+/* Round 7 Trades: calculator result box; a small caption under range column headings */
+:root[data-ui="new"] .kresult{padding:var(--sp-3);border:var(--bw) dashed var(--k-divider);border-radius:var(--r-control);background:var(--k-surface-2)}
+:root[data-ui="new"] .kresult .note,:root[data-ui="new"] .kresult-msg{margin:0}
+:root[data-ui="new"] .kresult-msg{font:700 var(--fs-body)/1.5 var(--k-font-body);color:var(--k-text)}
+:root[data-ui="new"] .kth-sub{display:block;font:400 var(--fs-cap)/1.3 var(--k-font-body);color:var(--k-text-muted)}
+/* Round 7: every button and button-link centres its label; button rows keep natural widths and line up */
+:root[data-ui="new"] .btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--sp-2);text-align:center;text-decoration:none}
+:root[data-ui="new"] .kbtn-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2);margin:0}
+:root[data-ui="new"] .kbtn-row>*{flex:0 0 auto}
+:root[data-ui="new"] .kform-row>.btn{flex:0 0 auto}
+:root[data-ui="new"] .kstep .kform-row>.btn{min-width:120px}
+
+/* ---------- Round 8: tighter layouts ---------- */
+/* every page ends with a clear buffer above the footer and the screen edge (and the phone's safe area) */
+:root[data-ui="new"] .tabpanel{padding-bottom:calc(var(--sp-12) + env(safe-area-inset-bottom,0px))}
+/* card headers: the title and the right-hand label share one baseline */
+:root[data-ui="new"] .kcard .win-title{align-items:baseline}
+/* Garden: no banner; the pixel garden sits straight on the page (no box, border or white fill) */
+:root[data-ui="new"] .kgarden-hero{display:grid;gap:var(--sp-2);justify-items:center;padding:0;border:0;background:none;box-shadow:none}
+:root[data-ui="new"] .kgarden.bare{width:100%;max-width:760px;border:0;border-radius:0;background:none}
+:root[data-ui="new"] .kgarden-line{background:none}
+:root[data-ui="new"] .kgarden-cards{align-items:stretch}
+:root[data-ui="new"] .kgarden-cards>.kcard{height:100%}
+:root[data-ui="new"] .kgarden-cards .kempty{padding:var(--sp-2)}
+/* Dungeon: Your pages and Research notes keep their natural height */
+:root[data-ui="new"] .kpg.even>.kd-pages{display:grid;align-content:start}
+/* Trades: movers then scan details in one card; a compact Macro desk */
+:root[data-ui="new"] .kscan{display:grid;gap:var(--sp-3);padding-top:var(--sp-3);border-top:var(--bw) solid var(--k-hairline)}
+:root[data-ui="new"] .kscan-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--sp-2)}
+:root[data-ui="new"] .kscan-h .sec-h{margin:0}
+:root[data-ui="new"] .kcompact .win-body{gap:var(--sp-1)}
+:root[data-ui="new"] .kcompact .krow{padding:var(--sp-1) 0;line-height:1.35}
+:root[data-ui="new"] .kcompact :is(p,ul,.sec-h){margin:0}
+:root[data-ui="new"] .kcompact .rv-sug li{margin:0;line-height:1.35}
+/* News: Today's briefing */
+:root[data-ui="new"] .kbrief{margin:0;padding-left:var(--sp-6);display:grid;gap:var(--sp-2)}
+:root[data-ui="new"] .kbrief li{display:grid;gap:var(--sp-1);font:400 var(--fs-body)/1.45 var(--k-font-body);color:var(--k-text)}
+:root[data-ui="new"] .kbrief a{font-weight:700}
+/* Settings: the Look card on one grid (label left, buttons in a row) */
+:root[data-ui="new"] .klook{display:grid;grid-template-columns:max-content minmax(0,1fr);align-items:center;gap:var(--sp-3) var(--sp-4)}
+:root[data-ui="new"] .klook-l{font:700 var(--fs-ui)/1.3 var(--k-font-body);color:var(--k-text)}
+:root[data-ui="new"] .klook .kchips{margin:0}
+:root[data-ui="new"] .klib-bare{display:grid;gap:var(--sp-2)}
+/* Grid & Wins chart: every cell the same size, clear gaps between cells and between the nine blocks */
+:root[data-ui="new"] .hgrid{gap:var(--sp-3)}
+:root[data-ui="new"] .hblock{gap:var(--sp-1);padding:var(--sp-1);grid-auto-rows:1fr}
+:root[data-ui="new"] .hcell{height:64px;min-height:0;display:flex;align-items:center;justify-content:center}
+:root[data-ui="new"] .hcell span{-webkit-line-clamp:3;text-overflow:ellipsis;word-break:break-word}
+:root[data-ui="new"] .hcell.act.on,:root[data-ui="new"] .hcell.full{background:var(--k-done-mint);color:var(--k-done-ink);border-color:var(--k-hairline)}
+@media (max-width:899px){:root[data-ui="new"] .hcell{height:80px}}
+/* Weekly targets: soft cards, plain text, slim bars, compact +/- buttons; same data and ids */
+:root[data-ui="new"] .kweekly .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-3);margin:0}
+@media (max-width:767px){:root[data-ui="new"] .kweekly .tiles{grid-template-columns:minmax(0,1fr)}}
+:root[data-ui="new"] .kweekly .tile{display:grid;gap:var(--sp-2);align-content:start;min-width:0;padding:var(--sp-3);border:var(--bw) solid var(--k-hairline);border-radius:var(--r-control);background:var(--k-soft);box-shadow:none;color:var(--k-text)}
+:root[data-ui="new"] .kweekly .tile b{font:700 var(--fs-h3)/1.2 var(--k-font-head)}
+:root[data-ui="new"] .kweekly .mbar{display:block;height:6px;border-radius:var(--r-pill);background:var(--k-track);overflow:hidden;border:0}
+:root[data-ui="new"] .kweekly .mbar i{display:block;height:100%;background:var(--k-btn-line);border-radius:var(--r-pill)}
+:root[data-ui="new"] .kweekly .rep-act{display:flex;flex-wrap:wrap;gap:var(--sp-1);margin:0}
+:root[data-ui="new"] .kweekly .tile .btn.sm{min-height:32px;padding:0 var(--sp-2);font-size:var(--fs-cap);white-space:nowrap}
+@media (pointer:coarse){:root[data-ui="new"] .kweekly .tile .btn.sm{min-height:var(--tap);min-width:var(--tap)}}
+:root[data-ui="new"] .kweekly details.pillar{margin:0 0 var(--sp-2);padding:var(--sp-2) var(--sp-3);border:var(--bw) solid var(--k-hairline);border-radius:var(--r-control);background:var(--k-soft)}
+:root[data-ui="new"] .kweekly details.pillar>summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--sp-2);cursor:pointer}
+:root[data-ui="new"] .kweekly .filed-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:var(--sp-1) var(--sp-3);margin:0;padding:var(--sp-2) 0;border:0;border-bottom:var(--bw) solid var(--k-hairline);border-radius:0;background:none;box-shadow:none}
+:root[data-ui="new"] .kweekly .filed-row.col{grid-template-columns:minmax(0,1fr)}
+:root[data-ui="new"] .kweekly .filed-row:last-child{border-bottom:0}
+:root[data-ui="new"] .kweekly .filed-row label{display:flex;align-items:baseline;gap:var(--sp-2)}
+/* Round 8 review fixes: double tap never zooms the grid; Weekly rhythm in the same soft box; movers flush in the shared card */
+:root[data-ui="new"] .hcell{touch-action:manipulation}
+:root[data-ui="new"] .kweekly .samsara>div:has(>.filed-row){margin:0 0 var(--sp-2);padding:var(--sp-2) var(--sp-3);border:var(--bw) solid var(--k-hairline);border-radius:var(--r-control);background:var(--k-soft)}
+:root[data-ui="new"] .kcard .kmovers>.win-body{padding:0}
+@media (max-width:767px){:root[data-ui="new"] .kgarden-cards>:nth-child(3){order:-1}:root[data-ui="new"] .kgarden-cards>:first-child{order:-2}}
+
+/* ---------- Round 9 ---------- */
+/* Calendar: the Calendar and Economic calendar cards share one width and the same edges */
+:root[data-ui="new"] .kcal-stack{display:grid;gap:var(--sp-6);min-width:0}
+:root[data-ui="new"] .kcal-stack .tabcol{max-width:none;margin:0;width:100%}
+:root[data-ui="new"] .kcal-stack>*,:root[data-ui="new"] .kcal-stack .win{width:100%;margin:0;min-width:0}
+/* Dungeon: Research notes lines up with Your pages */
+:root[data-ui="new"] .kd-pages>.kcard{width:100%;margin:0}
+:root[data-ui="new"] .knote-form{padding-bottom:var(--sp-3);border-bottom:var(--bw) solid var(--k-hairline)}
+:root[data-ui="new"] .knote-form textarea{min-height:88px}
+/* Finance tracker */
+:root[data-ui="new"] .kfin{display:grid;gap:var(--sp-3)}
+:root[data-ui="new"] .kfin-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--sp-3)}
+:root[data-ui="new"] .kfin-tile{display:grid;gap:var(--sp-1);align-content:start;padding:var(--sp-3);border:var(--bw) solid var(--k-hairline);border-radius:var(--r-control);background:var(--k-soft)}
+:root[data-ui="new"] .kfin-tile b,:root[data-ui="new"] .kfin-tile .kreveal{font:700 var(--fs-h3)/1.2 var(--k-font-head);color:var(--k-text)}
+:root[data-ui="new"] .kfig{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--sp-1) var(--sp-3);padding:var(--sp-2) 0;border-bottom:var(--bw) solid var(--k-hairline)}
+:root[data-ui="new"] .kfig-v{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:var(--sp-2)}
+:root[data-ui="new"] .kfig-v input{max-width:140px}
+:root[data-ui="new"] .kfig-h{grid-column:1/-1}
+:root[data-ui="new"] .kfin-row{display:flex;justify-content:space-between;gap:var(--sp-3);padding:var(--sp-2) 0;border-bottom:var(--bw) solid var(--k-hairline)}
+:root[data-ui="new"] details.kfin-row{display:block}
+:root[data-ui="new"] details.kfin-row>summary{display:flex;justify-content:space-between;gap:var(--sp-3);cursor:pointer}
+:root[data-ui="new"] .kfin-left{border-bottom:0}
+:root[data-ui="new"] .kfin-month{display:flex;align-items:center;gap:var(--sp-2);font:700 var(--fs-ui)/1.3 var(--k-font-body)}
+:root[data-ui="new"] .kloan{display:grid;gap:var(--sp-2);padding:var(--sp-3);border:var(--bw) solid var(--k-hairline);border-radius:var(--r-control);background:var(--k-soft)}
+:root[data-ui="new"] .kloan-m{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:var(--sp-2)}
+:root[data-ui="new"] .kloan-m>span{display:grid}
+:root[data-ui="new"] .kfold>summary{cursor:pointer;padding:var(--sp-1) 0}
+/* hidden until hovered or focused; on touch, tap to show and tap again to hide */
+:root[data-ui="new"] .kreveal{padding:0;border:0;background:none;color:inherit;font:inherit;cursor:pointer;text-align:left}
+:root[data-ui="new"] .kreveal .kreveal-v{display:none}
+:root[data-ui="new"] .kreveal-h{color:var(--k-text-muted);font-style:italic}
+@media (hover:hover){:root[data-ui="new"] .kreveal:is(:hover,:focus-visible) .kreveal-v{display:inline}:root[data-ui="new"] .kreveal:is(:hover,:focus-visible) .kreveal-h{display:none}}
+:root[data-ui="new"] .kreveal.on .kreveal-v{display:inline}
+:root[data-ui="new"] .kreveal.on .kreveal-h{display:none}
+/* Trades: the Scan card, compact text and "Show more" */
+:root[data-ui="new"] .kscanc .win-body{gap:var(--sp-2)}
+:root[data-ui="new"] .kscanc :is(p,li,.read){line-height:1.35;margin-block:0}
+:root[data-ui="new"] .kscanc :is(ul,ol){margin-block:0}
+:root[data-ui="new"] .kscanc .klib-item{padding-block:var(--sp-1)}
+:root[data-ui="new"] .kclamp:not(.open) .kclamp-body{max-height:calc(var(--lines,5) * 1.4em + var(--sp-8));overflow:hidden}
+:root[data-ui="new"] .kclamp.clip:not(.open) .kclamp-body{-webkit-mask-image:linear-gradient(to bottom,var(--k-white) 70%,transparent);mask-image:linear-gradient(to bottom,var(--k-white) 70%,transparent)}
+:root[data-ui="new"] .kclamp-btn{justify-self:start;margin-top:var(--sp-1)}
+:root[data-ui="new"] .kclamp{display:grid}
+/* position size calculator: a label and a hint for every field */
+:root[data-ui="new"] .ksizer{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--sp-3)}
+:root[data-ui="new"] .kfield{display:grid;gap:var(--sp-1);align-content:start}
+:root[data-ui="new"] .kfield-l{font:700 var(--fs-ui)/1.3 var(--k-font-body);color:var(--k-text)}
+:root[data-ui="new"] .ksizer .kbtn-row{grid-column:1/-1}
+
+/* ---------- Round 10 ---------- */
+/* Calendar nav: Back left, the label centred, Next right, one row, equal heights */
+:root[data-ui="new"] .kcal-nav{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--sp-2);margin:var(--sp-2) 0}
+:root[data-ui="new"] .kcal-nav .btn{min-height:var(--tap)}
+:root[data-ui="new"] .kcal-nav-l{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:var(--sp-2);text-align:center}
+/* Luna: the Mercury line smaller */
+:root[data-ui="new"] .kluna-merc{font-size:var(--fs-cap);line-height:1.35;padding:var(--sp-1) var(--sp-2)}
+/* Trades: the Style Map always open */
+:root[data-ui="new"] .kstyle{display:grid;gap:var(--sp-1)}
+/* News: why this story; Today: the to-do list */
+:root[data-ui="new"] .kwhy{font-size:var(--fs-cap)}
+:root[data-ui="new"] .ktodo{display:grid;gap:var(--sp-1);padding-top:var(--sp-2);border-top:var(--bw) solid var(--k-hairline)}
+:root[data-ui="new"] .ktodo .krow{padding:var(--sp-1) 0}
+/* Round 10: the quote bubble sits in the court scene; a long quote is cut with "…" and opens in full on a tap */
+:root .lw-say.r5.inscene{width:var(--bw)!important;max-width:none!important;top:var(--top)!important;bottom:auto!important;max-height:none!important;transform:none}
+.lw-say.r5.clamp:not(.open) .lw-say-t{display:-webkit-box;-webkit-line-clamp:var(--lines,2);-webkit-box-orient:vertical;overflow:hidden}
+.lw-say.r5.clamp{cursor:pointer}
+.lw-say.r5.clamp.open{z-index:20;height:auto}
+/* Round 11: the Gratitude log */
+:root[data-ui="new"] .kgrat-read{display:grid;gap:var(--sp-1);padding:var(--sp-2) 0}
+:root[data-ui="new"] .kgrat-read p{margin:0}
+:root[data-ui="new"] .kpage-act form{margin:0}
+
+/* ---------- Round 12 ---------- */
+/* the sakura bonsai centrepiece: on the page, crisp, centred, gentle sway and drifting petals (paused when hidden or reduced motion) */
+:root[data-ui="new"] .ktree{width:100%;max-width:760px;justify-self:center}
+:root[data-ui="new"] .ktree svg{display:block;width:100%;height:auto;image-rendering:pixelated;overflow:visible}
+@media (prefers-reduced-motion:no-preference){
+  :root[data-ui="new"] .ktree .ktree-sway{transform-box:view-box;transform-origin:64px 66px;animation:ktree-sway 6s ease-in-out infinite alternate}
+  :root[data-ui="new"] .ktree .ktree-petal{animation:ktree-fall 7s linear infinite}
+  :root[data-ui="new"] .ktree .ktree-petal.tp1{animation-delay:1.7s}
+  :root[data-ui="new"] .ktree .ktree-petal.tp2{animation-delay:3.4s}
+  :root[data-ui="new"] .ktree .ktree-petal.tp3{animation-delay:5.1s}
+  :root[data-ui="new"] .ktree .ktree-spark{animation:ktree-spark 0.8s steps(2) 3}
+}
+:root[data-ui="new"] .ktree.still :is(.ktree-sway,.ktree-petal,.ktree-spark){animation-play-state:paused}
+@keyframes ktree-sway{from{transform:rotate(-0.6deg)}to{transform:rotate(0.6deg)}}
+@keyframes ktree-fall{from{transform:translate(0,0);opacity:1}to{transform:translate(6px,28px);opacity:0}}
+@keyframes ktree-spark{50%{opacity:0}}
+:root[data-ui="new"] .kgarden-cap{text-align:center;margin:0}
+/* Dungeon: one screen on a desktop; columns scroll inside themselves; long lists scroll inside their card */
+@media (min-width:1200px) and (min-height:540px){
+  :root[data-ui="new"] .kdun-page.fit{gap:var(--sp-3)}
+  :root[data-ui="new"] .kdun-page.fit .kscene{aspect-ratio:auto;height:64px;min-height:0}
+  :root[data-ui="new"] .kdun-page.fit .kpage-title h1{font-size:var(--fs-h2)}
+  :root[data-ui="new"] .kdun-page.fit .kdun{height:var(--dun-h);align-items:stretch;gap:var(--sp-3)}
+  :root[data-ui="new"] .kdun-page.fit .kdun>.kcol{min-height:0;max-height:100%;overflow-y:auto;gap:var(--sp-3);scrollbar-width:thin}
+  :root[data-ui="new"] .kdun-page.fit .kd-edit>.kjournal{height:100%}
+  :root[data-ui="new"] .kdun-page.fit .kd-edit>.kjournal textarea{min-height:0}
+  :root[data-ui="new"] .kdun-page.fit .kcard .win-body{gap:var(--sp-2)}
+  :root[data-ui="new"] .kdun-page.fit .kmini button{min-height:32px}
+  :root[data-ui="new"] .kdun-page.fit .kcard textarea{min-height:56px}
+}
+:root[data-ui="new"] .kdun .kgrat-read,:root[data-ui="new"] .kdun .klib-bare{max-height:240px;overflow-y:auto}
+:root[data-ui="new"] .kupload:focus-within{outline:var(--bw-2) solid var(--k-focus);outline-offset:2px}
+/* Dungeon: the three columns line up. Each column's last card stretches to the bottom of the row, so all three
+   end on the same line, and every card's title bar has the same height, so the tops line up too. */
+:root[data-ui="new"] .kpg.kdun>.kcol{display:flex;flex-direction:column}
+:root[data-ui="new"] .kpg.kdun>.kcol>*{flex:0 0 auto}
+:root[data-ui="new"] .kpg.kdun>.kcol>:last-child{flex:1 0 auto}
+:root[data-ui="new"] .kdun .kcard>.win-title{min-height:44px;align-items:center}
+@media (min-width:1200px) and (min-height:540px){
+  :root[data-ui="new"] .kdun-page.fit .kpg.kdun>.kcol>:last-child{flex:1 0 auto;min-height:0}
+}
+:root[data-ui="new"] .kroom-sisi{position:absolute;left:45%;bottom:15%;height:28%;aspect-ratio:1}
+:root[data-ui="new"] .kroom-dun .kdun-flame{animation:kdun-flicker 2.4s ease-in-out infinite}
+@keyframes kdun-flicker{0%,100%{opacity:1}45%{opacity:.35}60%{opacity:.8}}
+@media (prefers-reduced-motion:reduce){:root[data-ui="new"] .kroom-dun .kdun-flame{animation:none}}
+/* round 13: Edit garden panel (pastel, plum outline, one gold accent; Playfair heading, Silkscreen tags) */
+:root[data-ui="new"] .kgedit{display:flex;flex-direction:column;gap:var(--sp-3);padding:var(--sp-4);border:var(--bw-2) solid var(--k-outline);border-radius:var(--r-card);background:var(--k-surface-2);box-shadow:var(--k-shadow-card)}
+:root[data-ui="new"] .kgedit-top{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2)}
+:root[data-ui="new"] .kgedit-top h2{margin:0;font:700 var(--fs-h2)/1.2 var(--k-font-head);color:var(--ink)}
+:root[data-ui="new"] .kgedit-top h2::after{content:"";display:inline-block;width:var(--sp-2);height:var(--sp-2);margin-left:var(--sp-2);border-radius:var(--r-pill);background:var(--k-gold-400);border:1px solid var(--k-outline);vertical-align:middle}
+:root[data-ui="new"] .kgedit-body{display:flex;flex-direction:column;gap:var(--sp-2);font-family:var(--k-font-body)}
+:root[data-ui="new"] .kge-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--sp-2)}
+:root[data-ui="new"] .kge-tag{font:400 11px/1 var(--k-font-label);letter-spacing:.06em;color:var(--k-btn-ink)}
+:root[data-ui="new"] .kge-row{display:flex;flex-direction:column;gap:var(--sp-1);padding:var(--sp-2);border:1px solid var(--k-line);border-radius:var(--r-control);background:var(--k-surface)}
+:root[data-ui="new"] .kge-row.folded{opacity:.75}
+:root[data-ui="new"] .kge-line{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap}
+:root[data-ui="new"] .kge-line>input{flex:1 1 12rem;min-width:0}
+:root[data-ui="new"] .kge-name{flex:1 1 12rem}
+:root[data-ui="new"] .kge-move{display:inline-flex;gap:var(--sp-1)}
+:root[data-ui="new"] .kge-sub{display:flex;align-items:center;flex-wrap:wrap;gap:var(--sp-2)}
+:root[data-ui="new"] .kge-mini{display:inline-flex;align-items:center;gap:var(--sp-1)}
+:root[data-ui="new"] .kge-mini>span{font:400 10px/1 var(--k-font-label);letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft,var(--ink))}
+:root[data-ui="new"] .kge-mini.wide{flex:1 1 14rem}
+:root[data-ui="new"] .kge-mini.wide>input{flex:1;min-width:0}
+:root[data-ui="new"] .kge-phase{display:flex;flex-direction:column;gap:var(--sp-2)}
+:root[data-ui="new"] .kge-add{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center}
+:root[data-ui="new"] .kge-add>input{flex:1 1 10rem;min-width:0}
+:root[data-ui="new"] .kanc-at{font:400 10px/1 var(--k-font-label);margin-right:var(--sp-1);color:var(--k-btn-ink)}
+/* round 13/14: branch progress backgrounds (grey never started, faint tint quiet, full green active, gold edge done) */
+:root[data-ui="new"] .kroom-inner{min-width:100%}
+:root[data-ui="new"] .kroom-art{position:absolute;left:0;top:50%;width:100%;aspect-ratio:20/3;transform:translateY(-50%)}
+:root[data-ui="new"] .kroom-art>svg{display:block;width:100%;height:100%;image-rendering:pixelated}
+/* round 17: from tablet width up every room banner fits its area exactly: the box takes the art's own 20:3 shape at
+   full width (no sideways scroll, nothing cropped). On short desktop screens the same cap as before now limits the
+   banner's width instead, so the whole room scales down, centred. Phones keep the 160px swipeable strip. */
+@media (min-width:768px){
+  :root[data-ui="new"] .kroom{aspect-ratio:auto;height:auto;width:100%;min-height:0;max-height:none;margin-inline:auto}
+  :root[data-ui="new"] .kroom-scroll{height:auto;overflow:hidden;cursor:default}
+  :root[data-ui="new"] .kroom-inner{width:100%;min-width:0;height:auto;aspect-ratio:20/3}
+  :root[data-ui="new"] .kroom-art{inset:0;top:0;width:100%;height:100%;aspect-ratio:auto;transform:none}
+}
+@media (min-width:1200px){:root[data-ui="new"] .kroom{max-width:min(100%,calc((max(120px,100vh - 504px) - 2 * var(--bw-2)) * 20 / 3 + 2 * var(--bw-2)))}}
+:root[data-ui="new"] .kroom-agent{position:absolute;bottom:15%;height:28%;aspect-ratio:1}
+:root[data-ui="new"] .kroom-life .kroom-agent{left:40%}
+:root[data-ui="new"] .kroom-trades .kroom-agent{left:48.5%}
+:root[data-ui="new"] .kroom-news .kroom-agent{left:49%}
+/* round 15: the redesigned room banners (Dungeon, Life Hub, Trades, News). Slow ambient motion only, CSS, off
+   under prefers-reduced-motion. Sizes come from the shared .kroom frame; nothing here changes a banner's size. */
+:root[data-ui="new"] .kroom-v2 svg *{transform-box:fill-box}
+:root[data-ui="new"] .kroom-v2 .k2-flicker{animation:k2-flicker 3.2s ease-in-out infinite}
+:root[data-ui="new"] .kroom-v2 .k2-flicker.b{animation-duration:4.6s;animation-delay:-1.7s}
+@keyframes k2-flicker{0%,100%{opacity:1}40%{opacity:.72}55%{opacity:.92}70%{opacity:.8}}
+:root[data-ui="new"] .kroom-v2 .k2-sway{transform-origin:50% 100%;animation:k2-sway 7s ease-in-out infinite alternate}
+@keyframes k2-sway{from{transform:rotate(-2deg)}to{transform:rotate(2deg)}}
+:root[data-ui="new"] .kroom-v2 .k2-beam{opacity:.6}
+:root[data-ui="new"] .kroom-v2 .k2-mote{animation:k2-mote 11s linear infinite}
+:root[data-ui="new"] .kroom-v2 .k2-mote.b{animation-duration:14s;animation-delay:-5s}
+:root[data-ui="new"] .kroom-v2 .k2-mote.c{animation-duration:12s;animation-delay:-8s}
+@keyframes k2-mote{0%{transform:translate(0,0);opacity:0}20%{opacity:.9}80%{opacity:.9}100%{transform:translate(8px,-5px);opacity:0}}
+:root[data-ui="new"] .kroom-v2 .k2-ticker{animation:k2-ticker 30s linear infinite}
+@keyframes k2-ticker{from{transform:translateX(0)}to{transform:translateX(-60px)}}
+:root[data-ui="new"] .kroom-v2 .k2-blink{animation:k2-blink 6s ease-in-out infinite}
+@keyframes k2-blink{0%,100%{opacity:1}50%{opacity:.45}}
+:root[data-ui="new"] .kroom-v2 .k2-glowsoft{opacity:.35}
+:root[data-ui="new"] .kroom-v2 .k2-feed{animation:k2-feed 12s ease-in-out infinite}
+@keyframes k2-feed{0%{transform:translateY(3px);opacity:0}15%{opacity:1}85%{transform:translateY(-3px);opacity:1}100%{transform:translateY(-3px);opacity:0}}
+:root[data-ui="new"] .kroom-v2 .k2-glow{animation:k2-glow 16s ease-in-out infinite alternate}
+@keyframes k2-glow{from{opacity:.45}to{opacity:.85}}
+:root[data-ui="new"] .kroom-v2 .k2-idle{animation:k2-idle 5s ease-in-out infinite}
+@keyframes k2-idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-4%)}}
+@media (prefers-reduced-motion:reduce){:root[data-ui="new"] .kroom-v2 *,:root[data-ui="new"] .kroom-v2 .k2-idle{animation:none!important}}
+/* round 16: branch progress backgrounds, fixed. The generic card rule above (:is(..., .gk, ..., #mktWrap)) carries an
+   ID's weight through :is(), so it painted every branch plain; :not(#kbp) gives these rules the same weight, and they
+   come later, so they win. Grey: never started. Faint tint: cells done, quiet this week (the done share a little
+   stronger). Green fill from the left by the share done, fading at its edge: active this week. Full green with a soft
+   gold edge: complete. */
+:root[data-ui="new"] .gbranches .gk[data-bp]:not(#kbp){border:1px solid var(--k-line-soft);border-radius:var(--r-control)}
+:root[data-ui="new"] .gbranches .gk[data-bp="idle"]:not(#kbp){background:var(--k-bp-idle)}
+:root[data-ui="new"] .gbranches .gk[data-bp="quiet"]:not(#kbp){background:linear-gradient(90deg,var(--k-bp-quiet-fill) 0,var(--k-bp-quiet-fill) var(--bp,0%),var(--k-bp-quiet) calc(var(--bp,0%) + 12%),var(--k-bp-quiet) 100%)}
+:root[data-ui="new"] .gbranches .gk[data-bp="active"]:not(#kbp){background:linear-gradient(90deg,var(--k-bp-fill) 0,var(--k-bp-fill) max(var(--bp,0%),6%),var(--k-surface) calc(max(var(--bp,0%),6%) + 14%),var(--k-surface) 100%)}
+:root[data-ui="new"] .gbranches .gk[data-bp="done"]:not(#kbp){background:var(--k-bp-fill);border-color:var(--k-bp-gold);box-shadow:inset 0 0 0 1px var(--k-bp-gold)}
+/* round 18: the Dungeon's "Your pages" calendar marks entry days with a faint pink heart behind the number (no dot);
+   the selected day's and today's stronger hearts win over it */
+:root[data-ui="new"] .kheart-entry{position:absolute;inset:0;margin:auto;width:80%;height:80%;max-width:40px;image-rendering:pixelated;opacity:.35}
+:root[data-ui="new"] .kheart-entry rect{fill:var(--k-btn-line)}
+/* round 18: Luna's labelled rows share one label column (as wide as the longest label) and one content column, so
+   every row's content, and each wrapped line of it, starts at the same left edge. Narrow cards stack the label above. */
+:root[data-ui="new"] .kluna-strips{grid-template-columns:max-content minmax(0,1fr);container-type:inline-size}
+:root[data-ui="new"] .kluna-strip{grid-column:1/-1;grid-template-columns:subgrid}
+@container (max-width:299px){:root[data-ui="new"] .kluna-strip{grid-template-columns:minmax(0,1fr)}}
+/* round 18: Dungeon columns. Left: Weekly look-back (compact), Your pages, Gratitude log. Right: Today's gratitude,
+   Mood and tags, Trade reflection. On a desktop the page itself never scrolls; when the window is too short for a
+   column, that column scrolls inside itself (the owner's choice, round 18). */
+:root[data-ui="new"] .kdun-page .kdun .kd-week.kcard .win-body{gap:var(--sp-1);padding-block:var(--sp-3)}
+:root[data-ui="new"] .kdun .kd-week .rv-sug{gap:0;line-height:1.3}
+:root[data-ui="new"] .kdun .kd-week .rv-sug li{margin:0}
+:root[data-ui="new"] .kdun .kd-week .note{margin:0}
+/* round 19: the Dungeon fits one screen from 900px tall windows. In this order: (1) the Dungeon's own, shorter banner
+   (the whole room scaled, centred; the other tabs keep theirs), (2) tighter gaps, padding and slightly smaller text,
+   (3) the writing areas take whatever height is left, (4) only the Gratitude log's list scrolls inside its card, its
+   header staying put. Shorter windows may scroll inside a column, never the page. */
+@media (min-width:1200px) and (min-height:540px){
+  :root[data-ui="new"] .kdun-page.fit{--dun-room:clamp(56px,100vh - 750px,150px);gap:var(--sp-2)}
+  :root[data-ui="new"] .kdun-page.fit .kroom{max-width:min(100%,calc((var(--dun-room) - 2 * var(--bw-2)) * 20 / 3 + 2 * var(--bw-2)))}
+  :root[data-ui="new"] .kdun-page.fit .kpage-head{gap:var(--sp-2)}
+  :root[data-ui="new"] .tabpanel:has(>.kdun-page.fit){padding-bottom:0}
+  :root[data-ui="new"] .kdun-page.fit .kpage-title>div{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:var(--sp-3)}
+  :root[data-ui="new"] .kdun-page.fit .kpage-title p{margin:0;font-size:var(--fs-ui)}
+  :root[data-ui="new"] .kdun-page.fit .kpg.kdun{gap:var(--sp-2)}
+  :root[data-ui="new"] .kdun-page.fit .kpg.kdun>.kcol{gap:var(--sp-2)}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kcard>.win-title{min-height:0;padding:var(--sp-1) var(--sp-2);row-gap:0}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kcard>.win-title h2{font-size:var(--fs-body);white-space:nowrap}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kcard>.win-title{column-gap:var(--sp-1)}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kcard>.win-title .sub{font-size:var(--fs-cap);line-height:1.25}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kd-week .rv-sug{font-size:var(--fs-cap);line-height:1.25}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kd-week .note{font-size:var(--fs-cap)}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kcard>.win-body{padding:var(--sp-2) var(--sp-3);gap:var(--sp-2);font-size:var(--fs-ui)}
+  :root[data-ui="new"] .kdun-page.fit .kdun :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]),select){min-height:32px;padding-block:var(--sp-1)}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kform{gap:var(--sp-1)}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kd-pages-card>.win-body{gap:var(--sp-1)}
+  :root[data-ui="new"] .kdun-page.fit .kdun .btn.sm{min-height:28px}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kseg button{min-height:26px;padding-block:var(--sp-1)}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kseg{padding:var(--sp-1)}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kmini{row-gap:0}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kmini button{min-height:24px}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kmini-head{margin-bottom:var(--sp-1)}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kmood{gap:var(--sp-1)}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kmood .chipb{min-height:28px}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kempty{padding:var(--sp-2);gap:var(--sp-2);line-height:1.35}
+  :root[data-ui="new"] .kdun-page.fit .kdun .kempty-art{width:28px;height:24px}
+  :root[data-ui="new"] .kdun-page.fit .kpg.kdun>.kd-side>:last-child{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+  :root[data-ui="new"] .kdun-page.fit .kpg.kdun>.kd-side>:last-child>.win-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+  :root[data-ui="new"] .kdun-page.fit .kpg.kdun>.kd-side>:last-child label.kform{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
+  :root[data-ui="new"] .kdun-page.fit .kpg.kdun>.kd-side>:last-child textarea{flex:1 1 auto;min-height:32px}
+  :root[data-ui="new"] .kdun-page.fit .kpg.kdun>.kd-pages>:last-child{flex:1 1 0;min-height:52px;display:flex;flex-direction:column}
+  :root[data-ui="new"] .kdun-page.fit .kpg.kdun>.kd-pages>:last-child>.win-body{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:thin}
 }

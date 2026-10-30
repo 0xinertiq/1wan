@@ -4,10 +4,17 @@ import { useEffect, useState } from "react";
 import { earned } from "@/lib/court/tails";
 import { useCourt } from "../CourtState";
 import { LCATS, LEADS, money, ruleText, type LifeRule } from "@/lib/court/state";
-import { prettyDay } from "@/lib/court/time";
+import { badgeParts, prettyDay, stamp } from "@/lib/court/time";
+import { needFor } from "@/lib/court/quests";
+import { weekHab } from "@/lib/court/state";
+import { stageFor } from "@/components/kumo/kingdom";
+import { useUi } from "@/components/kumo/useUi";
+import { isAutoPaid } from "./TodayLive";
+import { foldDone, isPaidNow } from "@/lib/court/finance";
 
 // Header numbers (streak, stars) from her state.
 export function HeaderStats() {
+  const ui = useUi();
   const { st, k, update } = useCourt();
   const on = earned(st, k), n = on.filter(Boolean).length;
   // Keep newly earned tails for good, as v52 did.
@@ -19,20 +26,43 @@ export function HeaderStats() {
   return (
     <>
       <div className="pill" title="Daily check-in streak">
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c1 4.2 5.2 6 5.2 11a5.2 5.2 0 0 1-10.4 0c0-2.2 1-3.5 2.3-4.6.1 2 .9 3.1 2 3.4-.6-4 .4-6.4.9-9.8z" fill="#FF9DBF" stroke="#A34876" strokeWidth="1.8" strokeLinejoin="round" /></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c1 4.2 5.2 6 5.2 11a5.2 5.2 0 0 1-10.4 0c0-2.2 1-3.5 2.3-4.6.1 2 .9 3.1 2 3.4-.6-4 .4-6.4.9-9.8z" fill="var(--k-sakura-300)" stroke="var(--k-icon-line)" strokeWidth="1.8" strokeLinejoin="round" /></svg>
         <b id="streak">{st.streak}</b> day streak
       </div>
       <div className="pill" title="Stars collected">
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z" fill="#FFD95E" stroke="#A34876" strokeWidth="1.8" strokeLinejoin="round" /></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z" fill="var(--k-gold-400)" stroke="var(--k-icon-line)" strokeWidth="1.8" strokeLinejoin="round" /></svg>
         <b id="stars">{st.stars}</b> stars
       </div>
-      <div className="pill" title="Kumo's nine tails">tails <b>{n}/9</b></div>
+      {ui === "classic" && <div className="pill" title="Kumo's nine tails">tails <b>{n}/9</b></div>}
     </>
   );
 }
 
+// New look: ONE pixel badge for the date and time ("WED 28 OCT · 10:12 SGT", Silkscreen, stepped corners, the
+// pixel clock with its gold hand, a blinking colon), from the shared formatter; on a rest day one small line
+// under it. Classic keeps its clock chip.
+export function HeaderClock({ icon }: { icon: React.ReactNode }) {
+  const ui = useUi();
+  const { st, k } = useCourt();
+  const [t, setT] = useState(() => Date.now());
+  useEffect(() => { const id = window.setInterval(() => setT(Date.now()), 15000); return () => window.clearInterval(id); }, []);
+  if (ui !== "new") return null;
+  const b = badgeParts(t);
+  return (
+    <span className="hbadge-wrap">
+      <span className="hbadge" role="timer" aria-label={`${b.day}, ${b.hh}:${b.mm} Singapore time`}>
+        <span className="hbadge-in">
+          <svg className="hbadge-ic" viewBox="0 0 11 11" shapeRendering="crispEdges" aria-hidden="true">{icon}</svg>
+          <span className="hbadge-t" aria-hidden="true" suppressHydrationWarning>{b.day} · {b.hh}<i className="hbadge-colon">:</i>{b.mm} SGT</span>
+        </span>
+      </span>
+      {st.restDay === k && <span className="hrest">Rest day, streak protected</span>}
+    </span>
+  );
+}
+
 // Design version: New is the default; Classic brings back the v52 look in one click. Saved on this device only.
-function LookSwitch() {
+export function LookSwitch({ bare = false }: { bare?: boolean } = {}) {
   const [ui, setUi] = useState<"new" | "classic">("new");
   useEffect(() => { setUi(document.documentElement.getAttribute("data-ui") === "classic" ? "classic" : "new"); }, []);
   function pick(v: "new" | "classic") {
@@ -40,14 +70,31 @@ function LookSwitch() {
     document.documentElement.setAttribute("data-ui", v);
     setUi(v);
   }
-  return (
-    <>
-      <div className="sec-h">Look</div>
-      <div className="chips" role="group" aria-label="Design version">
+  const chips = (
+      <div className={bare ? "kchips" : "chips"} role="group" aria-label="Design version">
         <button type="button" className="chipb" aria-pressed={ui === "new"} onClick={() => pick("new")}>New</button>
         <button type="button" className="chipb" aria-pressed={ui === "classic"} onClick={() => pick("classic")}>Classic</button>
       </div>
-    </>
+  );
+  if (bare) return chips;
+  return <><div className="sec-h">Look</div>{chips}</>;
+}
+
+// The Queen's progress in the header (New look only): level, EXP, habits this week, and the save state the
+// old status card showed. Read-only. Classic keeps its status card.
+export function HeaderProgress() {
+  const ui = useUi();
+  const { st, k, save } = useCourt();
+  if (ui !== "new") return null;
+  const need = needFor(st.lvl), wh = weekHab(st, k), stage = stageFor(st.lvl);
+  const saveTxt = save === "saving" ? "Saving…" : save === "offline" ? "Not saved yet, retrying" : "All changes saved";
+  return (
+    <div className="hprog" title={`${stage.name}. Cosmetic only; nothing is ever locked.`}>
+      <span className="hprog-lv">LV <b>{st.lvl}</b></span>
+      <span className="hprog-bar" role="img" aria-label={`EXP ${st.xp} of ${need}`}><i style={{ width: Math.min(100, (st.xp / need) * 100) + "%" }} /></span>
+      <span className="hprog-hab" aria-label={`Habits this week ${wh.d} of ${wh.t}`}>habits {wh.d}/{wh.t}</span>
+      <span className={"hprog-save" + (save === "offline" ? " warn" : "")} role="status">{save === "offline" || save === "saving" ? saveTxt : <span className="sr">{saveTxt}</span>}</span>
+    </div>
   );
 }
 
@@ -55,6 +102,29 @@ const WDS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 // Settings from dashboard-v52 (moreDet), life admin part: Coco's list behind Coming up.
 export function SettingsLive({ open = false }: { open?: boolean }) {
+  return (
+    <details className="win" id="moreDet" open={open}>
+      <summary className="win-title"><h2>Settings</h2><span className="sub">Life admin, your data</span></summary>
+      <div className="win-body">
+        <LookSwitch />
+        <div className="sec-h">Your data</div>
+        <p className="note xd">Everything here is private to you. Download a full copy any time.</p>
+        <div className="rep-act"><a className="btn sm ghost" href="/api/export">Export my data</a></div>
+        <BirthForm />
+        <NewsSettings />
+        <NewsLens />
+        <SourceHealth />
+        <div className="sec-h">Life admin</div>
+        <LifeAdmin />
+      </div>
+    </details>
+  );
+}
+
+// Life admin (Coco): bills, bookings, renewals and subscriptions with the Auto-paid and Important toggles. One
+// component, two homes by look: the Settings sheet in Classic, the Life Hub card in the New look.
+export function LifeAdmin() {
+  const ui = useUi();
   const { st, k, update } = useCourt();
   const [f, setF] = useState({ name: "", amt: "", kind: "dom", num: "", date: "", cat: "bill", lead: "", wk: [] as number[] });
   const [msg, setMsg] = useState("");
@@ -78,29 +148,29 @@ export function SettingsLive({ open = false }: { open?: boolean }) {
   }
 
   return (
-    <details className="win" id="moreDet" open={open}>
-      <summary className="win-title"><h2>Settings</h2><span className="sub">Life admin, your data</span></summary>
-      <div className="win-body">
-        <LookSwitch />
-        <div className="sec-h">Your data</div>
-        <p className="note xd">Everything here is private to you. Download a full copy any time.</p>
-        <div className="rep-act"><a className="btn sm ghost" href="/api/export">Export my data</a></div>
-        <BirthForm />
-        <NewsSettings />
-        <NewsLens />
-        <SourceHealth />
-        <div className="sec-h">Life admin</div>
+    <>
         <p className="note xd">Coco keeps bills, care and renewals. Momo slots them into free time.</p>
         <div id="lifeList">
-          {st.life.length ? st.life.map((it) => (
+          {/* round 9 (New look): paid and auto-paid items fold under "Show paid (n)"; nothing is removed */}
+          {(() => {
+            const row = (it: (typeof st.life)[number]) => (
             <div className="filed-row" key={it.id}>
               <span>{it.name}{it.amt != null && <> <span className="note">{money(it.amt)}</span></>} <span className="note">{LCATS[it.cat] ?? it.cat} · {ruleText(it.rule)}{it.lead ? ` · remind ${it.lead}d ahead` : ""}{it.sched && it.sched >= k ? ` · booked ${prettyDay(it.sched)}` : ""}</span></span>
               <span className="rep-act">
+                {ui === "new" && (["autoPaid", "important"] as const).map((flag) => {
+                  const on = flag === "autoPaid" ? isAutoPaid(it) : it.important === true;
+                  return <label className="lflag" key={flag}><input type="checkbox" checked={on} onChange={(e) => update((d) => { const x = d.life.find((i) => i.id === it.id); if (x) x[flag] = e.target.checked; }, ["life"])} />{flag === "autoPaid" ? "Auto-paid" : "Important"}</label>;
+                })}
                 {(it.cat === "care" || it.cat === "pet") && <input type="date" className="lsd" value={it.sched ?? ""} aria-label={`Booked for ${it.name}`} onChange={(e) => update((d) => { const x = d.life.find((i) => i.id === it.id); if (x) x.sched = e.target.value; }, ["life"])} />}
                 <button className="btn sm ghost" type="button" onClick={() => update((d) => { d.life = d.life.filter((i) => i.id !== it.id); }, ["life"])}>Remove</button>
               </span>
             </div>
-          )) : <p className="note">Nothing on the list.</p>}
+);
+            if (!st.life.length) return <p className="note">Nothing on the list.</p>;
+            if (ui !== "new") return st.life.map(row);
+            const { open, done } = foldDone(st.life, (it) => isPaidNow(it, isAutoPaid(it), k));
+            return <>{open.length ? open.map(row) : <p className="note">Everything is paid for now.</p>}{done.length > 0 && <details className="kfold"><summary className="note">Show paid ({done.length})</summary>{done.map(row)}</details>}</>;
+          })()}
         </div>
         <form className="field" id="lifeForm" onSubmit={add}>
           <label htmlFor="lfName">Add an item</label>
@@ -131,8 +201,7 @@ export function SettingsLive({ open = false }: { open?: boolean }) {
           </div>
           {msg && <p className="note" role="status">{msg}</p>}
         </form>
-      </div>
-    </details>
+    </>
   );
 }
 
@@ -174,7 +243,7 @@ export function BirthForm() {
 }
 
 // Settings > News: public Telegram channels she follows (lane A). Handles only; nothing private.
-function NewsSettings() {
+export function NewsSettings() {
   const { st, update } = useCourt();
   const [h, setH] = useState("");
   const [msg, setMsg] = useState("");
@@ -225,7 +294,7 @@ function NewsSettings() {
 
 // Region lens for Headlines and the in-app alert settings (price move threshold, quiet hours).
 const REGION_LIST = ["Global", "US", "Asia", "Singapore", "Crypto"];
-function NewsLens() {
+export function NewsLens() {
   const { st, update } = useCourt();
   const n = st.news, on = n.regions.length ? n.regions : REGION_LIST;
   const set = (patch: Partial<typeof n>) => update((d) => { d.news = { ...d.news, ...patch }; }, ["news"]);
@@ -247,12 +316,12 @@ function NewsLens() {
 }
 
 // Source health (docs/build-intel.md D): status per source and its last success.
-function SourceHealth() {
+export function SourceHealth() {
   const [rows, setRows] = useState<{ group: string; name: string; status: string; lastOk: string | null; note: string }[] | null>(null);
   const [open, setOpen] = useState(false);
   useEffect(() => { if (open && !rows) fetch("/api/health").then((r) => r.json()).then((j) => setRows(j.rows ?? [])).catch(() => setRows([])); }, [open, rows]);
   const bad = rows?.filter((r) => r.status !== "ok").length ?? 0;
-  const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString("en-SG", { timeZone: "Asia/Singapore", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "never");
+  const when = (iso: string | null) => (iso ? stamp(iso) : "never");
   return (
     <details className="pillar" onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
       <summary><b>Source health</b> <span className="note">{rows ? `${rows.length - bad} of ${rows.length} ok` : "tap to check"}</span></summary>

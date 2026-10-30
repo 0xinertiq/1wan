@@ -2,16 +2,20 @@
 
 import { useState } from "react";
 
+import { cleanSources } from "@/components/kumo/briefParse";
 import { BriefFeedback } from "./BriefFeedback";
 
 export type BriefDoc = {
   key: string; label: string; title: string; when: string; html: string; top: string[];
   at: string; sources: string | null; vote: { vote: "up" | "down"; note: string } | null;
+  body?: string;   // raw markdown, for the rule-based readers on the New-look Court
 };
 
-// Source-status line under each brief (Step 6). Says plainly when the task did not record its sources.
+// The sources a brief recorded, as small names joined by a middle dot (no label); nothing when it recorded none.
+// cleanSources is the shared Bigdata scrubber for sources lines.
 export function SourcesLine({ s }: { s: string | null }) {
-  return <p className="note xd brsrc"><b>Sources:</b> {s ?? "not recorded by this task"}</p>;
+  const c = cleanSources(s);
+  return c ? <p className="brsrc-line">{c.split(/\s*[,;]\s*/).filter(Boolean).join(" · ")}</p> : null;
 }
 
 // "3 things that matter": plain text from the brief's own headings or first lines (lib/briefTop.ts), no AI.

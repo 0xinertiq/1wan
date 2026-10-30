@@ -33,7 +33,9 @@ type Ctx = {
   openSheet: (s: Sheet) => void;
 };
 
-const CourtCtx = createContext<Ctx | null>(null);
+// Exported for the render tests (tests/render.test.mjs), which give components loaded data directly.
+export const CourtCtx = createContext<Ctx | null>(null);
+export type CourtCtxValue = Ctx;
 
 export function useCourt() {
   const c = useContext(CourtCtx);

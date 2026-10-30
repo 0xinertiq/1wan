@@ -1,0 +1,438 @@
+{
+  "api": {
+    "full": {
+      "calendar": {
+        "state": "live",
+        "cals": [
+          {
+            "name": "Personal",
+            "color": "#f9c"
+          }
+        ],
+        "events": [
+          {
+            "id": "e1",
+            "title": "Dog grooming",
+            "cal": "Personal",
+            "color": "#ff99cc",
+            "allDay": false,
+            "sk": "TODAY",
+            "ek": "TODAY",
+            "sm": 690,
+            "em": 750,
+            "loc": "Pet shop"
+          },
+          {
+            "id": "e2",
+            "title": "Public holiday",
+            "cal": "Holidays",
+            "color": "#99ccff",
+            "allDay": true,
+            "sk": "TODAY",
+            "ek": "TOMORROW",
+            "sm": 0,
+            "em": 0
+          },
+          {
+            "id": "e3",
+            "title": "Moon trine Venus",
+            "cal": "Astro calendar",
+            "color": "#ccccff",
+            "allDay": true,
+            "sk": "TODAY",
+            "ek": "TOMORROW",
+            "sm": 0,
+            "em": 0,
+            "desc": "Tense · rest\n• Moon trine Venus at 04:00 UTC\n✅ DO: rest and plan\n🚫 DON'T: rush or argue"
+          }
+        ]
+      },
+      "prices": {
+        "at": "NOW",
+        "source": "crypto.com",
+        "stale": false,
+        "prices": [
+          {
+            "sym": "BTC",
+            "usd": 80800,
+            "ch24": 1.2
+          },
+          {
+            "sym": "SOL",
+            "usd": 190.5,
+            "ch24": null
+          },
+          {
+            "sym": "ZRO",
+            "usd": 0.0123,
+            "ch24": -3
+          }
+        ]
+      },
+      "econ": {
+        "ok": true,
+        "at": "NOW",
+        "items": [
+          {
+            "at": "IN2H",
+            "country": "USD",
+            "title": "Federal Funds Rate",
+            "impact": "High",
+            "forecast": "4.00%",
+            "previous": "4.00%",
+            "top": true,
+            "source": "unofficial calendar"
+          },
+          {
+            "at": "IN2H",
+            "country": "USD",
+            "title": "FOMC Statement",
+            "impact": "High",
+            "forecast": "",
+            "previous": "",
+            "top": true,
+            "source": "unofficial calendar"
+          },
+          {
+            "at": "IN1D",
+            "country": "USD",
+            "title": "Advance GDP q/q",
+            "impact": "High",
+            "forecast": "1.0%",
+            "previous": "3.8%",
+            "top": true,
+            "source": "unofficial calendar"
+          },
+          {
+            "at": "IN1D",
+            "country": "USD",
+            "title": "Crude Oil Inventories",
+            "impact": "Low",
+            "forecast": "",
+            "previous": "",
+            "top": false,
+            "source": "unofficial calendar"
+          }
+        ]
+      },
+      "news": {
+        "at": "NOW",
+        "items": [
+          {
+            "title": "Crypto Markets Muted As FOMC Starts",
+            "source": "CNBC",
+            "group": "Markets",
+            "region": "US",
+            "tier": "wire",
+            "at": "NOW",
+            "link": "https://a.example/1"
+          },
+          {
+            "title": "The Fed holds rates steady",
+            "source": "Reuters",
+            "group": "Macro",
+            "region": "US",
+            "tier": "wire",
+            "at": "NOW",
+            "link": "https://a.example/2"
+          }
+        ],
+        "feeds": [
+          {
+            "id": "cnbc",
+            "name": "CNBC",
+            "ok": true,
+            "status": "ok",
+            "lastOk": "NOW",
+            "newest": "NOW"
+          }
+        ]
+      },
+      "telegram": {
+        "at": "NOW",
+        "items": [
+          {
+            "channel": "x",
+            "title": "Channel",
+            "at": "NOW",
+            "text": "BTC holds 80k\nmore",
+            "link": "https://t.example/1"
+          }
+        ],
+        "health": [
+          {
+            "handle": "x",
+            "ok": true
+          }
+        ]
+      },
+      "weather": {
+        "now": 29,
+        "sky": "Partly cloudy",
+        "hi": 32,
+        "lo": 26,
+        "rain": 30
+      },
+      "water": {
+        "events": [
+          {
+            "at": "NOW",
+            "source": "anchor",
+            "ref": "anchor:d1",
+            "weight": 1
+          }
+        ]
+      },
+      "ledger": {
+        "trades": [
+          {
+            "id": "t1",
+            "date": "TODAY",
+            "at": "NOW",
+            "inst": "SOL",
+            "outcome": "win"
+          }
+        ],
+        "plans": [],
+        "gamble": [],
+        "settings": {}
+      },
+      "ta": {
+        "tf": "1d",
+        "items": [
+          {
+            "sym": "BTC",
+            "ok": true,
+            "tf": "1d",
+            "source": "Crypto.com Exchange",
+            "fetched": "NOW",
+            "lastCandle": "NOW",
+            "snap": {
+              "last": 80800,
+              "words": [
+                "uptrend"
+              ],
+              "lines": []
+            },
+            "candles": [
+              {
+                "t": 1761600000000,
+                "o": 1,
+                "h": 2,
+                "l": 0.5,
+                "c": 1.5,
+                "v": 10
+              }
+            ]
+          }
+        ]
+      },
+      "derivs": {
+        "items": [
+          {
+            "sym": "BTC",
+            "ok": true,
+            "source": "x",
+            "funding": 0.0001,
+            "oiUsd": 1000000000,
+            "vol24hUsd": 2000000000
+          }
+        ]
+      },
+      "health": {
+        "rows": [
+          {
+            "group": "News",
+            "name": "CNBC",
+            "status": "ok",
+            "lastOk": "NOW",
+            "note": ""
+          },
+          {
+            "group": "Telegram",
+            "name": "@x",
+            "status": "failed",
+            "lastOk": null,
+            "note": ""
+          }
+        ]
+      },
+      "spending": {
+        "rows": []
+      },
+      "usage": {
+        "rows": []
+      },
+      "state": {
+        "ok": true
+      },
+      "feedback": {
+        "ok": true
+      }
+    },
+    "empty": {
+      "calendar": {
+        "state": "off",
+        "cals": [],
+        "events": []
+      },
+      "prices": {
+        "at": "NOW",
+        "source": "cache",
+        "stale": true,
+        "prices": []
+      },
+      "econ": {
+        "ok": false,
+        "at": "",
+        "items": [],
+        "error": "not reachable"
+      },
+      "news": {
+        "at": "NOW",
+        "items": [],
+        "feeds": []
+      },
+      "telegram": {},
+      "weather": {
+        "now": null,
+        "reason": "Weather not reachable"
+      },
+      "water": {},
+      "ledger": {},
+      "ta": {
+        "items": []
+      },
+      "derivs": {},
+      "health": {}
+    },
+    "broken": {
+      "calendar": {
+        "state": "live",
+        "events": [
+          {
+            "id": "b1",
+            "title": null,
+            "cal": "Personal",
+            "allDay": false,
+            "sk": "TODAY",
+            "ek": "TODAY"
+          },
+          null
+        ]
+      },
+      "prices": {
+        "at": "not a date",
+        "source": "cache",
+        "stale": true,
+        "prices": [
+          {
+            "sym": "BTC",
+            "usd": 1,
+            "ch24": null
+          }
+        ]
+      },
+      "econ": {
+        "ok": true,
+        "at": "x",
+        "items": [
+          {
+            "at": "garbage",
+            "country": "USD",
+            "title": "FOMC Statement",
+            "impact": "High"
+          },
+          {
+            "country": "USD",
+            "impact": "High"
+          }
+        ]
+      },
+      "news": {
+        "items": [
+          {
+            "title": "No date story",
+            "group": "World",
+            "region": "Global",
+            "at": null,
+            "link": "https://a.example/3"
+          }
+        ],
+        "feeds": null
+      },
+      "telegram": {
+        "items": [
+          {
+            "text": ""
+          }
+        ],
+        "health": [
+          {
+            "handle": "y",
+            "ok": true,
+            "at": "never"
+          }
+        ]
+      },
+      "weather": {
+        "now": 28
+      },
+      "water": {
+        "events": [
+          {
+            "at": "bad",
+            "source": "anchor"
+          }
+        ]
+      },
+      "ta": {
+        "items": [
+          {
+            "sym": "BTC",
+            "ok": false,
+            "reason": "no candles"
+          },
+          {
+            "sym": "SOL",
+            "ok": true,
+            "snap": {
+              "last": 1,
+              "words": [],
+              "lines": []
+            }
+          }
+        ]
+      },
+      "health": {
+        "rows": [
+          {
+            "group": "Telegram",
+            "name": "@y",
+            "status": "ok",
+            "lastOk": "never",
+            "note": ""
+          }
+        ]
+      }
+    },
+    "rain": {
+      "weather": {
+        "now": 26,
+        "sky": "Thunderstorm",
+        "hi": 30,
+        "lo": 25,
+        "rain": 90
+      }
+    },
+    "cloudy": {
+      "weather": {
+        "now": 28,
+        "sky": "Overcast",
+        "hi": 31,
+        "lo": 26,
+        "rain": 40
+      }
+    }
+  }
+}

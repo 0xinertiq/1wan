@@ -1,119 +1,97 @@
-# Court redesign and shared spec (final brief, agreed with the owner)
+# 1(WAN) New look: the one spec (Court, all tabs, all decisions)
 
-Single source for the Court and for the shared design system and all tabs. Replaces RESET_LIVING_WORLD_MESSAGE and every earlier Court, banner and Living Kingdom instruction. Referenced from DECISIONS.md sections 5 and 6. Parts 3 and 4 override Parts 1 and 2 where they differ.
+Consolidated on 28 Oct 2026 from every Court prompt (R1 to round 5). This file is the single source; earlier prompts are superseded, and the contradictions between them, with the rule that won, are listed in PROGRESS.md. From now on changes are small edits here. Classic (the v52 look, one click in Settings) is out of scope and stays as it is.
 
-STOP everything else first: no other pages (Diary etc.) until the Court is approved. Calendar and Garden stay as deployed.
+## Where everything lives (round 7 placement map; one canonical home per item)
 
-## Part 1: Court
+Tab roles: Court = overview (the Castle). Calendar (the Clock Tower) = time and scheduling. Life Hub = long-term planning and life management. Garden (Sakura Garden) = habits and growth. Dungeon = reflection (private journal). Trades = her trades, the trading watchlist and the macro desk. News = headlines and briefs. Settings = look, lenses, Kumo's weekly review and packet, data, account. There is no Observatory and no Notifications tab: #observatory, #inbox and #notifications open the Court. Phone bar: Home, Calendar, Hub, Diary (the Dungeon), More. More (phone and tablet only) opens a sheet with the tabs that do not fit: Garden, Trades, News, Settings, Kingdom Mode.
 
-### What went wrong (so we do not repeat it)
-Briefs and scans were hidden under a collapsed "More"; painted concept crops with oversized white chips looked wrong; the banner had no purpose; the Living Kingdom card was tiny; Luna's headline repeated three times. Do not use concept-image crops or fake overlays anywhere on the Court.
+| Item | Home | Elsewhere (summary or link only) |
+|---|---|---|
+| Today's briefs (Pulse, Intelligence, Crypto scan) | Court, Briefs card | |
+| Today's briefing (top five stories by rules from the scored headlines, following her lenses) | News, above Headlines | |
+| Kumo's weekly review and the weekly review packet (preview, sensitive toggles off, Copy for Claude) | Settings, one card (#review-card) | Kumo's Sunday alert; header packet button and fox card link there; Settings dot while unread |
+| Headlines, topic chips, Telegram posts | News (follow her lenses) | |
+| Saved research notes | no page (retired from News, round 7); records kept | Dungeon lists every note and attaches one to a page; Export my data |
+| Technicals (plain words and EMA lines; no chart button) | Trades | Court prices strip |
+| Midday movers, scan details (Style Map, Trade Plan with Log this trade, also on watch, alerts, thesis log, catalysts) | Trades | Court Crypto scan tab: snapshot, Movers, Strongest now |
+| Trade log, position size calculator, performance stats | Trades | |
+| Ledger review, plans, rules, gamble and late-night ledger | hidden (round 7); records and the late-night flag logic kept | |
+| Macro desk (Olli): next releases summary, rates and yields, week notes | Trades | Calendar is the home of releases |
+| Long-term watchlist (Tilly) | Trades | |
+| Calendar events (Day, Week, Month, Agenda), economic calendar | Calendar | Court: Needs you now, Today, Week tab (opens ?day=), the Next: line |
+| Her tasks (saved records) | no page of their own since round 8; shown in Needs you now and Today's Coming up | |
+| Momo's ideas for your free time | Court, Today card | |
+| Astrology (astro feed, moon, transits) | Court only: Luna's card and the Week tab's Moon sign and tone | never on the Calendar (isAstro plus the Calendar-only isSkyItem) |
+| Grid & Wins: Harada 9x9 chart, Weekly targets | Life Hub, top | Garden look-back links to Weekly targets |
+| Life admin (Auto-paid, Important) and the Finance overview (this month, budgets and CSV, Money Wins ladder) | Life Hub, one full-width card | Court Needs you now within 3 days |
+| Routine (pets and self-care routines) | Life Hub | |
+| Goals with milestones | no page (retired, round 7: progress is in Grid & Wins); records kept | Export my data |
+| Habits: quests, daily anchors, branches, Wins ladder (Small Wins plus her habits), My habits (the one place to add habits) | Garden | Today stat strip: counts only |
+| Journal pages, mood, tags, trade reflections, Count your wins, the one weekly look-back | Dungeon (private) | |
+| Look, day or night, market lens (several), rooms, connections, Telegram channels, Export my data, usage, tour, sign out | Settings | |
+| Alerts | pixel "!" on the agent: Court roster (Kumo, Pip, Olli, Coco, Momo) and Momo in the Calendar room | |
+| Kingdom preview (catalogue states, no purchases) | Kingdom Mode | |
+| Focus sprint, quote, 9-Tails and tails, prices, Luna's card, Park a thought | Court (unchanged) | |
 
-### What she decided
-- First view: half world, half information. The world is big enough to feel alive; the key information is visible under it without scrolling on desktop.
-- World style: PIXEL, code-drawn, refined from the old Cloud Court (the Classic Cloud Court scene is the base). Locked style: SVG/canvas, plum outline #4a2538, 32x32 crew sprites, blush cheeks, one gold accent. Re-colour into the new palette (cream, sakura, lavender, sky, plum). No painted art, no GPT art for now.
-- Navigation: BOTH, equal. The left rail always works, and every place in the world is a tappable shortcut to the same tab.
-- Priorities, all four: briefs and scans, prices, today's tasks and calendar, Luna's forecast.
-- First row under the world: Today + Needs-you-now (left) and Briefs and scans (right).
-- Alive in the world: crew walking and working, day and night, weather. NOT market mood (no sky or sea tied to BTC).
-- Density: cosy detail that grows as she levels up.
-- Mobile: short strip of the world, information first.
+Retired: the Observatory page and Luna's 7-day sky view; the Life sub-tabs Money, Trade, Grid & Wins and Samsara (data unchanged, now in their homes above); the Notifications tab and bell (round 7). Classic keeps the v52 layout.
 
-### Layout, desktop (1200px and up)
-1. Header as now (clock, streak, stars, tails, menu).
-2. LIVING WORLD, full width, about 45-55% of viewport height, max about 520px. No separate banner. Small place labels, not big boxes. Small badges only: level, crew at work, today's weather. The greeting is a small line, not a big card.
-3. PRICES STRIP directly under the world: slim live bar with BTC, SOL and the scan tickers, with the data time ("as of 18:55"). Existing price data only.
-4. ROW 1, two columns of equal height: LEFT = Today (Now / Next / Later, due soon, streak, habits) with Needs you now under it. RIGHT = Briefs and scans: compact cards for the latest Intel, Scan, Movers and Kumo's weekly review (title, time, first lines, Open, and the same rating / feedback actions Classic has). Nothing hidden behind "More".
-5. ROW 2: Luna's forecast (one compact card, headline ONCE, moon and sign, up to three events, Read more; only text the calendar actually contains, no invented DO / DON'T), Kingdom progress, Quick capture.
-6. Anything else Classic shows goes under a "More on your court" section that is collapsed by default but listed with its names (not hiding the key four). Verify every Classic widget is reachable and list any that are not.
+## Global rules
+- One canonical home per item; other places show a summary and link. The app tracks, never advises. No Bigdata wording in the UI: every brief, review, desk note and sources line is shown through one display scrubber (lib/noBigdata.ts); stored data and the ingest / export routes are untouched. Protected paths and the tails, XP, stars and streak logic are never changed.
+- Visual slices go to the preview first; production only after she says "ship it".
+- No single-column pages that need long scrolling: grids, two columns, segmented controls. When a section is crowded, reduce (fewer items, "+n more", collapsed details) rather than shrink. No section scrolls sideways (the phone prices strip may).
 
-Tablet: same order, two columns. Mobile (below 768px): world as a short strip (130-180px), then Needs you now, Today, Briefs and scans, prices, Luna, progress; Quick Capture is global (button), bottom bar of 5 (Home, Calendar, Hub, Diary, More).
+## Design system (tokens: `apps/web/src/app/(court)/kumo-tokens.css`)
+- One token set: palette, day and night semantic colours, spacing 4/8/12/16/24/32/48, radii (chip 8, control 12, card 16, modal 24, pill), borders 1-2px, shadows, type scale, link and focus. The v52 variables are remapped to the tokens under the New look so leaked Classic rules match. `tests/tokens.test.mjs` fails on raw colours, off-scale spacing or radii, fonts outside the set, and contrast below the minimums (text 4.5:1, brief body 7:1, nav labels 4.5:1, icons 3:1, world HUD over the real sky 4.5:1).
+- Fonts (locked): Playfair Display headings, Nunito body, Inter only for journal writing, Silkscreen only for tiny labels, Noto Serif SC / Ma Shan Zheng only as the CJK fallback. Classic keeps Baloo 2, Atkinson and Quicksand.
+- Day (the old dashboard's look): blush page #FFE8F1, panels #FFF8FB and #FFEDF4, dim panels #FFE2EE, lavender title bars (#CDBFFB to #B3A2F4) on card headers, plum text #5A2745, secondary #86506C, plum-pink outline #A34876 (2px on cards), dashed blush dividers #EBA9C6, pastel chips (mint, lavender, peach, butter, pink, sky). No plain white panel.
+- Night: deep plum with the same structure (panels #2A2340 / #30294A, text #ECE8F5, secondary #BDB4D6, dark lavender title bars). Every icon has a night variant: light fill #ECE8F5, lavender outline #B9A6FF or a soft glow; the active tab in sakura with a highlight pill.
+- Links: one colour everywhere, deep sakura (#AD1457 day, #F7A8CC night), underlined, same hover and visited. No blue anywhere (focus ring, selection, accent-color, scrollbars are sakura and plum).
+- One card, row, chip, button, input and heading style; one column gap (24px desktop, 16px phone); 44px tap targets; visible focus rings; reduced motion respected.
+- Dates and times: one formatter (lib/court/time.ts) for every date and time in the app: 24-hour Singapore time with a leading zero and "SGT"; "Today 05:40 SGT" for today, otherwise "27 Oct 07:45 SGT"; weekdays as three letters with the date ("Thu 29 Oct"); ages after a middle dot ("· 3h ago"). Timestamps are small pixel labels (Silkscreen, 12px, tabular); running text stays in Nunito. tests/tokens.test.mjs fails if a component formats a date or time by hand.
+- Brief reading sizes: body 18px (line height 1.65), lead lines 17px, section titles 22px, uppercase section labels and source links 13px; the same in the Briefs card, News and Kumo's review. Brief body stays 7:1 or better in night mode.
+- Sources: under each item only the source names as small links joined by a middle dot ("TechCrunch · DealStreetAsia"), deep sakura and underlined, no label, no pills; nothing when an item has none. The Bigdata scrubber runs on every sources line.
 
-### The world, details
-- Layers: sky gradient, drifting clouds, a floating island with castle, clock tower, sakura tree, observatory dome, small house(s), waterfall, path and bridge, soft light and petals. Places (The Castle, Clock Tower, Sakura Garden, Observatory, Fox Diary, Life Hub) are hotspots with small labels and 44px touch areas, keyboard focusable, same destinations as the rail.
-- Crew: existing sprites only. Idle bob; working pose at their place when a desk is running; walking along predefined paths between places when a desk starts or finishes. Use only the live data that already exists (who is at work, level). Pixel sprites scale nearest-neighbour, small, never covering labels.
-- Day and night follow Asia/Singapore time (dawn, day, dusk, night with stars, moon, lantern glow, lit windows).
-- Weather uses the Open-Meteo reading the Court already fetches for Singapore (clear, cloudy, rain, drizzle): rain streaks and darker clouds when it rains, no new API.
-- Growth by level: cosy detail that grows. Level 1 is calm and complete (castle, tree, path, a few clouds, 2 lanterns). Each stage adds code-drawn lanterns, flowers, bridges, small houses, a fountain, animals, with a density cap and no overlap with labels. Use the existing stage thresholds (placeholders, cosmetic only). Missed days remove nothing. Core features are never locked.
-- Performance and accessibility: pause when off-screen or the tab is hidden, reduced motion shows a still scene, descriptive labels for the hotspots, nothing essential only inside the picture.
+## Header
+One pixel date-and-time badge ("WED 28 OCT · 10:12 SGT": the pixel clock with its gold hand, Silkscreen, stepped corners, plum outline (lavender at night), blinking colon, still under reduced motion), then the Queen's progress (level badge, EXP bar), streak, stars, menu. On a rest day one small line under the badge: "Rest day, streak protected". No tails chip in the New look. Classic keeps its clock chip.
 
-### How to deliver (new rule)
-- R1 first, small: put the Briefs and scans cards on the New-look Court right now (row 1 right), and fix Luna's repeated headline. R1 may deploy straight to production with the usual gates and live checks.
-- R2: the Living World and the layout above. Visual slices do NOT go to production. Push the branch so Vercel makes a PREVIEW deployment and give her the link.
-- For R2, take desktop and mobile screenshots of the preview yourself, compare them with the Classic Cloud Court and the approved styleboard, say honestly what is weaker than the concept art, and fix obvious flaws first (overlaps, oversized boxes, empty areas, unreadable text) before showing her. She approves by saying "ship it"; then merge and deploy with the live checks.
-- Protected paths untouched. Classic switch stays. Keep PROGRESS.md and MISSING_ART.md accurate. After each step report in five lines.
+## Court (desktop)
+1. The world (below).
+2. "Park a thought": one line, the only entry point on the Court.
+3. Prices strip: one line (BTC, SOL, the scan's tickers, "as of" time); extra tickers become "+n" or scroll sideways on the phone.
+4. "Next: FOMC decision Thu 02:00 SGT, in 16h": the next liquidity release within 48 hours; hidden when there is none.
+5. Two columns. Left 2/3: Briefs. Right 1/3, in order: Needs you now (only when something waits), Today (Today | Week), Luna's card, Kumo's weekly review (only while unread).
+6. Crew roster: one wrapping line under the columns.
+Phone: the world strip, Park a thought, Needs you now, Today, Briefs, Luna, review, prices, roster; bottom bar Home, Calendar, Hub, Dungeon, More.
 
-## Part 2: Shared design system and all tabs
+### Briefs card (the old dashboard's full brief style)
+Header "Briefs", small right label "Your scheduled tasks". Pill tabs Pulse | Intelligence | Crypto scan. Each tab: title, date and age; the summary as a soft pink callout; then the whole stored brief (uppercase small section labels, dashed dividers, bold-lead items with detail, tables, quotes) and under each item only its source names as small links ("A · B", no label, no chips, no "— A, B" tail). Intelligence: Top 5 headlines as a numbered list of five items (bold headline, why it matters, sources), then the other sections as the brief gives them. Crypto scan: only the snapshot label ("Snapshot · Scan hh:mm SGT"), the read-through callout, Movers and one line "Strongest now" (the top 3 coins by score from the Style Map: ticker, score, bucket), with "Open in Trades →". The style map, trade plan, watch line, alerts, thesis log, catalysts and gaps stay in News (full text); later the Trades tab will host the Style Map, Trade Plan and Catalysts. Pulse: deals, shifts, social listening, content radar. Show more / Show less. Under it: Useful / Needs work, the one-line change box, and a collapsible "What this desk has learned" (her agent memory, read-only). Full column width.
 
-### Tab roles (her words)
-Main Dashboard = Overview. Clock Tower = Time and scheduling. Life Hub = Long-term planning and life management. Sakura Garden = Habits and growth. Fox Diary = Reflection. Observatory = Research and intelligence. Each tab does only its role; never repeat another tab's content (one canonical source per activity).
+### Today | Week
+- Today: Now / Next / Later from the calendar, the stat strip (Due soon as a count, Streak, Habits this week, Yesterday), parked thoughts with Done. No Luna, weather, focus sprint or macro events.
+- Week: the next 7 days, two compact lines each (day and date, today highlighted; Moon sign and tone tag such as "Gem · easy"; liquidity tags; events with start times, top 3 then "+n more"; due life items). A day opens the Calendar. One line: "Week at a glance: easiest day, most friction". No habits.
 
-### Look and feel
-Follow the GPT boards for the feel (cream, soft plum, sakura accents, rounded cards, airy), but keep the numbers readable. "Balanced" density: airy feel, key information above the fold on desktop.
+### Luna's card
+Luna's sprite and "Luna · the stars align for you"; chips (Moon sign, element, phase, tone, any retrograde); one summary; the next Moon sign change in SGT; "The day leans toward" and "Be gentle with" as two slim stacked strips (bold label left, phrases joined by dots; lavender then sakura; dark tints at night); "Today in your chart" small and quiet (13px, secondary); a care callout when needed; self-care for today (4-5 bullets). From the v52 sky table and logic (lib/court/luna.ts, table to 7 Jan 2027); the astro calendar only adds Luna's own phrases. No green or red, no advice.
 
-Type scale (Playfair Display for H1-H3, Nunito for everything else; Silkscreen only for tiny pixel labels; CJK fallback kept):
-- H1 tab title 32/40 (mobile 28/36), weight 700. H2 section 24/32 (mobile 22/30), 600. H3 card title 20/28, 600.
-- Body 16/24. Compact body 14/20. Caption and labels 13/18 minimum. Nothing a user must read is smaller than 13px; nothing tappable has text smaller than 14px. Numbers tabular. Line length at most about 72 characters for prose.
-- The greeting is one line (16/24 or H3), never a giant card.
+### Needs you now
+First in the right column. Only (a) life admin, reminders and bookings due today, overdue, within 3 days or marked Important, and calendar bookings starting within 2 hours; (b) agents waiting on her (today's briefs to rate, as one line). Items marked Auto-paid stay hidden (until she sets the toggle, GIRO, auto-deducted tax and subscriptions count as auto-paid). No macro releases, habits or price alerts. At most 3, then "+n more". Same day or same time items share one card with one Seen; left-aligned with time in SGT and "in n min". One button style on every row (same height and width pattern, right-aligned, 44px). When nothing waits the card animates away and leaves no space; it returns when something is due.
 
-Spacing and shape: 4px base, rhythm 8/12/16/24/32/48. Page padding 32 desktop, 24 tablet, 16 mobile. Card padding 20 (24 for large cards), gap between cards 24 desktop / 16 mobile, section gap 32. Radius: cards 16, controls 12, chips 8, overlays 24. 1px soft line borders, shadow 0 4px 20px rgba(42,35,64,.06). Max content width 1440. Controls and tap targets 44px high. Equal-height cards in a row. No double borders, no heavy outlines.
+### The world
+Code-drawn pixel kingdom, chibi storybook style: pastel sky by Singapore time, big soft moon at dusk and night, faceted floating island with roots and crystals, gnarled sakura, waterfall pool, castle, clock tower with real SGT time, ribbed observatory, timber Life Hub cottage, pagoda, mossy Dungeon gate, picnic, goose, hearts, square petals. Weather from Open-Meteo. Growth by level (cosmetic, density cap).
+- Layout (components/kumo/world/layout.ts, checked by tests/world-layout.test.mjs): a HUD band across the top holds the focus hourglass, the greeting (no date) and three chips (level, at work, weather); the whole island is fitted snugly below it with no cut-off spires. Place labels sit above their buildings, never in the HUD and never under the crew; on the phone strip there are no place hotspots (the bottom bar goes to the same places).
+- HUD and labels are glass chosen by the scene (cream with plum text over a light scene, plum with light text over dusk and night), so they read whatever the interface theme is.
+- Crew about 15% of the scene height (20% on the phone), standing on the ground in front, idle bob and working poses. Kumo stands on his own cloud right of the castle; his quote is always shown in full (no clamp, no tap to expand) in a clear glass cloud (about 40% cream by day, 45% lavender at night, 1px plum outline, up to about 320px wide and as tall as it needs), in the first free spot (rising from Kumo, the top-right sky, beside the castle label) or under the strip when none is free.
+- The fox (crew/fox.md v2): an original chibi kitsune on the crew's pixel grid and scale (about 15% of the scene height), plump fanned tails from the tails value (read-only), a squash-and-stretch hop every 16 s, naps, a happy bounce, a tail wag, a tails card; only on perches clear of labels, the HUD and the bubble.
+- Performance: pause off-screen and in hidden tabs; reduced motion shows a still scene.
 
-Colour: kit tokens (canvas #FFF8FB, surface #FFFFFF, text #2A2340, secondary #655B78, line #E9DCE8, sakura #F65A9B only for actions and accents, lavender #A78BFA, sky #7DA7FF). Pink is never used as small body text.
-
-Themes: Day (cream) and Night (a proper plum night mode with checked contrast, follows a switch or the Singapore clock). Seasonal themes later, not now.
-
-### Headers on the other tabs
-Each of the five tabs opens with a SMALL themed PIXEL SCENE strip, code-drawn in the locked style (about 96-140px high desktop, 72-96 mobile), with the tab name (H1) and a one-line purpose on top of it, and a little gentle motion (reduced-motion respected). Calendar: clock tower on a hill. Garden: see below (the garden IS the header scene, bigger). Diary: cosy library window with the fox asleep. Observatory: telescope and starry window. Life Hub: cosy room with plants and a window onto the kingdom. These are decoration, never covering content.
-
-### Clock Tower (time and scheduling)
-Main view: TODAY TIMELINE (hour by hour, Now / Next / Later, all-day events separate), a small month picker, Day / Week / Month toggle available (default Today). Beside it: My tasks (Kumo quick tasks, kept separate from calendar events), Focus timer (25/50/90, can reference a task without creating one), Upcoming events. Every event shows its calendar source and the page shows "last fetched". Read-only iCal: do not imply write sync. Keep existing multi-feed behaviour and Luna's astro calendar handling unchanged.
-
-### Sakura Garden (habits and growth)
-The garden itself leads: a larger pixel garden scene (tree growth stages 0-4 with one anchor so no scale jumps, bridge, lanterns, petals, companions) that grows from the existing habit activity. Habit quests sit beside or below it, with the evening check-in expandable. Keep the existing decay and rest-day logic exactly; no punitive wording; no duplicate tracking.
-
-### Fox Diary (reflection), guided
-Guided layout: the daily prompts first (one thing that went well, what I am grateful for, free writing), then the writing area. Month calendar and a TEXT-ONLY archive list (no thumbnails, no decorative charts), weekly recap from existing entries, autosave with an honest status ("saving", "saved", "could not save, retry"), privacy note. Entries stay private.
-
-### Observatory (research and intelligence), in this order
-1. Today's briefs and scans (Intel, Scan, Movers, Kumo review as cards, with rating/feedback, source and freshness). 2. ONE watchlist with prices (ticker, price, % move, freshness; prices live only here and in the Court prices strip). 3. Luna's 7-day sky (already built, restyle only, never invent interpretations). 4. Macro calendar (releases that move liquidity) and news / Telegram feed. Keep technicals, funding / OI, ingestion and everything that exists today.
-
-### Life Hub (long-term planning and life management)
-Four parts: Goals and milestones; Projects (linked to canonical tasks, no duplicate task records); Life admin (dog grooming, self-care, yoga, home reminders); Finance and trading journal (trading goals, thesis log, capital plan; tracking only, never advice). Do not repeat Today, the calendar, the full habit list or the diary.
-
-### Order of delivery
-R1 (hotfix, production) -> R2 Court Living World (preview, she says "ship it") -> Clock Tower -> Sakura Garden -> Observatory -> Fox Diary -> Life Hub -> Notifications, Settings, Onboarding, Mobile pass. Calendar and Garden are already deployed in the older style: restyle them to match this spec. Every visual slice goes to a preview link first, with your own desktop and mobile screenshots compared against the spec and honest notes on weaknesses; she says "ship it" to deploy. Protected paths untouched; Classic switch stays; keep PROGRESS.md accurate.
-
-## Part 3: Amendments (override Parts 1 and 2 where they differ)
-
-### GPT boards as the model for headers and information flow
-For every tab, follow its moodboard in docs/kumo-redesign/moodboards/ for the header composition and the order information flows down the page (header, then the first row, then the second row), using our code-drawn pixel scenes instead of painted art, and the content rules in this spec instead of the mock-up's fake data and tiny labels. Where a moodboard element does not exist as a feature, show nothing (do not fake it).
-
-### All options selected (include every one)
-- Clock Tower: Today timeline; Week grid and Month calendar as switchable views; My tasks + Focus timer; Upcoming events + habits today.
-- Sakura Garden: big pixel garden scene; habit quests + check-ins; streaks and garden progress; companions + decorations preview (preview only, no spending).
-- Fox Diary: daily prompts + mood check-in; month calendar + text-only entry list; weekly recap; insights and mood chart (from real entries only, never invented; show an empty state until there is data).
-- Court extras: Chief Kumo's pick + daily quote; Quick capture; Kingdom progress; Crew roster + weather chip (the roster shows who is on duty and what each desk is doing from existing data).
-
-Keep the Court calm even so: the world, prices strip, row 1 (Today + Needs you now | Briefs and scans), row 2 (Luna, Kingdom progress, Quick capture), then Crew roster, Chief Kumo's pick and the quote as a quiet third row. The weather chip lives in the world.
-
-### Also cover (in this order, after the six tabs)
-Notifications (bell dropdown plus grouped inbox: Needs attention / For your information / quiet Kingdom moments, deduplicated, deep links, no fake push); Settings (Look: New / Classic, Day / Night, motion Still / Gentle / Full, export my data in an obvious place); empty, loading, error, stale and offline states on every tab; mobile: bottom bar of 5 (Home, Calendar, Hub, Diary, More) with Garden, Observatory, Settings under More; keyboard, focus rings and contrast checks; Onboarding last (friends only; show only integrations that really work).
-
-## Part 4: Richness and missing moodboard elements
-
-### Missing moodboard elements
-If a moodboard shows something that does not exist in the app yet:
-- Decorative or presentational (scenery, icons, badges, empty-state art, header scenes, small companions, frames): you MAY build it in code in our pixel style.
-- A feature needing data or behaviour (new charts, new trackers, shops, notification types, anything that reads or writes user data): do NOT fake it. Build only if the data already exists; otherwise list it in PROGRESS.md under "FEATURE GAPS" with what it would need, and show a proper empty state. Never show invented numbers.
-
-### Richer illustrations (the old Court felt too plain to her)
-The world and the tab header scenes must feel rich and cosy, not sparse. All code-drawn in the locked pixel style (plum outline #4a2538, 32x32 crew, blush cheeks, one gold accent per character), using Canvas or layered SVG for performance.
-- Depth: at least 5 parallax layers (far sky and mountains, clouds, mid hills and the floating island, buildings, foreground foliage and petals) with slow different drift speeds.
-- Detail: many small distinct elements, not a few big ones: layered rooftops with lit windows, chimneys with drifting smoke, banners and flags in wind, lantern strings, stepping stones, flower beds, mushrooms, stone walls, small gardens, a waterfall with animated spray, a stream with sparkles, a bridge, a koi pond, a windmill or tea house.
-- Life: butterflies, birds crossing the sky, fireflies at dusk, falling petals and leaves, cats or small animals, tiny villagers, flickering lanterns, twinkling stars, a moon that moves slowly, wind in the trees. Crew sprites walk and work.
-- Light: sky gradients per time of day, warm window glow at night, soft rim light on buildings, subtle god-rays at dawn and dusk, rain and puddles when it rains, fog.
-- Variety through the day and weeks: small seasonal touches (petals in spring colours, fireflies in warm months), and rare delighters (a shooting star, a rainbow after rain, a lantern festival on a streak milestone). Cosmetic only.
-- Growth: level 1 is already complete and pretty; each stage adds a clearly visible new area (a second island, bridge, tea house, observatory lights, fountain) so the world looks noticeably richer as she levels up. Density cap so labels and hotspots stay readable.
-- Budget: still 60fps on a mid laptop and a phone, pause off-screen and in hidden tabs, still image under reduced motion, total scene code and assets small. If the full scene is too heavy, pre-render static layers to canvas once and animate only the small moving parts.
-- Review loop: build the scene in layers, screenshot at desktop and mobile after each layer, compare with the old Cloud Court and concept image 26 (composition only), and keep adding detail until the scene is clearly richer than the old Cloud Court. Be honest in the report about what is still plainer than the concept art.
-- Tab header strips (Calendar, Garden, Diary, Observatory, Life Hub) get the same care at smaller size: 3 to 4 layers, 5 to 10 small details, one or two moving things.
+## Tabs (round 6)
+Every tab: a pixel scene header (code-drawn, day, dusk or night by Singapore time, 140px desktop, 72px phone strip, still under reduced motion and paused off screen), then the Playfair title, one subtitle line and the page actions. Shared parts in components/court/ui.tsx (PageHead, Card with its own error boundary, Chip, Btn, Callout, Table, TabPills, SectionLabel, EmptyState with a pixel friend, StoreNote). Layouts at 1200px and up:
+- Trades: two columns (left: Live watchlist with technicals, Midday movers, Scan details, Macro desk; right: Trade log, Position size calculator, Performance stats, Long-term watchlist, ledger review, plans, rules and gamble log).
+- Calendar: two thirds (Day | Week | Month | Agenda, economic calendar) and one third (My tasks, mini month, Upcoming, Momo's day).
+- Life Hub: Grid & Wins full width (Chart | Weekly targets), then a 2x2 grid: Goals, Life admin, Pets and self-care, Finance overview.
+- Dungeon: three columns (month and searchable list; the page in Inter; mood, tags, trade reflection, research notes, weekly look-back).
+- Garden: pixel sakura garden on the left (tree stages 0 to 4 from this week's habits, droops when thirsty); right: Daily anchors | Branches | Quests | Wins ladder | My habits | This week.
+- News: headlines left; brief history, reviews and the packet right; Saved and research full width below.
+- Notifications: High priority, Today, Earlier in three columns. Settings: two columns of sections. Kingdom Mode: the world and the catalogue preview. Welcome: five steps.
+Storage: lib/vault.ts, two backends behind one interface (Supabase tables from migration 0006 when NEXT_PUBLIC_1WAN_TABLES=on; otherwise "Preview storage, this device only"), every record cleaned on read.

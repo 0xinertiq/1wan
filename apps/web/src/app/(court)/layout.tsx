@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible, Baloo_2, Ma_Shan_Zheng, Noto_Serif_SC, Nunito, Playfair_Display, Quicksand, Silkscreen } from "next/font/google";
+import { Atkinson_Hyperlegible, Baloo_2, Inter, Ma_Shan_Zheng, Noto_Serif_SC, Nunito, Playfair_Display, Quicksand, Silkscreen } from "next/font/google";
 import { APP_NAME } from "@/lib/brand";
 import "./tokens.css";
 import "./dashboard.css";
+import "./kumo-tokens.css";
 import "./kumo-new.css";
 
 // Separate root layout so the v52 dashboard CSS never mixes with the rest of the app.
@@ -21,7 +22,9 @@ const notoSerif = Noto_Serif_SC({ weight: ["600", "700"], display: "swap", prelo
 // The New look: Playfair Display for headings, Nunito for body and UI.
 const playfair = Playfair_Display({ subsets: ["latin"], weight: ["600", "700"], display: "swap", variable: "--nf-playfair" });
 const nunito = Nunito({ subsets: ["latin"], weight: ["400", "600", "700"], display: "swap", variable: "--nf-nunito" });
-const FONT_VARS = [baloo, atkinson, silkscreen, quicksand, maShan, notoSerif, playfair, nunito].map((f) => f.variable).join(" ");
+// Inter only for the diary writing area and journal entries (New look).
+const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], display: "swap", preload: false, variable: "--nf-inter" });
+const FONT_VARS = [baloo, atkinson, silkscreen, quicksand, maShan, notoSerif, playfair, nunito, inter].map((f) => f.variable).join(" ");
 
 // Before paint: day or night (her saved choice wins, otherwise the system setting), and the design
 // version, "new" by default ("classic" only if she switched back in Settings). "?ui=new" or "?ui=classic" in the address switches and remembers it.

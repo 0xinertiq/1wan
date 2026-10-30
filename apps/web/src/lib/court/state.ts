@@ -1,11 +1,14 @@
+import { normQuotes, type MyQuote, type QuoteSrc } from "./quoteLib";
 import { QUESTS, QPRI, CKPRI, needFor, type Quest } from "./quests";
 import { addDays, dayGap, domDate, prettyDay, wdOf, weekKey, wdName } from "./time";
+import { normGridDefs, type GridDefs } from "./harada";
+import { normGardenEdit, type GardenEdit } from "./gardenEdit";
 
 // Her state document from the old dashboard (user_state.data), typed for the keys this UI reads and writes.
 // Every other key in the document is left exactly as it is.
 
 export type Day = { d: number; t: number; n?: string[] };
-export type Win = { w?: string; g?: string; n?: string };
+export type Win = { w?: string; g?: string; n?: string; s?: string };   // s: one small win (round 12, Today's gratitude)
 export type Dump = { id: string; t: string; done: boolean; ts: number };
 export type LifeRule =
   | { type: "dom"; d: number; from?: string }
@@ -15,6 +18,7 @@ export type LifeRule =
 export type LifeItem = {
   id: string; name: string; cat: string; amt: number | null; rule: LifeRule; lead: number;
   note?: string; sched?: string; paid?: string | number;
+  autoPaid?: boolean; important?: boolean;   // optional flags (owner approved, round 5b); absent = derived default
 };
 export type Seed = { id: string; name: string; pk?: string; q?: string; auto?: string; at: string; w: Record<string, number> };
 export type Garden = { seeds: Seed[]; roots: { id: string; name: string; at: string }[]; gone: { name: string; kind: string; on: string }[]; init?: number; v17?: number; weed?: Record<string, string> };
@@ -43,6 +47,17 @@ export type Samsara = Ticks & { t: { hours: number; entries: number; posts: numb
 // Her own chart levels and lines (Technicals), per coin and timeframe. t is a candle time in ms.
 export type ChartLine = { id: string; sym: string; tf: string; kind: "level" | "line"; p1: { t: number; p: number }; p2?: { t: number; p: number }; label: string };
 export type Money = { inc: MLine[]; fixed: MLine[]; funds: MFund[]; nw: MAsset[]; goals: MItem[]; open: MItem[]; upd?: string; hideNw?: boolean };
+// Round 6 (new optional keys; absent in older documents, which load exactly as before):
+// prefs: market lens, rooms switched on in onboarding, notification choices, onboarding done, name and timezone.
+// hab: her own habits from the Garden's habit editor (separate from the fixed quests, XP and streak logic).
+export type Lens = "trading" | "local" | "any" | "off";
+export type Prefs = { lens?: Lens; rooms?: Record<string, boolean>; notif?: Record<string, boolean>; onboarded?: string; name?: string; tz?: string; companion?: string };
+export type Habit = { id: string; name: string; days: number[]; paused?: boolean; at: string };
+// Round 7 (new optional key lenses): the news lenses she follows, several at once. Absent in older documents, where
+// it is read from her old single market lens (prefs.lens) and nothing else changes. "any" and "off" stand alone.
+export const LENS_IDS = ["crypto", "macro", "markets", "world", "local", "tech", "any", "off"] as const;
+export type LensId = (typeof LENS_IDS)[number];
+export type Habits = { list: Habit[]; log: Record<string, string[]> };
 
 export type CourtState = {
   v: 1; day: string; week: string; streak: number; stars: number; lvl: number; xp: number;
@@ -57,12 +72,27 @@ export type CourtState = {
   tg: { channels: { handle: string; enabled: boolean; title?: string }[] };   // public Telegram channels she follows
   birth: { date: string; time: string; place: string; lat: number; lon: number; tz: string } | null;   // private, never shared
   grid: Ticks; swins: Ticks & { log: Record<string, string[]> }; money: MoneyW; samsara: Samsara; defs: Defs;
+  prefs: Prefs; hab: Habits; gridDefs: GridDefs;   // gridDefs: her own Grid & Wins chart (addendum 1); defs.grid stays the original
+  lenses: LensId[];   // round 7: the news lenses she follows (several at once)
+  gridDefs2027: GridDefs; grid2027done: Record<string, boolean>;   // round 10: her separate 2027 chart and its own ticks
+  questsOff: string[]; quotes: { mine: MyQuote[]; src: QuoteSrc };   // round 12: built-in quests she switched off; her quote library
+  gedit: GardenEdit;   // round 13: Edit garden (names, order, folded items, anchor days); never changes XP, stars, streak or tails
   spr: { run: { at: string; tag: "study" | "other" } | null; log: { at: string; tag: "study" | "other"; min: number }[] };   // focus sprints, tagged
   last: Record<string, unknown>; prev: Record<string, unknown> | null;
 };
 
 // Keys this UI owns. Saves send only these; the server refuses anything else.
-export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "news", "tg", "birth", "grid", "swins", "money", "samsara", "spr", "last", "prev"] as const;
+// The two optional life-admin flags are kept only when they are true or false; any other value is dropped, so
+// existing items load exactly as before (no migration, no rewrite).
+function lifeFlags(i: LifeItem): LifeItem {
+  if (!("autoPaid" in i) && !("important" in i)) return i;
+  const o = { ...i };
+  if ("autoPaid" in o && typeof o.autoPaid !== "boolean") delete o.autoPaid;
+  if ("important" in o && typeof o.important !== "boolean") delete o.important;
+  return o;
+}
+
+export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "news", "tg", "birth", "grid", "swins", "money", "samsara", "spr", "last", "prev", "prefs", "hab", "gridDefs", "lenses", "gridDefs2027", "grid2027done", "questsOff", "quotes", "gedit"] as const;
 export type OwnedKey = (typeof OWNED_KEYS)[number];
 
 export type Recap = { old: string; done: number; total: number; newWeek: boolean; lost: boolean; restY: boolean };
@@ -71,6 +101,34 @@ const obj = <T,>(v: unknown, d: T): T => (v && typeof v === "object" && !Array.i
 const arr = <T,>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : []);
 const num = (v: unknown, d: number) => (typeof v === "number" && isFinite(v) ? v : d);
 const str = (v: unknown, d: string) => (typeof v === "string" ? v : d);
+
+const LENSES = ["trading", "local", "any", "off"];
+const bools = (v: unknown) => Object.fromEntries(Object.entries(obj<Record<string, unknown>>(v, {})).filter(([, x]) => typeof x === "boolean")) as Record<string, boolean>;
+// Only well-formed values are kept; anything odd is dropped, so a bad save can never break a page.
+export function normPrefs(v: unknown): Prefs {
+  const p = obj<Record<string, unknown>>(v, {}), o: Prefs = {};
+  if (typeof p.lens === "string" && LENSES.includes(p.lens)) o.lens = p.lens as Lens;
+  if (p.rooms !== undefined) o.rooms = bools(p.rooms);
+  if (p.notif !== undefined) o.notif = bools(p.notif);
+  for (const k of ["onboarded", "name", "tz", "companion"] as const) if (typeof p[k] === "string") o[k] = (p[k] as string).slice(0, 60);
+  return o;
+}
+const FROM_OLD: Record<string, LensId[]> = { trading: ["crypto", "macro", "markets"], local: ["local"], any: ["any"], off: ["off"] };
+/** Her lenses: known ids only, once each; "off" or "any" stand alone; empty falls back to her old single lens. */
+export function normLenses(v: unknown, old?: unknown): LensId[] {
+  const got = [...new Set(arr<unknown>(v).filter((x): x is LensId => typeof x === "string" && (LENS_IDS as readonly string[]).includes(x)))];
+  if (got.includes("off")) return ["off"];
+  if (got.includes("any")) return ["any"];
+  if (got.length) return LENS_IDS.filter((x) => got.includes(x));
+  return [...(FROM_OLD[typeof old === "string" ? old : "trading"] ?? FROM_OLD.trading)];
+}
+export function normHab(v: unknown): Habits {
+  const h = obj<Record<string, unknown>>(v, {});
+  const list = arr<Habit>(h.list).filter((x) => x && typeof x.id === "string" && typeof x.name === "string")
+    .map((x) => ({ id: x.id, name: x.name.slice(0, 60), days: arr<number>(x.days).filter((d) => Number.isInteger(d) && d >= 0 && d < 7), at: str(x.at, ""), ...(x.paused === true ? { paused: true } : {}) })).slice(0, 40);
+  const log = Object.fromEntries(Object.entries(obj<Record<string, unknown>>(h.log, {})).filter(([d, ids]) => /^\d{4}-\d{2}-\d{2}$/.test(d) && Array.isArray(ids)).map(([d, ids]) => [d, (ids as unknown[]).filter((x): x is string => typeof x === "string")]));
+  return { list, log };
+}
 
 function normMoney(v: unknown): Money {
   const m = obj<Partial<Money>>(v, {});
@@ -90,7 +148,7 @@ export function normalize(raw: unknown, today: string): CourtState {
     streak: num(r.streak, 0), stars: num(r.stars, 0), lvl: num(r.lvl, 1), xp: num(r.xp, 0),
     q: obj(r.q, {}), days: obj(r.days, {}), wins: obj(r.wins, {}),
     dump: arr<Dump>(r.dump).filter((d) => d && typeof d.t === "string"),
-    life: arr<LifeItem>(r.life).filter((i) => i && i.rule && typeof i.name === "string"),
+    life: arr<LifeItem>(r.life).filter((i) => i && i.rule && typeof i.name === "string").map(lifeFlags),
     gd: { ...gd, seeds: arr(gd.seeds), roots: arr(gd.roots), gone: arr(gd.gone) } as Garden,
     cad: obj(r.cad, { wk: weekKey(today), ig: 0, x: 0 }),
     mood: obj(r.mood, {}),
@@ -116,6 +174,13 @@ export function normalize(raw: unknown, today: string): CourtState {
       const run = obj<Record<string, unknown>>(w.run, {});
       return { run: typeof run.at === "string" ? { at: run.at, tag: tag(run.tag) } : null,
         log: arr<Record<string, unknown>>(w.log).filter((x) => x && typeof x.at === "string" && typeof x.min === "number").map((x) => ({ at: x.at as string, tag: tag(x.tag), min: x.min as number })).slice(-200) }; })(),
+    prefs: normPrefs(r.prefs), hab: normHab(r.hab), gridDefs: normGridDefs(r.gridDefs),
+    lenses: normLenses(r.lenses, obj<Record<string, unknown>>(r.prefs, {}).lens),
+    gridDefs2027: normGridDefs(r.gridDefs2027),
+    questsOff: [...new Set(arr<unknown>(r.questsOff).filter((x): x is string => typeof x === "string" && /^[a-z]\d{1,2}$/.test(x)))],
+    quotes: normQuotes(r.quotes),
+    gedit: normGardenEdit(r.gedit),
+    grid2027done: Object.fromEntries(Object.entries(obj<Record<string, unknown>>(r.grid2027done, {})).filter(([id, on]) => /^[1-8]\.[1-8]$/.test(id) && on === true)) as Record<string, boolean>,
     last: obj(r.last, {}), prev: r.prev && typeof r.prev === "object" ? (r.prev as Record<string, unknown>) : null,
   };
 }
@@ -255,6 +320,12 @@ export type DayEvent = { t: string; cal: string; color: string; loc?: string; de
 
 // The purchased "astro" feed (matched by its GCAL_NAME label) is Luna's layer, kept out of normal views.
 export const isAstro = (e: { cal: string }) => /astro/i.test(e.cal);
+// Round 7, Calendar tab only: also anything sky-shaped by its feed name or title (moon phases, retrogrades, signs),
+// so no astrology reaches the Calendar whatever the feed is called. Words alone like "Cancer" or "Mars" never hide
+// a real event; only sky phrasing does. isAstro above is unchanged.
+const SKY_CAL = /astro|luna|moon|zodiac|horoscope/i;
+const SKY_TITLE = /\b(moon|lunar|retrograde|zodiac|horoscope|natal|eclipse|astro\w*)\b|\b(sun|mercury|venus|mars|jupiter|saturn|uranus|neptune|pluto)\b.*\b(enters|ingress|trine|sextile|square|opposition|conjunct\w*|stations?)\b|\b(trine|sextile|conjunct\w*|opposition)\b.*\b(sun|mercury|venus|mars|jupiter|saturn|uranus|neptune|pluto)\b/i;
+export const isSkyItem = (e: { cal: string; title?: string; t?: string }) => isAstro(e) || SKY_CAL.test(e.cal) || SKY_TITLE.test(e.title ?? e.t ?? "");
 export function eventsOn(evs: CalEvent[], k: string, withAstro = false): DayEvent[] {
   return evs
     .filter((e) => withAstro || !isAstro(e))

@@ -1,0 +1,91 @@
+# Round 6
+
+_Owner's prompt, copied verbatim from the saved session transcript. Not edited._
+
+ROUND 6: BUILD THE REMAINING TABS (autonomous run; same branch, same preview; preview only, nothing to production until I say "ship it"). The bug-fix round is done and the preview loads. The Court looks perfect now: do not change it except for links and deep links into the new pages. Read docs/kumo-redesign/COURT_SPEC.md and PROGRESS.md first. This message overrides earlier prompts where they differ.
+
+HOW TO RUN
+- Run independently. Do NOT ask me questions. Where something is ambiguous, pick the smaller, reversible option, record it under "Decisions made" in PROGRESS.md and carry on. Stop only if a gate fails (typecheck, tests, build, overlap, contrast, token, Bigdata checks, console-error tests) and you cannot fix it.
+- I watch usage: work in small steps, no wasteful long loops, and do NOT verify designs by screenshot; use rendered-fixture tests and DOM, aria and console checks instead.
+- Work in the order below. Commit per tab on the branch and push so the preview stays current. Never merge to main or deploy to production.
+- Protected, untouched: auth, RLS on existing tables, existing OWNED_KEYS and normalize() (except adding new optional keys, with tests), middleware, /api/ingest and /api/export logic (EXCEPT adding the new tables to the export), calendar fetching code, scheduled-task config, XP, stars, streak and tail logic, user data, env vars, PixelSprite.tsx and spriteDefs.ts (new art goes in new files). Display name only in brand.ts. data-import/ is git-ignored: never print or commit it. The app tracks, never advises (calculators are labelled "not advice").
+
+A. VISUAL AND FORMATTING RULES (approved on the Court; every new page must match it)
+- Shared components only: reuse the existing Card, Chip, Button, Callout, Table, TabPills, SectionLabel, EmptyState, PixelBadge and header components. If one is missing, add it to the shared set; never write one-off styles. Tokens only for colours, spacing (4/8/12/16/24/32), radii, borders, shadows and type scale. The token check must pass.
+- Fonts: Playfair Display headings, Nunito body, Inter only for journal writing, Silkscreen only for tiny labels and timestamps. Day style: blush page and panel tints, lavender title bars, plum text, plum-pink 1-2px outline, dashed blush dividers, soft pastel chips, no plain white panels; a night variant (deep plum panels, #ECE8F5 text) readable everywhere, with light night icons. Links deep sakura pink and underlined, no blue anywhere. Sources as small inline links with no label. One pixel date and time style (24-hour SGT) from the shared formatter. Brief and reading text one step up (about 18px body, 22px section titles, line height about 1.65).
+- Page header pattern on every tab: a themed pixel scene header (see C), then the Playfair title (about 28-32px) with a one-line subtitle and the page actions at the right.
+- Layout rule: no single long column. At 1200px and up use the layouts in C; tablet two columns; phone one column with segmented controls or tabs. No overlaps, no horizontal scrolling, 44px tap targets, contrast 4.5:1 or better (7:1 for reading text) in day and night, reduced motion respected.
+- Empty, loading and error states on every card with a cute pixel fox or crew illustration; an error boundary per card so one failure never blanks a page; versioned and safely parsed localStorage with the "Reset saved settings on this device" fallback.
+- No repeated information: one canonical home per item (see B). Other places show a summary and a link. The Bigdata sanitiser covers every new text surface.
+- Cute, whimsical, mystical art direction as on the Court: chibi proportions, rounded buildings, pastel dusk skies with a soft moon, sparkles and pixel hearts, plum outline #4a2538, one gold accent per sprite, no grey stone, warm window glow at dusk and night. ALL new art is pixel art, code-drawn SVG only (rects on a pixel grid, same style as the crew); pause off-screen; reduced motion shows a still scene. The Garden scene must be a pixel-art sakura garden (not the older SVG bonsai).
+
+B. WHERE EVERYTHING LIVES (fixed placement map; write it at the top of COURT_SPEC.md)
+Tab roles: Court = Overview (rail "Court", the Castle). Calendar (the Clock Tower) = time and scheduling. Life Hub = long-term planning and life management. Garden (Sakura Garden) = habits and growth. Dungeon = reflection (journal). Trades = my trades, the trading watchlist and the macro desk. News = headlines, brief history and saved research. More = Settings, Notifications, Kingdom Mode, tour. There is NO Observatory tab: remove the tab, its rail and nav entries and route entirely, and redirect old links to the Court. Every remaining place in the world opens its tab (Castle to Court, Clock Tower to Calendar, Sakura Garden to Garden, Dungeon, Life Hub); if the world still shows an observatory building it simply scrolls to Luna's card on the Court. The phone bottom bar is Home, Calendar, Hub, Diary (Dungeon), More.
+One home per item:
+- My tasks, events, day/week/month views, economic calendar and liquidity releases: Calendar. Summaries only on the Court: Needs you now, Today, Week tab and the "Next:" line.
+- Goals, milestones, life admin (bills, bookings, renewals, subscriptions with Auto-paid and Important), pets and self-care routines, manual finance overview: Life Hub. Summaries on the Court only when something needs action within 3 days (Needs you now).
+- Habits, quests, garden scene, habit editor, weekly habit look-back: Garden. Today shows only the stat strip.
+- Journal entries, mood, tags, reflection prompts, weekly look-back: Dungeon (private). The Dungeon also lists all research notes and can attach one to an entry.
+- Live watchlist, Midday movers, scan details (Style Map, Trade Plan, Catalysts), trade log, position size calculator, performance stats, Macro desk (Olli) and the long-term watchlist (Tilly): Trades. The Court shows only the dated scan snapshot and Movers inside the Crypto scan brief tab.
+- Briefs full text and history, Headlines and Telegram posts, Kumo reviews, and the "Saved and research" section (market-tagged research notes): News. The Court shows the Briefs card (Pulse, Intelligence, Crypto scan) and the unread review card.
+- Luna: her daily card and sky strips stay on the Court; the Week tab shows her moon sign and tone. No separate sky page.
+- Look, market lens, calendar link, Telegram channels, Export my data, usage, notification preferences, replay tour: Settings. Alerts: the bell and the Notifications inbox.
+- Prices: the Court strip and Trades only.
+
+C. PAGE LAYOUTS AT 1200px AND UP (each page also gets a themed pixel scene header)
+- Trades: two columns (left: Live watchlist, Midday movers, Scan details, Macro desk; right: Trade log, Position size calculator, Performance stats, Long-term watchlist). Scene: a little trading desk with a lantern and coins under a moon.
+- Calendar: two columns (left 2/3: Day | Week | Month views, economic calendar; right 1/3: My tasks, mini month, Upcoming). Scene: the clock tower on a sakura hill.
+- Life Hub: a 2x2 grid of cards (Goals, Life admin, Pets and self-care, Finance overview). Scene: the cosy timber cottage with a cat and a lantern.
+- Dungeon: three columns (left: month calendar and text list with search; middle: the entry editor; right: mood row, tags, trade reflection prompts, attach a research note, weekly look-back). Scene: the enchanted dungeon gate with runes and a lantern.
+- Garden: two columns (left: pixel sakura garden scene with tree growth; right: quests, habit editor, weekly look-back). Scene: the sakura tree, bridge and pond.
+- News: two columns (left: Headlines with Telegram and topic chips; right: brief history by date and Kumo reviews) with a full-width "Saved and research" strip below. Scene: a pixel notice board in the sky.
+- Settings, Notifications, Onboarding, Kingdom Mode: grids or segmented sections, never one long column.
+Scene headers are 120-160px on desktop, short strips on the phone, day and night variants following Singapore time, never overlapping the title or actions.
+
+STORAGE (decided)
+New tables with user_id and row-level security (owner-only; journal and finance never visible to anyone else): trades, journal_entries, goals (with milestones), finance_entries, research_notes (with a kind field: note or macro), longterm_watchlist, tasks, routines. Small settings and preferences go in new optional user_state keys (backwards compatible, normalize() defaults, tests). I authorise CREATING NEW migration files only: never edit existing migrations, and NEVER apply any migration to the database. Build a storage layer with two backends behind one interface: the real Supabase backend (used when a migration flag env var is set; document the NAME only) and a clearly labelled per-device preview backend ("Preview storage, this device only") so I can use and review every feature on the preview now. Add the new tables to "Export my data" and to the nightly backup list if one exists. Test RLS policies with SQL tests where possible. In PROGRESS.md write the exact click-by-click steps for me to (1) export my data, (2) apply the migrations in Supabase, (3) set the flag in Vercel and in apps/web/.env.local, (4) verify. Never ask me to paste keys into chat.
+
+1. TRADES
+Left: Live watchlist (built), Midday movers (built), "Scan details" from the latest Crypto scan brief as a dated snapshot: Style Map table, Trade Plan table (ticker, grade, entry, stop, target, R:R, ATR%) or "No trade today", also-on-watch, alerts and thesis log, Catalysts (Bigdata sanitised); a "Log this trade" button on each Trade Plan row prefills the log. Then the Macro desk (Olli): the liquidity releases summary with a link to Calendar (no copy), key rates and yields from the latest Intel brief, and a notes box for the week (research_notes kind macro). Right: (a) Trade log: date, ticker, setup type, direction, entry, stop, target, size, exit, result in R, notes; open and closed; add, edit, close, delete with confirm; filters by setup, month, status. (b) Position size calculator: equity, risk % (default 1%), entry, stop, optional target; outputs size, risk amount and R:R; remembers equity per device; "calculator, not advice". (c) Performance stats from my closed trades: win rate, average R, expectancy, best and worst, by setup type and by month, small token-coloured bars; with fewer than 5 closed trades show "Log a few trades to see stats". (d) Long-term watchlist (Tilly): a slower list separate from the daily trading watchlist: name, sector, thesis, catalysts, status (studying, watching, owned), notes, links; manual only.
+
+2. CALENDAR
+Day, week and month views of my existing read-only Google Calendar events (reuse the existing fetch untouched) with last-fetched time and source label; mini month and Upcoming list; the Court's Week tab opens a day via ?day=YYYY-MM-DD. My tasks (Kumo tasks, separate from calendar events): quick add, due date, priority, done, delete; due items feed Today and Needs you now; no write sync to Google. Keep the economic calendar (liquidity list by default, "All releases" toggle). Keep the calendar connection code modular so a per-user Google sign-in can replace the single link later.
+
+3. LIFE HUB
+(a) Goals and milestones: goal, why, target date, milestones with check-offs and progress bar; starts empty with example hints (relocation, property, business), pre-fills nothing personal. (b) Life admin: bills, bookings, renewals, subscriptions with due date, recurrence, category and the Auto-paid and Important toggles. (c) Pets and self-care routines: dog grooming, my own grooming, yoga and custom routines with cadence and next due; due items feed Needs you now within 3 days. (d) Finance overview, manual only: budget categories, savings goals, income and expense entries by manual entry or CSV import; totals and simple charts; NO bank link, NO account numbers, privacy note.
+
+4. DUNGEON (private journal)
+Owner-only, never shown to friends, included in Export my data. Daily entry editor (Inter) with autosave and honest saved status; mood row and tags; trading reflection prompts before and after a trade (plan, emotions, what I would change) that can link to a trade; month calendar with entries marked, text-only list (no thumbnails) and text search; weekly look-back, rule-based only (entries, moods, top tags, streak), no AI, no sharing. Also: a list of all research notes with an "Attach a research note" action on an entry. Research notes are separate from journal text; a note never exposes a journal entry.
+
+5. GARDEN
+Keep existing habit and XP logic untouched. Habit quests with rest days and no punitive wording (restyled); a habit editor to add, edit, pause and schedule habits (if it needs a protected state change use new optional fields with tests and list it under NEEDS OWNER APPROVAL); a code-drawn PIXEL sakura garden scene with tree growth stages 0 to 4 driven by existing habit progress (cosmetic; wilting droops and recovers, nothing is ever lost or removed); a weekly habit look-back, rule-based.
+
+6. OBSERVATORY REMOVAL
+Remove the Observatory tab, route, rail and nav entries and any links to it; redirect to the Court; add a redirect test. Its content moved as in B and C (Macro desk and long-term watchlist to Trades, research notes to News and the Dungeon, Luna stays on the Court). Remove Luna's 7-day sky page; keep nothing orphaned.
+
+7. NEWS
+Headlines feed with topic chips and the Telegram chip (public channels managed in Settings > News: Telegram channels; show the "x of y channels reachable" status), brief history by date, Kumo reviews with the unread dot. Make sure Telegram posts appear and are not lost by the topic filing change. Add a "Saved and research" strip: research notes with topic or coin tags, source link, date, pin and search; it shows only notes tagged to the market and follows the market lens (trading default, local news, any topic, off; hide the strip when off). Tilly is RULES-ONLY by default (save, tag, search, link to long-term watchlist items). Add an optional "Summarise my notes" button, capped per user, logging tokens to the usage table, OFF by default for friends and clearly labelled; if no AI key or cap is configured the button is hidden.
+
+8. SETTINGS
+Look (Classic or New), day or night, market lens, calendar link (read-only), Telegram channels, Export my data (everything including journal, trade log and research notes), usage and tokens from the usage table, notification preferences, replay the tour, sign out. A Connections section built as a list of providers (Google Calendar now) so more can be added later. No place to paste API keys or passwords (keys go in apps/web/.env.local and Vercel). Friends invite-only note.
+
+9. NOTIFICATIONS INBOX
+Bell dropdown plus full inbox grouped High priority, Today, Earlier, with filters, detail view, de-duplication and deep links; sources: Needs you now items, new briefs, unread weekly review, liquidity release within 48 hours, routines due, habit reminders; read and unread; quiet Kingdom Moments; empty state with the fox; no fake push.
+
+10. ONBOARDING FOR FRIENDS (basic flow only; the richer onboarding and tour come later)
+Five skippable steps: Welcome (name, timezone), Interests (toggle any of: habits and routines, goals and projects, journal and mood, money (manual), health and fitness, learning and study, pets and self-care, markets and trading; each switches its rooms on or off and Settings can change it; the market lens question appears only if markets is chosen), Connections that really work (read-only calendar link for now), Theme and companion plus quiet nudges by default (one calm morning summary, everything else opt-in), Enter the kingdom. Plus a replayable tour placeholder. Invite-only; never asks anyone for API keys; copy says the app tracks and never advises; journal privacy explained in one line.
+
+11. KINGDOM MODE PAGE
+A large world view with the same tappable places and a read-only preview of Structures, Nature, Furniture, Companions and Themes with states LOCKED, UNLOCKED_UNOWNED, OWNED_UNPLACED, PLACED. Preview only: no purchases, no star deductions, no ownership writes, no migrations, no unlock or shop logic (the customisation catalogue and crew wardrobe are built later). Leave clear slots for them.
+
+12. FEEDBACK LOOP CHECK
+Find where the Useful / Needs work ratings and one-line notes are stored in the new app and whether the scheduled desks can read them (they currently read feedback from the old dashboard database). Do not touch protected routes. Report the finding and the smallest safe fix under NEEDS OWNER APPROVAL.
+
+13. MOBILE AND ACCESSIBILITY PASS
+Every page at phone width (bottom bar of 5, new tabs under More, no horizontal scroll, 44px targets), keyboard focus, screen-reader labels, reduced motion, contrast in day and night including every icon.
+
+FINAL REVIEW STEP
+When everything above is built, start ONE independent read-only reviewer agent with a fresh context (it must not have seen the build). Give it this prompt's placement map (B), layouts (C), the protected list and the visual rules (A). It checks: every tab matches its role and the placement map with nothing duplicated; the protected list was untouched (diff review); no migration was applied; no Bigdata text anywhere; no blue links; token, contrast and overlap checks; every page loads with empty, partial and old-format data with no console errors; privacy (journal never exposed, research notes separate); no advice language; Observatory fully removed with a working redirect; the Garden is pixel art. It reports findings only. Then do ONE fix round on what it found, re-run all checks, and stop.
+
+FINAL CHECKS AND REPORT
+Run typecheck, build, all tests and the token, overlap, contrast, Bigdata and console-error checks (every page loaded with empty, partial and old-format data must produce no console errors); fix obvious flaws; update PROGRESS.md (Decisions made, NEEDS OWNER APPROVAL, the migration steps, what was not checked) and COURT_SPEC.md; give me the preview link. Report in five lines, then one line per tab on what it now contains, and one line on what the reviewer found and fixed.

@@ -6,6 +6,8 @@ import { useCourt } from "../CourtState";
 import { weekKey } from "@/lib/court/time";
 import { water } from "@/lib/court/water";
 import { studyHours } from "@/lib/court/sprint";
+import { foldDone } from "@/lib/court/finance";
+import { useUi } from "@/components/kumo/useUi";
 
 // Life > Samsara, ported from her Samsara page. One source of truth per fact (docs/build-trackers.md):
 // thesis entries = count of Trade plans (never typed), X posts = the Court's weekly posts counter (cad.x),
@@ -14,6 +16,7 @@ const AUTO_COUNT: Record<string, number> = { b2: 8, c2: 16 };
 
 export function SamsaraLive({ onWriteThesis }: { onWriteThesis: () => void }) {
   const { st, k, update } = useCourt();
+  const fold = useUi() === "new";
   const sm = st.defs.samsara;
   const wk = weekKey(k);
   const [plans, setPlans] = useState<{ date?: string }[] | null>(null);
@@ -71,11 +74,14 @@ export function SamsaraLive({ onWriteThesis }: { onWriteThesis: () => void }) {
         <>
           <div className="sec-h">Milestones <span className="note">{n} / {all.length}</span></div>
           <span className="mbar"><i style={{ width: (n / (all.length || 1)) * 100 + "%" }} /></span>
-          {phases.filter((p) => !p.daily).map((p) => (
+          {(() => {
+            // round 9 (New look): a fully ticked group folds under "Show done (n)", and ticked milestones sort to the
+            // bottom of an open group. Nothing is removed; ids and ticks are unchanged.
+            const group = (p: (typeof phases)[number]) => (
             <details className="pillar" key={p.id} open={p.items.some(([id]) => !st.samsara.done[id])}>
               <summary><b>{p.title}</b> <span className="note">{p.when}{p.course ? " · course: " + p.course : ""}</span></summary>
               <p className="note xd">{p.why}</p>
-              {p.items.map(([id, title, d, dt, rv]) => {
+              {(fold ? [...p.items].sort((x, y) => Number(!!st.samsara.done[x[0]]) - Number(!!st.samsara.done[y[0]])) : p.items).map(([id, title, d, dt, rv]) => {
                 const need = AUTO_COUNT[id];
                 return (
                   <div className="filed-row col" key={id}>
@@ -85,7 +91,12 @@ export function SamsaraLive({ onWriteThesis }: { onWriteThesis: () => void }) {
                 );
               })}
             </details>
-          ))}
+          );
+            const groups = phases.filter((p) => !p.daily);
+            if (!fold) return groups.map(group);
+            const { open, done } = foldDone(groups, (p) => p.items.length > 0 && p.items.every(([id]) => st.samsara.done[id]));
+            return <>{open.map(group)}{done.length > 0 && <details className="kfold"><summary className="note">Show done ({done.length})</summary>{done.map(group)}</details>}</>;
+          })()}
           <p className="note">Course milestones also count toward grid pillar 6 (Learning); tick each one once, here.</p>
         </>
       ) : <p className="note">Your Samsara milestones arrive with the tracker import.</p>}

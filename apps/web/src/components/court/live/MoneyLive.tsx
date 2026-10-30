@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useCourt } from "../CourtState";
 import { dueList, LCATS, money, type CourtState, type MAsset, type MItem, type MLine } from "@/lib/court/state";
-import { prettyDay } from "@/lib/court/time";
+import { prettyDay, sgtKeyOf } from "@/lib/court/time";
 import { MoneyPorted } from "./MoneyPorted";
 
 // Life > Money (docs/build-trackers.md, Screens). Tracks and explains only, never advises.
@@ -13,12 +13,13 @@ const CATS = ["food", "transport", "home", "bills", "health", "pets", "fun", "sh
 const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
 const uid = () => "m" + Date.now() + Math.floor(Math.random() * 1000);
 const sum = (a: { amt: number }[]) => a.reduce((t, x) => t + (x.amt || 0), 0);
-const sgtDay = (iso: string) => new Date(Date.parse(iso) + 8 * 3600000).toISOString().slice(0, 10);
+const sgtDay = (iso: string) => sgtKeyOf(iso);
 
 type ListKey = "inc" | "fixed";
 type TickKey = "goals" | "open";
 
-export function MoneyLive() {
+// only="spend" (round 9, Life Hub): just Log a spend and this month's lines; the figures live in the finance tracker.
+export function MoneyLive({ only }: { only?: "spend" } = {}) {
   const { st, k, update, events } = useCourt();
   const m = st.mny;
   const month = k.slice(0, 7);
@@ -113,7 +114,8 @@ export function MoneyLive() {
         </>
       )}
 
-      {st.defs.money ? <MoneyPorted d={st.defs.money} loggedToday={loggedToday} /> : <>
+      {/* without an import, her typed figures (key mny) keep their home here */}
+      {only === "spend" && st.defs.money ? null : st.defs.money ? <MoneyPorted d={st.defs.money} loggedToday={loggedToday} /> : <>
       <div className="sec-h">Cash flow, {month}</div>
       <p className="note xd">Money in, minus fixed costs, minus what you logged this month.</p>
       <div className="filed-row"><span>Money in per month</span><span>{money(inc)}</span></div>

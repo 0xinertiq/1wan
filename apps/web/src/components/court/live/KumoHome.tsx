@@ -1,104 +1,109 @@
 "use client";
 
+import { useVault, type VRow } from "@/lib/vault";
+import { todayTodos, type Todo } from "@/lib/court/todo";
+import { openTab } from "@/lib/court/nav";
 import { useState } from "react";
-import { COURT_BANNER, PaintedBanner } from "@/components/kumo/PaintedBanner";
 import { useUi } from "@/components/kumo/useUi";
 import { useCourt } from "../CourtState";
 import { eventsOn, isAstro, type DayEvent } from "@/lib/court/state";
-import { greetWord, hm, prettyDay } from "@/lib/court/time";
-import { AstroText } from "./AstroText";
-import { useSky } from "./LunaSky";
-import { TodayChips } from "./TodayLive";
+import { hm, prettyDay, sgtKeyOf } from "@/lib/court/time";
+import { ParkedList, RecapBox, TodayChips, isAutoPaid, MomoIdeas } from "./TodayLive";
+import { PricesStrip } from "./LivingWorld";
+import { NextLiquidityLine, useEcon } from "./EconLive";
+import { liquidityList } from "@/lib/liquidity";
+import { addDays, wdName, wdOf } from "@/lib/court/time";
+import { dueList } from "@/lib/court/state";
+import { astroParts } from "@/components/kumo/astroParts";
+import { PixelSprite } from "@/components/PixelSprite";
+import { TONEMSG, enrich, explain, lunaDay, lunaRange, nextIngress } from "@/lib/court/luna";
+import { Boundary } from "../Boundary";
 
-// The Court tab. Classic: the v52 three columns, exactly as before. New look (moodboard 01, "a summary, never
-// a second calendar or hub"): banner; Today / Needs you now / Kingdom progress / Quick capture; Luna's
-// forecast; every other window folded under "More on your court". Nothing is removed, only arranged.
-// The Living Kingdom card sits under Kingdom progress in place of the Cloud Court (it also shows level-ups).
+// The Court tab. Classic: the v52 three columns, exactly as before. New look (COURT_SPEC): the world, Park a
+// thought, prices, the "Next:" liquidity line, Briefs (Pulse | Intelligence | Crypto scan) beside a rail
+// (Today | Week, Luna, Needs you now), and the crew roster. One home per item: Kumo's weekly review lives in
+// Settings (round 7), and Kumo's alert "!" on the roster points there on Sundays.
+// The pixel Living World replaces the Cloud Court and carries the level-up banner; level and EXP live in the header.
 export type CourtSlots = {
   weather: React.ReactNode; today: React.ReactNode; todayBare: React.ReactNode; stage: React.ReactNode; statusLine: React.ReactNode;
   luna: React.ReactNode; brief: React.ReactNode; scan: React.ReactNode; tech: React.ReactNode; weekStrip: React.ReactNode;
-  weekAhead: React.ReactNode; econ: React.ReactNode; news: React.ReactNode; needs: React.ReactNode; status: React.ReactNode; kingdom: React.ReactNode;
-  briefCards: React.ReactNode;
+  weekAhead: React.ReactNode; econ: React.ReactNode; news: React.ReactNode; needs: React.ReactNode; status: React.ReactNode;
+  briefs: React.ReactNode; world: React.ReactNode; roster: React.ReactNode;
 };
+
+// Every card sits in its own error boundary, so one bad card shows "This card could not load" and the rest keeps working.
+const B = ({ n, children }: { n: string; children: React.ReactNode }) => <Boundary name={n}>{children}</Boundary>;
 
 export function CourtLayout({ s }: { s: CourtSlots }) {
   const ui = useUi();
   if (ui === "classic")
     return (
       <div className="layout">
-        <div className="col c-l">{s.weather}{s.today}</div>
-        <div className="col c-m">{s.stage}{s.statusLine}{s.luna}{s.brief}{s.scan}{s.tech}{s.weekStrip}{s.weekAhead}{s.econ}{s.news}</div>
-        <div className="col c-r">{s.needs}{s.status}</div>
+        <div className="col c-l"><B n="Weather">{s.weather}</B><B n="Today">{s.today}</B></div>
+        <div className="col c-m"><B n="Cloud Court">{s.stage}</B><B n="Status">{s.statusLine}</B><B n="Luna">{s.luna}</B><B n="Briefs">{s.brief}</B><B n="Scan">{s.scan}</B><B n="Technicals">{s.tech}</B><B n="This week">{s.weekStrip}</B><B n="Week ahead">{s.weekAhead}</B><B n="Economic calendar">{s.econ}</B><B n="Headlines">{s.news}</B></div>
+        <div className="col c-r"><B n="Needs you now">{s.needs}</B><B n="Status">{s.status}</B></div>
       </div>
     );
   return (
     <div className="khome">
-      <KingdomBanner />
-      {s.statusLine}
-      <div className="krow1">
-        <div className="kcol"><TodayCard weather={s.weather} more={s.todayBare} />{s.needs}</div>
-        {s.briefCards}
+      <B n="Your kingdom">{s.world}</B>
+      <B n="Park a thought"><QuickLine /></B>
+      <B n="Prices"><PricesStrip /></B>
+      <B n="Next release"><NextLiquidityLine /></B>
+      <B n="Status">{s.statusLine}</B>
+      <div className="kmain">
+        <B n="Briefs">{s.briefs}</B>
+        <div className="krail">
+          <B n="Needs you now">{s.needs}</B>
+          <B n="Today"><TodayCard /></B>
+          <B n="Luna"><LunaCard /></B>
+        </div>
       </div>
-      <div className="krow">
-        <AstroForecast />
-        <div className="kprog">{s.status}{s.kingdom}</div>
-        <QuickCapture />
-      </div>
-      <details className="kmore">
-        <summary>More on your court <span className="note">Technicals · This week · Week ahead · Economic calendar · News · Brief tabs · Watchlist scan with prices</span></summary>
-        <div className="kmore-grid">{s.tech}{s.weekStrip}{s.weekAhead}{s.econ}{s.news}{s.brief}{s.scan}</div>
-      </details>
+      <B n="Crew roster">{s.roster}</B>
     </div>
   );
 }
 
-// Observatory page (New look): Luna's full sky. In Classic, Luna's sky stays on the Court.
-export function Observatory({ luna }: { luna: React.ReactNode }) {
-  const ui = useUi();
+// Park a thought: one line under the world (the same list Today shows under its stat strip).
+function QuickLine() {
+  const { update } = useCourt();
+  const [t, setT] = useState("");
+  const [msg, setMsg] = useState("");
   return (
-    <div className="tabcol obs-page">
-      <a className="btn sm ghost obs-back" href="#court">← Back to Court</a>
-      {ui === "new" ? luna : <p className="note">In the Classic look, Luna&apos;s sky is on the Court.</p>}
-    </div>
+    <form className="kqline" onSubmit={(e) => {
+      e.preventDefault();
+      const v = t.trim();
+      if (!v) return;
+      update((d) => { d.dump.unshift({ id: "d" + Date.now(), t: v.slice(0, 140), done: false, ts: Date.now() }); d.dump = d.dump.slice(0, 40); }, ["dump"]);
+      setT(""); setMsg("Parked. It is in Today.");
+    }}>
+      <label htmlFor="kqlIn" className="sr">Park a thought</label>
+      <input id="kqlIn" type="text" autoComplete="off" maxLength={140} placeholder="Park a thought: anything nagging at you" value={t} onChange={(e) => { setT(e.target.value); setMsg(""); }} />
+      <button className="btn" type="submit">Park it</button>
+      {msg && <span className="note" role="status">{msg}</span>}
+    </form>
   );
 }
 
-// Painted Court banner (concept image 33). Each painted chip is covered by a real one: links to the rooms,
-// her live level and today's date. The fox asleep on the wall is painted in, so the pixel fox sits this one out.
-function KingdomBanner() {
-  const { st, k, nm } = useCourt();
-  const greet = <div className="pb-greet"><h2>{greetWord(nm)}, Queen</h2><p>A calmer day, a richer life.</p></div>;
-  const chips = {
-    garden: <a className="pb-chip" href="#garden">Sakura Garden</a>,
-    clock: <a className="pb-chip" href="#calendar">Clock Tower</a>,
-    castle: <span className="pb-chip pb-two"><span>The Castle</span><span>Lv {st.lvl}</span></span>,
-    obs: <a className="pb-chip" href="#observatory">Observatory</a>,
-    date: <span className="pb-chip">{prettyDay(k)}</span>,
-    life: <span className="pb-chip" />,
-  };
-  return (
-    <PaintedBanner set={COURT_BANNER} label="Kingdom" className="kbanner"
-      fill={{ greet, ...chips }}
-      fillMobile={{ greet: <div className="pb-greet"><h2>{greetWord(nm)}, Queen</h2></div>, clock: chips.clock, castle: chips.castle, obs: <span className="pb-chip" /> }} />
-  );
-}
-
-// One Today card: Now / Next / Later from the calendar, the glance numbers in one row, and the rest of the
-// Today window (brief, sky, week, Kumo's pick, Momo's day, Park a thought, quote) under "More".
-function TodayCard({ weather, more }: { weather: React.ReactNode; more: React.ReactNode }) {
+// One Today card: Now / Next / Later from the calendar, the glance numbers in one row, then parked thoughts.
+function TodayCard() {
   const { k, nm, events, cal } = useCourt();
   const evs = eventsOn(events, k).filter((e) => !e.allDay);
   const now = evs.filter((e) => e.a <= nm && nm < e.b);
   const later = evs.filter((e) => e.a > nm);
   const next = later.slice(0, 1), rest = later.slice(1, 4);
   const row = (e: DayEvent, i: number) => (
-    <div className="knl-row" key={i}><span className="knl-t">{hm(e.a)}</span><span className="knl-dot" style={{ background: e.color }} aria-hidden="true" /><span>{e.t}</span></div>
+    <div className="knl-row" key={i}><time className="knl-t ts">{hm(e.a)}</time><span className="knl-dot" style={{ background: e.color }} aria-hidden="true" /><span>{e.t}</span></div>
   );
+  const [tab, setTab] = useState<"today" | "week">("today");
   return (
     <section className="win knl" aria-labelledby="knlT">
-      <div className="win-title"><h2 id="knlT">Today</h2><span className="sub">{prettyDay(k)} · <a href="#calendar">Calendar</a></span></div>
+      <div className="win-title"><h2 id="knlT">Today</h2><span className="sub">{prettyDay(k)}</span></div>
       <div className="win-body">
-        {weather}
+        <div className="kseg" role="tablist" aria-label="Today or week">
+          {(["today", "week"] as const).map((t) => <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>{t === "today" ? "Today" : "Week"}</button>)}
+        </div>
+        {tab === "week" ? <WeekView /> : <>
         {cal.state === "loading" ? <p className="note">Calendar loading…</p>
           : cal.state === "error" ? <p className="note">Calendar not reachable right now.</p>
           : cal.state === "off" ? <p className="note">Calendar not connected yet.</p>
@@ -109,85 +114,120 @@ function TodayCard({ weather, more }: { weather: React.ReactNode; more: React.Re
             {next.length ? next.map(row) : <p className="note">Nothing else today.</p>}
             {rest.length > 0 && <><div className="sec-h">Later</div>{rest.map(row)}</>}
           </div>}
+        <MomoIdeas />
+        <RecapBox />
         <TodayChips />
-        <details className="kfold">
-          <summary>More: brief, sky, week, Kumo&apos;s pick, Park a thought</summary>
-          {more}
-        </details>
+        <ParkedList />
+        <TodoList />
+        </>}
       </div>
     </section>
   );
 }
 
-// "Do" / "Don't" lines only when the astro calendar's own text has them; never written here.
-const DO_RE = /^\s*(?:[-*•]\s*)?(do|don['’]?t|avoid)\b\s*[:\-–]\s*(.+)$/i;
-function doLines(desc?: string) {
-  if (!desc) return [];
-  return desc.split(/\r?\n/).map((l) => l.match(DO_RE)).filter((m): m is RegExpMatchArray => !!m)
-    .map((m) => ({ neg: !/^do$/i.test(m[1]), t: m[2].trim() })).slice(0, 4);
-}
-
-// Luna's forecast: Luna's own calculation for the headline, and up to three of today's astro calendar
-// entries, quoted as written with their source. Full sky lives on the Observatory page.
-function AstroForecast() {
-  const { k, events, cal } = useCourt();
-  const { pos, phase } = useSky();
-  const today = eventsOn(events, k, true).filter((e) => isAstro(e));
-  const src = today[0]?.cal;
-  const retro = pos.filter((p) => p.retro).map((p) => p.b);
+// Week tab: the next 7 days, two compact lines per day: Luna's Moon sign and tone, then her calendar events with
+// start times (top 3, then "+n more"), due life items and small tags for the big liquidity releases. A day
+// opens the Calendar. Then one line: the easiest day and the most friction (from Luna's tone scores).
+const TONE: Record<string, string> = { Flowing: "easy", Pressured: "tense", Mixed: "mixed", Quiet: "quiet" };
+function WeekView() {
+  const { st, k, events } = useCourt();
+  const econ = useEcon();
+  const days = Array.from({ length: 7 }, (_, i) => addDays(k, i));
+  const liq = liquidityList(econ?.items ?? [], Date.now() - 3 * 3600e3, Date.now() + 8 * 86400e3);
+  const due = dueList(st, k, events).filter((x) => !isAutoPaid(x.it));
+  const sgtDay = sgtKeyOf;
+  const sky = days.map((d) => lunaDay(d));
+  const scored = sky.filter((x): x is NonNullable<typeof x> => !!x);
+  const best = scored.length ? scored.reduce((a, b) => (b.score > a.score ? b : a)) : null;
+  const hard = scored.length ? scored.reduce((a, b) => (b.score < a.score ? b : a)) : null;
   return (
-    <section className="win kastro" aria-labelledby="kastroT">
-      <div className="win-title"><h2 id="kastroT">Luna&apos;s forecast</h2><a className="sub" href="#observatory">Full sky →</a></div>
-      <div className="win-body">
-        <p className="kastro-h">☽ {phase.name} · Moon in {pos[1].sign}{retro.length ? ` · ${retro.join(", ")} retrograde` : ""}</p>
-        <p className="note">Calculated by Luna.</p>
-        {cal.state === "loading" ? <p className="note">Astro calendar loading…</p>
-          : cal.state !== "live" ? <p className="note">Astro calendar not reachable, so only Luna&apos;s calculation shows.</p>
-          : today.length ? <>
-            <div className="kastro-evs">
-              {today.slice(0, 3).map((e, i) => {
-                const dos = doLines(e.desc);
-                return (
-                  <div className="kastro-ev" key={i}>
-                    <b>{e.t}</b>{!e.allDay && <span className="note"> · {hm(e.a)}–{hm(e.b)} SGT</span>}
-                    {dos.length > 0 && <ul className="kdo">{dos.map((d, j) => <li key={j} className={d.neg ? "neg" : "pos"}><b>{d.neg ? "Don’t" : "Do"}</b> {d.t}</li>)}</ul>}
-                    {e.desc && <details className="kfold"><summary>Read more</summary><AstroText text={e.desc} /></details>}
-                  </div>
-                );
-              })}
-            </div>
-            {today.length > 3 && <a className="note" href="#observatory">{today.length - 3} more on the Observatory</a>}
-            <p className="note">From your astro calendar{src ? ` (${src})` : ""}, quoted as written. Timing context only, never trade calls.</p>
-          </> : <p className="note">No astro calendar entries today.</p>}
-      </div>
-    </section>
+    <div className="kweek">
+      {days.map((d, i) => {
+        const w = sky[i];
+        const evs = eventsOn(events, d).filter((e) => !isAstro(e));
+        const items = [...evs.map((e) => (e.allDay ? e.t : `${hm(e.a)} ${e.t}`)), ...due.filter((x) => x.d === d).map((x) => `${x.it.name} due`)];
+        const tags = liq.filter((x) => sgtDay(x.at) === d).map((x) => x.name);
+        return (
+          <a key={d} href={`?day=${d}#calendar`} onClick={(e) => { e.preventDefault(); openTab("calendar", { day: d }); }} className={"kweek-d" + (d === k ? " today" : "")} aria-label={`${prettyDay(d)}: ${items.length} item${items.length === 1 ? "" : "s"}`}>
+            <span className="kweek-h"><b>{wdName(wdOf(d)).slice(0, 3)} {+d.slice(8)}</b>{w && <span className="kweek-sky">{w.moon.slice(0, 3)} · {TONE[w.tone]}</span>}{tags.map((t) => <span className="kweek-tag" key={t}>{t}</span>)}</span>
+            <span className="kweek-ev">{items.length ? items.slice(0, 3).join(" · ") + (items.length > 3 ? ` · +${items.length - 3} more` : "") : "Nothing planned"}</span>
+          </a>
+        );
+      })}
+      {best && hard && <p className="kweek-glance">Week at a glance: easiest day {prettyDay(best.day)}{hard.day !== best.day && hard.score < 0 ? `, most friction ${prettyDay(hard.day)}` : ""}.</p>}
+    </div>
   );
 }
 
-function QuickCapture() {
-  const { st, update } = useCourt();
-  const [t, setT] = useState("");
-  const [msg, setMsg] = useState("");
-  const open = st.dump.filter((d) => !d.done).length;
+// Luna's card, ported from the v52 renderLuna() (lib/court/luna.ts): chips, one summary, the next Moon sign
+// change, up to three contacts with her chart, the lean / gentle lists, a care callout and self-care. The astro
+// calendar's DO / DON'T text only feeds Luna's own phrases (enrich); its words are not shown here. Without a
+// calendar entry the calculated reading stands alone, as in v52. No colour coding; times in SGT.
+function LunaCard() {
+  const { k, events } = useCourt();
+  const base = lunaDay(k);
+  const ast = eventsOn(events, k, true).filter((e) => isAstro(e)).map((e) => astroParts(e.desc));
+  const w = base && enrich(base, ast.map((p) => p.dos).filter(Boolean).join(" ") || null, ast.map((p) => p.donts).filter(Boolean).join(" ") || null);
+  const ing = nextIngress(k), range = lunaRange();
   return (
-    <section className="win kqc" aria-labelledby="kqcT">
-      <div className="win-title"><h2 id="kqcT">Quick capture</h2><span className="sub">{open} parked</span></div>
+    <section className="win kluna" id="luna-card" aria-labelledby="klunaT">
+      <div className="win-title"><h2 id="klunaT"><span className="mini sm"><PixelSprite name="luna" /></span>Luna · the stars align for you</h2></div>
       <div className="win-body">
-        <form className="field" onSubmit={(e) => {
-          e.preventDefault();
-          const v = t.trim();
-          if (!v) return;
-          update((d) => { d.dump.unshift({ id: "d" + Date.now(), t: v.slice(0, 140), done: false, ts: Date.now() }); d.dump = d.dump.slice(0, 40); }, ["dump"]);
-          setT(""); setMsg("Parked. It is in Today, Park a thought.");
-        }}>
-          <label htmlFor="kqcIn">What&apos;s on your mind?</label>
-          <div className="field-row">
-            <input id="kqcIn" type="text" autoComplete="off" maxLength={140} placeholder="A task, a note, an idea" value={t} onChange={(e) => { setT(e.target.value); setMsg(""); }} />
-            <button className="btn" type="submit">Park it</button>
+        {!w ? <p className="note">My sky data covers {prettyDay(range.from)} to {prettyDay(range.to)}. Nothing for this day yet.</p> : <>
+          <div className="kluna-chips">
+            <span>Moon in {w.moon}</span><span>{w.el[0].toUpperCase() + w.el.slice(1)} Moon</span><span>{w.phase}</span><span>{w.tone}</span>{w.mrx && <span>Mercury Rx</span>}
           </div>
-        </form>
-        {msg && <p className="note" role="status">{msg}</p>}
+          <p>{TONEMSG[w.tone]} The Moon is {w.mood}.</p>
+          {ing && <p className="kluna-sm">Moon moves into {ing.s} {ing.day === k ? "" : `on ${prettyDay(ing.day)} `}at {ing.t} SGT.</p>}
+          <div className="kluna-strips">
+            <p className="kluna-strip lean"><b>The day leans toward</b><span>{w.lean.join(" · ")}</span></p>
+            <p className="kluna-strip ease"><b>Be gentle with</b><span>{w.ease.join(" · ")}</span></p>
+          </div>
+          {w.items.length > 0 && (
+            <div className="kluna-chart">
+              <span className="kluna-chart-h">Today in your chart</span>
+              <ul>{w.items.slice(0, 3).map((e, i) => <li key={i}>{explain(e)} <span>{e.back ? `(in orb, ${e.o}°)` : `(${e.t} SGT)`}</span></li>)}</ul>
+            </div>
+          )}
+          {w.merc && <p className="kluna-call kluna-merc">{w.merc}</p>}
+          <h3 className="kluna-h">Self-care for today</h3>
+          <ul className="kluna-l">{w.care.slice(0, 5).map((x) => <li key={x}>{x}</li>)}</ul>
+          <p className="kluna-sm">Traditional meanings applied to your own chart: a mood forecast, not a prediction. Gentle ideas, not medical advice.</p>
+        </>}
       </div>
     </section>
+  );
+}
+
+// Round 10: the Today to-do list, under Park a thought. Add, edit, tick, delete. Unfinished items carry over by
+// themselves; done ones clear after the day and stay in the table as history.
+function TodoList() {
+  const { k } = useCourt();
+  const v = useVault<VRow & Todo>("tasks");
+  const [t, setT] = useState("");
+  const [edit, setEdit] = useState<{ id: string; title: string } | null>(null);
+  const L = todayTodos(v.rows, k);
+  const from = (d: string) => (d === addDays(k, -1) ? "from yesterday" : "from " + prettyDay(d));
+  return (
+    <div className="ktodo">
+      <div className="sec-h">To do today</div>
+      <form className="kform-row" aria-label="Add a to-do" onSubmit={(e) => { e.preventDefault(); const title = t.trim().slice(0, 120); if (!title) return; v.put({ title, todo: true, day: k, done: false } as Partial<VRow & Todo>); setT(""); }}>
+        <input aria-label="New to-do" placeholder="Add a to-do" maxLength={120} value={t} onChange={(e) => setT(e.target.value)} />
+        <button className="btn sm" type="submit">Add</button>
+      </form>
+      {!L.open.length && !L.done.length ? <p className="note">Nothing on today&apos;s list.</p> : null}
+      {[...L.open, ...L.done].map((x) => (
+        <div className={"krow" + (x.done ? " done" : "")} key={x.id}>
+          <label className="kcheck"><input type="checkbox" checked={!!x.done} onChange={(e) => v.put({ id: x.id, done: e.target.checked, doneOn: e.target.checked ? k : undefined } as Partial<VRow & Todo>)} /><span className="sr">Done: {x.title}</span></label>
+          {edit?.id === x.id
+            ? <form className="kform-row krow-main" onSubmit={(e) => { e.preventDefault(); const title = edit.title.trim().slice(0, 120); if (title) v.put({ id: x.id, title } as Partial<VRow & Todo>); setEdit(null); }}><input aria-label="Edit to-do" value={edit.title} maxLength={120} onChange={(e) => setEdit({ ...edit, title: e.target.value })} autoFocus /><button className="btn sm" type="submit">Save</button></form>
+            : <span className="krow-main">{x.title}{typeof (x as { from?: unknown }).from === "string" ? <span className="note"> · {from((x as unknown as { from: string }).from)}</span> : null}</span>}
+          <span className="krow-act">
+            {edit?.id !== x.id && <button className="btn sm ghost" type="button" aria-label={`Edit ${x.title}`} onClick={() => setEdit({ id: x.id, title: x.title })}>Edit</button>}
+            <button className="btn sm ghost" type="button" aria-label={`Delete ${x.title}`} onClick={() => window.confirm(`Delete “${x.title}”?`) && v.remove(x.id)}>Delete</button>
+          </span>
+        </div>
+      ))}
+    </div>
   );
 }

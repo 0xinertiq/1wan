@@ -42,7 +42,7 @@ Private data rules kept: her item wording and money lines live in her user_state
 - Real: Habit Quests (top 3, Show all with crew filter, Evening check-in), EXP, levels and level-up banner, stars and streak.
 - Real: Sakura Garden drawn like v52 (blooming / thirsty / rotting from habit watering), plant, water, let go, weeds to pull.
 - Real: "Tonight, count your wins" table (today, yesterday, this week, posts, streak) and the three text boxes, which save.
-- Real: Fox Diary with the weekly recap, 28-day strip, moods, and diary pages that are editable and downloadable (Download my diary, Markdown). Diary text lives only in her private `user_state` row and is in Export my data.
+- Real: Dungeon (was Fox Diary) with the weekly recap, 28-day strip, moods, and diary pages that are editable and downloadable (Download my diary, Markdown). Diary text lives only in her private `user_state` row and is in Export my data.
 - "You" tab: v52 has no tab with that name. The nearest thing is the status card "You · The Queen"; it is ported (level, EXP, habits this week, save status). A Settings panel holds Export my data and the life admin list (add, remove, booked date).
 - Changes from v52: wins are no longer trimmed to 60 days (that deleted diary pages); the "went well" box shows the suggestion as a hint instead of pre-filling it, so only her own words are saved.
 - Not ported yet: Luna's sky reading (Sky tab shows saved moods only), focus sprint, Discipline and Spirit bars, Poppy's content desk, drop zone, quotes library editing.

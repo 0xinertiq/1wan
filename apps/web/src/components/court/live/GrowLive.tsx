@@ -11,15 +11,23 @@ import {
   STAGES, activeQ, dayQ, eventsOn, gardenWeek, isDone, manualOpen, openQuests, progOf, qScore, seedInfo, weekHab, winTally,
   type CourtState, type SeedInfo,
 } from "@/lib/court/state";
-import { addDays, prettyDay, weekKey, dayIdx } from "@/lib/court/time";
+import { addDays, prettyDay, weekKey, dayIdx, sgtKeyOf, wdOf } from "@/lib/court/time";
 import { branches, needsCare, type Branch, type WaterEvt } from "@/lib/court/garden";
 import { DecorSprite } from "@/components/kumo/DecorSprite";
+import { GardenTree } from "@/components/kumo/decor/GardenTree";
+import { WILT_CAPTION, wiltOf } from "@/components/kumo/decor/treeArt";
+import { DungeonIcon } from "@/components/kumo/DungeonIcon";
 import { NUDGE } from "@/lib/gardenMap";
 import { water } from "@/lib/court/water";
 import { TAILS, earned } from "@/lib/court/tails";
+import { useUi } from "@/components/kumo/useUi";
+import { habitWeek, gardenStage, GROW_AT } from "@/lib/court/habits";
+import { branchProgress, chartBranches } from "@/lib/court/branchChart";
+import { anchorCount, anchorRows, ordered, questName } from "@/lib/court/gardenEdit";
+import { Card as GCard } from "../ui";
 
-// Growth column from dashboard-v52: Sakura Garden (with Habit Quests inside), Tonight count your wins,
-// Fox Diary with the weekly recap, and the "You" status card. Everything saves to her state.
+// Growth column from dashboard-v52: Sakura Garden (with Habit Quests inside), Gratitude (round 11 name),
+// Dungeon with the weekly recap, and the "You" status card. Everything saves to her state.
 
 const short = (id: string) => AGENTS.find((a) => a.id === id)?.short ?? id;
 const Mini = ({ name, sm }: { name: SpriteName; sm?: boolean }) => <span className={sm ? "mini sm" : "mini"}><PixelSprite name={name} /></span>;
@@ -31,17 +39,21 @@ export function QuestLive() {
   const { st, k, nm, events, update, levelUp } = useCourt();
   const [all, setAll] = useState(false);
   const [qf, setQf] = useState("all");
-  const aq = activeQ(st, k), done = aq.filter((q) => isDone(st, q.id)).length;
+  // round 12: built-in quests she switched off are hidden here (display only; what quests award is unchanged)
+  const aq = activeQ(st, k).filter((q) => !st.questsOff.includes(q.id)), done = aq.filter((q) => isDone(st, q.id)).length;
   const today = eventsOn(events, k);
   const calReady = (re?: RegExp) => !!re && today.some((e) => !e.allDay && re.test(e.t) && e.b <= nm);
   const log = (id: string) => update((d) => { const r = logQuest(d, id); if (r.leveled) levelUp(r.leveled); }, [...QKEYS]);
 
   let list;
   if (all) {
-    const l = aq.filter((q) => qf === "all" || q.crew === qf);
+    const l = ordered(aq, (q) => q.id, st.gedit.quests.order).filter((q) => qf === "all" || q.crew === qf);
     list = l.filter((q) => !isDone(st, q.id)).concat(l.filter((q) => isDone(st, q.id)));
-  } else list = openQuests(st, k, nm).filter((q) => qScore(q, k, nm) < 60 && (q.auto || q.cal || q.calCat)).slice(0, 3);
+  } else list = openQuests(st, k, nm).filter((q) => !st.questsOff.includes(q.id) && qScore(q, k, nm) < 60 && (q.auto || q.cal || q.calCat)).slice(0, 3);
   const ck = manualOpen(st, k);
+  // the Daily anchors quest shows today's live count and target (the same numbers as the Garden's anchors card)
+  const anchorItems = st.defs.swins?.phases.find((p) => p.daily)?.items ?? [], k1 = anchorCount(anchorItems, st.gedit, wdOf(k), st.swins.log[k] || []);
+  const k1Live = anchorItems.length > 0;
 
   return (
     <section className="win" id="questWin" aria-labelledby="qT">
@@ -54,7 +66,7 @@ export function QuestLive() {
         </div>
         <div className="quests" id="quests">
           {list.length ? list.map((q) => {
-            const isD = isDone(st, q.id), p = progOf(st, q.id);
+            const live = q.id === "k1" && k1Live, isD = isDone(st, q.id), p = live ? k1.done : progOf(st, q.id), goal = live ? k1.target : q.goal;
             let right: React.ReactNode, cls = "";
             const btn = <button className="btn sm" type="button" onClick={() => log(q.id)}>{q.goal > 1 ? "Log +1" : "Log it"}</button>;
             if (isD) right = <span className="q-end">DONE</span>;
@@ -71,9 +83,9 @@ export function QuestLive() {
                   {isD && <span className="ck"><svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" /></svg></span>}
                 </div>
                 <div className="q-t">
-                  <b>{q.title}</b>
-                  <span><span className={q.cad === "Weekly" ? "q-tag wk" : "q-tag"}>{q.cad}</span>{short(q.crew)} · {q.sub}{q.goal > 1 && !isD ? ` (${p}/${q.goal})` : ""}</span>
-                  <span className="q-src">{isD ? (q.auto ? "Counted by Kumo" : "Logged") : q.ck}</span>
+                  <b>{questName(st.gedit, q)}</b>
+                  <span><span className={q.cad === "Weekly" ? "q-tag wk" : "q-tag"}>{q.cad}</span>{short(q.crew)} · {live ? (k1.target ? `Your ${k1.target} Small Wins anchor${k1.target === 1 ? "" : "s"} for today, ticked in the Garden.` : "No anchors are due today.") : q.sub}{goal > 1 && !isD ? ` (${p}/${goal})` : ""}</span>
+                  <span className="q-src">{isD ? (q.auto ? "Counted by Kumo" : "Logged") : live ? (k1.target ? `Counts your anchor ticks, n/${k1.target}` : "Nothing to count today") : q.ck}</span>
                 </div>
                 <div className="q-r"><span className="xp">+{q.xp} EXP</span>{right}</div>
               </div>
@@ -84,7 +96,7 @@ export function QuestLive() {
           <summary>Evening check-in {ck.length > 0 && <span className="badge" id="ckCount">{ck.length}</span>}</summary>
           <div id="ckBox">
             {ck.length ? <>
-              {ck.map((q) => <div className="filed-row" key={q.id}><span>{q.title}</span><button className="btn sm" type="button" onClick={() => log(q.id)}>Yes</button></div>)}
+              {ck.map((q) => <div className="filed-row" key={q.id}><span>{questName(st.gedit, q)}</span><button className="btn sm" type="button" onClick={() => log(q.id)}>Yes</button></div>)}
               <p className="note">Three at most. The rest logs itself.</p>
             </> : <p className="note">All set for tonight.</p>}
           </div>
@@ -137,24 +149,51 @@ function bonsaiSvg(items: { f: SeedInfo }[], nroots: number) {
 // Diary archive. Tone is gentle: the tree reflects habits, never her worth.
 const STAGE_TXT: Record<string, string> = { sprout: "sprout, waiting for its first activity", blooming: "blooming", thirsty: "thirsty", wilting: "wilting", withered: "withered", dead: "bare, ready to weed out" };
 
-export function GardenLive() {
+// extra: more segments for the New-look Garden page (wins ladder, her own habits, the week).
+const STAGE_NAMES = ["Bare", "Sprout", "Leafy", "Blossoming", "Full bloom"];
+
+/** One branch on the Branches card with its progress background (round 16: the share drives the fill width). */
+export function BranchRow({ b, k, children }: { b: Branch & { seen?: string | null }; k: string; children?: React.ReactNode }) {
+  const bp = branchProgress(b, k);
+  return (
+    <div className="gk" data-st={b.stage === "blooming" || b.stage === "sprout" ? "ok" : b.stage === "thirsty" ? "thirsty" : "wilting"} data-bp={bp.state} style={{ "--bp": Math.round(bp.share * 100) + "%" } as React.CSSProperties}>
+      <span className="gnm"><b>{b.n}. {b.name}</b><small>{STAGE_TXT[b.stage]} · {b.blossoms}/8 blossoms{b.last ? ` · last ${prettyDay(b.last)}` : ""}</small></span>
+      {children}
+    </div>
+  );
+}
+
+export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode; quests?: React.ReactNode; wins?: React.ReactNode; pick?: React.ReactNode } }) {
   const { st, k, update, levelUp } = useCourt();
   const [evs, setEvs] = useState<WaterEvt[] | null>(null);
   const [ledger, setLedger] = useState<{ trades: Record<string, unknown>[]; plans: Record<string, unknown>[] } | null>(null);
   const [arm, setArm] = useState("");
+  const ui = useUi();
   useEffect(() => {
     getOnce<any>("/api/water?days=30").then((j) => setEvs(Array.isArray(j.events) ? j.events : [])).catch(() => setEvs([]));
     getOnce<any>("/api/ledger").then((j) => j.trades && setLedger(j)).catch(() => {});
   }, []);
 
-  const { trunk, list } = branches(st, k, evs ?? []);
+  const { trunk, list: raw } = branches(st, k, evs ?? []);
+  // round 12: Branches follow the chart she edits, for the year chosen on the Branches card
+  const [byear, setByear] = useState<"2026" | "2027">("2026");
+  const list = chartBranches(raw, st, byear, evs ?? []);
   const anchors = st.defs.swins?.phases.find((p) => p.daily)?.items ?? [];
   const todayA = st.swins.log[k] || [];
+  const aCount = anchorCount(anchors, st.gedit, wdOf(k), todayA);
+  // round 14: when Edit garden lowers today's target to what is already ticked, the quest finishes now (through
+  // logQuest, as a tick would), not at the next tick
+  useEffect(() => {
+    if (anchors.length && aCount.target > 0 && aCount.done >= aCount.target && !isDone(st, "k1")) {
+      update((d) => { if (isDone(d, "k1")) return; d.q.k1 = [0, (QUESTS.find((q) => q.id === "k1")?.goal ?? 8) - 1]; const r = logQuest(d, "k1"); if (r.leveled) levelUp(r.leveled); }, [...QKEYS]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aCount.done, aCount.target, k]);
 
   // Merged quests, AUTO from real records (docs/build-trackers.md, duplicates 1 to 3).
   useEffect(() => {
     if (!evs) return;
-    const today = (src: string) => evs.some((e) => e.source === src && new Date(Date.parse(e.at) + 8 * 3600000).toISOString().slice(0, 10) === k);
+    const today = (src: string) => evs.some((e) => e.source === src && sgtKeyOf(e.at) === k);
     const wk = weekKey(k);
     const want: string[] = [];
     if (today("spending") && !isDone(st, "c1")) want.push("c1");
@@ -173,7 +212,13 @@ export function GardenLive() {
       const cur = new Set(d.swins.log[k] || []);
       if (on) cur.add(id); else cur.delete(id);
       d.swins.log = { ...d.swins.log, [k]: [...cur] };
-      if (!isDone(d, "k1")) { d.q.k1 = [0, Math.max(0, cur.size - 1)]; if (cur.size > 0) { const r = logQuest(d, "k1"); if (r.leveled) levelUp(r.leveled); } else delete d.q.k1; }
+      // round 14: the target is the anchors scheduled and shown today (8 unless she hid or rescheduled some). Only
+      // the count changes: finishing still goes through logQuest, so XP, stars and streak are awarded as before.
+      if (!isDone(d, "k1")) {
+        const c = anchorCount(anchors, d.gedit, wdOf(k), [...cur]), goal = QUESTS.find((q) => q.id === "k1")?.goal ?? 8;
+        if (c.target > 0 && c.done >= c.target) { d.q.k1 = [0, goal - 1]; const r = logQuest(d, "k1"); if (r.leveled) levelUp(r.leveled); }
+        else if (c.done > 0) d.q.k1 = [0, c.done]; else delete d.q.k1;
+      }
     }, ["swins", ...QKEYS]);
     water("anchor", `anchor:${id}:${k}`, on);
     setEvs((e) => on ? [{ at: new Date().toISOString(), source: "anchor", ref: `anchor:${id}:${k}`, weight: 1 }, ...(e ?? [])] : (e ?? []).filter((x) => x.ref !== `anchor:${id}:${k}`));
@@ -187,36 +232,85 @@ export function GardenLive() {
   const items = list.map((b) => ({ f: { n: 0, run: 0, pts: 0, wet: false, idle: b.idle, stage: Math.min(4, Math.ceil(b.blossoms / 2)), mood: (b.stage === "blooming" || b.stage === "sprout" ? "ok" : b.stage === "thirsty" ? "thirsty" : "wilting") as SeedInfo["mood"] } }));
   const care = [trunk, ...list].filter(needsCare);
   const blossoms = list.reduce((a, b) => a + b.blossoms, 0);
+  const wkh = weekHab(st, k);
   const petals = ["swins", "money", "samsara"].reduce((a, key) => a + Object.values((st[key as "swins"]).done).filter(Boolean).length, 0);
 
+  const head = <>
+    <h3><Mini name="coco" />Sakura Garden <span className="cnj">灵园</span></h3>
+    <p className="gtag">Eight branches, one per grid pillar. Real activity waters them; each ticked actionable opens a blossom that stays.</p>
+    <div dangerouslySetInnerHTML={{ __html: bonsaiSvg(items, 0) }} />
+    <p className="gsum"><b>{blossoms}</b> of 64 blossoms · <b>{petals}</b> golden petals from ladder milestones{trunk.resting ? " · resting today, decay paused" : ""}</p>
+    {evs == null && <p className="note">Reading your activity…</p>}
+  </>;
+  // round 13: her names, order, times and days from Edit garden; folded-away anchors keep their ticks. Her own
+  // anchors tick in gedit and award nothing; the imported ones tick exactly as before.
+  const arows = anchorRows(anchors, st.gedit, wdOf(k)).shown, aToday = arows.filter((a) => a.on), aRest = arows.filter((a) => !a.on);
+  const mineA = st.gedit.anchors.log[k] ?? [];
+  const tickMine = (id: string, on: boolean) => update((d) => { const cur = new Set(d.gedit.anchors.log[k] ?? []); if (on) cur.add(id); else cur.delete(id); d.gedit = { ...d.gedit, anchors: { ...d.gedit.anchors, log: { ...d.gedit.anchors.log, [k]: [...cur] } } }; }, ["gedit"]);
+  const anchorList = <>
+    {aToday.length ? <div className="ganchors">{aToday.map((a) => (
+      <label className="filed-row" key={a.id}><input type="checkbox" checked={a.mine ? mineA.includes(a.id) : todayA.includes(a.id)} onChange={(e) => (a.mine ? tickMine : tickAnchor)(a.id, e.target.checked)} /><span>{a.at && <span className="kanc-at">{a.at}</span>}{a.t} <span className="note">{a.d}</span></span></label>
+    ))}</div> : <p className="note">{arows.length ? "No anchors set for today." : anchors.length ? "Your anchors are folded away; Edit garden brings them back." : "Your daily anchors arrive with the tracker import."}</p>}
+    {aRest.length > 0 && <p className="note">Not today: {aRest.map((a) => a.t).join(" · ")}</p>}
+    <p className="note">Trunk: {STAGE_TXT[trunk.stage]}{trunk.last ? `, last watered ${prettyDay(trunk.last)}` : ""}.</p>
+  </>;
+  // round 13/14: a progress background per branch (grey: never started, faint tint: quiet this week, green: active
+  // this week, gold edge: done)
+  const branchList = <div className="gbranches">{list.map((b) => (
+    <BranchRow b={b} k={k} key={b.n}>
+      {b.stage === "dead" && <button className="btn sm ghost gx" type="button" onClick={() => weedOut(b.n)}>{arm === String(b.n) ? "Yes, weed it out" : "Weed it out"}</button>}
+    </BranchRow>
+  ))}</div>;
+  const nudge = care.length > 0 && <>
+    <div className="sec-h">A gentle nudge</div>
+    {care.slice(0, 3).map((b) => <p className="note" key={b.n}><Mini name={NUDGE[b.n].crew} sm /> {b.n ? b.name : "Trunk"}: {NUDGE[b.n].t}</p>)}
+    <p className="note">Any real activity revives a branch at once. Weeding a bare branch regrows a sprout; blossoms and history are never lost.</p>
+  </>;
+
+  // New look (round 7, round 8: no banner; the garden sits straight on the page, no box) the pixel sakura garden is the hero, growing through the week from real activity (quests,
+  // anchors and her own habits: more blossoms and petals as the week fills), with one line of this week's progress
+  // and any gentle nudge under it. Below, two columns of cards: Daily anchors and My habits; Branches, Quests (with
+  // Kumo's pick and her habits for today) and the Wins ladder. The tails live with the fox in the world.
+  if (ui === "new") {
+    const hw = habitWeek(st, k);
+    // round 10 (D1): grow on real activity counted this week, not on a share of everything possible (which kept
+    // the tree a seed in normal weeks): quests done, anchor ticks and her own habits ticked.
+    const got = wkh.d + hw.done + hw.anchors;
+    const stage = gardenStage(got), fill = Math.min(1, got / GROW_AT[4]);
+    const wilt = evs == null ? 0 : wiltOf(trunk.idle);
+    return (
+      <div id="gardenBox" className="kgarden-page">
+        {/* round 12: the pixel sakura bonsai is the centrepiece. Stage from this week's real ticks (round 10 rule),
+            wilting drawn from the trunk's days without activity (decay rules unchanged), golden petals for milestones */}
+        <section className="kgarden-hero" aria-label="Sakura garden">
+          <GardenTree stage={stage} wilt={wilt} gold={petals} petals={Math.round(fill * 6)} label={`Sakura bonsai: ${STAGE_NAMES[stage].toLowerCase()} this week${wilt ? ", " + WILT_CAPTION[wilt].toLowerCase() : ""}`} />
+          <p className="kgarden-line">This week: <b>{got}</b> tick{got === 1 ? "" : "s"} ({wkh.d} quests · {hw.anchors} anchors{hw.planned ? ` · ${hw.done} of your habits` : ""}) · {STAGE_NAMES[stage]}{stage < 4 ? <span className="note"> · next stage at {GROW_AT[stage + 1] - got} more tick{GROW_AT[stage + 1] - got === 1 ? "" : "s"}</span> : null}{trunk.resting ? " · resting today" : ""}</p>
+          {wilt > 0 && <p className="note kgarden-cap">{WILT_CAPTION[wilt]}</p>}
+          {evs == null && <p className="note">Reading your activity…</p>}
+          {care.length > 0 && <div className="kgarden-nudge">{care.slice(0, 3).map((b) => <p className="note" key={b.n}><Mini name={NUDGE[b.n].crew} sm /> <span><b>{b.n ? b.name : "Trunk"}</b>: {NUDGE[b.n].t}</span></p>)}</div>}
+        </section>
+        {/* round 8: one grid, so cards in a row share their top, bottom and width (left: anchors, habits; right:
+            branches, quests); the Wins ladder spans the width below */}
+        <div className="kpg two kgarden-cards">
+          <GCard title="Daily anchors" sub={`${aCount.done}/${anchors.length ? aCount.target : 8} today · waters the trunk`}>{anchorList}</GCard>
+          <GCard title="Branches" sub={`${blossoms} of 64 blossoms`} actions={<div className="kseg" role="group" aria-label="Chart year">{(["2026", "2027"] as const).map((y) => <button key={y} type="button" aria-pressed={byear === y} className={byear === y ? "on" : ""} onClick={() => setByear(y)}>{y}</button>)}</div>}>{branchList}<p className="note">Any real activity revives a branch at once. Weeding a bare branch regrows a sprout; blossoms and history are never lost.</p></GCard>
+          {slots.habits}
+          <GCard title="Quests">{slots.pick}<div id="gQuestSlot"><QuestLive /></div>{slots.quests}</GCard>
+          {slots.wins}
+        </div>
+      </div>
+    );
+  }
   return (
     <div id="gardenBox">
       <GardenScene list={list} />
       <div className="tcard garden">
-        <h3><Mini name="coco" />Sakura Garden <span className="cnj">灵园</span></h3>
-        <p className="gtag">Eight branches, one per grid pillar. Real activity waters them; each ticked actionable opens a blossom that stays.</p>
-        <div dangerouslySetInnerHTML={{ __html: bonsaiSvg(items, 0) }} />
-        <p className="gsum"><b>{blossoms}</b> of 64 blossoms · <b>{petals}</b> golden petals from ladder milestones{trunk.resting ? " · resting today, decay paused" : ""}</p>
-        {evs == null && <p className="note">Reading your activity…</p>}
-
-        <div className="sec-h">Daily anchors <span className="note">{todayA.length}/{anchors.length || 8} today · waters the trunk</span></div>
-        {anchors.length ? anchors.map(([id, t, d]) => (
-          <label className="filed-row" key={id}><input type="checkbox" checked={todayA.includes(id)} onChange={(e) => tickAnchor(id, e.target.checked)} /><span>{t} <span className="note">{d}</span></span></label>
-        )) : <p className="note">Your daily anchors arrive with the tracker import.</p>}
-        <p className="note">Trunk: {STAGE_TXT[trunk.stage]}{trunk.last ? `, last watered ${prettyDay(trunk.last)}` : ""}.</p>
-
+        {head}
+        <div className="sec-h">Daily anchors <span className="note">{aCount.done}/{anchors.length ? aCount.target : 8} today · waters the trunk</span></div>
+        {anchorList}
         <div className="sec-h">Branches</div>
-        {list.map((b) => (
-          <div className="gk" data-st={b.stage === "blooming" || b.stage === "sprout" ? "ok" : b.stage === "thirsty" ? "thirsty" : "wilting"} key={b.n}>
-            <span className="gnm"><b>{b.n}. {b.name}</b><small>{STAGE_TXT[b.stage]} · {b.blossoms}/8 blossoms{b.last ? ` · last ${prettyDay(b.last)}` : ""}</small></span>
-            {b.stage === "dead" && <button className="btn sm ghost gx" type="button" onClick={() => weedOut(b.n)}>{arm === String(b.n) ? "Yes, weed it out" : "Weed it out"}</button>}
-          </div>
-        ))}
-        {care.length > 0 && <>
-          <div className="sec-h">A gentle nudge</div>
-          {care.slice(0, 3).map((b) => <p className="note" key={b.n}><Mini name={NUDGE[b.n].crew} sm /> {b.n ? b.name : "Trunk"}: {NUDGE[b.n].t}</p>)}
-          <p className="note">Any real activity revives a branch at once. Weeding a bare branch regrows a sprout; blossoms and history are never lost.</p>
-        </>}
+        {branchList}
+        {nudge}
         <div id="gQuestSlot"><QuestLive /></div>
         <details className="pillar"><summary><b>Kumo&apos;s nine tails</b> <span className="note">{earned(st, k).filter(Boolean).length}/9</span></summary>
           {TAILS.map((t, i) => <div className="filed-row" key={t.n}><span>{earned(st, k)[i] ? "✓ " : ""}<b>{t.n}</b> <span className="note">{t.h}</span></span></div>)}
@@ -235,8 +329,9 @@ function winLines(st: CourtState, k: string) {
   return L;
 }
 
-// Guided "Tonight, count your wins" sheet (v2 section 5): opens at 21:30 or on demand. Step 1 counts the
-// same real events that water the garden; steps 2 and 3 are her own words, private, saved under wins.
+// Guided Gratitude sheet (v2 section 5; renamed in round 11): opens at 21:30 or on demand. Step 1 counts the
+// same real events that water the garden; steps 2 and 3 are her own words, private, saved under wins (the same
+// key, quest and XP behaviour as before; only the name changed). The Dungeon keeps them as the Gratitude log.
 export function WinsLive({ onDone }: { onDone?: () => void }) {
   const { st, k, nm, update } = useCourt();
   const saved = st.wins[k] ?? {};
@@ -247,11 +342,11 @@ export function WinsLive({ onDone }: { onDone?: () => void }) {
   const [evs, setEvs] = useState<WaterEvt[] | null>(null);
   useEffect(() => { fetch("/api/water?days=1").then((r) => r.json()).then((j) => setEvs(Array.isArray(j.events) ? j.events : [])).catch(() => setEvs([])); }, []);
   const late = nm >= 1080, T = winTally(st, k), sug = winLines(st, k);
-  const today = (evs ?? []).filter((e) => new Date(Date.parse(e.at) + 8 * 3600000).toISOString().slice(0, 10) === k);
+  const today = (evs ?? []).filter((e) => sgtKeyOf(e.at) === k);
   const cnt = (src: string) => today.filter((e) => e.source === src).length;
   const rows: [string, string][] = [
     ["Daily quests", `${T.td} of ${T.tt}`],
-    ["Daily anchors", `${(st.swins.log[k] || []).length} of 8`],
+    ["Daily anchors", (() => { const a = st.defs.swins?.phases.find((p) => p.daily)?.items ?? [], c = anchorCount(a, st.gedit, wdOf(k), st.swins.log[k] || []); return `${c.done} of ${a.length ? c.target : 8}`; })()],
     ["Grid actions ticked", String(cnt("grid"))],
     ["Milestones", String(cnt("milestone"))],
     ["Plans and trades logged", String(cnt("plan") + cnt("trade"))],
@@ -259,20 +354,20 @@ export function WinsLive({ onDone }: { onDone?: () => void }) {
     ["Posts this week", String(T.posts)],
     ["Streak", `${st.streak} day${st.streak === 1 ? "" : "s"}`],
   ];
-  const save = () => { update((d) => { d.wins[k] = { w: w.slice(0, 2000), g: g.slice(0, 2000), n: n.slice(0, 6000) }; }, ["wins"]); };
+  const save = () => { update((d) => { d.wins[k] = { ...d.wins[k], w: w.slice(0, 2000), g: g.slice(0, 2000), n: n.slice(0, 6000) }; }, ["wins"]); };
   return (
     <div id="winBox">
       <div className="tcard" id="winCard">
-        <h3><Mini name="coco" />{late ? "Tonight, count your wins" : "Today's wins"} <span className="note">step {step + 1} of 3</span></h3>
+        <h3><Mini name="coco" />{late ? "Tonight's gratitude" : "Today's gratitude"} <span className="note">step {step + 1} of 3</span></h3>
         {step === 0 && <>
           <p className="note">Here is what you really did today, counted from your own records.</p>
           {evs == null ? <p className="note">Counting…</p> : rows.map(([a, b]) => <div className="filed-row" key={a}><span>{a}</span><b>{b}</b></div>)}
           <div className="rep-act"><button className="btn sm" type="button" onClick={() => setStep(1)}>Next</button></div>
         </>}
         {step === 1 && <div className="field wr">
-          <label htmlFor="winIn">One thing that went well</label>
+          <label htmlFor="winIn">What went well</label>
           <textarea id="winIn" rows={3} maxLength={2000} placeholder={sug[0] ?? "Small counts"} value={w} onChange={(e) => setW(e.target.value)} />
-          <label htmlFor="gratIn">What you are grateful for</label>
+          <label htmlFor="gratIn">What I'm grateful for</label>
           <textarea id="gratIn" rows={3} maxLength={2000} placeholder="A person, a moment, a thing" value={g} onChange={(e) => setG(e.target.value)} />
           <div className="rep-act"><button className="btn sm ghost" type="button" onClick={() => setStep(0)}>Back</button><button className="btn sm" type="button" onClick={() => setStep(2)}>Next</button></div>
         </div>}
@@ -282,7 +377,7 @@ export function WinsLive({ onDone }: { onDone?: () => void }) {
           <div className="rep-act"><button className="btn sm ghost" type="button" onClick={() => setStep(1)}>Back</button><button className="btn sm" type="button" onClick={() => { save(); setStep(3); }}>Save to my diary</button></div>
         </div>}
         {step === 3 && <>
-          <p className="note">Saved. Private to you, in your diary.</p>
+          <p className="note">Saved to your Gratitude log. Private to you, never shown to friends.</p>
           <div className="rep-act">{onDone && <button className="btn sm" type="button" onClick={onDone}>Close</button>}<button className="btn sm ghost" type="button" onClick={() => setStep(0)}>Look again</button></div>
         </>}
       </div>
@@ -295,14 +390,14 @@ export function WinsButton() {
   const { st, k, openSheet } = useCourt();
   return (
     <div className="tcard">
-      <h3><Mini name="coco" />Tonight, count your wins</h3>
+      <h3><Mini name="coco" />Tonight&apos;s gratitude</h3>
       <p className="note">{st.wins[k] ? "Saved for today. You can look again or add more." : "Opens by itself at 21:30, or any time now."}</p>
-      <div className="rep-act"><button className="btn sm" type="button" onClick={() => openSheet({ kind: "wins" })}>Count your wins</button></div>
+      <div className="rep-act"><button className="btn sm" type="button" onClick={() => openSheet({ kind: "wins" })}>Gratitude</button></div>
     </div>
   );
 }
 
-/* ---------- Fox Diary and weekly recap ---------- */
+/* ---------- Dungeon and weekly recap ---------- */
 const MOODS = ["Low", "Flat", "Okay", "Good", "Bright"];
 
 function diaryDays(st: CourtState, k: string) {
@@ -311,20 +406,20 @@ function diaryDays(st: CourtState, k: string) {
     .filter((d) => (seen.has(d) ? false : (seen.add(d), true))).sort().reverse();
 }
 
-function downloadDiary(st: CourtState, k: string) {
-  const lines = ["# Fox Diary", "", `Exported ${k}. Private to you.`, ""];
+export function downloadDiary(st: CourtState, k: string) {
+  const lines = ["# Dungeon", "", `Exported ${k}. Private to you.`, ""];
   for (const d of diaryDays(st, k)) {
     const w = st.wins[d] ?? {}, m = st.mood[d];
     if (!w.w && !w.g && !w.n && !m) continue;
     lines.push(`## ${prettyDay(d)} (${d})`);
     if (m) lines.push(`Feeling: ${MOODS[(m.m || 3) - 1]}${m.n ? ", " + m.n : ""}`);
-    if (w.w) lines.push(`Win: ${w.w}`);
-    if (w.g) lines.push(`Thanks: ${w.g}`);
+    if (w.w) lines.push(`Went well: ${w.w}`);
+    if (w.g) lines.push(`Grateful for: ${w.g}`);
     if (w.n) lines.push("", w.n);
     lines.push("");
   }
   const url = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/markdown" }));
-  const a = document.createElement("a"); a.href = url; a.download = `fox-diary-${k}.md`; a.click();
+  const a = document.createElement("a"); a.href = url; a.download = `dungeon-${k}.md`; a.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
@@ -333,9 +428,9 @@ function DiaryEdit({ day, onDone }: { day: string; onDone: () => void }) {
   const e0 = st.wins[day] ?? {};
   const [w, setW] = useState(e0.w ?? ""), [g, setG] = useState(e0.g ?? ""), [n, setN] = useState(e0.n ?? "");
   return (
-    <form className="field wr" onSubmit={(e) => { e.preventDefault(); update((d) => { d.wins[day] = { w: w.slice(0, 2000), g: g.slice(0, 2000), n: n.slice(0, 6000) }; }, ["wins"]); onDone(); }}>
-      <label>Win<textarea rows={2} maxLength={2000} value={w} onChange={(e) => setW(e.target.value)} /></label>
-      <label>Thanks<textarea rows={2} maxLength={2000} value={g} onChange={(e) => setG(e.target.value)} /></label>
+    <form className="field wr" onSubmit={(e) => { e.preventDefault(); update((d) => { d.wins[day] = { ...d.wins[day], w: w.slice(0, 2000), g: g.slice(0, 2000), n: n.slice(0, 6000) }; }, ["wins"]); onDone(); }}>
+      <label>What went well<textarea rows={2} maxLength={2000} value={w} onChange={(e) => setW(e.target.value)} /></label>
+      <label>What I&apos;m grateful for<textarea rows={2} maxLength={2000} value={g} onChange={(e) => setG(e.target.value)} /></label>
       <label>Notes<textarea rows={5} maxLength={6000} value={n} onChange={(e) => setN(e.target.value)} /></label>
       <div className="rep-act"><button className="btn sm" type="submit">Save</button><button className="btn sm ghost" type="button" onClick={onDone}>Cancel</button></div>
     </form>
@@ -383,7 +478,7 @@ export function DiaryLive({ open }: { open?: boolean }) {
   return (
     <details className="gdet" id="gdJoy" open={open}><summary>Diary and weekly recap</summary><div id="joyBox">
       <div className="tcard joy">
-        <h3><Mini name="coco" />Fox Diary <span className="cnj">狐记</span></h3>
+        <h3><span className="mini dicon"><DungeonIcon /></span>Dungeon <span className="cnj">地牢</span></h3>
         <div className="joyhero">
           <p className="joyq" id="joyQ">{praise[joyI % praise.length]}</p>
           <div className="rep-act">
@@ -396,10 +491,10 @@ export function DiaryLive({ open }: { open?: boolean }) {
         <div className="jp" id="recapWeek"><ul className="jwk">
           <li>{done} of {tot} daily quests done over {days} day{days === 1 ? "" : "s"}</li>
           {bestN > 0 && <li>Best day: {prettyDay(bestK)} with {bestN}</li>}
-          {wd > 0 && <li>{wd} day{wd === 1 ? "" : "s"} with a win or a thank-you written</li>}
+          {wd > 0 && <li>{wd} day{wd === 1 ? "" : "s"} with gratitude written</li>}
           {gw.water > 0 && <li>{gw.water} seed watering{gw.water === 1 ? "" : "s"} in the garden</li>}
           {gw.rel > 0 && <li>{gw.rel} thing{gw.rel === 1 ? "" : "s"} let go. That is progress too.</li>}
-          <li>{st.streak}-day streak · {wn} wins and {gn} thank-yous logged so far</li>
+          <li>{st.streak}-day streak · {wn} things that went well and {gn} things you are grateful for, logged so far</li>
           {T.posts > 0 && <li>{T.posts} post{T.posts === 1 ? "" : "s"} counted</li>}
           {ms.length > 0 && <li>Average mood {(ms.reduce((a, b) => a + b, 0) / ms.length).toFixed(1)} of 5</li>}
         </ul><p><b>{say}</b></p></div>
@@ -433,7 +528,7 @@ export function DiaryLive({ open }: { open?: boolean }) {
 }
 
 // Read-only archive of the old typed habits and weeds (removed from the Garden; nothing deleted).
-function Archive() {
+export function Archive() {
   const { st } = useCourt();
   const g = st.gd, habits = g.seeds.filter((s) => !s.q);
   if (!habits.length && !g.roots.length && !g.gone.length) return null;

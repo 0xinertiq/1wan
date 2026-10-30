@@ -5,17 +5,34 @@ import { useCourt } from "../CourtState";
 import { logQuest } from "@/lib/court/actions";
 import { isDone } from "@/lib/court/state";
 import { SPRINT_MIN, sprintHours, type SprintTag } from "@/lib/court/sprint";
-import { weekKey } from "@/lib/court/time";
+import { weekKey, sgtKeyOf } from "@/lib/court/time";
+import { dropSaved, readSaved, writeSaved } from "@/lib/court/store";
 
 // One 25-minute focus sprint with a tag (Study or Other). The running sprint is saved, so a reload keeps it.
 // A sprint that reaches 25 minutes is logged, counts quest k7, and study sprints add to Samsara's hours.
-export function SprintLive() {
-  const { st, k, update, levelUp } = useCourt();
-  const [tag, setTag] = useState<SprintTag>("study");
+// The sprint's state and actions, shared by this window (Classic) and the hourglass in the New-look world.
+const PAUSE = "sprint-pause";
+const isPause = (v: unknown): v is { at: string; left: number } => !!v && typeof v === "object" && typeof (v as { at?: unknown }).at === "string" && Number.isFinite((v as { left?: unknown }).left);
+
+export function useSprint() {
+  const { st, update, levelUp } = useCourt();
   const [now, setNow] = useState(() => Date.now());
   const run = st.spr.run;
-  useEffect(() => { if (!run) return; const t = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(t); }, [run]);
-  const left = run ? Math.max(0, SPRINT_MIN * 60 - Math.floor((now - Date.parse(run.at)) / 1000)) : SPRINT_MIN * 60;
+  // Pause (owner approved, round 5b): the remaining seconds are kept on this device while paused; resuming
+  // moves the saved start time forward by the paused stretch, so the saved state keeps its shape.
+  const [pz, setPz] = useState<{ at: string; left: number } | null>(null);
+  useEffect(() => { const p = readSaved(PAUSE, isPause, null); setPz(p && run && p.at === run.at ? p : null); }, [run]);
+  const paused = !!(pz && run && pz.at === run.at);
+  useEffect(() => { if (!run || paused) return; const t = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(t); }, [run, paused]);
+  const left = run ? (paused ? pz!.left : Math.max(0, SPRINT_MIN * 60 - Math.floor((now - Date.parse(run.at)) / 1000))) : SPRINT_MIN * 60;
+  const pause = () => { if (!run) return; const p = { at: run.at, left }; setPz(p); writeSaved(PAUSE, p); };
+  const resume = () => {
+    if (!run || !pz) return;
+    const at = new Date(Date.now() - (SPRINT_MIN * 60 - pz.left) * 1000).toISOString();
+    dropSaved(PAUSE);
+    setPz(null); setNow(Date.now());
+    update((d) => { if (d.spr.run) d.spr.run = { ...d.spr.run, at }; }, ["spr"]);
+  };
 
   const finish = (keep: boolean) => update((d) => {
     const r = d.spr.run; if (!r) return;
@@ -26,9 +43,17 @@ export function SprintLive() {
       if (!isDone(d, "k7")) { const q = logQuest(d, "k7"); if (q.leveled) levelUp(q.leveled); }
     }
   }, ["spr", "q", "stars", "streak", "xp", "lvl"]);
-  useEffect(() => { if (run && left === 0) finish(true); });  // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (run && !paused && left === 0) finish(true); });  // eslint-disable-line react-hooks/exhaustive-deps
+  const start = (tag: SprintTag) => update((d) => { d.spr.run = { at: new Date().toISOString(), tag }; }, ["spr"]);
+  const stop = () => { dropSaved(PAUSE); setPz(null); finish(false); };
+  return { run, left, finish, start, paused, pause, resume, stop };
+}
 
-  const today = st.spr.log.filter((s) => new Date(Date.parse(s.at) + 8 * 3600000).toISOString().slice(0, 10) === k);
+export function SprintLive() {
+  const { st, k } = useCourt();
+  const [tag, setTag] = useState<SprintTag>("study");
+  const { run, left, finish, start } = useSprint();
+  const today = st.spr.log.filter((s) => sgtKeyOf(s.at) === k);
   const mm = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
   return (
     <div className="sprint">
@@ -44,7 +69,7 @@ export function SprintLive() {
           <span className="ntabs" role="group" aria-label="Sprint tag">
             {(["study", "other"] as const).map((t) => <button key={t} className="chipb" type="button" aria-pressed={tag === t} onClick={() => setTag(t)}>{t === "study" ? "Study" : "Other"}</button>)}
           </span>
-          <button className="btn sm" type="button" onClick={() => update((d) => { d.spr.run = { at: new Date().toISOString(), tag }; }, ["spr"])}>Start {SPRINT_MIN} min</button>
+          <button className="btn sm" type="button" onClick={() => start(tag)}>Start {SPRINT_MIN} min</button>
         </div>
       )}
     </div>

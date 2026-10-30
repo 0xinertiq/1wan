@@ -2,13 +2,15 @@ import type { BriefKind } from "@/lib/briefKinds";
 import type { CourtState } from "./state";
 import type { WaterEvt } from "./garden";
 import { isDone, dayQ } from "./state";
+import { clock, sgtKeyOf } from "./time";
 
 // Who stands at their desk on the Court today. Real events only: a crew member walks out of the palace
 // to their desk once their own work for today exists (a brief filed, a line logged), and stays inside otherwise.
 export type Duty = { on: boolean; why: string };
 
-const sgtKey = (iso: string) => new Date(Date.parse(iso) + 8 * 3600000).toISOString().slice(0, 10);
-const hm = (iso: string) => new Date(Date.parse(iso) + 8 * 3600000).toISOString().slice(11, 16);
+// Through the shared formatter, which never throws on a missing or unreadable date.
+const sgtKey = (iso: string) => sgtKeyOf(iso);
+const hm = (iso: string) => clock(iso);
 
 export function crewDuty(o: { k: string; filed: Partial<Record<BriefKind, string>>; water: WaterEvt[]; st: CourtState; sky: boolean }): Record<string, Duty> {
   const { k, filed, water, st } = o;

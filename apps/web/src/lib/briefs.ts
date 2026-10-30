@@ -20,10 +20,13 @@ export async function loadBriefs(supabase: SupabaseClient, userId: string) {
   let res = await supabase.from("briefs").select("kind, title, body, at, meta").order("at", { ascending: false }).limit(200);
   if (res.error) res = (await supabase.from("briefs").select("kind, title, body, at").order("at", { ascending: false }).limit(200)) as typeof res;
   const latest = new Map<BriefKind, BriefRow>();
+  const all: BriefRow[] = [];   // every row read above, newest first (the News tab's history)
   for (const r of (res.data ?? []) as { kind: string; title: string; body: string; at: string; meta?: unknown }[]) {
     const k = canonKind(r.kind);
-    if (!k || latest.has(k)) continue;
-    latest.set(k, { kind: k, title: r.title, body: r.body, at: r.at, sources: sourcesOf(r.body ?? "", r.meta) });
+    if (!k) continue;
+    const row = { kind: k, title: r.title, body: r.body, at: r.at, sources: sourcesOf(r.body ?? "", r.meta) };
+    all.push(row);
+    if (!latest.has(k)) latest.set(k, row);
   }
   const rows = KIND_ORDER.filter((k) => latest.has(k)).map((k) => latest.get(k)!);
   const freshest = [...latest.values()].sort((a, b) => b.at.localeCompare(a.at))[0]?.kind ?? "";
@@ -37,7 +40,7 @@ export async function loadBriefs(supabase: SupabaseClient, userId: string) {
       if (it) votes[r.kind] = { vote: it.vote, note: it.note ?? "" };
     }
   }
-  return { rows, freshest, votes };
+  return { rows, freshest, votes, all };
 }
 
 export const kindLabel = (k: BriefKind) => BRIEF_KINDS[k].label;

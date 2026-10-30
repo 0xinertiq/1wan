@@ -1,5 +1,8 @@
 "use client";
 
+import { questName } from "@/lib/court/gardenEdit";
+import { useVault } from "@/lib/vault";
+import { dueSoon } from "@/lib/court/vaultDue";
 import { useState } from "react";
 import { PixelSprite } from "@/components/PixelSprite";
 import { useCourt } from "../CourtState";
@@ -46,7 +49,7 @@ export function TodayLive({ bare = false }: { bare?: boolean }) {
         ))}
       </div>
       <div className="panel" id="tp-brief" role="tabpanel" aria-labelledby="tt-brief" hidden={tab !== "brief"}>
-        <Strip quoteOnly={bare} />
+        {!bare && <Strip />}
         <RecapBox />
         <div id="dayCard" className="daycard">
           <NowCard />
@@ -69,7 +72,9 @@ export function TodayLive({ bare = false }: { bare?: boolean }) {
 // The glance numbers and Since yesterday as one compact row (New look's Today card).
 export function TodayChips() {
   const { st, k, events } = useCourt();
-  const wh = weekHab(st, k), due = dueList(st, k, events).filter((x) => x.dd <= 3).length;
+  // Round 6: her tasks and routines due within 3 days count too.
+  const tasks = useVault("tasks"), routines = useVault("routines");
+  const wh = weekHab(st, k), due = dueList(st, k, events).filter((x) => x.dd <= 3).length + dueSoon(tasks.rows as never, routines.rows as never, k, 3).length;
   const yd = st.days[addDays(k, -1)];
   return (
     <div className="tchips" role="group" aria-label="Today at a glance">
@@ -81,16 +86,16 @@ export function TodayChips() {
   );
 }
 
-function Strip({ quoteOnly = false }: { quoteOnly?: boolean }) {
+function Strip() {
   const { st, k, events } = useCourt();
   const wh = weekHab(st, k), due = dueList(st, k, events).filter((x) => x.dd <= 3).length;
   return (
     <div id="stripBox">
-      {!quoteOnly && <div className="strip" role="group" aria-label="Today at a glance">
+      <div className="strip" role="group" aria-label="Today at a glance">
         <span className="sc"><i>Due soon</i><b>{due}</b></span>
         <span className="sc"><i>Streak</i><b>{st.streak}</b></span>
         <span className="sc"><i>Habits this week</i><b>{wh.d}/{wh.t}</b></span>
-      </div>}
+      </div>
       <figure className="qod">
         <figcaption>Quote of the day</figcaption>
         <blockquote>{quoteOfDay(k, st.uq)}</blockquote>
@@ -99,7 +104,7 @@ function Strip({ quoteOnly = false }: { quoteOnly?: boolean }) {
   );
 }
 
-function RecapBox() {
+export function RecapBox() {
   const { recap: r, clearRecap, nm } = useCourt();
   if (!r) return <div id="recapBox"></div>;
   return (
@@ -114,12 +119,11 @@ function RecapBox() {
   );
 }
 
-function NowCard() {
-  const { st, k, nm, events, cal, update, levelUp } = useCourt();
-  const [pickI, setPickI] = useState(0);
+// noPick: the New look shows Kumo's pick as its own card on the Court (KumoPick below).
+function NowCard({ noPick = false }: { noPick?: boolean }) {
+  const { st, k, nm, events, cal } = useCourt();
   const evs = eventsOn(events, k).filter((e) => !e.allDay);
   const cur = evs.find((e) => e.a <= nm && nm < e.b), nxt = evs.find((e) => e.a > nm);
-  const canRest = st.restDay !== k && st.restWeek !== weekKey(k);
 
   if (st.restDay === k)
     return (
@@ -130,9 +134,6 @@ function NowCard() {
   if (cur) { lab = "Right now"; title = cur.t; sub = `Ends in ${dur(Math.max(1, cur.b - nm))} · until ${hm(cur.b)}`; }
   else if (nxt) { lab = "Up next"; title = nxt.t; sub = `Starts in ${dur(Math.max(1, nxt.a - nm))} · at ${hm(nxt.a)}`; soon = nxt.a - nm <= 15; }
 
-  // Kumo's pick (v52 pickList, without sprint and reports): the next open quest she can tick herself.
-  const picks = openQuests(st, k, nm).filter((q) => qScore(q, k, nm) < 60 && !q.auto).slice(0, 3);
-  const pick = picks.length ? picks[pickI % picks.length] : null;
   const pct = Math.max(0, Math.min(100, ((nm - 480) / (1320 - 480)) * 100));
 
   return (
@@ -143,21 +144,44 @@ function NowCard() {
         {sub && <span>{sub}</span>}
         {soon && <span className="soonmsg">Start wrapping up. Save your place.</span>}
         <div className="dayprog" role="img" aria-label={`Day progress, ${Math.round(pct)} percent of 08:00 to 22:00`}><i style={{ width: pct + "%" }}></i></div>
-        <div className="pick">
-          <small>Kumo&apos;s pick</small>
-          <span>{pick ? pick.title : "All clear. Rest is a valid move."}</span>
-          <div className="rep-act">
-            {pick && (
-              <button className="btn sm" type="button" onClick={() => update((d) => { const r = logQuest(d, pick.id); if (r.leveled) levelUp(r.leveled); }, ["q", "stars", "streak", "xp", "lvl"])}>I did it</button>
-            )}
-            {picks.length > 1 && <button className="btn sm ghost" type="button" onClick={() => setPickI(pickI + 1)}>Not now</button>}
-            {canRest && (
-              <button className="btn sm ghost" type="button" onClick={() => update((d) => { d.restDay = k; d.restWeek = weekKey(k); }, ["restDay", "restWeek"])}>Take a rest day</button>
-            )}
-          </div>
-        </div>
+        {!noPick && <KumoPick />}
       </div>
     </div>
+  );
+}
+
+// Kumo's pick (v52 pickList, without sprint and reports): the next open quest she can tick herself.
+export function KumoPick() {
+  const { st, k, nm, update, levelUp } = useCourt();
+  const [pickI, setPickI] = useState(0);
+  const canRest = st.restDay !== k && st.restWeek !== weekKey(k);
+  const picks = openQuests(st, k, nm).filter((q) => !st.questsOff.includes(q.id) && qScore(q, k, nm) < 60 && !q.auto).slice(0, 3);
+  const pick = picks.length ? picks[pickI % picks.length] : null;
+  return (
+    <div className="pick">
+      <small>Kumo&apos;s pick</small>
+      <span>{pick ? questName(st.gedit, pick) : "All clear. Rest is a valid move."}</span>
+      <div className="rep-act">
+        {pick && (
+          <button className="btn sm" type="button" onClick={() => update((d) => { const r = logQuest(d, pick.id); if (r.leveled) levelUp(r.leveled); }, ["q", "stars", "streak", "xp", "lvl"])}>I did it</button>
+        )}
+        {picks.length > 1 && <button className="btn sm ghost" type="button" onClick={() => setPickI(pickI + 1)}>Not now</button>}
+        {canRest && (
+          <button className="btn sm ghost" type="button" onClick={() => update((d) => { d.restDay = k; d.restWeek = weekKey(k); }, ["restDay", "restWeek"])}>Take a rest day</button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Quote of the day on its own (New look's quiet third row).
+export function QuoteOfDay() {
+  const { st, k } = useCourt();
+  return (
+    <figure className="qod">
+      <figcaption>Quote of the day</figcaption>
+      <blockquote>{quoteOfDay(k, st.uq)}</blockquote>
+    </figure>
   );
 }
 
@@ -169,7 +193,24 @@ function CalPill() {
   return <span className="pillx mid">Calendar not connected yet</span>;
 }
 
-function MomoCard() {
+/** Round 7: Momo on the Court's Today card says one thing only: ideas for your free time today. */
+export function MomoIdeas() {
+  const { st, k, nm, events } = useCourt();
+  const ideas = momoIdeas(st, k, k, eventsOn(events, k), nm, events);
+  return (
+    <div className="kmomo-ideas">
+      <div className="sec-h"><Mini name="momo" />Momo: ideas for your free time</div>
+      {!ideas.length ? <p className="note">No free gap of 45 minutes or more between 08:00 and 22:00.</p> : ideas.map((x) => (
+        <div className="idea" key={x.id}>
+          <b>{hm(x.a)} to {hm(x.b)} · {x.title}</b>
+          <span className="why">Because: {x.why.join(" · ")}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function MomoCard() {
   const { st, k, nm, events, cal } = useCourt();
   const [hide, setHide] = useState<string[]>([]);
   const shown = events.filter((e) => !hide.includes(e.cal));
@@ -263,6 +304,55 @@ function LifeCard() {
         {total > 0 && <p className="note">Bills and transfers due in the next 7 days: {money(total)}.</p>}
       </div>
     </div>
+  );
+}
+
+// Parked thoughts for the New-look Today card (the one-line input lives under the world).
+export function ParkedList() {
+  const { st, update } = useCourt();
+  const open = st.dump.filter((d) => !d.done).slice(0, 6);
+  return (
+    <div className="kparked">
+      <div className="sec-h">Parked thoughts</div>
+      {open.length ? open.map((d) => (
+        <div className="filed-row" key={d.id}>
+          <span>{d.t}</span>
+          <button className="btn sm ghost" type="button" aria-label="Mark done" onClick={() => update((s) => { const it = s.dump.find((x) => x.id === d.id); if (it) it.done = true; }, ["dump"])}>Done</button>
+        </div>
+      )) : <p className="note">Nothing parked.</p>}
+    </div>
+  );
+}
+
+// Coming up on the New-look Court: only what needs her soon. Auto-paid bills (GIRO, auto-deducted tax) and
+// subscriptions are left out here by their name or note (there is no auto-paid flag yet; NEEDS OWNER
+// APPROVAL to add one). Every item stays in Settings, Life admin.
+const AUTO = /\bgiro\b|auto[\s-]?(?:pay|paid|deduct|debit|renew)|instal?ments?|income tax|property tax|subscription|spotify|claude|netflix|icloud|google one|youtube|disney|apple (?:one|music|tv)/i;
+// Her own "Auto-paid" toggle wins; until she sets it, GIRO, auto-deducted tax and subscriptions count as auto-paid.
+export const autoPaidDefault = (it: { cat: string; name: string; note?: string }) => (it.cat === "bill" || it.cat === "money") && AUTO.test(it.name + " " + (it.note ?? ""));
+export const isAutoPaid = (it: { cat: string; name: string; note?: string; autoPaid?: boolean }) => it.autoPaid ?? autoPaidDefault(it);
+export function ComingUpCourt() {
+  const { st, k, events, update } = useCourt();
+  const list = dueList(st, k, events).filter((x) => x.dd <= 10 && !((x.it.cat === "bill" || x.it.cat === "money") && AUTO.test(x.it.name + " " + (x.it.note ?? "")))).slice(0, 5);
+  const done = (id: string) => update((d) => {
+    const x = dueList(d, k, events).find((y) => y.it.id === id);
+    if (!x) return;
+    const it = d.life.find((i) => i.id === id)!;
+    it.sched = "";
+    if (it.rule.type === "every") it.rule.last = k; else it.paid = it.rule.type === "once" ? 1 : x.d;
+  }, ["life"]);
+  return (
+    <section className="win kcoming" aria-labelledby="kcuT">
+      <div className="win-title"><h2 id="kcuT">Coming up</h2><span className="sub">needs you soon</span></div>
+      <div className="win-body">
+        {list.length ? list.map((x) => (
+          <div className="filed-row" key={x.it.id}>
+            <span>{x.it.name}{x.it.amt != null ? " · " + money(x.it.amt) : ""} <span className="note">{whenText(x.dd, x.d)}</span></span>
+            <button className="btn sm ghost" type="button" onClick={() => done(x.it.id)}>{x.it.rule.type === "every" ? "Done today" : x.it.cat === "decision" ? "Decided" : x.it.rule.type === "once" ? "Done" : "Paid"}</button>
+          </div>
+        )) : <p className="note">Nothing needs you in the next 10 days.</p>}
+      </div>
+    </section>
   );
 }
 

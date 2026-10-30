@@ -26,7 +26,7 @@ export function BriefFeedback({ kind, at, initial }: { kind: string; at: string;
       <div className="brfr">
         <span className="note">Was this useful?</span>
         <button className="chipb" type="button" aria-pressed={vote === "up"} onClick={() => send("up")}>Useful</button>
-        <button className="chipb" type="button" aria-pressed={vote === "down"} onClick={() => send("down")}>Not useful</button>
+        <button className="chipb" type="button" aria-pressed={vote === "down"} onClick={() => send("down")}>Needs work</button>
         {msg && <span className="note" role="status">{msg}</span>}
       </div>
       <input className="brin" type="text" maxLength={200} placeholder="One line on what to change (optional)" aria-label="What to change"

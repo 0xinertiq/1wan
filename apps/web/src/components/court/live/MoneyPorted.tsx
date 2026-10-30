@@ -18,7 +18,7 @@ function paydays(k: string, due: string) {
   while (d < due) { c++; m++; if (m > 12) { m = 1; y++; } d = `${y}-${String(m).padStart(2, "0")}-07`; }
   return c;
 }
-function fundStatus(k: string, bal: number, [, , target, due, monthly]: MoneyDefs["funds"][number]) {
+export function fundStatus(k: string, bal: number, [, , target, due, monthly]: MoneyDefs["funds"][number]) {
   if (!due) return { cls: "mut", txt: "Due month unknown" };
   if (due < k) return { cls: "mut", txt: "Due date passed · update balance" };
   if (bal >= target - 0.05) return { cls: "ok", txt: "Funded" };
@@ -33,7 +33,10 @@ function NumField({ label, v, onSet }: { label: string; v: number; onSet: (v: st
   return <label className="note mfld">{label} <input type="number" min="0" step="0.01" inputMode="decimal" defaultValue={v} onBlur={(e) => { if (+e.target.value !== v) onSet(e.target.value); }} /></label>;
 }
 
-export function MoneyPorted({ d, loggedToday }: { d: MoneyDefs; loggedToday: boolean }) {
+export function MoneyPorted({ d: raw, loggedToday }: { d: MoneyDefs; loggedToday: boolean }) {
+  // A partial import (a list missing) shows as empty instead of breaking the card.
+  const L = <T,>(v: T[] | undefined) => (Array.isArray(v) ? v : []);
+  const d: MoneyDefs = { ...raw, phases: L(raw.phases), routines: L(raw.routines), open: L(raw.open), cash: L(raw.cash), steps: L(raw.steps), up: L(raw.up), funds: L(raw.funds), nw: L(raw.nw) };
   const { st, k, update } = useCourt();
   const s = st.money;
   const t = { free: 0, ef: 0, sgd: 0, usd: 0, ...s.t };

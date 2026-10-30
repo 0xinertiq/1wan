@@ -37,7 +37,7 @@ Decay rules (computed from watering_events, per branch; trunk uses daily anchors
 - Wilting and dead branches appear in "Needs you now". Tone: gentle, never shaming. The tree reflects habits, not her worth. No penalty text about her.
 
 ## 5. Diary tab
-Existing Fox Diary and weekly recap, private, editable, exportable. Add the Archive (old weeds and habits). A "Tonight, count your wins" guided sheet opens at 21:30 or on demand, instead of a permanent block.
+Existing Dungeon (was Fox Diary) and weekly recap, private, editable, exportable. Add the Archive (old weeds and habits). A "Tonight, count your wins" guided sheet opens at 21:30 or on demand, instead of a permanent block.
 
 ## 6. Luna's astrological weather (rules only, no AI, no paid API)
 - Compute positions with a free ephemeris library (for example astronomy-engine or Swiss Ephemeris compiled to WASM). Tropical zodiac, Placidus houses. Verify against the Sun and Moon to within a degree for a few dates.
