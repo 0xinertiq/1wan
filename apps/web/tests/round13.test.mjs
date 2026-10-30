@@ -123,7 +123,8 @@ test("garden scene: the pond, bridge and left lantern are gone; the right lanter
 test("Dungeon room banner: same frame and grid as the clock tower, new art files, one gold accent", async () => {
   const room = src("components/kumo/decor/DungeonRoom.tsx"), clock = src("components/kumo/decor/ClockRoom.tsx");
   for (const f of [room, clock]) { assert.match(f, /<RoomFrame /); assert.match(f, /viewBox=\{`0 0 \$\{ROOM_W\} \$\{ROOM_H\}`\}/); }
-  assert.match(src("components/court/pages/Dungeon.tsx"), /<PageHead room=\{<DungeonRoom \/>\} title="Dungeon"/);
+  // round 15: the page now shows the redesigned study (room2Dungeon.tsx); this room stays in its file, unused
+  assert.match(src("components/court/pages/Dungeon.tsx"), /<PageHead room=\{<DungeonStudy \/>\} title="Dungeon"/);
   const art = await import("../src/components/kumo/decor/dungeonArt.ts");
   for (const k of ["sisiDesk", "sconce", "candelabra", "jarShelf", "archWindow"]) {
     const s = art[k]; assert.ok(s.every((r) => r.length === s[0].length), k + " rows are one width");

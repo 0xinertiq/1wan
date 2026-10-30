@@ -757,3 +757,21 @@ After the fix round:
 | News | newsroom with pinboard and wire printer | Pip | one pin |
 
 **Banners removed:** Settings and Kingdom Mode no longer render a banner. The scene code is kept.
+
+## Round 15 (preview)
+
+Four room banners were redesigned as distinct rooms: `room2Dungeon.tsx`, `room2Life.tsx`, `room2Trades.tsx` and `room2News.tsx`, with shared helpers in `roomKit.tsx`.
+
+- **Size:** all four use the Calendar's RoomFrame, so they keep the same size and the short-screen cap.
+- **Calendar:** the clock tower is unchanged.
+- **Old room files:** the Round 13 and Round 14 rooms are kept, unused.
+
+| Tab | Room | Agent | Motion |
+|---|---|---|---|
+| Dungeon | torchlit study | Sisi | flicker |
+| Life Hub | sunny morning room | Coco | plant sway, dust motes |
+| Trades | night desk | Fenn | ticker scroll, candle blink |
+| News | dawn newsroom | Pip | paper feed, sunrise glow |
+
+- **Motion:** CSS only, slow, and off under prefers-reduced-motion.
+- **Agents:** each one has a small idle bob.

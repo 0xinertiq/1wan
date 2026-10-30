@@ -1,6 +1,6 @@
 "use client";
 
-import { NewsRoom } from "@/components/kumo/decor/MoreRooms";
+import { NewsDawn } from "@/components/kumo/decor/room2News";
 import type { VRow } from "@/lib/vault";
 import type { Lens } from "@/lib/court/state";
 import { PageHead } from "../ui";
@@ -19,7 +19,7 @@ export const forLens = (rows: Research[], lens: Lens) => (lens === "off" ? [] : 
 export function NewsPage({ headlines }: { headlines: React.ReactNode }) {
   return (
     <div className="kpage">
-      <PageHead room={<NewsRoom />} title="News" sub="Today's briefing and the headlines, following the lenses you chose in Settings." />
+      <PageHead room={<NewsDawn />} title="News" sub="Today's briefing and the headlines, following the lenses you chose in Settings." />
       {headlines}
     </div>
   );

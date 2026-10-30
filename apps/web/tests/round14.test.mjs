@@ -57,7 +57,8 @@ test("Life Hub, Trades and News banners: the shared room frame and size, the age
     assert.match(html, /viewBox="0 0 400 60"/, name + " is on the same 400 x 60 grid");
     assert.match(html, new RegExp(`class="kroom ph-day kroom-${id}"`));
     assert.match(html, new RegExp(`data-who="${who}"`), name + " shows " + who);
-    assert.match(src("components/court/pages/" + file), new RegExp(`<PageHead room=\\{<${page} />\\}`));
+    // round 15: the pages now show the redesigned rooms (room2*.tsx); these round 14 rooms stay in their files
+    assert.ok(src("components/court/pages/" + file).includes("<PageHead room={<"), file + " still has a room banner");
   }
   // no room changes the shared size: per-room CSS only places the agent
   const css = src("app/(court)/kumo-new.css");
