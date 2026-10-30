@@ -5,6 +5,7 @@ import { useCourt } from "../CourtState";
 import { addDays, monthTitle, prettyDay, weekKey } from "@/lib/court/time";
 import { Btn, PageHead } from "../ui";
 import { ClockRoom } from "@/components/kumo/decor/ClockRoom";
+import { EntryHeart } from "@/components/kumo/decor/EntryHeart";
 
 // Calendar (round 8): the clock-tower room banner, the Calendar card full width (Day | Week | Month | Agenda of her
 // read-only Google Calendar), then the economic calendar full width. My tasks moved to the Life Hub; Month at a
@@ -20,7 +21,9 @@ function Heart({ filled }: { filled: boolean }) {
   );
 }
 
-export function MiniMonth({ marks, onPick, picked, label = "Mini month" }: { marks: (d: string) => boolean; onPick: (d: string) => void; picked?: string | null; label?: string }) {
+// mark "dot" (default): a small dot under marked dates. "heart" (round 18, the Dungeon): a faint heart behind the
+// number instead, and no dot; the selected day's and today's hearts win over it.
+export function MiniMonth({ marks, onPick, picked, label = "Mini month", mark = "dot" }: { marks: (d: string) => boolean; onPick: (d: string) => void; picked?: string | null; label?: string; mark?: "dot" | "heart" }) {
   const { k } = useCourt();
   const [m, setM] = useState(k.slice(0, 8) + "01");
   const start = weekKey(m);
@@ -35,8 +38,8 @@ export function MiniMonth({ marks, onPick, picked, label = "Mini month" }: { mar
       <div className="kmini">
         {["M", "T", "W", "T", "F", "S", "S"].map((w, i) => <span key={i} aria-hidden="true">{w}</span>)}
         {days.map((d) => (
-          <button key={d} type="button" className={(d.slice(0, 7) !== m.slice(0, 7) ? "out " : "") + (d === k ? "is-today " : "") + (marks(d) ? "has" : "")} aria-pressed={picked === d} aria-label={prettyDay(d) + (d === k ? ", today" : "") + (marks(d) ? ", has items" : "")} onClick={() => onPick(d)}>
-            {(picked === d || d === k) && <Heart filled={picked === d} />}<span>{+d.slice(8)}</span>
+          <button key={d} type="button" className={(d.slice(0, 7) !== m.slice(0, 7) ? "out " : "") + (d === k ? "is-today " : "") + (marks(d) ? (mark === "heart" ? "has-heart" : "has") : "")} aria-pressed={picked === d} aria-label={prettyDay(d) + (d === k ? ", today" : "") + (marks(d) ? ", has items" : "")} onClick={() => onPick(d)}>
+            {picked === d || d === k ? <Heart filled={picked === d} /> : mark === "heart" && marks(d) ? <EntryHeart /> : null}<span>{+d.slice(8)}</span>
           </button>
         ))}
       </div>

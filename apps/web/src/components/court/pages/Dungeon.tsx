@@ -181,7 +181,7 @@ export function WeeklyLookBack() {
   const v = useVault<Entry>("journal_entries");
   const L = lookBack(v.rows, st.wins, st.mood, k, st.streak, st.days);
   return (
-    <Card title="Weekly look-back" sub="rule-based, private" id="dungeon-week">
+    <Card title="Weekly look-back" sub="rule-based, private" id="dungeon-week" className="kd-week">
       <ul className="rv-sug">
         <li>{L.written} of {L.days} day{L.days === 1 ? "" : "s"} with something written</li>
         {L.winsDays > 0 && <li>{L.winsDays} day{L.winsDays === 1 ? "" : "s"} with a win or a thank-you</li>}
@@ -245,13 +245,15 @@ export function DungeonPage() {
   return (
     <div className={"kpage kdun-page" + (fitH ? " fit" : "")} style={fitH ? ({ "--dun-h": fitH + "px" } as React.CSSProperties) : undefined}>
       <PageHead room={<DungeonStudy />} title="Dungeon" sub="Your private journal. Never shown to friends; included in Export my data." />
-      {/* round 7: Your pages | Today's page (stretches to the row, the writing area fills it) | the weekly look-back,
-          then mood, tags, reflections and notes. On a tablet the page sits left with the other two stacked right. */}
+      {/* round 18: the weekly look-back, Your pages and the Gratitude log | Today's page (stretches to the row, the
+          writing area fills it) | Today's gratitude, mood and tags, trade reflection. On a tablet the page sits left
+          with the other two stacked right. */}
       <div className="kpg kdun even" ref={grid}>
         <div className="kcol kd-pages">
-          <Card title="Your pages">
+          <WeeklyLookBack />
+          <Card title="Your pages" className="kd-pages-card">
             <TabPills label="Pages" value={tab} options={[["month", "Month"], ["list", "List"]] as const} onChange={setTab} />
-            {tab === "month" ? <MiniMonth marks={has} picked={day} onPick={(d) => setDay(d)} label="Journal month" /> : <>
+            {tab === "month" ? <MiniMonth marks={has} picked={day} onPick={(d) => setDay(d)} label="Journal month" mark="heart" /> : <>
               <input type="search" aria-label="Search your journal" placeholder="Search your pages" value={q} onChange={(e) => setQ(e.target.value)} />
               {!hits.length ? <EmptyState>{days.length ? "Nothing matches." : "Your first page appears when you write."}</EmptyState>
                 : hits.slice(0, 60).map((d) => (
@@ -267,7 +269,7 @@ export function DungeonPage() {
           <GratitudeLog />
         </div>
         <div className="kcol kd-edit"><Editor day={day} e={byDay.get(day)} put={put} status={v.status} storeNote={<StoreNote status={v.status} failed={v.failed} />} /></div>
-        <div className="kcol kd-side"><TodaysGratitude /><WeeklyLookBack /><Side day={day} e={byDay.get(day)} put={put} /></div>
+        <div className="kcol kd-side"><TodaysGratitude /><Side day={day} e={byDay.get(day)} put={put} /></div>
       </div>
     </div>
   );

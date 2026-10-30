@@ -793,3 +793,10 @@ Four room banners were redesigned as distinct rooms: `room2Dungeon.tsx`, `room2L
 - **Short screens:** the cap now limits the banner's width, so the whole room scales down, centred.
 - **Phones:** they keep the 160px swipeable strip.
 - **Browser checks:** all five tabs at 1280×720, 1440×900, 1920×1080 and 1024×768.
+
+## Round 18 (preview)
+- Phones: room banners are not displayed below 768px (the banner code stays); tablet and desktop unchanged.
+- Dungeon "Your pages" calendar: entry days show a faint pink pixel heart (35%) behind the number instead of a dot; the selected day's and today's hearts win. New art in components/kumo/decor/EntryHeart.tsx; other mini months keep their dots.
+- Luna card: labelled rows share one label column (subgrid), so content and its wrapped lines start at one edge; stacks below a 300px card.
+- Dungeon columns: Weekly look-back (compact), Your pages, Gratitude log | Today's page | Today's gratitude, Mood and tags, Trade reflection. Owner's choice: the page never scrolls; short windows scroll inside a column (a full fit needs about 4x the space at 1280x720).
+- Tests: tests/round18.test.mjs and browser checks (nobanner, luna, Dungeon order and no sideways scroll).
