@@ -800,3 +800,7 @@ Four room banners were redesigned as distinct rooms: `room2Dungeon.tsx`, `room2L
 - Luna card: labelled rows share one label column (subgrid), so content and its wrapped lines start at one edge; stacks below a 300px card.
 - Dungeon columns: Weekly look-back (compact), Your pages, Gratitude log | Today's page | Today's gratitude, Mood and tags, Trade reflection. Owner's choice: the page never scrolls; short windows scroll inside a column (a full fit needs about 4x the space at 1280x720).
 - Tests: tests/round18.test.mjs and browser checks (nobanner, luna, Dungeon order and no sideways scroll).
+
+## Round 19 (preview)
+- Dungeon fits one screen from 900px tall windows: its own shorter banner (whole room scaled, centred; other banners unchanged), tighter card spacing and header padding, slightly smaller subtitle and look-back text, flexible Trade reflection and Today's page writing areas, the Month / List switch in the Your pages header row, less bottom padding on the Dungeon tab only. Only the Gratitude log's list may scroll inside its card. Below 900px tall a column may scroll inside itself, never the page.
+- Tests: tests/round19.test.mjs; browser "nocolscroll" checks at 1440x900, 1920x1080 and 1280x900 (also with a full six-line look-back, and at night).

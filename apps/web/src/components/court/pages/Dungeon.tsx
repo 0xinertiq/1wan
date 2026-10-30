@@ -209,7 +209,7 @@ export function DungeonPage() {
   // only the changed fields are sent; the storage layer merges them into the latest copy of the page
   const put = (x: Partial<Entry> & { id: string }) => v.put((byDay.has(x.day ?? day) ? x : { tags: [], notes: [], text: "", ...x }) as Partial<Entry> & { id: string });
   // round 12: at desktop sizes the page fits the window: the grid takes the height left under the page head (keeping
-  // the 48px footer buffer) and each column scrolls inside itself. Small screens scroll as normal.
+  // a 16px buffer, round 19) and each column scrolls inside itself only if it must. Small screens scroll as normal.
   const grid = useRef<HTMLDivElement>(null);
   const [fitH, setFitH] = useState<number | null>(null);
   useEffect(() => {
@@ -218,7 +218,7 @@ export function DungeonPage() {
       const el = grid.current, panel = el?.closest(".tabpanel") as HTMLElement | null;
       if (!el || (panel && panel.hidden) || window.innerWidth < 1200 || window.innerHeight < 540) return setFitH(null);
       const top = el.getBoundingClientRect().top + window.scrollY;
-      setFitH(Math.max(260, Math.floor(window.innerHeight - top - 48)));
+      setFitH(Math.max(260, Math.floor(window.innerHeight - top - 16)));
     };
     // measure on load, on resize, and whenever the Dungeon tab is shown (the nav shows it without a hashchange)
     const t = window.setTimeout(look, 60);
@@ -237,7 +237,7 @@ export function DungeonPage() {
     const step = ++settled.current;
     window.requestAnimationFrame(() => {
       const el = grid.current, se = document.scrollingElement; if (!el || !se) return;
-      if (step === 1) { const top = el.getBoundingClientRect().top + window.scrollY; const h = Math.max(260, Math.floor(window.innerHeight - top - 48)); if (Math.abs(h - fitH) > 2) return setFitH(h); settled.current = 2; }
+      if (step === 1) { const top = el.getBoundingClientRect().top + window.scrollY; const h = Math.max(260, Math.floor(window.innerHeight - top - 16)); if (Math.abs(h - fitH) > 2) return setFitH(h); settled.current = 2; }
       const over = se.scrollHeight - window.innerHeight;
       if (over > 0) setFitH(Math.max(260, fitH - over));
     });
@@ -251,8 +251,8 @@ export function DungeonPage() {
       <div className="kpg kdun even" ref={grid}>
         <div className="kcol kd-pages">
           <WeeklyLookBack />
-          <Card title="Your pages" className="kd-pages-card">
-            <TabPills label="Pages" value={tab} options={[["month", "Month"], ["list", "List"]] as const} onChange={setTab} />
+          {/* round 19: the Month / List switch sits in the card's header row, saving a row so the column fits */}
+          <Card title="Your pages" className="kd-pages-card" actions={<TabPills label="Pages" value={tab} options={[["month", "Month"], ["list", "List"]] as const} onChange={setTab} />}>
             {tab === "month" ? <MiniMonth marks={has} picked={day} onPick={(d) => setDay(d)} label="Journal month" mark="heart" /> : <>
               <input type="search" aria-label="Search your journal" placeholder="Search your pages" value={q} onChange={(e) => setQ(e.target.value)} />
               {!hits.length ? <EmptyState>{days.length ? "Nothing matches." : "Your first page appears when you write."}</EmptyState>
