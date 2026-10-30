@@ -139,3 +139,7 @@
 /* round 12: the sakura bonsai at night (cooler wood, deeper pinks, lantern moon) */
 :root[data-ui="new"][data-theme="dark"]{--kt-w:#a8705f;--kt-k:#8a5a4c;--kt-o:#fff1c9;--kt-n:#7f97c9;--kt-r:#9c96b3;--kt-R:#7b7594}
 @media (prefers-color-scheme:dark){:root[data-ui="new"]:not([data-theme="light"]){--kt-w:#a8705f;--kt-k:#8a5a4c;--kt-o:#fff1c9;--kt-n:#7f97c9;--kt-r:#9c96b3;--kt-R:#7b7594}}
+/* round 16: branch progress colours (Garden > Branches), day and night */
+:root{--k-bp-fill:#BDE6CB;--k-bp-quiet:#EAF5EE;--k-bp-quiet-fill:#D3ECDC;--k-bp-idle:#EEEAF1;--k-bp-gold:#C99A2E}
+:root[data-ui="new"][data-theme="dark"]{--k-bp-fill:#355D4D;--k-bp-quiet:#2E3F3C;--k-bp-quiet-fill:#38564B;--k-bp-idle:#3A3258}
+@media (prefers-color-scheme:dark){:root[data-ui="new"]:not([data-theme="light"]){--k-bp-fill:#355D4D;--k-bp-quiet:#2E3F3C;--k-bp-quiet-fill:#38564B;--k-bp-idle:#3A3258}}

@@ -1304,15 +1304,19 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kge-add>input{flex:1 1 10rem;min-width:0}
 :root[data-ui="new"] .kanc-at{font:400 10px/1 var(--k-font-label);margin-right:var(--sp-1);color:var(--k-btn-ink)}
 /* round 13/14: branch progress backgrounds (grey never started, faint tint quiet, full green active, gold edge done) */
-:root[data-ui="new"] .gbranches .gk[data-bp]{border-radius:var(--r-control);border:1px solid transparent}
-:root[data-ui="new"] .gbranches .gk[data-bp="idle"]{background:var(--k-track)}
-:root[data-ui="new"] .gbranches .gk[data-bp="quiet"]{background:color-mix(in srgb,var(--k-mint-100) 45%,var(--k-surface))}
-:root[data-ui="new"] .gbranches .gk[data-bp="active"]{background:var(--k-mint-100)}
-:root[data-ui="new"] .gbranches .gk[data-bp="done"]{background:var(--k-mint-100);border-color:var(--k-gold-400);box-shadow:inset 0 0 0 1px var(--k-gold-400)}
 :root[data-ui="new"] .kroom-inner{min-width:100%}
 :root[data-ui="new"] .kroom-art{position:absolute;left:0;top:50%;width:100%;aspect-ratio:20/3;transform:translateY(-50%)}
 :root[data-ui="new"] .kroom-art>svg{display:block;width:100%;height:100%;image-rendering:pixelated}
-@media (min-width:1200px){:root[data-ui="new"] .kroom{min-height:120px;max-height:max(120px,calc(100vh - 504px))}}
+/* round 17: from tablet width up every room banner fits its area exactly: the box takes the art's own 20:3 shape at
+   full width (no sideways scroll, nothing cropped). On short desktop screens the same cap as before now limits the
+   banner's width instead, so the whole room scales down, centred. Phones keep the 160px swipeable strip. */
+@media (min-width:768px){
+  :root[data-ui="new"] .kroom{aspect-ratio:auto;height:auto;width:100%;min-height:0;max-height:none;margin-inline:auto}
+  :root[data-ui="new"] .kroom-scroll{height:auto;overflow:hidden;cursor:default}
+  :root[data-ui="new"] .kroom-inner{width:100%;min-width:0;height:auto;aspect-ratio:20/3}
+  :root[data-ui="new"] .kroom-art{inset:0;top:0;width:100%;height:100%;aspect-ratio:auto;transform:none}
+}
+@media (min-width:1200px){:root[data-ui="new"] .kroom{max-width:min(100%,calc((max(120px,100vh - 504px) - 2 * var(--bw-2)) * 20 / 3 + 2 * var(--bw-2)))}}
 :root[data-ui="new"] .kroom-agent{position:absolute;bottom:15%;height:28%;aspect-ratio:1}
 :root[data-ui="new"] .kroom-life .kroom-agent{left:40%}
 :root[data-ui="new"] .kroom-trades .kroom-agent{left:48.5%}
@@ -1342,3 +1346,13 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kroom-v2 .k2-idle{animation:k2-idle 5s ease-in-out infinite}
 @keyframes k2-idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-4%)}}
 @media (prefers-reduced-motion:reduce){:root[data-ui="new"] .kroom-v2 *,:root[data-ui="new"] .kroom-v2 .k2-idle{animation:none!important}}
+/* round 16: branch progress backgrounds, fixed. The generic card rule above (:is(..., .gk, ..., #mktWrap)) carries an
+   ID's weight through :is(), so it painted every branch plain; :not(#kbp) gives these rules the same weight, and they
+   come later, so they win. Grey: never started. Faint tint: cells done, quiet this week (the done share a little
+   stronger). Green fill from the left by the share done, fading at its edge: active this week. Full green with a soft
+   gold edge: complete. */
+:root[data-ui="new"] .gbranches .gk[data-bp]:not(#kbp){border:1px solid var(--k-line-soft);border-radius:var(--r-control)}
+:root[data-ui="new"] .gbranches .gk[data-bp="idle"]:not(#kbp){background:var(--k-bp-idle)}
+:root[data-ui="new"] .gbranches .gk[data-bp="quiet"]:not(#kbp){background:linear-gradient(90deg,var(--k-bp-quiet-fill) 0,var(--k-bp-quiet-fill) var(--bp,0%),var(--k-bp-quiet) calc(var(--bp,0%) + 12%),var(--k-bp-quiet) 100%)}
+:root[data-ui="new"] .gbranches .gk[data-bp="active"]:not(#kbp){background:linear-gradient(90deg,var(--k-bp-fill) 0,var(--k-bp-fill) max(var(--bp,0%),6%),var(--k-surface) calc(max(var(--bp,0%),6%) + 14%),var(--k-surface) 100%)}
+:root[data-ui="new"] .gbranches .gk[data-bp="done"]:not(#kbp){background:var(--k-bp-fill);border-color:var(--k-bp-gold);box-shadow:inset 0 0 0 1px var(--k-bp-gold)}

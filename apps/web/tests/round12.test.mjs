@@ -64,7 +64,7 @@ test("Branches follow the chart she edits: renames, edits, ticks, resets and the
   const y = chartBranches(list, st, "2027");
   assert.deepEqual(y.map((b) => [b.name, b.blossoms]), [["Sub-goal 1", 1], ["Sub-goal 2", 0]], "the 2027 chart and its own ticks");
   assert.equal(chartBranches(list, st, "2026")[0].blossoms, 2, "2026 ticks are untouched");
-  assert.match(src("components/court/live/GrowLive.tsx"), /const list = chartBranches\(raw, st, byear\);/, "one source of truth for the Branches card");
+  assert.match(src("components/court/live/GrowLive.tsx"), /const list = chartBranches\(raw, st, byear(, evs \?\? \[\])?\);/, "one source of truth for the Branches card");
 });
 
 test("quest switches persist under their own key and change nothing about XP", async () => {

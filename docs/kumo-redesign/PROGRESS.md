@@ -775,3 +775,21 @@ Four room banners were redesigned as distinct rooms: `room2Dungeon.tsx`, `room2L
 
 - **Motion:** CSS only, slow, and off under prefers-reduced-motion.
 - **Agents:** each one has a small idle bob.
+
+## Rounds 16 and 17 (preview)
+
+**Round 16: branch colours never showed.**
+- **Cause:** the generic card rule `:is(.filed-row, .gk, ..., #mktWrap)` carries an ID's weight through `:is()`, which repainted every branch plain.
+- **Fix:** the branch rules now use `:not(#kbp)`, so they win.
+- **New look:**
+  - Colours come from new `--k-bp-*` tokens, day and night.
+  - The fill runs left to right by the share of cells done, fading at its edge.
+  - "Quiet this week" is a visible tint, and "complete" has a gold edge.
+- **2027:** "active this week" now comes from the 2027 chart's own ticks. This is display only; decay is unchanged.
+
+**Round 17: banners scrolled sideways.**
+- **Cause:** the box was 4:1 while the art is 20:3 at full height, with `overflow-x:auto`.
+- **Fix:** from 768px up, the box takes the art's 20:3 shape on its inner area, with nothing to scroll.
+- **Short screens:** the cap now limits the banner's width, so the whole room scales down, centred.
+- **Phones:** they keep the 160px swipeable strip.
+- **Browser checks:** all five tabs at 1280×720, 1440×900, 1920×1080 and 1024×768.

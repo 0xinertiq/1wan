@@ -107,9 +107,9 @@ test("Edit garden: one button, one panel with four tabs, the quest switches move
 test("branch progress: the decorations follow the effective chart", () => {
   // the four states themselves are tested in round14.test.mjs (round 14 split "in progress" into quiet and active)
   const g = src("components/court/live/GrowLive.tsx");
-  assert.match(g, /const list = chartBranches\(raw, st, byear\);/, "branches keep reading the effective chart");
+  assert.match(g, /const list = chartBranches\(raw, st, byear(, evs \?\? \[\])?\);/, "branches keep reading the effective chart");
   assert.match(g, /data-bp=\{bp\.state\}/);
-  assert.match(src("app/(court)/kumo-new.css"), /\.gk\[data-bp="done"\]\{[^}]*--k-gold-400/, "completed has a soft gold edge");
+  assert.match(src("app/(court)/kumo-new.css"), /\.gk\[data-bp="done"\](:not\(#kbp\))?\{[^}]*--k-bp-gold/, "completed has a soft gold edge");
 });
 
 test("garden scene: the pond, bridge and left lantern are gone; the right lantern and tufts stay", () => {

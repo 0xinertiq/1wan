@@ -44,7 +44,7 @@ test("branch progress: grey never started, faint tint quiet, green active, gold 
   assert.deepEqual(branchProgress({ blossoms: 0, last: "2026-10-26" }, K), { state: "active", share: 0 }, "activity this week");
   assert.deepEqual(branchProgress({ blossoms: 8, last: "2026-10-01" }, K), { state: "done", share: 1 });
   const css = src("app/(court)/kumo-new.css");
-  for (const s of ["idle", "quiet", "active", "done"]) assert.match(css, new RegExp(`\\.gk\\[data-bp="${s}"\\]\\{`), s + " has its own background");
+  for (const s of ["idle", "quiet", "active", "done"]) assert.match(css, new RegExp(`\\.gk\\[data-bp="${s}"\\](:not\\(#kbp\\))?\\{`), s + " has its own background");
 });
 
 test("Life Hub, Trades and News banners: the shared room frame and size, the agent already tied to each tab", async () => {

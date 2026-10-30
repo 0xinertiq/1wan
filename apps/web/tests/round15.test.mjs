@@ -32,7 +32,8 @@ test("each banner uses the Calendar banner's frame, grid and size, on its tab's 
   // no new rule changes a banner's size (the shared .kroom box and the short-screen cap still decide it)
   const css = src("app/(court)/kumo-new.css");
   for (const rule of css.match(/[^}]*\.kroom(?:-v2|2-[a-z]+)[^{]*\{[^}]*\}/g) ?? []) assert.ok(!/(^|[;{])(width|height|min-height|max-height|aspect-ratio)\s*:/.test(rule.slice(rule.indexOf("{"))), rule.trim());
-  assert.match(css, /@media \(min-width:1200px\)\{:root\[data-ui="new"\] \.kroom\{min-height:120px;max-height:max\(120px,calc\(100vh - 504px\)\)\}\}/, "the short-screen cap is unchanged");
+  // round 17: the short-screen cap now limits the width (tested in round16.test.mjs)
+  assert.match(css, /@media \(min-width:1200px\)\{:root\[data-ui="new"\] \.kroom\{max-width:min\(100%,calc\(\(max\(120px,100vh - 504px\)/, "the short-screen cap is shared");
   assert.ok(!/ClockRoom/.test(ROOMS.map(([f]) => src(`components/kumo/decor/${f}.tsx`)).join("")), "the clock tower is unchanged");
 });
 

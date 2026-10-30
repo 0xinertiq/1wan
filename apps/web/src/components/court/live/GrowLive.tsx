@@ -152,6 +152,17 @@ const STAGE_TXT: Record<string, string> = { sprout: "sprout, waiting for its fir
 // extra: more segments for the New-look Garden page (wins ladder, her own habits, the week).
 const STAGE_NAMES = ["Bare", "Sprout", "Leafy", "Blossoming", "Full bloom"];
 
+/** One branch on the Branches card with its progress background (round 16: the share drives the fill width). */
+export function BranchRow({ b, k, children }: { b: Branch & { seen?: string | null }; k: string; children?: React.ReactNode }) {
+  const bp = branchProgress(b, k);
+  return (
+    <div className="gk" data-st={b.stage === "blooming" || b.stage === "sprout" ? "ok" : b.stage === "thirsty" ? "thirsty" : "wilting"} data-bp={bp.state} style={{ "--bp": Math.round(bp.share * 100) + "%" } as React.CSSProperties}>
+      <span className="gnm"><b>{b.n}. {b.name}</b><small>{STAGE_TXT[b.stage]} · {b.blossoms}/8 blossoms{b.last ? ` · last ${prettyDay(b.last)}` : ""}</small></span>
+      {children}
+    </div>
+  );
+}
+
 export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode; quests?: React.ReactNode; wins?: React.ReactNode; pick?: React.ReactNode } }) {
   const { st, k, update, levelUp } = useCourt();
   const [evs, setEvs] = useState<WaterEvt[] | null>(null);
@@ -166,7 +177,7 @@ export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode;
   const { trunk, list: raw } = branches(st, k, evs ?? []);
   // round 12: Branches follow the chart she edits, for the year chosen on the Branches card
   const [byear, setByear] = useState<"2026" | "2027">("2026");
-  const list = chartBranches(raw, st, byear);
+  const list = chartBranches(raw, st, byear, evs ?? []);
   const anchors = st.defs.swins?.phases.find((p) => p.daily)?.items ?? [];
   const todayA = st.swins.log[k] || [];
   const aCount = anchorCount(anchors, st.gedit, wdOf(k), todayA);
@@ -245,12 +256,11 @@ export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode;
   </>;
   // round 13/14: a progress background per branch (grey: never started, faint tint: quiet this week, green: active
   // this week, gold edge: done)
-  const branchList = <div className="gbranches">{list.map((b) => { const bp = branchProgress(b, k); return (
-    <div className="gk" data-st={b.stage === "blooming" || b.stage === "sprout" ? "ok" : b.stage === "thirsty" ? "thirsty" : "wilting"} data-bp={bp.state} key={b.n}>
-      <span className="gnm"><b>{b.n}. {b.name}</b><small>{STAGE_TXT[b.stage]} · {b.blossoms}/8 blossoms{b.last ? ` · last ${prettyDay(b.last)}` : ""}</small></span>
+  const branchList = <div className="gbranches">{list.map((b) => (
+    <BranchRow b={b} k={k} key={b.n}>
       {b.stage === "dead" && <button className="btn sm ghost gx" type="button" onClick={() => weedOut(b.n)}>{arm === String(b.n) ? "Yes, weed it out" : "Weed it out"}</button>}
-    </div>
-  ); })}</div>;
+    </BranchRow>
+  ))}</div>;
   const nudge = care.length > 0 && <>
     <div className="sec-h">A gentle nudge</div>
     {care.slice(0, 3).map((b) => <p className="note" key={b.n}><Mini name={NUDGE[b.n].crew} sm /> {b.n ? b.name : "Trunk"}: {NUDGE[b.n].t}</p>)}
