@@ -13,5 +13,5 @@ export const InboxProvider = ({ briefs, review, children }: { briefs: Brief[]; r
 
 export function habitsToday(st: CourtState, k: string) {
   const wd = wdOf(k), done = st.hab.log[k] ?? [];
-  return st.hab.list.filter((h) => !h.paused && h.days.includes(wd) && !done.includes(h.id)).map((h) => ({ id: h.id, name: h.name }));
+  return st.hab.list.filter((h) => !st.gedit.hab.hidden.includes(h.id) && !h.paused && h.days.includes(wd) && !done.includes(h.id)).map((h) => ({ id: h.id, name: h.name }));
 }

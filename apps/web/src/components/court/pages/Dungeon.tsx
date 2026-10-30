@@ -7,6 +7,7 @@ import { useVault, type VRow } from "@/lib/vault";
 import { addDays, dayGap, prettyDay, weekKey } from "@/lib/court/time";
 import { MiniMonth } from "./CalendarPage";
 import { Archive, downloadDiary } from "../live/GrowLive";
+import { DungeonRoom } from "@/components/kumo/decor/DungeonRoom";
 import { Btn, Card, Chip, EmptyState, PageHead, SectionLabel, StoreNote, TabPills } from "../ui";
 
 // Dungeon (round 6, private journal): left, the month calendar and a text-only list with search; middle, the
@@ -243,7 +244,7 @@ export function DungeonPage() {
   }, [fitH]);
   return (
     <div className={"kpage kdun-page" + (fitH ? " fit" : "")} style={fitH ? ({ "--dun-h": fitH + "px" } as React.CSSProperties) : undefined}>
-      <PageHead scene="gate" title="Dungeon" sub="Your private journal. Never shown to friends; included in Export my data." />
+      <PageHead room={<DungeonRoom />} title="Dungeon" sub="Your private journal. Never shown to friends; included in Export my data." />
       {/* round 7: Your pages | Today's page (stretches to the row, the writing area fills it) | the weekly look-back,
           then mood, tags, reflections and notes. On a tablet the page sits left with the other two stacked right. */}
       <div className="kpg kdun even" ref={grid}>

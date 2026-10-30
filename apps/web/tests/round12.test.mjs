@@ -76,7 +76,9 @@ test("quest switches persist under their own key and change nothing about XP", a
   const q = src("lib/court/quests.ts"), g = src("components/court/live/GrowLive.tsx");
   assert.ok(!/questsOff/.test(q) && !/questsOff/.test(src("lib/court/actions.ts")), "the XP and quest rules never read the switches");
   assert.match(g, /activeQ\(st, k\)\.filter\(\(q\) => !st\.questsOff\.includes\(q\.id\)\)/, "display only");
-  assert.match(src("components/court/pages/GardenPage.tsx"), /Add your own in My habits\. Built-in quests can be switched off in Edit quests\./);
+  // round 13: the switches moved into Edit garden > Quests (same questsOff key)
+  assert.match(src("components/court/pages/GardenPage.tsx"), /Add your own in My habits\. Switch off, rename or reorder quests in Edit garden\./);
+  assert.match(src("components/court/live/EditGarden.tsx"), /d\.questsOff = toggle\(d\.questsOff, q\.id\)/);
 });
 
 test("quote library: paste and upload parsing, the source switch, export, and no network", async () => {

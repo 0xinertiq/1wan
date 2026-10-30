@@ -82,7 +82,7 @@ export function GridWins() {
   );
 }
 
-export function Ladder({ title, phases, done, auto, onTick }: { title: string; phases: Phase[]; done: Done; auto: Record<string, string>; onTick: (id: string, on: boolean) => void }) {
+export function Ladder({ title, phases, done, auto, onTick, foldDone }: { title: string; phases: Phase[]; done: Done; auto: Record<string, string>; onTick: (id: string, on: boolean) => void; foldDone?: boolean }) {
   const all = phases.flatMap((p) => p.items.map((i) => i[0]));
   const n = all.filter((id) => done[id]).length;
   return (
@@ -93,12 +93,18 @@ export function Ladder({ title, phases, done, auto, onTick }: { title: string; p
         <details className="pillar" key={p.id} open={p.items.some(([id]) => !done[id]) && phases.find((q) => q.items.some(([id]) => !done[id]))?.id === p.id}>
           <summary><b>{p.title}</b> <span className="note">{p.when} · {p.items.filter(([id]) => done[id]).length}/{p.items.length}</span></summary>
           <p className="note xd">{p.why}</p>
-          {p.items.map(([id, t, d, dt]) => (
-            <div className="filed-row col" key={id}>
-              <label><input type="checkbox" checked={!!done[id]} onChange={(e) => onTick(id, e.target.checked)} /> {done[id] ? <s>{t}</s> : t}{dt ? <span className="note"> · {dt}</span> : null}</label>
-              <span className="note">{d}{auto[id] ? " · " + auto[id] : ""}{done[id] && !auto[id] ? " · self-report" : ""}</span>
-            </div>
-          ))}
+          {(() => {
+            const row = ([id, t, d, dt]: Phase["items"][number]) => (
+              <div className="filed-row col" key={id}>
+                <label><input type="checkbox" checked={!!done[id]} onChange={(e) => onTick(id, e.target.checked)} /> {done[id] ? <s>{t}</s> : t}{dt ? <span className="note"> · {dt}</span> : null}</label>
+                <span className="note">{d}{auto[id] ? " · " + auto[id] : ""}{done[id] && !auto[id] ? " · self-report" : ""}</span>
+              </div>
+            );
+            // round 13 (Garden only): finished milestones fold away under one line; untick them there
+            if (!foldDone) return p.items.map(row);
+            const fin = p.items.filter(([id]) => done[id]);
+            return <>{p.items.filter(([id]) => !done[id]).map(row)}{fin.length > 0 && <details className="kfold"><summary className="note">{fin.length} finished</summary>{fin.map(row)}</details>}</>;
+          })()}
         </details>
       ))}
     </>

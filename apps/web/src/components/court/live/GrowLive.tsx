@@ -11,7 +11,7 @@ import {
   STAGES, activeQ, dayQ, eventsOn, gardenWeek, isDone, manualOpen, openQuests, progOf, qScore, seedInfo, weekHab, winTally,
   type CourtState, type SeedInfo,
 } from "@/lib/court/state";
-import { addDays, prettyDay, weekKey, dayIdx, sgtKeyOf } from "@/lib/court/time";
+import { addDays, prettyDay, weekKey, dayIdx, sgtKeyOf, wdOf } from "@/lib/court/time";
 import { branches, needsCare, type Branch, type WaterEvt } from "@/lib/court/garden";
 import { DecorSprite } from "@/components/kumo/DecorSprite";
 import { GardenTree } from "@/components/kumo/decor/GardenTree";
@@ -22,7 +22,8 @@ import { water } from "@/lib/court/water";
 import { TAILS, earned } from "@/lib/court/tails";
 import { useUi } from "@/components/kumo/useUi";
 import { habitWeek, gardenStage, GROW_AT } from "@/lib/court/habits";
-import { chartBranches } from "@/lib/court/branchChart";
+import { branchProgress, chartBranches } from "@/lib/court/branchChart";
+import { anchorRows, ordered, questName } from "@/lib/court/gardenEdit";
 import { Card as GCard } from "../ui";
 
 // Growth column from dashboard-v52: Sakura Garden (with Habit Quests inside), Gratitude (round 11 name),
@@ -46,7 +47,7 @@ export function QuestLive() {
 
   let list;
   if (all) {
-    const l = aq.filter((q) => qf === "all" || q.crew === qf);
+    const l = ordered(aq, (q) => q.id, st.gedit.quests.order).filter((q) => qf === "all" || q.crew === qf);
     list = l.filter((q) => !isDone(st, q.id)).concat(l.filter((q) => isDone(st, q.id)));
   } else list = openQuests(st, k, nm).filter((q) => !st.questsOff.includes(q.id) && qScore(q, k, nm) < 60 && (q.auto || q.cal || q.calCat)).slice(0, 3);
   const ck = manualOpen(st, k);
@@ -79,7 +80,7 @@ export function QuestLive() {
                   {isD && <span className="ck"><svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" /></svg></span>}
                 </div>
                 <div className="q-t">
-                  <b>{q.title}</b>
+                  <b>{questName(st.gedit, q)}</b>
                   <span><span className={q.cad === "Weekly" ? "q-tag wk" : "q-tag"}>{q.cad}</span>{short(q.crew)} · {q.sub}{q.goal > 1 && !isD ? ` (${p}/${q.goal})` : ""}</span>
                   <span className="q-src">{isD ? (q.auto ? "Counted by Kumo" : "Logged") : q.ck}</span>
                 </div>
@@ -92,7 +93,7 @@ export function QuestLive() {
           <summary>Evening check-in {ck.length > 0 && <span className="badge" id="ckCount">{ck.length}</span>}</summary>
           <div id="ckBox">
             {ck.length ? <>
-              {ck.map((q) => <div className="filed-row" key={q.id}><span>{q.title}</span><button className="btn sm" type="button" onClick={() => log(q.id)}>Yes</button></div>)}
+              {ck.map((q) => <div className="filed-row" key={q.id}><span>{questName(st.gedit, q)}</span><button className="btn sm" type="button" onClick={() => log(q.id)}>Yes</button></div>)}
               <p className="note">Three at most. The rest logs itself.</p>
             </> : <p className="note">All set for tonight.</p>}
           </div>
@@ -212,18 +213,25 @@ export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode;
     <p className="gsum"><b>{blossoms}</b> of 64 blossoms · <b>{petals}</b> golden petals from ladder milestones{trunk.resting ? " · resting today, decay paused" : ""}</p>
     {evs == null && <p className="note">Reading your activity…</p>}
   </>;
+  // round 13: her names, order, times and days from Edit garden; folded-away anchors keep their ticks. Her own
+  // anchors tick in gedit and award nothing; the imported ones tick exactly as before.
+  const arows = anchorRows(anchors, st.gedit, wdOf(k)).shown, aToday = arows.filter((a) => a.on), aRest = arows.filter((a) => !a.on);
+  const mineA = st.gedit.anchors.log[k] ?? [];
+  const tickMine = (id: string, on: boolean) => update((d) => { const cur = new Set(d.gedit.anchors.log[k] ?? []); if (on) cur.add(id); else cur.delete(id); d.gedit = { ...d.gedit, anchors: { ...d.gedit.anchors, log: { ...d.gedit.anchors.log, [k]: [...cur] } } }; }, ["gedit"]);
   const anchorList = <>
-    {anchors.length ? <div className="ganchors">{anchors.map(([id, t, d]) => (
-      <label className="filed-row" key={id}><input type="checkbox" checked={todayA.includes(id)} onChange={(e) => tickAnchor(id, e.target.checked)} /><span>{t} <span className="note">{d}</span></span></label>
-    ))}</div> : <p className="note">Your daily anchors arrive with the tracker import.</p>}
+    {aToday.length ? <div className="ganchors">{aToday.map((a) => (
+      <label className="filed-row" key={a.id}><input type="checkbox" checked={a.mine ? mineA.includes(a.id) : todayA.includes(a.id)} onChange={(e) => (a.mine ? tickMine : tickAnchor)(a.id, e.target.checked)} /><span>{a.at && <span className="kanc-at">{a.at}</span>}{a.t} <span className="note">{a.d}</span></span></label>
+    ))}</div> : <p className="note">{arows.length ? "No anchors set for today." : anchors.length ? "Your anchors are folded away; Edit garden brings them back." : "Your daily anchors arrive with the tracker import."}</p>}
+    {aRest.length > 0 && <p className="note">Not today: {aRest.map((a) => a.t).join(" · ")}</p>}
     <p className="note">Trunk: {STAGE_TXT[trunk.stage]}{trunk.last ? `, last watered ${prettyDay(trunk.last)}` : ""}.</p>
   </>;
-  const branchList = <div className="gbranches">{list.map((b) => (
-    <div className="gk" data-st={b.stage === "blooming" || b.stage === "sprout" ? "ok" : b.stage === "thirsty" ? "thirsty" : "wilting"} key={b.n}>
+  // round 13: a progress background per branch (grey: not started, green fill: in progress, full with gold edge: done)
+  const branchList = <div className="gbranches">{list.map((b) => { const bp = branchProgress(b, k); return (
+    <div className="gk" data-st={b.stage === "blooming" || b.stage === "sprout" ? "ok" : b.stage === "thirsty" ? "thirsty" : "wilting"} data-bp={bp.state} style={{ "--bp": Math.round(bp.share * 100) + "%" } as React.CSSProperties} key={b.n}>
       <span className="gnm"><b>{b.n}. {b.name}</b><small>{STAGE_TXT[b.stage]} · {b.blossoms}/8 blossoms{b.last ? ` · last ${prettyDay(b.last)}` : ""}</small></span>
       {b.stage === "dead" && <button className="btn sm ghost gx" type="button" onClick={() => weedOut(b.n)}>{arm === String(b.n) ? "Yes, weed it out" : "Weed it out"}</button>}
     </div>
-  ))}</div>;
+  ); })}</div>;
   const nudge = care.length > 0 && <>
     <div className="sec-h">A gentle nudge</div>
     {care.slice(0, 3).map((b) => <p className="note" key={b.n}><Mini name={NUDGE[b.n].crew} sm /> {b.n ? b.name : "Trunk"}: {NUDGE[b.n].t}</p>)}

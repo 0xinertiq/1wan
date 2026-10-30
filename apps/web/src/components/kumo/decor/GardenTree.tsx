@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { TREE_H, TREE_PAL, TREE_W, toRects, treeModel } from "./treeArt";
-import { SCENE_PAL, bridge, lanternS, type Sprite } from "./scenes";
+import { SCENE_PAL, lanternS, type Sprite } from "./scenes";
 
-// The Garden's centrepiece (round 12): the pixel sakura bonsai with the pond, a little bridge and lanterns around
-// it, straight on the page (no box, border or fill). Gentle sway and drifting petals pause under reduced motion
-// and when the tab is hidden or the tree is off screen. Colours come from --kt-* variables (day and night).
+// The Garden's centrepiece (round 12): the pixel sakura bonsai with a lantern to its right and a few grass tufts
+// (round 13: the pond, bridge and left lantern are gone), straight on the page (no box, border or fill). Gentle
+// sway and drifting petals pause under reduced motion and when the tab is hidden or the tree is off screen. Colours come from --kt-* variables (day and night).
 function sprite(rows: Sprite, x0: number, y0: number, key: string) {
   const out: React.ReactNode[] = [];
   rows.forEach((row, y) => {
@@ -39,10 +39,8 @@ export function GardenTree({ stage, wilt, gold = 0, petals = 0, label }: { stage
   return (
     <div ref={ref} className={"ktree" + (still ? " still" : "")} data-stage={stage} data-wilt={wilt}>
       <svg viewBox={`0 0 ${TREE_W} ${TREE_H}`} shapeRendering="crispEdges" role="img" aria-label={label}>
-        {/* the pond and bridge to the left, lanterns either side, a few grass tufts */}
-        <rect x={6} y={77} width={30} height={4} fill={fill("n")} /><rect x={6} y={81} width={30} height={1} fill={fill("X")} />
-        {sprite(bridge, 12, 73, "br")}
-        {sprite(lanternS, 2, 69, "l1")}{sprite(lanternS, 120, 69, "l2")}
+        {/* the right lantern and a few grass tufts */}
+        {sprite(lanternS, 120, 69, "l2")}
         {[[96, 78], [104, 79], [112, 78], [40, 79]].map(([x, y]) => <rect key={x} x={x} y={y} width={1} height={2} fill={fill("M")} />)}
         <g className="ktree-sway">
           {rects.map((r, i) => <rect key={i} x={r.x} y={r.y} width={r.w} height={1} fill={fill(r.c)} />)}

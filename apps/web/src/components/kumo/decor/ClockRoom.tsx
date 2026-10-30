@@ -1,52 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { PixelSprite } from "@/components/PixelSprite";
 import { AlertMark } from "@/components/court/Alerts";
-import { clock, sgtHourOf } from "@/lib/court/time";
+import { RoomFrame, roomRects, useRoomClock } from "./RoomFrame";
 import { FLOOR, ROOM_H, ROOM_PAL, ROOM_W, ROOM_WALL, clockFace, gear, momoDesk, roomLantern, roomWindow, rug, shelf, stair, wallCal } from "./rooms";
-import { lanternS, type Sprite } from "./scenes";
+import { lanternS } from "./scenes";
 
 // The Calendar's room banner (round 7 pilot): the inside of the clock tower with Momo at her desk. Wider than the
-// screen: drag it with the mouse, swipe it on touch, use the arrow buttons or the keyboard arrows when focused.
-// A little taller than the other banners. Decorative except Momo's alert "!", which is a real button.
+// screen (the shared RoomFrame, round 13). Decorative except Momo's alert "!", which is a real button.
 
-function rects(rows: Sprite, x0: number, y0: number, pal: Record<string, string>, glow: boolean, keyp: string) {
-  const out: React.ReactNode[] = [];
-  rows.forEach((row, y) => {
-    let x = 0;
-    while (x < row.length) {
-      const c = row[x];
-      let n = 1;
-      while (row[x + n] === c) n++;
-      const fill = glow && c === "o" ? pal.g : pal[c];
-      if (c !== "." && fill) out.push(<rect key={`${keyp}${x}-${y}`} x={x0 + x} y={y0 + y} width={n} height={1} fill={fill} />);
-      x += n;
-    }
-  });
-  return out;
-}
+const rects = roomRects;
 
 export function ClockRoom() {
-  const [phase, setPhase] = useState<"day" | "dusk" | "night">("day");
-  const [hm, setHm] = useState<[number, number]>([9, 0]);
-  const [edge, setEdge] = useState<{ l: boolean; r: boolean }>({ l: false, r: true });
-  const box = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ x: number; s: number; id: number } | null>(null);
-  useEffect(() => {
-    const set = () => {
-      const h = sgtHourOf(Date.now()), [hh, mm] = clock(Date.now()).split(":").map(Number);
-      setPhase(h >= 7 && h < 17 ? "day" : h >= 17 && h < 19 ? "dusk" : "night");
-      setHm([hh || 0, mm || 0]);
-    };
-    set();
-    const t = window.setInterval(set, 60e3);
-    return () => window.clearInterval(t);
-  }, []);
-  const look = () => { const el = box.current; if (el) setEdge({ l: el.scrollLeft > 4, r: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 }); };
-  useEffect(() => { look(); window.addEventListener("resize", look); return () => window.removeEventListener("resize", look); }, []);
-  const nudge = (dir: 1 | -1) => box.current?.scrollBy({ left: dir * box.current.clientWidth * 0.6, behavior: "smooth" });
-
+  const { phase, hm } = useRoomClock();
   const W = ROOM_WALL[phase], night = phase === "night", R = ROOM_PAL;
   const art: React.ReactNode[] = [];
   // wall with staggered bricks, the ceiling beam, the plank floor
@@ -84,29 +50,12 @@ export function ClockRoom() {
   art.push(...rects(lanternS, 30, FLOOR - 7, R, night, "lsf"));
 
   return (
-    <div className={"kroom ph-" + phase}>
-      <div
-        ref={box}
-        className="kroom-scroll"
-        tabIndex={0}
-        role="region"
-        aria-label="Momo's clock tower: scroll sideways to look around"
-        onScroll={look}
-        onPointerDown={(e) => { if (e.pointerType !== "mouse" || (e.target as HTMLElement).closest("button")) return; drag.current = { x: e.clientX, s: box.current?.scrollLeft ?? 0, id: e.pointerId }; box.current?.setPointerCapture(e.pointerId); box.current?.classList.add("drag"); }}
-        onPointerMove={(e) => { const d = drag.current; if (d && box.current) box.current.scrollLeft = d.s - (e.clientX - d.x); }}
-        onPointerUp={() => { drag.current = null; box.current?.classList.remove("drag"); }}
-        onPointerCancel={() => { drag.current = null; box.current?.classList.remove("drag"); }}
-      >
-        <div className="kroom-inner">
-          <svg viewBox={`0 0 ${ROOM_W} ${ROOM_H}`} preserveAspectRatio="xMidYMid meet" shapeRendering="crispEdges" aria-hidden="true">{art}</svg>
-          <span className="kroom-momo">
-            <span className="kroom-px" aria-hidden="true"><PixelSprite name="momo" /></span>
-            <span className="kroom-alert"><AlertMark agent="momo" /></span>
-          </span>
-        </div>
-      </div>
-      {edge.l && <button type="button" className="kroom-hint l" aria-label="Look left" onClick={() => nudge(-1)}>‹</button>}
-      {edge.r && <button type="button" className="kroom-hint r" aria-label="Look right" onClick={() => nudge(1)}>›</button>}
-    </div>
+    <RoomFrame phase={phase} label="Momo's clock tower: scroll sideways to look around">
+      <svg viewBox={`0 0 ${ROOM_W} ${ROOM_H}`} preserveAspectRatio="xMidYMid meet" shapeRendering="crispEdges" aria-hidden="true">{art}</svg>
+      <span className="kroom-momo">
+        <span className="kroom-px" aria-hidden="true"><PixelSprite name="momo" /></span>
+        <span className="kroom-alert"><AlertMark agent="momo" /></span>
+      </span>
+    </RoomFrame>
   );
 }

@@ -32,7 +32,8 @@ for (const tab of ["life", "diary", "news"]) runs.push({ c: "empty", theme: "lig
 // Round 12: the Dungeon fits one screen at common desktop sizes (no page scroll), with full sample data.
 for (const size of ["1280,720", "1440,900"]) runs.push({ c: "full", theme: "light", size, ssr: false, ls: "", hash: "diary", fit: true });
 let failed = 0;
-for (const r of runs) {
+// ONLY=<text> runs just the runs whose label contains it (for example ONLY=fits)
+for (const r of runs.filter((x) => !process.env.ONLY || `${x.c} ${x.theme} ${x.size}${x.hash ? " #" + x.hash : ""}${x.fit ? " fits" : ""}`.includes(process.env.ONLY))) {
   const url = `http://localhost:${PORT}/harness.html?case=${r.c}&theme=${r.theme}${r.ssr ? "&ssr=1" : ""}${r.ls ? "&ls=" + r.ls : ""}${r.fit ? "&fit=1" : ""}${r.hash ? "#" + r.hash : ""}`;
   let out = "";
   try { out = execFileSync(CHROME, ["--headless=new", "--disable-gpu", `--window-size=${r.size}`, "--virtual-time-budget=10000", "--dump-dom", url], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 90000 }); } catch (e) { out = String(e.stdout ?? ""); }

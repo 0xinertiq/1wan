@@ -1,5 +1,6 @@
 "use client";
 
+import { questName } from "@/lib/court/gardenEdit";
 import { useVault } from "@/lib/vault";
 import { dueSoon } from "@/lib/court/vaultDue";
 import { useState } from "react";
@@ -159,7 +160,7 @@ export function KumoPick() {
   return (
     <div className="pick">
       <small>Kumo&apos;s pick</small>
-      <span>{pick ? pick.title : "All clear. Rest is a valid move."}</span>
+      <span>{pick ? questName(st.gedit, pick) : "All clear. Rest is a valid move."}</span>
       <div className="rep-act">
         {pick && (
           <button className="btn sm" type="button" onClick={() => update((d) => { const r = logQuest(d, pick.id); if (r.leveled) levelUp(r.leveled); }, ["q", "stars", "streak", "xp", "lvl"])}>I did it</button>

@@ -717,3 +717,25 @@ After the fix round:
 - 182 tests pass.
 - All 58 browser runs are clean.
 - The build passes.
+
+## Round 13 (preview)
+
+1. **Garden scene.** The pond, bridge and left lantern are gone. The right lantern, grass tufts, bonsai, sun and planter stay; growth, wilting and petals are unchanged.
+2. **Edit garden.** One button on the Garden page opens one panel with four tabs: Habits, Quests, Anchors and Wins ladder.
+   - You can rename, reorder, hide and unhide in every tab. Anchors also take a time and days (daily, weekdays or custom), and ladder milestones take a label and a target.
+   - New habits are still added only in My habits. The Habits tab has a button that jumps there.
+   - The quest switches from Round 12 (`questsOff`) moved into the Quests tab, and the separate Edit quests fold is gone.
+   - Hiding folds an item away; nothing is deleted. Finished ladder milestones fold under "n finished".
+   - **Storage:** one new optional key, `gedit`. Anchors and milestones she adds tick inside `gedit` and award nothing. The Daily anchors quest still counts the eight imported anchors.
+3. **Dungeon room banner.** Sisi's stone study (candles, bookshelves, a desk with her journal, Sisi at it) uses the same `RoomFrame` and `.kroom` box as Momo's clock tower, so the two banners are the same size.
+   - On desktop screens under about 800px tall, both banners share a height cap so the Dungeon still fits one screen. The art fills the width and trims a little top and bottom.
+   - The new art is in new files: DungeonRoom.tsx, dungeonArt.ts and RoomFrame.tsx.
+4. **Branch backgrounds.** Each branch on the Branches card now shows its progress:
+   - grey: not started;
+   - a pastel green fill from the left, sized by the share of that branch's cells done: in progress (activity this week, or at least one cell done);
+   - full green with a soft gold edge: all eight cells done.
+
+**NEEDS OWNER APPROVAL:**
+- The `gedit` key.
+- The shared room-banner height cap on short screens, which also shortens the Calendar banner there.
+- Whether a branch with cells done but no activity this week should count as in progress (current) or as not started.
