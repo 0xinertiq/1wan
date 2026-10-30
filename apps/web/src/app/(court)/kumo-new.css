@@ -1412,10 +1412,45 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
   :root[data-ui="new"] .kdun-page.fit .kpg.kdun>.kd-pages>:last-child>.win-body{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:thin}
 }
 /* round 20: the Dungeon scrolls like the other tabs (one-screen fit off, so the shared banner width, spacing and text
-   apply). The Gratitude log lists its days tightly: one divider per day, no gap between days, and its card ends
-   after the last day instead of stretching to the bottom of the row. */
-:root[data-ui="new"] .kpg.kdun>.kd-pages>.kgrat-log{flex:0 0 auto}
-:root[data-ui="new"] .kdun .kgrat-log>.win-body{gap:0}
-:root[data-ui="new"] .kdun .kgrat-log .krow.kgrat{padding:0}
-:root[data-ui="new"] .kdun .kgrat-log .kgrat .krow-main{width:100%}
-:root[data-ui="new"] .kdun .kgrat-log .kgrat .klink-row{min-height:0;padding:var(--sp-2) 0;border-bottom:0;line-height:1.4}
+   apply). */
+/* round 21: the Dungeon follows Life Hub. One Journal panel (the shared card, like "Life admin and money") holds three
+   columns split by the same dashed line as .ksplit; each section has Life Hub's small section heading. Below desktop
+   width the columns stack, Today's page first. */
+:root[data-ui="new"] .kdun-panel>.win-body{gap:var(--sp-6)}
+@media (min-width:1200px){
+  :root[data-ui="new"] .ksplit.kdun{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr) minmax(0,1fr)}
+}
+@media (max-width:1199px){
+  :root[data-ui="new"] .ksplit.kdun{grid-template-columns:minmax(0,1fr)}
+  :root[data-ui="new"] .ksplit.kdun>.ksplit-col+.ksplit-col{padding-left:0;border-left:0}
+  :root[data-ui="new"] .ksplit.kdun>.kd-edit{order:-1}
+}
+:root[data-ui="new"] .ksplit.kdun>.ksplit-col{gap:var(--sp-6)}
+:root[data-ui="new"] .kd-sec{display:grid;gap:var(--sp-3);align-content:start;min-width:0}
+:root[data-ui="new"] .kd-sec+.kd-sec{padding-top:var(--sp-6);border-top:var(--bw) dashed var(--k-divider)}
+:root[data-ui="new"] .kd-sec-h{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-1) var(--sp-3);min-height:var(--tap)}
+:root[data-ui="new"] .kd-sec-h .sec-h{margin:0;text-transform:uppercase}
+:root[data-ui="new"] .kd-sec-h .kcard-act{margin-left:auto}
+/* Today's page fills its column, so its writing area ends level with the other two columns */
+:root[data-ui="new"] .ksplit.kdun>.kd-edit{display:flex;flex-direction:column}
+:root[data-ui="new"] .ksplit.kdun>.kd-edit>.kjournal{flex:1 1 auto;display:flex;flex-direction:column;gap:var(--sp-3)}
+/* the weekly look-back breathes like the Life Hub cards: roomy lines, a clear gap between them */
+:root[data-ui="new"] .kdun .kd-week{gap:var(--sp-4)}
+:root[data-ui="new"] .kdun .kd-week .rv-sug{gap:var(--sp-3);line-height:1.6;font-size:var(--fs-body)}
+:root[data-ui="new"] .kdun .kd-week .note{margin:0}
+/* the Gratitude log: one compact row per day (date and its first line, cut with an ellipsis), all closed at first;
+   a tap opens the whole entry. Rows sit close with one even divider between them. */
+:root[data-ui="new"] .kdun .kgrat-log .kgrat{border-bottom:var(--bw) dashed var(--k-divider)}
+:root[data-ui="new"] .kdun .kgrat-log .kgrat:last-child{border-bottom:0}
+:root[data-ui="new"] .kdun .kgrat-list{display:grid}
+:root[data-ui="new"] .kdun .kgrat-log .kgrat-main{display:grid;gap:var(--sp-2);min-width:0}
+:root[data-ui="new"] .kdun .kgrat-log .kgrat-row{display:flex;align-items:baseline;gap:var(--sp-2);width:100%;min-width:0;padding:var(--sp-2) 0;border:0;background:transparent;color:var(--k-text);font:inherit;text-align:left;cursor:pointer}
+:root[data-ui="new"] .kdun .kgrat-log .kgrat-row b{flex:none}
+:root[data-ui="new"] .kdun .kgrat-log .kgrat-chev{flex:none;color:var(--k-text-muted)}
+:root[data-ui="new"] .kdun .kgrat-log .kgrat-first{flex:1 1 auto;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--k-text-muted)}
+:root[data-ui="new"] .kdun .kgrat-log .kgrat-read{max-height:none;overflow:visible;padding:0 0 var(--sp-2)}
+@media (pointer:coarse){:root[data-ui="new"] .kdun .kgrat-log .kgrat-row{min-height:var(--tap)}}
+:root[data-ui="new"] .kdun .kgrat-log .kgrat-read>.btn{justify-self:start}
+/* the writing area keeps its 360px floor on every width (the general input rule's :is() weight had shrunk it to a
+   tap target on phones) */
+:root[data-ui="new"] .ksplit.kdun>.kd-edit>.kjournal>textarea:not([type]){min-height:360px}

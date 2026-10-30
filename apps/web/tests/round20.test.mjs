@@ -22,12 +22,7 @@ test("Weekly look-back uses the normal card spacing", () => {
   assert.ok(!/\.kd-week\.kcard \.win-body\{gap:var\(--sp-1\)/.test(css));
 });
 
-test("the Gratitude log: no gaps between days, the card ends after the last day", () => {
-  assert.match(dun, /<Card title="Gratitude log" sub="private, newest first" className="kgrat-log">/);
-  assert.match(css, /\.kpg\.kdun>\.kd-pages>\.kgrat-log\{flex:0 0 auto\}/);
-  assert.match(css, /\.kdun \.kgrat-log>\.win-body\{gap:0\}/);
-  assert.match(css, /\.kdun \.kgrat-log \.kgrat \.klink-row\{min-height:0;padding:var\(--sp-2\) 0;border-bottom:0/);
+test("the browser runs no longer expect the fit", () => {
   const run = fs.readFileSync(path.resolve(import.meta.dirname, "browser/run.mjs"), "utf8");
-  assert.match(run, /for \(const size of \["1280,720", "1440,900", "1920,1080"\]\) runs\.push\(\{[^}]*hash: "diary", dunflow: true \}\)/);
-  assert.ok(!/fit: true/.test(run), "no browser run expects the fit any more");
+  assert.ok(!/fit: true/.test(run));
 });

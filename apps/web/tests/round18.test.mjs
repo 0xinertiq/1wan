@@ -68,14 +68,14 @@ test("Luna's rows: one label column for every row, content on its own column, st
 test("Dungeon columns: look-back, Your pages, Gratitude log | Today's page | Today's gratitude, mood and tags, reflection", () => {
   const d = src("components/court/pages/Dungeon.tsx");
   const page = d.slice(d.indexOf("export function DungeonPage"));
-  const left = page.slice(page.indexOf('<div className="kcol kd-pages">'), page.indexOf('<div className="kcol kd-edit">'));
+  const left = page.slice(page.indexOf('<div className="ksplit-col kd-pages">'), page.indexOf('<div className="ksplit-col kd-edit">'));
   const order = (s, names) => names.map((n) => s.indexOf(n));
-  const l = order(left, ["<WeeklyLookBack />", '<Card title="Your pages"', "<GratitudeLog />"]);
+  const l = order(left, ["<WeeklyLookBack />", '<Sec title="Your pages"', "<GratitudeLog />"]);
   assert.ok(l.every((i) => i >= 0) && l[0] < l[1] && l[1] < l[2], "left column order");
-  const right = page.slice(page.indexOf('<div className="kcol kd-side">'));
-  assert.match(right, /^<div className="kcol kd-side"><TodaysGratitude \/><Side /, "right: Today's gratitude, then mood and tags and trade reflection");
+  const right = page.slice(page.indexOf('<div className="ksplit-col kd-side">'));
+  assert.match(right, /^<div className="ksplit-col kd-side"><TodaysGratitude \/><Side /, "right: Today's gratitude, then mood and tags and trade reflection");
   assert.ok(!right.includes("WeeklyLookBack"));
-  assert.ok(d.indexOf('<Card title="Mood and tags">') < d.indexOf('<Card title="Trade reflection"'));
+  assert.ok(d.indexOf('<Sec title="Mood and tags">') < d.indexOf('<Sec title="Trade reflection"'));
   // Download my diary and the Archive bar stay as they were, inside Your pages
   assert.match(left, /<Btn kind="sm ghost" onClick=\{\(\) => downloadDiary\(st, k\)\}>Download my diary<\/Btn><\/div>\n\s*<Archive \/>/);
   // the compact look-back: same lines and closing sentence, tighter spacing

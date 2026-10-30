@@ -27,7 +27,7 @@ test("only the Gratitude log's list scrolls inside its card; the writing areas f
 test("every card stays: left look-back, Your pages, Gratitude log; middle Today's page; right three", () => {
   const d = src("components/court/pages/Dungeon.tsx");
   const page = d.slice(d.indexOf("export function DungeonPage"));
-  for (const c of ["<WeeklyLookBack />", '<Card title="Your pages"', "<GratitudeLog />", "<Editor ", "<TodaysGratitude />", "<Side "]) assert.ok(page.includes(c), c);
+  for (const c of ["<WeeklyLookBack />", '<Sec title="Your pages"', "<GratitudeLog />", "<Editor ", "<TodaysGratitude />", "<Side "]) assert.ok(page.includes(c), c);
   assert.match(page, /actions=\{<TabPills label="Pages" value=\{tab\}/, "the Month / List switch sits in the header row");
   assert.match(page, /Download my diary<\/Btn><\/div>\n\s*<Archive \/>/);
   // (round 20: the fit is off and its browser runs replaced; tests/round20.test.mjs)

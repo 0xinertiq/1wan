@@ -36,7 +36,7 @@ import { CourtSheet } from "@/components/court/CourtSheet";
 import { mdLite } from "@/components/court/mdLite";
 import { normalize } from "@/lib/court/state";
 import { bootState } from "@/lib/court/actions";
-import { sgtKeyOf, stampAge } from "@/lib/court/time";
+import { addDays, sgtKeyOf, stampAge } from "@/lib/court/time";
 import { canonKind } from "@/lib/briefKinds";
 import { noBigdata } from "@/lib/noBigdata";
 import type { BriefDoc } from "@/components/court/BriefTabs";
@@ -66,7 +66,10 @@ export async function loadData(name: string, get: (p: string) => Promise<any>, n
   else if (!name.startsWith("empty")) docs = Object.entries(BODIES).map(([kk, b]) => doc(kk, b, at, when));
   const raw = name === "me" ? await get("/__state.json")
     : name.includes("old") ? { v: 1, life: [{ id: "x", name: "Spotify", cat: "bill", amt: 9.9, rule: { type: "dom", d: 28 }, lead: 0, autoPaid: "yes" }, { name: "broken" }, null], spr: { run: { at: new Date(now.getTime() - 5 * 60e3).toISOString(), tag: "study" }, log: [{ at: "bad", tag: "x", min: 25 }] }, tails: [0, 1, "x"], restDay: k, uq: ["A saved quote."] }
-    : name.startsWith("empty") ? {} : { lvl: 4, xp: 30, streak: 3, dump: [{ id: "d1", t: "call mum", done: false, ts: 1 }], life: [{ id: "l1", name: "Dog grooming", cat: "pet", amt: null, rule: { type: "dom", d: 29 }, lead: 3, important: true }] };
+    : name.startsWith("empty") ? {}
+    // round 21: "grat" is the full case plus a few evenings in the Gratitude log (made-up sample lines)
+    : name === "grat" ? { lvl: 4, xp: 30, streak: 3, wins: Object.fromEntries([1, 2, 4, 5, 7].map((n, i) => [addDays(k, -n), { w: ["Closed the week calmly and logged every trade, even the small scalp that went nowhere", "A long walk before the open", "Stuck to the plan on SOL", "Slept well", "Cooked dinner instead of ordering in"][i], g: "Quiet mornings", ...(i === 0 ? { n: "Line one of the notes.\nLine two of the notes." } : {}) }])) }
+    : { lvl: 4, xp: 30, streak: 3, dump: [{ id: "d1", t: "call mum", done: false, ts: 1 }], life: [{ id: "l1", name: "Dog grooming", cat: "pet", amt: null, rule: { type: "dom", d: 29 }, lead: 3, important: true }] };
   return { nowIso, docs, mem, raw };
 }
 

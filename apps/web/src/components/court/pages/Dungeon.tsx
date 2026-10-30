@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useCourt } from "../CourtState";
 import { getOnce } from "@/lib/court/once";
 import { useVault, type VRow } from "@/lib/vault";
@@ -8,7 +8,8 @@ import { addDays, dayGap, prettyDay, weekKey } from "@/lib/court/time";
 import { MiniMonth } from "./CalendarPage";
 import { Archive, downloadDiary } from "../live/GrowLive";
 import { DungeonStudy } from "@/components/kumo/decor/room2Dungeon";
-import { Btn, Card, Chip, EmptyState, PageHead, SectionLabel, StoreNote, TabPills } from "../ui";
+import { Boundary } from "../Boundary";
+import { Btn, Callout, Card, Chip, EmptyState, PageHead, SectionLabel, StoreNote, TabPills } from "../ui";
 
 // Dungeon (round 6, private journal): left, the month calendar and a text-only list with search; middle, the
 // day's entry (Inter) with autosave and an honest saved status, plus the Gratitude sheet and its log; right, mood,
@@ -20,6 +21,20 @@ export type Entry = VRow & { day: string; text: string; mood?: number; tags: str
 type Note = VRow & { kind?: string; title?: string; text?: string; tags?: string[]; url?: string };
 
 const MOODS = ["Low", "Flat", "Okay", "Good", "Bright"];
+
+// Round 21: the Dungeon follows Life Hub. Its sections sit inside one Journal panel (the shared Card), each with the
+// same small section heading Life Hub uses inside "Life admin and money" (sec-h), instead of a card of its own.
+function Sec({ title, sub, id, className = "", actions, children }: { title: string; sub?: React.ReactNode; id?: string; className?: string; actions?: React.ReactNode; children: React.ReactNode }) {
+  const hid = useId();
+  return (
+    <Boundary name={title}>
+      <section className={"kd-sec " + className} id={id} aria-labelledby={hid}>
+        <div className="kd-sec-h"><h3 className="sec-h" id={hid}>{title}</h3>{sub && <span className="note">{sub}</span>}{actions && <span className="kcard-act">{actions}</span>}</div>
+        {children}
+      </section>
+    </Boundary>
+  );
+}
 const idOf = (day: string) => "j" + day;
 
 /** The weekly look-back, rule-based only: entries written, moods, top tags, wins, streak. */
@@ -47,7 +62,7 @@ function Editor({ day, e, put, status, storeNote }: { day: string; e: Entry | un
   const change = (v: string) => { setText(v); window.clearTimeout(timer.current); timer.current = window.setTimeout(() => put({ id: idOf(day), day, text: v.slice(0, 20000) }), 700); };
   const w = st.wins[day];
   return (
-    <Card title={day === k ? "Today's page" : prettyDay(day)} sub={status === "saving" ? "saving…" : status === "error" ? "not saved, try again" : status === "saved" ? "saved" : "autosaves as you write"} className="kjournal">
+    <Sec title={day === k ? "Today's page" : prettyDay(day)} sub={status === "saving" ? "saving…" : status === "error" ? "not saved, try again" : status === "saved" ? "saved" : "autosaves as you write"} className="kjournal">
       <textarea aria-label={`Journal entry for ${prettyDay(day)}`} maxLength={20000} placeholder="Write freely. Nobody is reading but you." value={text} onChange={(ev) => change(ev.target.value)} />
       <span className="note">{text.length.toLocaleString("en-SG")} characters · private to you</span>
       {storeNote}
@@ -57,7 +72,7 @@ function Editor({ day, e, put, status, storeNote }: { day: string; e: Entry | un
         </div>
       )}
       {day === k && <div className="kform-row"><Btn kind="sm" onClick={() => { const el = document.getElementById("today-gratitude"); el?.scrollIntoView({ block: "nearest" }); el?.querySelector<HTMLElement>("textarea,input")?.focus(); }}>Gratitude</Btn><span className="note">{w ? "Saved for today; you can add more." : "The evening sheet: what went well and what you are grateful for."}</span></div>}
-    </Card>
+    </Sec>
   );
 }
 
@@ -73,7 +88,7 @@ function Side({ day, e, put }: { day: string; e: Entry | undefined; put: (x: Par
   const old = st.mood[day];
   return (
     <>
-      <Card title="Mood and tags">
+      <Sec title="Mood and tags">
         <div className="kmood" role="group" aria-label="Mood">
           {MOODS.map((m, i) => <button key={m} type="button" className="chipb" aria-pressed={(cur.mood ?? old?.m) === i + 1} onClick={() => put({ ...base, mood: i + 1 })}>{m}</button>)}
         </div>
@@ -82,8 +97,8 @@ function Side({ day, e, put }: { day: string; e: Entry | undefined; put: (x: Par
         <form className="kform-row" onSubmit={(ev) => { ev.preventDefault(); const t = tag.trim().toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 24); if (t && !(cur.tags ?? []).includes(t)) put({ ...base, tags: [...(cur.tags ?? []), t].slice(0, 12) }); setTag(""); }}>
           <input aria-label="Add a tag" placeholder="Add a tag" value={tag} onChange={(ev) => setTag(ev.target.value)} /><button className="btn sm" type="submit">Add</button>
         </form>
-      </Card>
-      <Card title="Trade reflection" sub="before and after a trade">
+      </Sec>
+      <Sec title="Trade reflection" sub="before and after a trade">
         {trades.length > 0 && <select aria-label="Link a trade" value={cur.tradeId ?? ""} onChange={(ev) => ev.target.value && put({ ...base, tradeId: ev.target.value })}>
           {!cur.tradeId && <option value="" disabled>Pick a trade</option>}
           {trades.map((t) => <option key={t.id} value={t.id}>{String(t.inst ?? "")} {t.date ? prettyDay(String(t.date)) : ""}</option>)}
@@ -91,7 +106,7 @@ function Side({ day, e, put }: { day: string; e: Entry | undefined; put: (x: Par
         <label className="kform">Before: what is the plan?<textarea key={day + "p"} maxLength={1000} defaultValue={cur.plan ?? ""} onBlur={(ev) => ev.target.value !== (cur.plan ?? "") && put({ ...base, plan: ev.target.value })} /></label>
         <label className="kform">How do you feel about it?<textarea key={day + "f"} maxLength={1000} defaultValue={cur.feel ?? ""} onBlur={(ev) => ev.target.value !== (cur.feel ?? "") && put({ ...base, feel: ev.target.value })} /></label>
         <label className="kform">After: what would you change?<textarea key={day + "c"} maxLength={1000} defaultValue={cur.change ?? ""} onBlur={(ev) => ev.target.value !== (cur.change ?? "") && put({ ...base, change: ev.target.value })} /></label>
-      </Card>
+      </Sec>
     </>
   );
 }
@@ -110,12 +125,13 @@ function GratitudeLog() {
   // editing changes the words only: no quest, XP or streak logic runs here
   const save = () => { if (!f) return; update((d) => { d.wins = { ...d.wins, [f.day]: { ...d.wins[f.day], w: f.w.slice(0, 2000), g: f.g.slice(0, 2000), s: f.s.slice(0, 300), n: f.n.slice(0, 6000) } }; }, ["wins"]); setF(null); };
   return (
-    <Card title="Gratitude log" sub="private, newest first" className="kgrat-log">
+    <Sec title="Gratitude log" sub="private, newest first" className="kgrat-log">
       {!list.length ? <EmptyState who="coco">Nothing yet. The Gratitude sheet opens at 21:30, or tap Gratitude on today&apos;s page.</EmptyState>
-        : (all ? list : list.slice(0, 30)).map((x) => (
-          <div className="krow kgrat" key={x.day}>
-            <span className="krow-main">
-              <button type="button" className="klink-row" aria-expanded={open === x.day} onClick={() => { setOpen(open === x.day ? null : x.day); setF(null); }}><b>{prettyDay(x.day)}</b><br /><span className="note">{(x.w || x.g || x.n).slice(0, 80)}</span></button>
+        : <div className="kgrat-list">{(all ? list : list.slice(0, 30)).map((x) => (
+          <div className="kgrat" key={x.day}>
+            <span className="kgrat-main">
+              {/* round 21: one compact row per day (date and the first line, cut with an ellipsis); tap to open */}
+              <button type="button" className="kgrat-row" aria-expanded={open === x.day} onClick={() => { setOpen(open === x.day ? null : x.day); setF(null); }}><span className="kgrat-chev" aria-hidden="true">{open === x.day ? "▾" : "▸"}</span><b>{prettyDay(x.day)}</b><span className="kgrat-first">{(x.w || x.g || x.s || x.n).split("\n")[0]}</span></button>
               {open === x.day && (f?.day === x.day
                 ? <form className="kform" aria-label={`Edit gratitude for ${prettyDay(x.day)}`} onSubmit={(e) => { e.preventDefault(); save(); }}>
                     <label className="kform">What went well<textarea maxLength={2000} value={f.w} onChange={(e) => setF({ ...f, w: e.target.value })} /></label>
@@ -130,9 +146,9 @@ function GratitudeLog() {
                   </div>)}
             </span>
           </div>
-        ))}
+        ))}</div>}
       {list.length > 30 && <Btn kind="sm ghost" aria-expanded={all} onClick={() => setAll(!all)}>{all ? "Show fewer" : `Show all (${list.length})`}</Btn>}
-    </Card>
+    </Sec>
   );
 }
 
@@ -165,14 +181,14 @@ function TodaysGratitude() {
   }, []);
   const change = (next: typeof f) => { setF(next); setSaved(false); pending.current = next; window.clearTimeout(timer.current); timer.current = window.setTimeout(() => save(next), 800); };
   return (
-    <Card title="Today's gratitude" sub={saved ? "saved ✓" : "autosaves as you type"} id="today-gratitude" className="kgrat-today">
+    <Sec title="Today's gratitude" sub={saved ? "saved ✓" : "autosaves as you type"} id="today-gratitude" className="kgrat-today">
       <form className="kform" aria-label="Today's gratitude" onSubmit={(e) => { e.preventDefault(); save(); }}>
         <input aria-label="What went well" placeholder="What went well" maxLength={2000} value={f.w} onChange={(e) => change({ ...f, w: e.target.value })} />
         <input aria-label="What I'm grateful for" placeholder="What I'm grateful for" maxLength={2000} value={f.g} onChange={(e) => change({ ...f, g: e.target.value })} />
         <input aria-label="One small win" placeholder="One small win" maxLength={300} value={f.s} onChange={(e) => change({ ...f, s: e.target.value })} />
         <div className="kbtn-row"><button className="btn sm" type="submit">Save</button><span className="note">Private, in your Gratitude log.</span></div>
       </form>
-    </Card>
+    </Sec>
   );
 }
 
@@ -181,7 +197,7 @@ export function WeeklyLookBack() {
   const v = useVault<Entry>("journal_entries");
   const L = lookBack(v.rows, st.wins, st.mood, k, st.streak, st.days);
   return (
-    <Card title="Weekly look-back" sub="rule-based, private" id="dungeon-week" className="kd-week">
+    <Sec title="Weekly look-back" sub="rule-based, private" id="dungeon-week" className="kd-week">
       <ul className="rv-sug">
         <li>{L.written} of {L.days} day{L.days === 1 ? "" : "s"} with something written</li>
         {L.winsDays > 0 && <li>{L.winsDays} day{L.winsDays === 1 ? "" : "s"} with a win or a thank-you</li>}
@@ -191,7 +207,7 @@ export function WeeklyLookBack() {
         <li>{L.streak}-day streak</li>
       </ul>
       <p className="note">{L.written ? "Steady beats loud. Whatever you wrote this week counts." : "The week is open. One line is enough."}</p>
-    </Card>
+    </Sec>
   );
 }
 
@@ -261,14 +277,15 @@ export function DungeonPage() {
   return (
     <div className={"kpage kdun-page" + (fitH ? " fit" : "")} style={fitH ? ({ "--dun-h": fitH + "px" } as React.CSSProperties) : undefined}>
       <PageHead room={<DungeonStudy />} title="Dungeon" sub="Your private journal. Never shown to friends; included in Export my data." />
-      {/* round 18: the weekly look-back, Your pages and the Gratitude log | Today's page (stretches to the row, the
-          writing area fills it) | Today's gratitude, mood and tags, trade reflection. On a tablet the page sits left
-          with the other two stacked right. */}
-      <div className="kpg kdun even" ref={grid}>
-        <div className="kcol kd-pages">
+      {/* round 21: like Life Hub, one panel (the shared Card) holding three columns split by dashed lines: the weekly
+          look-back, Your pages and the Gratitude log | Today's page | Today's gratitude, mood and tags, trade
+          reflection. Below desktop width the columns stack, Today's page first. */}
+      <Card title="Journal" sub="Sisi · your pages, gratitude and reflections" className="kfull kdun-panel">
+      <div className="ksplit kdun" ref={grid}>
+        <div className="ksplit-col kd-pages">
           <WeeklyLookBack />
           {/* round 19: the Month / List switch sits in the card's header row, saving a row so the column fits */}
-          <Card title="Your pages" className="kd-pages-card" actions={<TabPills label="Pages" value={tab} options={[["month", "Month"], ["list", "List"]] as const} onChange={setTab} />}>
+          <Sec title="Your pages" className="kd-pages-card" actions={<TabPills label="Pages" value={tab} options={[["month", "Month"], ["list", "List"]] as const} onChange={setTab} />}>
             {tab === "month" ? <MiniMonth marks={has} picked={day} onPick={(d) => setDay(d)} label="Journal month" mark="heart" /> : <>
               <input type="search" aria-label="Search your journal" placeholder="Search your pages" value={q} onChange={(e) => setQ(e.target.value)} />
               {!hits.length ? <EmptyState>{days.length ? "Nothing matches." : "Your first page appears when you write."}</EmptyState>
@@ -281,12 +298,14 @@ export function DungeonPage() {
             <div className="kform-row">{day !== k && <Btn kind="sm ghost" onClick={() => setDay(k)}>Back to today</Btn>}<Btn kind="sm ghost" onClick={() => downloadDiary(st, k)}>Download my diary</Btn></div>
             <Archive />
             {dayGap(day, k) < 0 && <p className="note">That day has not come yet; the page will wait for you.</p>}
-          </Card>
+          </Sec>
           <GratitudeLog />
         </div>
-        <div className="kcol kd-edit"><Editor day={day} e={byDay.get(day)} put={put} status={v.status} storeNote={<StoreNote status={v.status} failed={v.failed} />} /></div>
-        <div className="kcol kd-side"><TodaysGratitude /><Side day={day} e={byDay.get(day)} put={put} /></div>
+        <div className="ksplit-col kd-edit"><Editor day={day} e={byDay.get(day)} put={put} status={v.status} storeNote={<StoreNote status={v.status} failed={v.failed} />} /></div>
+        <div className="ksplit-col kd-side"><TodaysGratitude /><Side day={day} e={byDay.get(day)} put={put} /></div>
       </div>
+      <Callout tone="lav">Private to you. Never shown to friends; included in Export my data. Tracking only, not advice.</Callout>
+      </Card>
     </div>
   );
 }

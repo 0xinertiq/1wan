@@ -33,6 +33,9 @@ for (const tab of ["life", "diary", "news"]) runs.push({ c: "empty", theme: "lig
 // width, no column scrolling inside itself, the full look-back spacing, and a Gratitude log with no gaps between days.
 for (const size of ["1280,720", "1440,900", "1920,1080"]) runs.push({ c: "full", theme: "light", size, ssr: false, ls: "", hash: "diary", dunflow: true });
 runs.push({ c: "full", theme: "dark", size: "1440,900", ssr: false, ls: "", hash: "diary", dunflow: true });
+// Round 21: the Journal panel like Life Hub, with a few Gratitude log days (the "grat" sample): compact closed rows,
+// no gaps, at desktop, tablet and phone widths.
+for (const size of ["1440,900", "1024,768", "390,844"]) runs.push({ c: "grat", theme: "light", size, ssr: false, ls: "", hash: "diary", dunflow: true });
 // Round 17: every room banner fits its area at common desktop sizes and a narrower window: no sideways scroll on the
 // page or the banner, the whole room visible at its 20:3 shape (the Dungeon also fits one screen from 1200 wide).
 for (const size of ["1280,720", "1440,900", "1920,1080", "1024,768"]) for (const hash of ["calendar", "diary", "life", "trades", "news"]) runs.push({ c: "full", theme: "light", size, ssr: false, ls: "", hash, banner: true });
