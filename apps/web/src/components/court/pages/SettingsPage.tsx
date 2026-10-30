@@ -101,7 +101,7 @@ export function SettingsPage({ review }: { review?: React.ReactNode }) {
   const mode = vaultMode();
   return (
     <div className="kpage">
-      <PageHead scene="castle" title="Settings" sub="Look, lenses, connections, Kumo's weekly review and your data. Private to you."
+      <PageHead title="Settings" sub="Look, lenses, connections, Kumo's weekly review and your data. Private to you."
         actions={<>
           <a className="btn sm ghost" href="#welcome">Replay the tour</a>
           {/* the existing sign-out route (POST /auth/signout): it signs out, then returns to the login screen */}

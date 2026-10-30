@@ -12,13 +12,13 @@ export function chartBranches(list: Branch[], st: Pick<CourtState, "defs" | "gri
   return list.map((b) => ({ ...b, name: chart?.pillars[b.n - 1]?.name?.trim() || `Sub-goal ${b.n}`, blossoms: Array.from({ length: 8 }, (_, i) => done[`${b.n}.${i + 1}`]).filter(Boolean).length }));
 }
 
-// Round 13: each branch's progress background on the Branches card. Not started (soft grey), in progress (a pastel
-// green fill from the left; its share is the cells done in the effective chart) or completed (all eight done, full
-// green with a soft gold edge). In progress means activity this week or at least one cell done. Display only.
-export type BranchProgress = { state: "idle" | "growing" | "done"; share: number };
+// Round 13/14: each branch's progress background on the Branches card. Grey: never started. Faint pastel tint:
+// cells done but quiet this week. Full pastel green: activity this week. Soft gold edge: all eight cells done.
+// share is the cells done in the effective chart. Display only.
+export type BranchProgress = { state: "idle" | "quiet" | "active" | "done"; share: number };
 export function branchProgress(b: { blossoms: number; last: string | null }, k: string): BranchProgress {
   const share = Math.max(0, Math.min(1, b.blossoms / 8));
   if (share >= 1) return { state: "done", share: 1 };
-  const active = !!b.last && b.last >= weekKey(k);
-  return active || share > 0 ? { state: "growing", share } : { state: "idle", share: 0 };
+  if (b.last && b.last >= weekKey(k)) return { state: "active", share };
+  return share > 0 ? { state: "quiet", share } : { state: "idle", share: 0 };
 }

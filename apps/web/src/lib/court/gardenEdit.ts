@@ -87,6 +87,13 @@ export function anchorOn(m: AnchorMeta | undefined, wd: number) {
   return (m.days ?? []).includes(wd);
 }
 
+/** Round 14: the Daily anchors quest's target for a day: the imported anchors scheduled that day and not hidden.
+ *  Her own anchors never count. done = ticks among those (a hidden anchor's ticks stay in swins, uncounted). */
+export function anchorCount(imported: PItem[], e: GardenEdit, wd: number, ticked: string[]) {
+  const counted = imported.map((x) => x[0]).filter((id) => !e.anchors.hidden.includes(id) && anchorOn(e.anchors.meta[id], wd));
+  return { target: counted.length, done: counted.filter((id) => ticked.includes(id)).length };
+}
+
 export type AnchorRow = { id: string; t: string; d: string; at?: string; mine: boolean; on: boolean };
 /** Her anchors as shown: imported anchors (ids and ticks untouched) then her own, renamed, ordered, hidden ones folded. */
 export function anchorRows(imported: PItem[], e: GardenEdit, wd: number) {

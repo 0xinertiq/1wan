@@ -739,3 +739,21 @@ After the fix round:
 - The `gedit` key.
 - The shared room-banner height cap on short screens, which also shortens the Calendar banner there.
 - Whether a branch with cells done but no activity this week should count as in progress (current) or as not started.
+
+## Round 14 (preview)
+
+**Round 13 decisions applied:**
+- **Banner height cap:** kept.
+- **Daily anchors target:** it now counts only the imported anchors that are scheduled and shown that day, so hiding one gives 7/7. The quest still completes through logQuest, so XP, stars and streak are unchanged.
+- **Branch states:** grey means never started; a faint tint means cells done but quiet this week; pastel green means active this week; a soft gold edge means complete.
+- **Storage keys:** lenses, gridDefs2027, questsOff, quotes and gedit are approved.
+
+**New room banners** (MoreRooms.tsx, moreRoomsArt.ts), all on the shared RoomFrame, so they match the Calendar and Dungeon banners in size:
+
+| Tab | Room | Agent | Gold accent |
+|---|---|---|---|
+| Life Hub | planner room | Coco | planner ribbon |
+| Trades | desk with chart screens | Fenn | ticker arrow |
+| News | newsroom with pinboard and wire printer | Pip | one pin |
+
+**Banners removed:** Settings and Kingdom Mode no longer render a banner. The scene code is kept.

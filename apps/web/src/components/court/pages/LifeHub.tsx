@@ -1,5 +1,6 @@
 "use client";
 
+import { LifeRoom } from "@/components/kumo/decor/MoreRooms";
 import { useEffect, useState } from "react";
 import { useCourt } from "../CourtState";
 import { LifeAdmin } from "../live/SettingsLive";
@@ -181,7 +182,7 @@ function AdminAndMoney() {
 export function LifeHub() {
   return (
     <div className="kpage">
-      <PageHead scene="cottage" title="Life Hub" sub="Long-term planning and life management: your chart, life admin, money and routine." />
+      <PageHead room={<LifeRoom />} title="Life Hub" sub="Long-term planning and life management: your chart, life admin, money and routine." />
       <GridAndWins />
       <AdminAndMoney />
       <div className="kpg two even">

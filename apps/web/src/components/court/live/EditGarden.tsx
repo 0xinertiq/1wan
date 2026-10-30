@@ -130,7 +130,7 @@ function AnchorsTab() {
         <input aria-label="Anchor note" maxLength={LABEL_MAX} placeholder="A short note (optional)" value={f.d} onChange={(ev) => setF({ ...f, d: ev.target.value })} />
         <button className="btn sm" type="submit">Add anchor</button>
       </form>
-      <p className="note">The Daily anchors quest still counts your eight imported anchors. Hiding one, or giving it fewer days, means fewer than eight can be ticked on those days. Anchors you add award nothing.</p>
+      <p className="note">The Daily anchors quest counts the imported anchors shown and scheduled today: hiding one or giving it fewer days lowers that day’s target. Anchors you add award nothing.</p>
     </>
   );
 }

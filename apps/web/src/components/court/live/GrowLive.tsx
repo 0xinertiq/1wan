@@ -23,7 +23,7 @@ import { TAILS, earned } from "@/lib/court/tails";
 import { useUi } from "@/components/kumo/useUi";
 import { habitWeek, gardenStage, GROW_AT } from "@/lib/court/habits";
 import { branchProgress, chartBranches } from "@/lib/court/branchChart";
-import { anchorRows, ordered, questName } from "@/lib/court/gardenEdit";
+import { anchorCount, anchorRows, ordered, questName } from "@/lib/court/gardenEdit";
 import { Card as GCard } from "../ui";
 
 // Growth column from dashboard-v52: Sakura Garden (with Habit Quests inside), Gratitude (round 11 name),
@@ -51,6 +51,9 @@ export function QuestLive() {
     list = l.filter((q) => !isDone(st, q.id)).concat(l.filter((q) => isDone(st, q.id)));
   } else list = openQuests(st, k, nm).filter((q) => !st.questsOff.includes(q.id) && qScore(q, k, nm) < 60 && (q.auto || q.cal || q.calCat)).slice(0, 3);
   const ck = manualOpen(st, k);
+  // the Daily anchors quest shows today's live count and target (the same numbers as the Garden's anchors card)
+  const anchorItems = st.defs.swins?.phases.find((p) => p.daily)?.items ?? [], k1 = anchorCount(anchorItems, st.gedit, wdOf(k), st.swins.log[k] || []);
+  const k1Live = anchorItems.length > 0;
 
   return (
     <section className="win" id="questWin" aria-labelledby="qT">
@@ -63,7 +66,7 @@ export function QuestLive() {
         </div>
         <div className="quests" id="quests">
           {list.length ? list.map((q) => {
-            const isD = isDone(st, q.id), p = progOf(st, q.id);
+            const live = q.id === "k1" && k1Live, isD = isDone(st, q.id), p = live ? k1.done : progOf(st, q.id), goal = live ? k1.target : q.goal;
             let right: React.ReactNode, cls = "";
             const btn = <button className="btn sm" type="button" onClick={() => log(q.id)}>{q.goal > 1 ? "Log +1" : "Log it"}</button>;
             if (isD) right = <span className="q-end">DONE</span>;
@@ -81,8 +84,8 @@ export function QuestLive() {
                 </div>
                 <div className="q-t">
                   <b>{questName(st.gedit, q)}</b>
-                  <span><span className={q.cad === "Weekly" ? "q-tag wk" : "q-tag"}>{q.cad}</span>{short(q.crew)} · {q.sub}{q.goal > 1 && !isD ? ` (${p}/${q.goal})` : ""}</span>
-                  <span className="q-src">{isD ? (q.auto ? "Counted by Kumo" : "Logged") : q.ck}</span>
+                  <span><span className={q.cad === "Weekly" ? "q-tag wk" : "q-tag"}>{q.cad}</span>{short(q.crew)} · {live ? (k1.target ? `Your ${k1.target} Small Wins anchor${k1.target === 1 ? "" : "s"} for today, ticked in the Garden.` : "No anchors are due today.") : q.sub}{goal > 1 && !isD ? ` (${p}/${goal})` : ""}</span>
+                  <span className="q-src">{isD ? (q.auto ? "Counted by Kumo" : "Logged") : live ? (k1.target ? `Counts your anchor ticks, n/${k1.target}` : "Nothing to count today") : q.ck}</span>
                 </div>
                 <div className="q-r"><span className="xp">+{q.xp} EXP</span>{right}</div>
               </div>
@@ -166,6 +169,15 @@ export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode;
   const list = chartBranches(raw, st, byear);
   const anchors = st.defs.swins?.phases.find((p) => p.daily)?.items ?? [];
   const todayA = st.swins.log[k] || [];
+  const aCount = anchorCount(anchors, st.gedit, wdOf(k), todayA);
+  // round 14: when Edit garden lowers today's target to what is already ticked, the quest finishes now (through
+  // logQuest, as a tick would), not at the next tick
+  useEffect(() => {
+    if (anchors.length && aCount.target > 0 && aCount.done >= aCount.target && !isDone(st, "k1")) {
+      update((d) => { if (isDone(d, "k1")) return; d.q.k1 = [0, (QUESTS.find((q) => q.id === "k1")?.goal ?? 8) - 1]; const r = logQuest(d, "k1"); if (r.leveled) levelUp(r.leveled); }, [...QKEYS]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aCount.done, aCount.target, k]);
 
   // Merged quests, AUTO from real records (docs/build-trackers.md, duplicates 1 to 3).
   useEffect(() => {
@@ -189,7 +201,13 @@ export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode;
       const cur = new Set(d.swins.log[k] || []);
       if (on) cur.add(id); else cur.delete(id);
       d.swins.log = { ...d.swins.log, [k]: [...cur] };
-      if (!isDone(d, "k1")) { d.q.k1 = [0, Math.max(0, cur.size - 1)]; if (cur.size > 0) { const r = logQuest(d, "k1"); if (r.leveled) levelUp(r.leveled); } else delete d.q.k1; }
+      // round 14: the target is the anchors scheduled and shown today (8 unless she hid or rescheduled some). Only
+      // the count changes: finishing still goes through logQuest, so XP, stars and streak are awarded as before.
+      if (!isDone(d, "k1")) {
+        const c = anchorCount(anchors, d.gedit, wdOf(k), [...cur]), goal = QUESTS.find((q) => q.id === "k1")?.goal ?? 8;
+        if (c.target > 0 && c.done >= c.target) { d.q.k1 = [0, goal - 1]; const r = logQuest(d, "k1"); if (r.leveled) levelUp(r.leveled); }
+        else if (c.done > 0) d.q.k1 = [0, c.done]; else delete d.q.k1;
+      }
     }, ["swins", ...QKEYS]);
     water("anchor", `anchor:${id}:${k}`, on);
     setEvs((e) => on ? [{ at: new Date().toISOString(), source: "anchor", ref: `anchor:${id}:${k}`, weight: 1 }, ...(e ?? [])] : (e ?? []).filter((x) => x.ref !== `anchor:${id}:${k}`));
@@ -225,9 +243,10 @@ export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode;
     {aRest.length > 0 && <p className="note">Not today: {aRest.map((a) => a.t).join(" · ")}</p>}
     <p className="note">Trunk: {STAGE_TXT[trunk.stage]}{trunk.last ? `, last watered ${prettyDay(trunk.last)}` : ""}.</p>
   </>;
-  // round 13: a progress background per branch (grey: not started, green fill: in progress, full with gold edge: done)
+  // round 13/14: a progress background per branch (grey: never started, faint tint: quiet this week, green: active
+  // this week, gold edge: done)
   const branchList = <div className="gbranches">{list.map((b) => { const bp = branchProgress(b, k); return (
-    <div className="gk" data-st={b.stage === "blooming" || b.stage === "sprout" ? "ok" : b.stage === "thirsty" ? "thirsty" : "wilting"} data-bp={bp.state} style={{ "--bp": Math.round(bp.share * 100) + "%" } as React.CSSProperties} key={b.n}>
+    <div className="gk" data-st={b.stage === "blooming" || b.stage === "sprout" ? "ok" : b.stage === "thirsty" ? "thirsty" : "wilting"} data-bp={bp.state} key={b.n}>
       <span className="gnm"><b>{b.n}. {b.name}</b><small>{STAGE_TXT[b.stage]} · {b.blossoms}/8 blossoms{b.last ? ` · last ${prettyDay(b.last)}` : ""}</small></span>
       {b.stage === "dead" && <button className="btn sm ghost gx" type="button" onClick={() => weedOut(b.n)}>{arm === String(b.n) ? "Yes, weed it out" : "Weed it out"}</button>}
     </div>
@@ -263,7 +282,7 @@ export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode;
         {/* round 8: one grid, so cards in a row share their top, bottom and width (left: anchors, habits; right:
             branches, quests); the Wins ladder spans the width below */}
         <div className="kpg two kgarden-cards">
-          <GCard title="Daily anchors" sub={`${todayA.length}/${anchors.length || 8} today · waters the trunk`}>{anchorList}</GCard>
+          <GCard title="Daily anchors" sub={`${aCount.done}/${anchors.length ? aCount.target : 8} today · waters the trunk`}>{anchorList}</GCard>
           <GCard title="Branches" sub={`${blossoms} of 64 blossoms`} actions={<div className="kseg" role="group" aria-label="Chart year">{(["2026", "2027"] as const).map((y) => <button key={y} type="button" aria-pressed={byear === y} className={byear === y ? "on" : ""} onClick={() => setByear(y)}>{y}</button>)}</div>}>{branchList}<p className="note">Any real activity revives a branch at once. Weeding a bare branch regrows a sprout; blossoms and history are never lost.</p></GCard>
           {slots.habits}
           <GCard title="Quests">{slots.pick}<div id="gQuestSlot"><QuestLive /></div>{slots.quests}</GCard>
@@ -277,7 +296,7 @@ export function GardenLive({ slots = {} }: { slots?: { habits?: React.ReactNode;
       <GardenScene list={list} />
       <div className="tcard garden">
         {head}
-        <div className="sec-h">Daily anchors <span className="note">{todayA.length}/{anchors.length || 8} today · waters the trunk</span></div>
+        <div className="sec-h">Daily anchors <span className="note">{aCount.done}/{anchors.length ? aCount.target : 8} today · waters the trunk</span></div>
         {anchorList}
         <div className="sec-h">Branches</div>
         {branchList}
@@ -317,7 +336,7 @@ export function WinsLive({ onDone }: { onDone?: () => void }) {
   const cnt = (src: string) => today.filter((e) => e.source === src).length;
   const rows: [string, string][] = [
     ["Daily quests", `${T.td} of ${T.tt}`],
-    ["Daily anchors", `${(st.swins.log[k] || []).length} of 8`],
+    ["Daily anchors", (() => { const a = st.defs.swins?.phases.find((p) => p.daily)?.items ?? [], c = anchorCount(a, st.gedit, wdOf(k), st.swins.log[k] || []); return `${c.done} of ${a.length ? c.target : 8}`; })()],
     ["Grid actions ticked", String(cnt("grid"))],
     ["Milestones", String(cnt("milestone"))],
     ["Plans and trades logged", String(cnt("plan") + cnt("trade"))],

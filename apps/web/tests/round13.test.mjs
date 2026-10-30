@@ -104,17 +104,12 @@ test("Edit garden: one button, one panel with four tabs, the quest switches move
   assert.ok(!/class="btn(?! sm ghost)[^"]*"[^>]*>(Hide|Unhide|↑|↓)</.test(p), "row buttons are the transparent ghost style");
 });
 
-test("branch progress: not started, in progress, completed", () => {
-  assert.deepEqual(branchProgress({ blossoms: 0, last: null }, K), { state: "idle", share: 0 });
-  assert.deepEqual(branchProgress({ blossoms: 0, last: "2026-10-01" }, K), { state: "idle", share: 0 }, "activity before this week is not this week");
-  assert.deepEqual(branchProgress({ blossoms: 0, last: "2026-10-26" }, K), { state: "growing", share: 0 }, "any activity this week");
-  assert.deepEqual(branchProgress({ blossoms: 2, last: null }, K), { state: "growing", share: 0.25 }, "strength follows the share of cells done");
-  assert.deepEqual(branchProgress({ blossoms: 8, last: null }, K), { state: "done", share: 1 });
+test("branch progress: the decorations follow the effective chart", () => {
+  // the four states themselves are tested in round14.test.mjs (round 14 split "in progress" into quiet and active)
   const g = src("components/court/live/GrowLive.tsx");
   assert.match(g, /const list = chartBranches\(raw, st, byear\);/, "branches keep reading the effective chart");
   assert.match(g, /data-bp=\{bp\.state\}/);
-  const css = src("app/(court)/kumo-new.css");
-  assert.match(css, /\.gk\[data-bp="done"\]\{[^}]*--k-gold-400/, "completed has a soft gold edge");
+  assert.match(src("app/(court)/kumo-new.css"), /\.gk\[data-bp="done"\]\{[^}]*--k-gold-400/, "completed has a soft gold edge");
 });
 
 test("garden scene: the pond, bridge and left lantern are gone; the right lantern and tufts stay", () => {

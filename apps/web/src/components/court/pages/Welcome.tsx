@@ -89,7 +89,7 @@ export function KingdomPage({ world }: { world: React.ReactNode }) {
   const stage = stageFor(st.lvl);
   return (
     <div className="kpage">
-      <PageHead scene="castle" title="Kingdom Mode" sub={`${stage.name} · level ${st.lvl}. A preview: cosmetic only, nothing is ever locked away from you.`} />
+      <PageHead title="Kingdom Mode" sub={`${stage.name} · level ${st.lvl}. A preview: cosmetic only, nothing is ever locked away from you.`} />
       {world}
       <Card title="What can live in your kingdom" sub="preview only, nothing to buy">
         <p className="note">Stages: {STAGES.map((s) => s.name).join(" · ")}. Thresholds are placeholders until the customisation catalogue is built.</p>

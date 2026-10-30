@@ -1,5 +1,6 @@
 "use client";
 
+import { TradesRoom } from "@/components/kumo/decor/MoreRooms";
 import { useEffect, useMemo, useState } from "react";
 import { getOnce } from "@/lib/court/once";
 import { useCourt } from "../CourtState";
@@ -380,7 +381,7 @@ export function TradesPage({ movers, tech, scan, intel }: { movers: React.ReactN
   const L = useLedger();
   return (
     <div className="kpage">
-      <PageHead scene="desk" title="Trades" sub="Your trades, the trading watchlist and the macro desk. Tracking only, never advice." />
+      <PageHead room={<TradesRoom />} title="Trades" sub="Your trades, the trading watchlist and the macro desk. Tracking only, never advice." />
       <Card title="Scan" sub="Fenn · midday movers, then the morning scan" className="kfull kscanc">
         <Clamp label="Midday movers" lines={5}>{movers}</Clamp>
         <ScanDetails doc={scan} />
