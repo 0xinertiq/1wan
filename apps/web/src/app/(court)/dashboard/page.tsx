@@ -99,7 +99,10 @@ export default async function Dashboard() {
 
   // Her state document; missing keys fall back to defaults. Rollover and the morning-brief quest
   // are applied here so the first paint is already right; the client saves what changed.
-  const { data: row } = await supabase.from("user_state").select("data, version").eq("user_id", user.id).maybeSingle();
+  const { data: row, error: stateErr } = await supabase.from("user_state").select("data, version").eq("user_id", user.id).maybeSingle();
+  // A failed read must not boot an empty state: its first save would write blanks over her real streak and garden.
+  // Throwing shows the dashboard's error screen (error.tsx) with Try again. No row at all is a new user, which is fine.
+  if (stateErr) throw new Error("Could not load your saved state");
   const today = dayKey(now);
   const boot = bootState(normalize(row?.data ?? {}, today), today);
   // What each desk has learned (her agent memory, read-only under RLS), for the Briefs card.
