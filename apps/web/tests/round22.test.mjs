@@ -47,3 +47,22 @@ test("switching the tables on copies this device's records into the account, nev
   assert.match(v, /if \(localStorage\.getItem\(movedKey\(uid, t\)\)\) return inDb;/, "copied once per account");
   assert.match(v, /if \(error\) return inDb;/, "a failed copy is tried again next load");
 });
+
+test("friends never see her trading quests (display only; what quests count and award is unchanged)", async () => {
+  const { QUESTS, TRADING_Q, forViewer } = await import("../src/lib/court/quests.ts");
+  assert.deepEqual(TRADING_Q, ["o1", "f1", "o2"]);
+  assert.equal(forViewer(QUESTS, true).length, QUESTS.length, "her own list is unchanged");
+  assert.deepEqual(forViewer(QUESTS, false).map((q) => q.id), QUESTS.map((q) => q.id).filter((id) => !TRADING_Q.includes(id)));
+  assert.ok(!/forViewer|TRADING_Q/.test(src("lib/court/actions.ts") + src("lib/court/state.ts")), "the XP, stars and streak rules never read it");
+  const today = src("components/court/live/TodayLive.tsx");
+  assert.equal((today.match(/filter\(\(x\) => owner \|\| x\.id !== "charts"\)/g) ?? []).length, 2, "no chart review idea for a friend");
+  assert.match(src("components/court/live/EditGarden.tsx"), /all = forViewer\(QUESTS, useOwner\(\)\)/);
+});
+
+test("migration 0009: shared briefs readable by the owner only, inside the database", () => {
+  const m = fs.readFileSync(path.resolve(import.meta.dirname, "../../../supabase/migrations/0009_briefs_owner_only.sql"), "utf8");
+  assert.match(m, /using \(user_id = auth\.uid\(\) or \(user_id is null and public\.is_court_owner\(\)\)\)/);
+  assert.match(m, /security definer\s+set search_path = ''/);
+  assert.match(m, /order by u\.created_at asc limit 1/, "the same owner rule as the app: the first account");
+  assert.match(m, /revoke all on function public\.is_court_owner\(\) from public, anon;/);
+});
