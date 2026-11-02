@@ -38,4 +38,6 @@ test("signed in: the login screen and the old page at / go to the dashboard; the
 test("the scheduled-task routes skip the session check", async () => {
   assert.deepEqual(await go("/api/ingest/brief", null, "POST"), { status: 200, to: null });
   assert.deepEqual(await go("/api/export/weekly", null), { status: 200, to: null });
+  assert.deepEqual(await go("/api/news/refresh", null, "POST"), { status: 200, to: null }, "the news schedule (secret checked in the route)");
+  assert.equal((await go("/api/news/shared", null)).status, 401, "reading the feed still needs a sign-in");
 });

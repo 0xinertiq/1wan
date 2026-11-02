@@ -26,7 +26,8 @@ function clean(s: string) {
 }
 const tag = (block: string, name: string) => block.match(new RegExp(String.raw`<${name}(?:\s[^>]*)?>([\s\S]*?)</${name}>`, "i"))?.[1] ?? "";
 
-function parseFeed(xml: string, f: Feed): Headline[] {
+// exported for the shared friend feed (lib/sharedNews.ts), round 22
+export function parseFeed(xml: string, f: Feed): Headline[] {
   const blocks = xml.match(/<item[\s>][\s\S]*?<\/item>/gi) ?? xml.match(/<entry[\s>][\s\S]*?<\/entry>/gi) ?? [];
   return blocks.slice(0, 30).flatMap((b) => {
     const title = clean(tag(b, "title")).slice(0, 220);

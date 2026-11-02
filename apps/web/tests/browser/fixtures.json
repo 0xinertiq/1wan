@@ -268,6 +268,52 @@
       },
       "feedback": {
         "ok": true
+      },
+      "news/shared": {
+        "at": "NOW",
+        "items": [
+          {
+            "id": "n1",
+            "title": "Bitcoin steadies after a quiet weekend",
+            "publisher": "CoinDesk",
+            "source": "coindesk",
+            "category": "crypto",
+            "link": "https://news.example/a",
+            "published_at": "NOW",
+            "fetched_at": "NOW"
+          },
+          {
+            "id": "n2",
+            "title": "Singapore opens a new MRT line",
+            "publisher": "CNA",
+            "source": "cna-sg",
+            "category": "local",
+            "link": "https://news.example/b",
+            "published_at": "NOW",
+            "fetched_at": "NOW"
+          },
+          {
+            "id": "n3",
+            "title": "Researchers map a deep-sea reef",
+            "publisher": "BBC",
+            "source": "bbc-science",
+            "category": "science",
+            "link": "https://news.example/c",
+            "published_at": "NOW",
+            "fetched_at": "NOW"
+          },
+          {
+            "id": "n4",
+            "title": "Central bank holds rates",
+            "publisher": "European Central Bank",
+            "source": "ecb",
+            "category": "macro",
+            "link": "https://news.example/d",
+            "published_at": "NOW",
+            "fetched_at": "NOW"
+          }
+        ],
+        "failed": []
       }
     },
     "empty": {

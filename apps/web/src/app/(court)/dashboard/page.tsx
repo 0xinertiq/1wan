@@ -53,6 +53,7 @@ import { normalize } from "@/lib/court/state";
 import { sgtKeyOf, stampAge } from "@/lib/court/time";
 import { Boundary } from "@/components/court/Boundary";
 import { OwnerProvider } from "@/components/court/Owner";
+import { FriendNews } from "@/components/court/FriendNews";
 import { isOwner } from "@/lib/owner";
 
 export const dynamic = "force-dynamic";
@@ -139,7 +140,7 @@ export default async function Dashboard() {
           welcome: <NewOnly><WelcomePage /></NewOnly>,
           news: (
             <NewOnly>
-              <NewsPage headlines={<NewsLive top5={top5} follow />} />
+              {owner ? <NewsPage headlines={<NewsLive top5={top5} follow />} /> : <NewsPage friend headlines={<FriendNews />} />}
             </NewOnly>
           ),
         }}
@@ -159,10 +160,10 @@ export default async function Dashboard() {
                 weekStrip: <WeekStrip />,
                 weekAhead: <WeekAhead />,
                 econ: owner && <EconLive />,
-                news: <NewsLive />,
+                news: owner ? <NewsLive /> : <FriendNews compact />,
                 needs: <NeedsNow unrated={unrated} />,
                 status: <StatusLive />,
-                briefs: owner ? <BriefsBlock docs={{ pulse: docOf("pulse"), intel: docOf("intel"), scan: scanDoc }} mem={mem} /> : <NewsLive />,
+                briefs: owner ? <BriefsBlock docs={{ pulse: docOf("pulse"), intel: docOf("intel"), scan: scanDoc }} mem={mem} /> : <FriendNews compact />,
                 world: <LivingWorld filed={filed} />,
                 roster: <CrewRoster filed={filed} />,
               }}

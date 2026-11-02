@@ -1,0 +1,21 @@
+# Refreshes the shared friend news feed every three hours (round 22). Free: one small request to the app, which
+# fetches public RSS feeds and saves headlines once in Supabase. Needs two repository secrets (Settings, Secrets and
+# variables, Actions): NEWS_REFRESH_URL (https://1wan.vercel.app/api/news/refresh) and NEWS_REFRESH_SECRET (the
+# same value as in Vercel). Scheduled runs only start from the main branch.
+name: News refresh
+on:
+  schedule:
+    - cron: "17 */3 * * *"
+  workflow_dispatch: {}
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ask the app to refresh the shared feed
+        env:
+          URL: ${{ secrets.NEWS_REFRESH_URL }}
+          SECRET: ${{ secrets.NEWS_REFRESH_SECRET }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$SECRET" ]; then echo "Secrets not set yet; skipping."; exit 0; fi
+          curl -sS -f -X POST -H "Authorization: Bearer $SECRET" "$URL" -o /dev/null -w "HTTP %{http_code}\n"

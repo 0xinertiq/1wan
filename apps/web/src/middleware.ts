@@ -22,7 +22,8 @@ export async function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   // Scheduled tasks post here with their own secret (checked in the route), not a login.
-  if (path === "/api/ingest/brief" || path === "/api/export/weekly") return NextResponse.next({ request });
+  // round 22: the shared news refresh schedule (its own secret, checked in the route)
+  if (path === "/api/ingest/brief" || path === "/api/export/weekly" || path === "/api/news/refresh") return NextResponse.next({ request });
 
   const { data: { user } } = await supabase.auth.getUser();
 

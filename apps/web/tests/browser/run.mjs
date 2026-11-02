@@ -45,6 +45,9 @@ for (const size of ["1280,900", "1440,900", "1024,768", "820,1180", "390,844"]) 
 // Round 22: a friend's account: no Trades tab, no weekly review, no economic calendar, and none of her trading data
 // fetched (prices, releases, technicals; their own empty trade log is theirs), on every mounted tab, desktop and phone.
 for (const [theme, size] of [["light", "1280,900"], ["dark", "390,844"]]) runs.push({ c: "friend", theme, size, ssr: false, ls: "", friend: true });
+// ...and with the shared feed down: the last good headlines kept on the device show, with a friendly note.
+const keptNews = encodeURIComponent(JSON.stringify({ "1wan.v2.friendnews": JSON.stringify({ at: new Date().toISOString(), failed: [], items: [{ id: "k1", title: "A headline kept from earlier", publisher: "BBC", source: "bbc-world", category: "world", link: "https://news.example/k", published_at: new Date().toISOString(), fetched_at: new Date().toISOString() }] }) }));
+runs.push({ c: "friendfail", theme: "light", size: "1280,900", ssr: false, ls: keptNews, friend: true, friendfail: true });
 // Round 22: an expired sign-in: one save attempt, then "Please sign in again" with a Sign in button, no retry loop.
 for (const size of ["1280,900", "390,844"]) runs.push({ c: "signedout", theme: "light", size, ssr: false, ls: "", signedout: true });
 // Round 22: two devices: the first save is refused as out of date; the page merges the newer copy and saves both ticks.
@@ -52,7 +55,7 @@ runs.push({ c: "stale", theme: "light", size: "1280,900", ssr: false, ls: "", st
 let failed = 0;
 // ONLY=<text> runs just the runs whose label contains it (for example ONLY=fits)
 for (const r of runs.filter((x) => !process.env.ONLY || `${x.c} ${x.theme} ${x.size}${x.hash ? " #" + x.hash : ""}${x.fit ? " fits" : ""}${x.banner ? " banner" : ""}${x.nobanner ? " nobanner" : ""}${x.luna ? " luna" : ""}${x.nocolscroll ? " nocolscroll" : ""}${x.full6 ? " full6" : ""}${x.dunflow ? " dunflow" : ""}${x.friend ? " friend" : ""}${x.signedout ? " signedout" : ""}${x.stale ? " stale" : ""}`.includes(process.env.ONLY))) {
-  const url = `http://localhost:${PORT}/harness.html?case=${r.c}&theme=${r.theme}${r.ssr ? "&ssr=1" : ""}${r.ls ? "&ls=" + r.ls : ""}${r.fit ? "&fit=1" : ""}${r.banner ? "&banner=1" : ""}${r.nobanner ? "&nobanner=1" : ""}${r.luna ? "&luna=1" : ""}${r.nocolscroll ? "&nocolscroll=1" : ""}${r.full6 ? "&full6=1" : ""}${r.dunflow ? "&dunflow=1" : ""}${r.friend ? "&friend=1" : ""}${r.signedout ? "&signedout=1" : ""}${r.stale ? "&stale=1" : ""}${r.hash ? "#" + r.hash : ""}`;
+  const url = `http://localhost:${PORT}/harness.html?case=${r.c}&theme=${r.theme}${r.ssr ? "&ssr=1" : ""}${r.ls ? "&ls=" + r.ls : ""}${r.fit ? "&fit=1" : ""}${r.banner ? "&banner=1" : ""}${r.nobanner ? "&nobanner=1" : ""}${r.luna ? "&luna=1" : ""}${r.nocolscroll ? "&nocolscroll=1" : ""}${r.full6 ? "&full6=1" : ""}${r.dunflow ? "&dunflow=1" : ""}${r.friend ? "&friend=1" : ""}${r.friendfail ? "&friendfail=1" : ""}${r.signedout ? "&signedout=1" : ""}${r.stale ? "&stale=1" : ""}${r.hash ? "#" + r.hash : ""}`;
   let out = "";
   try { out = execFileSync(CHROME, ["--headless=new", "--disable-gpu", `--window-size=${r.size}`, "--virtual-time-budget=10000", "--dump-dom", url], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 90000 }); } catch (e) { out = String(e.stdout ?? ""); }
   const m = out.match(/ERRS:(\[.*?\]):END/s), errs = m ? JSON.parse(m[1].replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&")) : ["no result (page did not finish)"];

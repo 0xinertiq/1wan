@@ -16,10 +16,10 @@ export const forLens = (rows: Research[], lens: Lens) => (lens === "off" ? [] : 
 // Round 8: one column. Today's briefing (rules only, from the scored headlines) above the headlines, both following
 // her lenses. The Intel and Pulse briefs live on the Court; the scans and movers in Trades; Kumo's weekly review and
 // the packet in Settings. Saved research notes stay in research_notes and Export my data.
-export function NewsPage({ headlines }: { headlines: React.ReactNode }) {
+export function NewsPage({ headlines, friend = false }: { headlines: React.ReactNode; friend?: boolean }) {
   return (
     <div className="kpage">
-      <PageHead room={<NewsDawn />} title="News" sub="Today's briefing and the headlines, following the lenses you chose in Settings." />
+      <PageHead room={<NewsDawn />} title="News" sub={friend ? "The headlines in the categories you chose. Change them any time in Settings." : "Today's briefing and the headlines, following the lenses you chose in Settings."} />
       {headlines}
     </div>
   );

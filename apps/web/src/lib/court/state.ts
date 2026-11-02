@@ -55,7 +55,9 @@ export type Prefs = { lens?: Lens; rooms?: Record<string, boolean>; notif?: Reco
 export type Habit = { id: string; name: string; days: number[]; paused?: boolean; at: string };
 // Round 7 (new optional key lenses): the news lenses she follows, several at once. Absent in older documents, where
 // it is read from her old single market lens (prefs.lens) and nothing else changes. "any" and "off" stand alone.
-export const LENS_IDS = ["crypto", "macro", "markets", "world", "local", "tech", "any", "off"] as const;
+// Round 22: politics, health and science join for the shared friend feed (lib/newsCats.ts); her own lens chips stay
+// the first eight (OWNER_LENSES, lib/court/lenses.ts).
+export const LENS_IDS = ["crypto", "macro", "markets", "world", "local", "tech", "any", "off", "politics", "health", "science"] as const;
 export type LensId = (typeof LENS_IDS)[number];
 export type Habits = { list: Habit[]; log: Record<string, string[]> };
 

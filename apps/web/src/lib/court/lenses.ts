@@ -3,7 +3,10 @@ import type { LensId } from "./state";
 // News lenses (round 7): several at once. Headlines on the News tab show the topics she follows; the Briefs card
 // shows Intel when a news or markets lens is on and Pulse when Tech or Markets is on. "Any topic" shows everything;
 // "Off" hides both. Rules only.
-export const LENS_LABEL: Record<LensId, string> = { crypto: "Crypto", macro: "Macro", markets: "Markets", world: "World", local: "Local", tech: "Tech", any: "Any topic", off: "Off" };
+export const LENS_LABEL: Record<LensId, string> = { crypto: "Crypto", macro: "Macro", markets: "Markets", world: "World", local: "Local", tech: "Tech", any: "Any topic", off: "Off", politics: "Politics & elections", health: "Health & wellness", science: "Science" };
+// Round 22: the owner's Market lens chips (unchanged), and a friend's news categories (no Off: News is never empty).
+export const OWNER_LENSES: LensId[] = ["crypto", "macro", "markets", "world", "local", "tech", "any", "off"];
+export const FRIEND_LENSES: LensId[] = ["crypto", "macro", "markets", "world", "local", "tech", "politics", "health", "science", "any"];
 const OF_GROUP: Record<string, LensId> = { Crypto: "crypto", Macro: "macro", Markets: "markets", World: "world", Local: "local", Tech: "tech" };
 
 /** Does a headline topic (Crypto, Macro, Markets, World, Local, Tech or Telegram) show under these lenses? */

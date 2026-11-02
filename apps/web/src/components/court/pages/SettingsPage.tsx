@@ -8,8 +8,7 @@ import { PacketLive } from "../live/PacketLive";
 import { createClient } from "@/lib/supabase/client";
 import { resetDevice } from "@/lib/court/store";
 import { TABLES, VAULT_LABEL, vaultMode } from "@/lib/vault";
-import { LENS_IDS } from "@/lib/court/state";
-import { LENS_LABEL, toggleLens } from "@/lib/court/lenses";
+import { FRIEND_LENSES, LENS_LABEL, OWNER_LENSES, toggleLens } from "@/lib/court/lenses";
 import { INTERESTS } from "./Welcome";
 import { QUOTES } from "@/lib/court/quotes";
 import { LIBRARY_MAX, parseQuotes, type MyQuote } from "@/lib/court/quoteLib";
@@ -154,14 +153,15 @@ export function SettingsPage({ review }: { review?: React.ReactNode }) {
               <span className="klook-l">Day or night</span><Theme />
             </div>
           </Card>
-          <Card title="Market lens" sub="choose as many as you like">
-            <div className="kchips" role="group" aria-label="News lenses">
-              {LENS_IDS.map((id) => <button key={id} type="button" className="chipb" aria-pressed={st.lenses.includes(id)} onClick={() => update((d) => { d.lenses = toggleLens(d.lenses, id); }, ["lenses"])}>{LENS_LABEL[id]}</button>)}
+          {/* round 22: her Market lens is unchanged; a friend picks the shared feed's news categories (never Off) */}
+          <Card title={owner ? "Market lens" : "News categories"} sub="choose as many as you like">
+            <div className="kchips" role="group" aria-label={owner ? "News lenses" : "News categories"}>
+              {(owner ? OWNER_LENSES : FRIEND_LENSES).map((id) => <button key={id} type="button" className="chipb" aria-pressed={st.lenses.includes(id)} onClick={() => update((d) => { d.lenses = toggleLens(d.lenses, id); }, ["lenses"])}>{!owner && id === "local" ? "Local (Singapore)" : LENS_LABEL[id]}</button>)}
             </div>
-            <p className="note">Headlines and briefs on the News tab follow these. Any topic shows everything; Off hides them.</p>
+            <p className="note">{owner ? "Headlines and briefs on the News tab follow these. Any topic shows everything; Off hides them." : "Your News tab shows these. Any topic shows everything."}</p>
           </Card>
           <Card title="Rooms" sub="what the kingdom helps with">
-            <div className="kgrid-opts">{INTERESTS.map(([id, l]) => <label className="kcheck" key={id}><input type="checkbox" checked={st.prefs.rooms?.[id] !== false} onChange={(e) => setPrefs((p) => { p.rooms = { ...(p.rooms ?? {}), [id]: e.target.checked }; })} />{l}</label>)}</div>
+            <div className="kgrid-opts">{INTERESTS.filter(([id]) => owner || id !== "markets").map(([id, l]) => <label className="kcheck" key={id}><input type="checkbox" checked={st.prefs.rooms?.[id] !== false} onChange={(e) => setPrefs((p) => { p.rooms = { ...(p.rooms ?? {}), [id]: e.target.checked }; })} />{l}</label>)}</div>
             <p className="note">Switching a room off hides its tab (Garden, Dungeon, Trades and News); nothing is deleted.</p>
           </Card>
           <Card title="Connections" sub="read-only">

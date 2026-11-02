@@ -18,6 +18,7 @@ import { GardenPage } from "@/components/court/pages/GardenPage";
 import { NewsPage } from "@/components/court/pages/NewsPage";
 import { InboxProvider } from "@/components/court/pages/Inbox";
 import { OwnerProvider } from "@/components/court/Owner";
+import { FriendNews } from "@/components/court/FriendNews";
 import { AlertsProvider } from "@/components/court/Alerts";
 import { SettingsPage } from "@/components/court/pages/SettingsPage";
 import { KingdomPage, WelcomePage } from "@/components/court/pages/Welcome";
@@ -83,8 +84,8 @@ export function buildTree(d: Data) {
   const latest = Object.fromEntries(docs.map((x) => [x.key, { title: x.title, at: x.at }]));
   const s = {
     weather: null, today: <TodayLive />, todayBare: <TodayLive bare />, stage: null, statusLine: <StatusLine latest={latest} />, luna: <LunaSky />,
-    brief: null, scan: null, tech: owner && <TechLive />, weekStrip: null, weekAhead: <WeekAhead />, econ: owner && <EconLive />, news: <NewsLive />, needs: <NeedsNow unrated={["Intel"]} />,
-    status: null, briefs: !owner ? <NewsLive /> : <BriefsBlock docs={{ pulse: docOf("pulse"), intel: docOf("intel"), scan: docOf("scan") }} mem={d.mem} />,
+    brief: null, scan: null, tech: owner && <TechLive />, weekStrip: null, weekAhead: <WeekAhead />, econ: owner && <EconLive />, news: owner ? <NewsLive /> : <FriendNews compact />, needs: <NeedsNow unrated={["Intel"]} />,
+    status: null, briefs: !owner ? <FriendNews compact /> : <BriefsBlock docs={{ pulse: docOf("pulse"), intel: docOf("intel"), scan: docOf("scan") }} mem={d.mem} />,
     world: <LivingWorld filed={filed} />, roster: <CrewRoster filed={filed} />,
   };
   return (
@@ -103,7 +104,7 @@ export function buildTree(d: Data) {
             settings: <NewOnly><SettingsPage review={owner ? <BriefsLibrary history={docs} only={["review"]} bare /> : undefined} /></NewOnly>,
             kingdom: <NewOnly><KingdomPage world={<LivingWorld filed={filed} />} /></NewOnly>,
             welcome: <NewOnly><WelcomePage /></NewOnly>,
-            news: <NewOnly><NewsPage headlines={<NewsLive top5={["The Fed holds."]} follow />} /></NewOnly>,
+            news: <NewOnly>{owner ? <NewsPage headlines={<NewsLive top5={["The Fed holds."]} follow />} /> : <NewsPage friend headlines={<FriendNews />} />}</NewOnly>,
           }}
           panels={{
             court: <CourtLayout s={s} />,
