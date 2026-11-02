@@ -32,8 +32,9 @@ export async function middleware(request: NextRequest) {
     }
     return NextResponse.redirect(new URL("/login", request.url));
   }
-  if (user && path === "/login") {
-    return NextResponse.redirect(new URL("/", request.url));
+  // Signed in: the login screen and the old developer page at "/" both go straight to the dashboard (Today).
+  if (user && (path === "/login" || path === "/")) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
   return response;
 }
