@@ -98,7 +98,7 @@ function Chart() {
     <div className="hwrap">
       <div className="kform-row">
         <TabPills label="Chart view" value={view} options={[["chart", "Grid"], ["list", "List"]] as const} onChange={setView} />
-        <span className="note">{total} of 64 done · {save === "saving" ? "saving…" : save === "offline" ? "not saved yet, retrying" : "all changes saved"}</span>
+        <span className="note">{total} of 64 done · {save === "saving" ? "saving…" : save === "offline" ? "not saved yet, retrying" : save === "signedout" ? "please sign in again" : "all changes saved"}</span>
       </div>
       {view === "chart" ? <>
         <div className="hpick" role="group" aria-label="Show one block">

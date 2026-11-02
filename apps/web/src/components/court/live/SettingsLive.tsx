@@ -93,7 +93,10 @@ export function HeaderProgress() {
       <span className="hprog-lv">LV <b>{st.lvl}</b></span>
       <span className="hprog-bar" role="img" aria-label={`EXP ${st.xp} of ${need}`}><i style={{ width: Math.min(100, (st.xp / need) * 100) + "%" }} /></span>
       <span className="hprog-hab" aria-label={`Habits this week ${wh.d} of ${wh.t}`}>habits {wh.d}/{wh.t}</span>
-      <span className={"hprog-save" + (save === "offline" ? " warn" : "")} role="status">{save === "offline" || save === "saving" ? saveTxt : <span className="sr">{saveTxt}</span>}</span>
+      {save === "signedout"
+        // the sign-in expired: no endless retrying; the login opens in a new tab so the changes waiting here are kept
+        ? <span className="hprog-save warn" role="alert">Please sign in again <a className="btn sm" href="/login" target="_blank" rel="noopener">Sign in</a></span>
+        : <span className={"hprog-save" + (save === "offline" ? " warn" : "")} role="status">{save === "offline" || save === "saving" ? saveTxt : <span className="sr">{saveTxt}</span>}</span>}
     </div>
   );
 }

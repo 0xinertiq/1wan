@@ -555,7 +555,7 @@ export function StatusLive() {
           <div className="bar exp"><label>EXP <em id="expTxt">{st.xp} / {need}</em></label><div className="track"><i id="expBar" style={{ width: (st.xp / need) * 100 + "%" }}></i></div></div>
           <div className="bar mp vf"><label>Habits this week <em id="mpTxt">{wh.d} / {wh.t}</em></label><div className="track"><i id="mpBar" style={{ width: (wh.t ? (wh.d / wh.t) * 100 : 0) + "%" }}></i></div></div>
         </div>
-        <p className="note xd">{save === "saving" ? "Saving..." : save === "saved" ? "All changes saved." : save === "offline" ? "Not saved yet. I will try again shortly." : "Your data, private to you."}</p>
+        <p className="note xd">{save === "saving" ? "Saving..." : save === "saved" ? "All changes saved." : save === "offline" ? "Not saved yet. I will try again shortly." : save === "signedout" ? "Please sign in again to save." : "Your data, private to you."}</p>
       </div>
     </section>
   );

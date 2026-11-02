@@ -9,7 +9,7 @@ import { sgt } from "@/lib/court/time";
 // One client store for her state document. Changes save in the background (debounced) to /api/state,
 // sending only the keys that changed, with the version she loaded.
 
-export type SaveState = "idle" | "saving" | "saved" | "offline";
+export type SaveState = "idle" | "saving" | "saved" | "offline" | "signedout";
 export type CalState = { state: "off" | "loading" | "live" | "error"; cals: { name: string; color: string; ok: boolean }[] };
 export type Sheet = { kind: "crew"; id: string } | { kind: "settings" } | { kind: "wins" } | { kind: "birth" } | { kind: "packet" } | null;
 
@@ -61,6 +61,9 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
   const pending = useRef(new Set<OwnedKey>(dirty));
   const timer = useRef<number | undefined>(undefined);
   const inFlight = useRef(false);
+  // The sign-in has expired (the save answered 401): stop retrying, keep the changes, ask her to sign in again,
+  // and save as soon as she is back on this tab.
+  const signedOut = useRef(false);
 
   const flush = useCallback(async () => {
     if (inFlight.current || !pending.current.size) return;
@@ -74,6 +77,7 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
       // keepalive while the tab is going away, so a tick made just before closing still reaches the server
       // (browsers cap keepalive bodies at 64KB; a bigger one fails here and is retried when she is back)
       const r = await fetch("/api/state", { method: "POST", keepalive: document.visibilityState === "hidden", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ version: ver.current, patch }) });
+      if (r.status === 401) { signedOut.current = true; keys.forEach((x) => pending.current.add(x)); setSave("signedout"); return; }
       if (!r.ok) throw new Error(String(r.status));
       const j = await r.json();
       ver.current = j.version;
@@ -85,12 +89,13 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
       timer.current = window.setTimeout(flush, 15000); // one calm retry later, not a loop of hammering
     } finally {
       inFlight.current = false;
-      if (pending.current.size && !timer.current) timer.current = window.setTimeout(flush, 800);
+      if (pending.current.size && !timer.current && !signedOut.current) timer.current = window.setTimeout(flush, 800);
     }
   }, []);
 
   const schedule = useCallback(() => {
     window.clearTimeout(timer.current);
+    if (signedOut.current) return; // kept until she has signed in again
     timer.current = window.setTimeout(() => { timer.current = undefined; flush(); }, 800);
   }, [flush]);
 
@@ -113,8 +118,12 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
     const t = window.setInterval(() => setNow(sgt(new Date())), 30000);
     setNow(sgt(new Date()));
     const hide = () => { if (document.visibilityState === "hidden") flush(); };
+    // back on this tab after signing in again (the button opens the login screen in a new tab): save what waited
+    const back = () => { if (signedOut.current && document.visibilityState === "visible") { signedOut.current = false; flush(); } };
     document.addEventListener("visibilitychange", hide);
-    return () => { window.clearInterval(t); document.removeEventListener("visibilitychange", hide); };
+    document.addEventListener("visibilitychange", back);
+    window.addEventListener("focus", back);
+    return () => { window.clearInterval(t); document.removeEventListener("visibilitychange", hide); document.removeEventListener("visibilitychange", back); window.removeEventListener("focus", back); };
   }, [flush]);
 
   // Past midnight in Singapore with the page still open: save, then reload so the rollover runs.
