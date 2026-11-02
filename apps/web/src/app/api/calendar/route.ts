@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { ownerId } from "@/lib/usage";
+import { isOwner } from "@/lib/owner";
 import { loadCalendars } from "@/lib/calendar";
 
 export const dynamic = "force-dynamic";
@@ -14,8 +13,7 @@ export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
-  const db = createAdminClient();
-  if (!db || user.id !== (await ownerId(db))) return NextResponse.json({ state: "off", cals: [], events: [] }, { headers: { "Cache-Control": "private, max-age=300" } });
+  if (!(await isOwner(user.id))) return NextResponse.json({ state: "off", cals: [], events: [] }, { headers: { "Cache-Control": "private, max-age=300" } });
   try {
     return NextResponse.json(await loadCalendars(), { headers: { "Cache-Control": "private, max-age=300" } });
   } catch {

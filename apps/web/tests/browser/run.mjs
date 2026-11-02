@@ -42,14 +42,17 @@ for (const size of ["1280,720", "1440,900", "1920,1080", "1024,768"]) for (const
 // Round 18: no room banner at phone width (the code stays); Luna's labelled rows at desktop, tablet and phone widths.
 for (const hash of ["calendar", "diary", "life", "trades", "news"]) runs.push({ c: "full", theme: "light", size: "390,844", ssr: false, ls: "", hash, nobanner: true });
 for (const size of ["1280,900", "1440,900", "1024,768", "820,1180", "390,844"]) runs.push({ c: "full", theme: "light", size, ssr: false, ls: "", hash: "court", luna: true });
+// Round 22: a friend's account: no Trades tab, no weekly review, no economic calendar, and none of her trading data
+// fetched (prices, releases, technicals; their own empty trade log is theirs), on every mounted tab, desktop and phone.
+for (const [theme, size] of [["light", "1280,900"], ["dark", "390,844"]]) runs.push({ c: "friend", theme, size, ssr: false, ls: "", friend: true });
 let failed = 0;
 // ONLY=<text> runs just the runs whose label contains it (for example ONLY=fits)
-for (const r of runs.filter((x) => !process.env.ONLY || `${x.c} ${x.theme} ${x.size}${x.hash ? " #" + x.hash : ""}${x.fit ? " fits" : ""}${x.banner ? " banner" : ""}${x.nobanner ? " nobanner" : ""}${x.luna ? " luna" : ""}${x.nocolscroll ? " nocolscroll" : ""}${x.full6 ? " full6" : ""}${x.dunflow ? " dunflow" : ""}`.includes(process.env.ONLY))) {
-  const url = `http://localhost:${PORT}/harness.html?case=${r.c}&theme=${r.theme}${r.ssr ? "&ssr=1" : ""}${r.ls ? "&ls=" + r.ls : ""}${r.fit ? "&fit=1" : ""}${r.banner ? "&banner=1" : ""}${r.nobanner ? "&nobanner=1" : ""}${r.luna ? "&luna=1" : ""}${r.nocolscroll ? "&nocolscroll=1" : ""}${r.full6 ? "&full6=1" : ""}${r.dunflow ? "&dunflow=1" : ""}${r.hash ? "#" + r.hash : ""}`;
+for (const r of runs.filter((x) => !process.env.ONLY || `${x.c} ${x.theme} ${x.size}${x.hash ? " #" + x.hash : ""}${x.fit ? " fits" : ""}${x.banner ? " banner" : ""}${x.nobanner ? " nobanner" : ""}${x.luna ? " luna" : ""}${x.nocolscroll ? " nocolscroll" : ""}${x.full6 ? " full6" : ""}${x.dunflow ? " dunflow" : ""}${x.friend ? " friend" : ""}`.includes(process.env.ONLY))) {
+  const url = `http://localhost:${PORT}/harness.html?case=${r.c}&theme=${r.theme}${r.ssr ? "&ssr=1" : ""}${r.ls ? "&ls=" + r.ls : ""}${r.fit ? "&fit=1" : ""}${r.banner ? "&banner=1" : ""}${r.nobanner ? "&nobanner=1" : ""}${r.luna ? "&luna=1" : ""}${r.nocolscroll ? "&nocolscroll=1" : ""}${r.full6 ? "&full6=1" : ""}${r.dunflow ? "&dunflow=1" : ""}${r.friend ? "&friend=1" : ""}${r.hash ? "#" + r.hash : ""}`;
   let out = "";
   try { out = execFileSync(CHROME, ["--headless=new", "--disable-gpu", `--window-size=${r.size}`, "--virtual-time-budget=10000", "--dump-dom", url], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 90000 }); } catch (e) { out = String(e.stdout ?? ""); }
   const m = out.match(/ERRS:(\[.*?\]):END/s), errs = m ? JSON.parse(m[1].replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&")) : ["no result (page did not finish)"];
-  const label = `${r.c} ${r.theme} ${r.size}${r.ssr ? " ssr" : ""}${r.ls ? " saved-values" : ""}${r.hash ? " #" + r.hash : ""}${r.fit ? " fits" : ""}${r.banner ? " banner" : ""}${r.nobanner ? " nobanner" : ""}${r.luna ? " luna" : ""}${r.nocolscroll ? " nocolscroll" : ""}${r.full6 ? " full6" : ""}${r.dunflow ? " dunflow" : ""}`;
+  const label = `${r.c} ${r.theme} ${r.size}${r.ssr ? " ssr" : ""}${r.ls ? " saved-values" : ""}${r.hash ? " #" + r.hash : ""}${r.fit ? " fits" : ""}${r.banner ? " banner" : ""}${r.nobanner ? " nobanner" : ""}${r.luna ? " luna" : ""}${r.nocolscroll ? " nocolscroll" : ""}${r.full6 ? " full6" : ""}${r.dunflow ? " dunflow" : ""}${r.friend ? " friend" : ""}`;
   if (errs.length) { failed++; console.log("FAIL", label, "\n  " + errs.join("\n  ")); } else console.log("ok  ", label);
 }
 server.kill();

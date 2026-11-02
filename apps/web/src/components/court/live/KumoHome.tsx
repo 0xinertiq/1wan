@@ -18,6 +18,7 @@ import { astroParts } from "@/components/kumo/astroParts";
 import { PixelSprite } from "@/components/PixelSprite";
 import { TONEMSG, enrich, explain, lunaDay, lunaRange, nextIngress } from "@/lib/court/luna";
 import { Boundary } from "../Boundary";
+import { useOwner } from "../Owner";
 
 // The Court tab. Classic: the v52 three columns, exactly as before. New look (COURT_SPEC): the world, Park a
 // thought, prices, the "Next:" liquidity line, Briefs (Pulse | Intelligence | Crypto scan) beside a rail
@@ -36,6 +37,7 @@ const B = ({ n, children }: { n: string; children: React.ReactNode }) => <Bounda
 
 export function CourtLayout({ s }: { s: CourtSlots }) {
   const ui = useUi();
+  const owner = useOwner();
   if (ui === "classic")
     return (
       <div className="layout">
@@ -48,8 +50,8 @@ export function CourtLayout({ s }: { s: CourtSlots }) {
     <div className="khome">
       <B n="Your kingdom">{s.world}</B>
       <B n="Park a thought"><QuickLine /></B>
-      <B n="Prices"><PricesStrip /></B>
-      <B n="Next release"><NextLiquidityLine /></B>
+      {owner && <B n="Prices"><PricesStrip /></B>}
+      {owner && <B n="Next release"><NextLiquidityLine /></B>}
       <B n="Status">{s.statusLine}</B>
       <div className="kmain">
         <B n="Briefs">{s.briefs}</B>

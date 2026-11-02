@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useCourt } from "../CourtState";
+import { useOwner } from "../Owner";
 import { BirthForm, LookSwitch, NewsLens, NewsSettings, SourceHealth } from "../live/SettingsLive";
 import { PacketLive } from "../live/PacketLive";
 import { createClient } from "@/lib/supabase/client";
@@ -99,6 +100,7 @@ export function SettingsPage({ review }: { review?: React.ReactNode }) {
   const { st, update, cal } = useCourt();
   const setPrefs = (fn: (p: typeof st.prefs) => void) => update((d) => { const p = { ...d.prefs }; fn(p); d.prefs = p; }, ["prefs"]);
   const mode = vaultMode();
+  const owner = useOwner();
   return (
     <div className="kpage">
       <PageHead title="Settings" sub="Look, lenses, connections, Kumo's weekly review and your data. Private to you."
@@ -131,7 +133,8 @@ export function SettingsPage({ review }: { review?: React.ReactNode }) {
             {cal.cals.length > 0 && <p className="note">{cal.cals.map((c) => c.name + (c.ok ? "" : " (not reachable)")).join(" · ")}</p>}
             <p className="note">More providers can join this list later. The calendar link is set by the owner in the server settings, not here.</p>
           </Card>
-          <Card title="News and Telegram"><NewsSettings /><NewsLens /><SourceHealth /></Card>
+          {/* her Telegram channels and source checks, and Kumo's weekly review below, are hers alone */}
+          {owner && <Card title="News and Telegram"><NewsSettings /><NewsLens /><SourceHealth /></Card>}
           <Card title="Account">
             <Callout tone="lav">1(WAN) is invite-only. It never asks anyone for API keys or passwords; keys live in the server settings. It tracks and never advises.</Callout>
             <div className="kbtn-row">
@@ -142,11 +145,11 @@ export function SettingsPage({ review }: { review?: React.ReactNode }) {
           </Card>
         </div>
         <div className="kcol">
-          <Card title="Kumo's weekly review" sub="the review, then the packet" id="review-card">
+          {owner && <Card title="Kumo's weekly review" sub="the review, then the packet" id="review-card">
             {review}
             <div className="sec-h">The weekly packet</div>
             <details><summary className="btn sm ghost">Open the packet</summary><PacketLive /></details>
-          </Card>
+          </Card>}
           <Card title="Your data" sub="private to you">
             <p className="note">Everything here is yours. Export my data includes your journal, trade log, research notes, goals, tasks, routines and finance entries once they are saved to your account.</p>
             <div className="kbtn-row">

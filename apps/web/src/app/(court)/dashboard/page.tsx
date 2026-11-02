@@ -52,6 +52,8 @@ import { bootState } from "@/lib/court/actions";
 import { normalize } from "@/lib/court/state";
 import { sgtKeyOf, stampAge } from "@/lib/court/time";
 import { Boundary } from "@/components/court/Boundary";
+import { OwnerProvider } from "@/components/court/Owner";
+import { isOwner } from "@/lib/owner";
 
 export const dynamic = "force-dynamic";
 
@@ -84,7 +86,9 @@ export default async function Dashboard() {
 
   // RLS returns shared briefs plus this user's own. Kind names go through lib/briefKinds.
   const now = new Date();
-  const { rows, freshest, votes, all } = await loadBriefs(supabase, user.id);
+  // Her briefs, scans and reviews are hers alone: a friend's page never reads them (lib/owner.ts).
+  const owner = await isOwner(user.id);
+  const { rows, freshest, votes, all } = owner ? await loadBriefs(supabase, user.id) : { rows: [] as BriefRow[], freshest: "", votes: {} as Record<string, Vote>, all: [] as BriefRow[] };
   const docs = rows.map((b) => toDoc(b, now, votes[b.kind] ?? null));
   // Brief history for the News tab (and the movers card): every row already read, newest first.
   const history = all.map((b) => toDoc(b, now, b.at === rows.find((r) => r.kind === b.kind)?.at ? votes[b.kind] ?? null : null));
@@ -106,7 +110,7 @@ export default async function Dashboard() {
   const today = dayKey(now);
   const boot = bootState(normalize(row?.data ?? {}, today), today);
   // What each desk has learned (her agent memory, read-only under RLS), for the Briefs card.
-  const { data: memRows } = await supabase.from("agent_memory").select("key, data");
+  const { data: memRows } = owner ? await supabase.from("agent_memory").select("key, data") : { data: [] };
   const mem: Record<string, DeskMem> = Object.fromEntries((memRows ?? []).map((m) => [m.key, cleanMem((m.data ?? {}) as DeskMem)]));
   // Today's briefs still waiting for a rating: one line in Needs you now.
   const unrated = docs.filter((d) => ["pulse", "intel", "scan"].includes(d.key) && !d.vote && dayKey(new Date(d.at)) === today).map((d) => d.label);
@@ -114,21 +118,23 @@ export default async function Dashboard() {
   return (
     <InboxProvider briefs={docs.map((d) => ({ key: d.key, label: d.label, at: d.at }))} review={docOf("review")?.at ?? null}>
     <CourtProvider initial={boot.st} version={row?.version ?? 0} recap={boot.recap} dirty={boot.dirty} nowIso={now.toISOString()}>
+    <OwnerProvider value={owner}>
     <AlertsProvider>
     <CalendarLoader />
-    <PricesLoader symbols={watchlistFrom(rows.find((r) => r.kind === "scan")?.body)} />
+    {owner && <PricesLoader symbols={watchlistFrom(rows.find((r) => r.kind === "scan")?.body)} />}
     <div className="wrap">
       <PixelDefs />
       <CourtDefs />
       <Boundary name="Header"><Header /></Boundary>
       <AppTabs
         extra={{
-          trades: (
+          // friends get no Trades tab (AppTabs leaves out a tab with no page) and the shared News feed
+          trades: owner && (
             <NewOnly>
               <TradesPage movers={<MoversCard list={history.filter((d) => d.key === "movers")} bare />} tech={<TechLive />} scan={scanDoc} intel={docOf("intel")} />
             </NewOnly>
           ),
-          settings: <NewOnly><SettingsPage review={<BriefsLibrary history={history} only={["review"]} bare />} /></NewOnly>,
+          settings: <NewOnly><SettingsPage review={owner ? <BriefsLibrary history={history} only={["review"]} bare /> : undefined} /></NewOnly>,
           kingdom: <NewOnly><KingdomPage world={<LivingWorld filed={filed} />} /></NewOnly>,
           welcome: <NewOnly><WelcomePage /></NewOnly>,
           news: (
@@ -147,22 +153,22 @@ export default async function Dashboard() {
                 stage: <Stage filed={filed} />,
                 statusLine: <StatusLine latest={latest} />,
                 luna: <LunaSky />,
-                brief: <BriefWin docs={docs} initial={initial} />,
-                scan: scanWin,
-                tech: <TechLive />,
+                brief: owner && <BriefWin docs={docs} initial={initial} />,
+                scan: owner && scanWin,
+                tech: owner && <TechLive />,
                 weekStrip: <WeekStrip />,
                 weekAhead: <WeekAhead />,
-                econ: <EconLive />,
+                econ: owner && <EconLive />,
                 news: <NewsLive />,
                 needs: <NeedsNow unrated={unrated} />,
                 status: <StatusLive />,
-                briefs: <BriefsBlock docs={{ pulse: docOf("pulse"), intel: docOf("intel"), scan: scanDoc }} mem={mem} />,
+                briefs: owner ? <BriefsBlock docs={{ pulse: docOf("pulse"), intel: docOf("intel"), scan: scanDoc }} mem={mem} /> : <NewsLive />,
                 world: <LivingWorld filed={filed} />,
                 roster: <CrewRoster filed={filed} />,
               }}
             />
           ),
-          calendar: <NewOnly classic={<CalendarTab />}><CalendarPage main={<CalendarTab noWeek />} econ={<EconLive />} /></NewOnly>,
+          calendar: <NewOnly classic={<CalendarTab />}><CalendarPage main={<CalendarTab noWeek />} econ={owner && <EconLive />} /></NewOnly>,
           garden: <NewOnly classic={<div className="tabcol"><GardenLive /></div>}><GardenPage /></NewOnly>,
           diary: <NewOnly classic={<div className="tabcol"><WinsButton /><DiaryLive open /></div>}><DungeonPage /></NewOnly>,
           life: <NewOnly classic={<div className="tabcol"><LifeTabs /></div>}><LifeHub /></NewOnly>,
@@ -171,6 +177,7 @@ export default async function Dashboard() {
       <Boundary name="Sheet"><CourtSheet latest={latest} /></Boundary>
     </div>
     </AlertsProvider>
+    </OwnerProvider>
     </CourtProvider>
     </InboxProvider>
   );

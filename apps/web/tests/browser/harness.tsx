@@ -17,6 +17,7 @@ import { DungeonPage } from "@/components/court/pages/Dungeon";
 import { GardenPage } from "@/components/court/pages/GardenPage";
 import { NewsPage } from "@/components/court/pages/NewsPage";
 import { InboxProvider } from "@/components/court/pages/Inbox";
+import { OwnerProvider } from "@/components/court/Owner";
 import { AlertsProvider } from "@/components/court/Alerts";
 import { SettingsPage } from "@/components/court/pages/SettingsPage";
 import { KingdomPage, WelcomePage } from "@/components/court/pages/Welcome";
@@ -50,7 +51,7 @@ const BODIES: Record<string, string> = {
 };
 const doc = (key: string, body: string | null, at: string, when: string): BriefDoc => ({ key, label: key, title: key + " brief", when, html: mdLite(body ?? ""), top: [], body: body ?? undefined, at, sources: "RSS", vote: null });
 
-export type Data = { nowIso: string; docs: BriefDoc[]; mem: Record<string, DeskMem>; raw: unknown };
+export type Data = { nowIso: string; docs: BriefDoc[]; mem: Record<string, DeskMem>; raw: unknown; owner: boolean };
 
 // Everything the tree needs, from the case name; `get` reads the harness's JSON (fetch in the browser, files on
 // the server), so both sides build identical data.
@@ -63,47 +64,50 @@ export async function loadData(name: string, get: (p: string) => Promise<any>, n
     for (const b of j?.briefs ?? []) { const kind = canonKind(b.kind); if (!kind) continue; const body = noBigdata(b.body); docs.push({ key: kind, label: kind, title: noBigdata(b.title || kind), when: stampAge(b.at, now), html: mdLite(body), top: [], body, at: b.at, sources: noBigdata(b.meta?.sources ?? null), vote: null }); }
     mem = Object.fromEntries((j?.mem ?? []).map((m: { key: string; data: DeskMem }) => [m.key, m.data]));
   } else if (name.startsWith("broken")) docs = [doc("intel", "", at, when), doc("scan", null, at, when), doc("review", "x", at, when)];
-  else if (!name.startsWith("empty")) docs = Object.entries(BODIES).map(([kk, b]) => doc(kk, b, at, when));
+  else if (!name.startsWith("empty") && !name.startsWith("friend")) docs = Object.entries(BODIES).map(([kk, b]) => doc(kk, b, at, when));
   const raw = name === "me" ? await get("/__state.json")
     : name.includes("old") ? { v: 1, life: [{ id: "x", name: "Spotify", cat: "bill", amt: 9.9, rule: { type: "dom", d: 28 }, lead: 0, autoPaid: "yes" }, { name: "broken" }, null], spr: { run: { at: new Date(now.getTime() - 5 * 60e3).toISOString(), tag: "study" }, log: [{ at: "bad", tag: "x", min: 25 }] }, tails: [0, 1, "x"], restDay: k, uq: ["A saved quote."] }
     : name.startsWith("empty") ? {}
     // round 21: "grat" is the full case plus a few evenings in the Gratitude log (made-up sample lines)
     : name === "grat" ? { lvl: 4, xp: 30, streak: 3, wins: Object.fromEntries([1, 2, 4, 5, 7].map((n, i) => [addDays(k, -n), { w: ["Closed the week calmly and logged every trade, even the small scalp that went nowhere", "A long walk before the open", "Stuck to the plan on SOL", "Slept well", "Cooked dinner instead of ordering in"][i], g: "Quiet mornings", ...(i === 0 ? { n: "Line one of the notes.\nLine two of the notes." } : {}) }])) }
     : { lvl: 4, xp: 30, streak: 3, dump: [{ id: "d1", t: "call mum", done: false, ts: 1 }], life: [{ id: "l1", name: "Dog grooming", cat: "pet", amt: null, rule: { type: "dom", d: 29 }, lead: 3, important: true }] };
-  return { nowIso, docs, mem, raw };
+  // "friend": a friend's account, as the dashboard builds it (lib/owner.ts): no briefs, no trading areas
+  return { nowIso, docs, mem, raw, owner: !name.startsWith("friend") };
 }
 
 export function buildTree(d: Data) {
+  const owner = d.owner !== false;
   const k = sgtKeyOf(d.nowIso), boot = bootState(normalize(d.raw, k), k), docs = d.docs;
   const docOf = (kk: string) => docs.find((x) => x.key === kk) ?? null;
   const filed = Object.fromEntries(docs.map((x) => [x.key, x.at]));
   const latest = Object.fromEntries(docs.map((x) => [x.key, { title: x.title, at: x.at }]));
   const s = {
     weather: null, today: <TodayLive />, todayBare: <TodayLive bare />, stage: null, statusLine: <StatusLine latest={latest} />, luna: <LunaSky />,
-    brief: null, scan: null, tech: <TechLive />, weekStrip: null, weekAhead: <WeekAhead />, econ: <EconLive />, news: <NewsLive />, needs: <NeedsNow unrated={["Intel"]} />,
-    status: null, briefs: <BriefsBlock docs={{ pulse: docOf("pulse"), intel: docOf("intel"), scan: docOf("scan") }} mem={d.mem} />,
+    brief: null, scan: null, tech: owner && <TechLive />, weekStrip: null, weekAhead: <WeekAhead />, econ: owner && <EconLive />, news: <NewsLive />, needs: <NeedsNow unrated={["Intel"]} />,
+    status: null, briefs: !owner ? <NewsLive /> : <BriefsBlock docs={{ pulse: docOf("pulse"), intel: docOf("intel"), scan: docOf("scan") }} mem={d.mem} />,
     world: <LivingWorld filed={filed} />, roster: <CrewRoster filed={filed} />,
   };
   return (
     <InboxProvider briefs={docs.map((x) => ({ key: x.key, label: x.label, at: x.at }))} review={docOf("review")?.at ?? null}>
     <CourtProvider initial={boot.st} version={0} recap={boot.recap} dirty={boot.dirty} nowIso={d.nowIso}>
+      <OwnerProvider value={owner}>
       <AlertsProvider>
       <CalendarLoader />
-      <PricesLoader symbols={["BTC", "SOL", "ZRO"]} />
+      {owner && <PricesLoader symbols={["BTC", "SOL", "ZRO"]} />}
       <div className="wrap">
         <PixelDefs />
         <Header />
         <AppTabs
           extra={{
-            trades: <NewOnly><TradesPage movers={<MoversCard list={docs.filter((x) => x.key === "movers")} bare />} tech={<TechLive />} scan={docOf("scan")} intel={docOf("intel")} /></NewOnly>,
-            settings: <NewOnly><SettingsPage review={<BriefsLibrary history={docs} only={["review"]} bare />} /></NewOnly>,
+            trades: owner && <NewOnly><TradesPage movers={<MoversCard list={docs.filter((x) => x.key === "movers")} bare />} tech={<TechLive />} scan={docOf("scan")} intel={docOf("intel")} /></NewOnly>,
+            settings: <NewOnly><SettingsPage review={owner ? <BriefsLibrary history={docs} only={["review"]} bare /> : undefined} /></NewOnly>,
             kingdom: <NewOnly><KingdomPage world={<LivingWorld filed={filed} />} /></NewOnly>,
             welcome: <NewOnly><WelcomePage /></NewOnly>,
             news: <NewOnly><NewsPage headlines={<NewsLive top5={["The Fed holds."]} follow />} /></NewOnly>,
           }}
           panels={{
             court: <CourtLayout s={s} />,
-            calendar: <NewOnly classic={<CalendarTab />}><CalendarPage main={<CalendarTab noWeek />} econ={<EconLive />} /></NewOnly>,
+            calendar: <NewOnly classic={<CalendarTab />}><CalendarPage main={<CalendarTab noWeek />} econ={owner && <EconLive />} /></NewOnly>,
             garden: <NewOnly classic={<div className="tabcol"><GardenLive /></div>}><GardenPage /></NewOnly>,
             diary: <NewOnly classic={<div className="tabcol"><WinsButton /><DiaryLive open /></div>}><DungeonPage /></NewOnly>,
             life: <NewOnly classic={<div className="tabcol"><LifeTabs /></div>}><LifeHub /></NewOnly>,
@@ -112,6 +116,7 @@ export function buildTree(d: Data) {
         <CourtSheet latest={latest} />
       </div>
       </AlertsProvider>
+      </OwnerProvider>
     </CourtProvider>
     </InboxProvider>
   );
@@ -119,7 +124,8 @@ export function buildTree(d: Data) {
 
 export async function run(name: string) {
   const orig = window.fetch.bind(window);
-  window.fetch = ((u: RequestInfo | URL, o: RequestInit = {}) => orig(u, { ...o, headers: { ...(o.headers as Record<string, string>), "x-case": name.split("-")[0] } })) as typeof fetch;
+  const seen: string[] = ((window as unknown as { __urls: string[] }).__urls = []);
+  window.fetch = ((u: RequestInfo | URL, o: RequestInit = {}) => (seen.push(String(u)), orig)(u, { ...o, headers: { ...(o.headers as Record<string, string>), "x-case": name.split("-")[0] } })) as typeof fetch;
   const w = window as unknown as { __DATA__?: Data; __SSR__?: boolean };
   const data = w.__DATA__ ?? (await loadData(name, async (p) => (await orig(p)).json()));
   const root = document.getElementById("root")!;

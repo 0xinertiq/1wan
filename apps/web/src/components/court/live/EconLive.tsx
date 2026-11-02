@@ -5,13 +5,16 @@ import { getOnce } from "@/lib/court/once";
 import type { EconEvent } from "@/lib/econ";
 import { liquidityList, nextLiquidity } from "@/lib/liquidity";
 import { dayStamp, inText } from "@/lib/court/time";
+import { useOwner } from "../Owner";
 
 // Olli's economic calendar, Singapore time: the canonical home of releases. By default the liquidity whitelist
 // (lib/liquidity.ts), with an "All releases" toggle. The Court shows only the one "Next:" line.
 export type EconRes = { items: EconEvent[]; ok: boolean; at: string; error?: string };
 export const useEcon = () => {
   const [r, setR] = useState<EconRes | null>(null);
-  useEffect(() => { getOnce<EconRes>("/api/econ?days=30").then((j) => setR(j.items ? j : { items: [], ok: false, at: "", error: "not reachable" })); }, []);
+  const owner = useOwner();
+  // friends: no release calendar at all (her macro desk); an empty list, never fetched
+  useEffect(() => { if (!owner) { setR({ items: [], ok: true, at: "" }); return; } getOnce<EconRes>("/api/econ?days=30").then((j) => setR(j.items ? j : { items: [], ok: false, at: "", error: "not reachable" })); }, [owner]);
   return r;
 };
 export const sgtTime = (iso: string) => dayStamp(iso);
