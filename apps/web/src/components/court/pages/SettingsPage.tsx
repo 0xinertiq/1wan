@@ -48,6 +48,42 @@ function Usage() {
   return <>{[...by.entries()].map(([f, x]) => <div className="krow" key={f}><span className="krow-main">{f}</span><span className="note">{x.n} run{x.n === 1 ? "" : "s"} · {x.tok.toLocaleString("en-SG")} tokens</span></div>)}<p className="note">Last 30 days, from the usage table.</p></>;
 }
 
+// Round 22: a friend's own Google Calendar. Connect goes to Google's consent screen (read-only); the answer comes
+// back as ?gcal=… with a friendly line, shown once. The tokens never reach this page.
+const GCAL_MSG: Record<string, string> = {
+  connected: "Google Calendar connected. Your events show up in a moment.",
+  declined: "No problem, nothing was connected. You can connect any time.",
+  noscope: "Google did not share your calendar. Connect again and tick the box to see your calendars.",
+  failed: "That did not work. Please try connecting again.",
+  unavailable: "Google Calendar is not switched on yet. The owner is setting it up.",
+  disconnected: "Disconnected. Your calendar is no longer read.",
+};
+function GoogleConnect() {
+  const { cal } = useCourt();
+  const [msg, setMsg] = useState("");
+  useEffect(() => {
+    const u = new URL(window.location.href), g = u.searchParams.get("gcal");
+    if (!g) return;
+    setMsg(GCAL_MSG[g] ?? "");
+    u.searchParams.delete("gcal");
+    window.history.replaceState(null, "", u.pathname + u.search + u.hash);
+  }, []);
+  const on = cal.google === "connected";
+  return (
+    <>
+      {msg && <Callout tone="lav">{msg}</Callout>}
+      {cal.google === "expired" && <Callout tone="lav">Your Google connection has expired. Connect again to see your events.</Callout>}
+      {on && cal.state === "error" && <p className="note">Google is not answering right now. Your events come back on their own.</p>}
+      {on && cal.account && <p className="note">Connected as {cal.account}.</p>}
+      <div className="kbtn-row">
+        {on
+          ? <form action="/api/google/disconnect" method="post"><button className="btn sm ghost" type="submit">Disconnect</button></form>
+          : cal.google !== "unavailable" && <a className="btn sm" href="/api/google/connect">Connect Google Calendar</a>}
+      </div>
+    </>
+  );
+}
+
 /** Download the records kept on this device in preview storage (journal, notes, goals…), as one JSON file. */
 function downloadDevice() {
   const out: Record<string, unknown> = { app: "1wan", kind: "preview storage, this device only", exportedAt: new Date().toISOString() };
@@ -129,9 +165,9 @@ export function SettingsPage({ review }: { review?: React.ReactNode }) {
             <p className="note">Switching a room off hides its tab (Garden, Dungeon, Trades and News); nothing is deleted.</p>
           </Card>
           <Card title="Connections" sub="read-only">
-            <div className="krow"><span className="krow-main"><b>Google Calendar</b><br /><span className="note">One private calendar link, read-only. Nothing is ever written to Google.</span></span><Chip tone={cal.state === "live" ? "mint" : "peach"}>{cal.state === "live" ? "connected" : cal.state === "loading" ? "checking" : cal.state === "off" ? "not connected" : "not reachable"}</Chip></div>
+            <div className="krow"><span className="krow-main"><b>Google Calendar</b><br /><span className="note">{owner ? "One private calendar link, read-only." : "Your own calendars, read-only."} Nothing is ever written to Google.</span></span><Chip tone={cal.state === "live" ? "mint" : "peach"}>{cal.state === "live" ? "connected" : cal.state === "loading" ? "checking" : cal.state === "off" ? "not connected" : "not reachable"}</Chip></div>
             {cal.cals.length > 0 && <p className="note">{cal.cals.map((c) => c.name + (c.ok ? "" : " (not reachable)")).join(" · ")}</p>}
-            <p className="note">More providers can join this list later. The calendar link is set by the owner in the server settings, not here.</p>
+            {owner ? <p className="note">More providers can join this list later. The calendar link is set by the owner in the server settings, not here.</p> : <GoogleConnect />}
           </Card>
           {/* her Telegram channels and source checks, and Kumo's weekly review below, are hers alone */}
           {owner && <Card title="News and Telegram"><NewsSettings /><NewsLens /><SourceHealth /></Card>}

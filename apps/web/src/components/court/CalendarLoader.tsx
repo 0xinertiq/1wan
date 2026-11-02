@@ -21,7 +21,8 @@ export function CalendarLoader() {
       try {
         const r = await fetch("/api/calendar");
         const j = await r.json();
-        if (alive) setCalendar(cleanEvents(j.events), { state: j.state ?? "error", cals: Array.isArray(j.cals) ? j.cals : [] });
+        const google = ["owner", "none", "connected", "expired", "unavailable"].includes(j.google) ? j.google : undefined;
+        if (alive) setCalendar(cleanEvents(j.events), { state: j.state ?? "error", cals: Array.isArray(j.cals) ? j.cals : [], google, account: typeof j.account === "string" ? j.account : undefined });
       } catch {
         if (alive) setCalendar([], { state: "error", cals: [] });
       }

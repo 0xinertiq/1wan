@@ -64,6 +64,8 @@ test("every table with user rows has RLS and an own-rows policy", () => {
   for (const t of tables) {
     assert.match(sql, new RegExp(`alter table public\\.${t} enable row level security`), `${t}: RLS`);
     const pols = [...sql.matchAll(new RegExp(`create policy "[^"]+" on public\\.${t} (.*?);`, "g"))].map((m) => m[1]);
+    // round 22: a server-only table (Google tokens) is stricter still: no policy at all and no browser rights
+    if (!pols.length && sql.includes(`revoke all on public.${t} from anon, authenticated`)) continue;
     assert.ok(pols.some((p) => /user_id = auth\.uid\(\)/.test(p)), `${t}: own-rows policy`);
   }
 });

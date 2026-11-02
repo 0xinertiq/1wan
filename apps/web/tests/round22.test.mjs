@@ -20,7 +20,9 @@ test("the dashboard reads her briefs and desk notes only for the owner", () => {
 
 test("the owner check fails closed and the calendar route uses it", () => {
   assert.match(src("lib/owner.ts"), /return !!db && userId === \(await ownerId\(db\)\);/);
-  assert.match(src("app/api/calendar/route.ts"), /if \(!\(await isOwner\(user\.id\)\)\) return NextResponse\.json\(\{ state: "off"/);
+  const cal = src("app/api/calendar/route.ts");
+  assert.match(cal, /if \(await isOwner\(user\.id\)\) return NextResponse\.json\(\{ \.\.\.\(await loadCalendars\(\)\), google: "owner" \}/);
+  assert.match(cal, /return NextResponse\.json\(await loadGoogle\(user\.id\)/, "everyone else: only their own Google Calendar");
 });
 
 test("friends never fetch the release calendar or see prices, Telegram or the weekly review", () => {

@@ -11,7 +11,10 @@ import { sgt } from "@/lib/court/time";
 // sending only the keys that changed, with the version she loaded.
 
 export type SaveState = "idle" | "saving" | "saved" | "offline" | "signedout";
-export type CalState = { state: "off" | "loading" | "live" | "error"; cals: { name: string; color: string; ok: boolean }[] };
+export type CalState = { state: "off" | "loading" | "live" | "error"; cals: { name: string; color: string; ok: boolean }[];
+  // round 22: whose calendar this is. "owner": hers from the server settings; otherwise the account's own Google
+  // Calendar: "none" (not connected), "connected", "expired" (connect again) or "unavailable" (not set up yet)
+  google?: "owner" | "none" | "connected" | "expired" | "unavailable"; account?: string };
 export type Sheet = { kind: "crew"; id: string } | { kind: "settings" } | { kind: "wins" } | { kind: "birth" } | { kind: "packet" } | null;
 
 type Ctx = {
