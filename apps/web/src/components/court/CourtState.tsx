@@ -3,7 +3,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { CalEvent, CourtState, OwnedKey, Recap } from "@/lib/court/state";
 import type { PriceResult } from "@/lib/prices";
-import { tendGarden } from "@/lib/court/state";
+import { OWNED_KEYS, normalize, tendGarden } from "@/lib/court/state";
+import { merge3, same } from "@/lib/court/merge";
 import { sgt } from "@/lib/court/time";
 
 // One client store for her state document. Changes save in the background (debounced) to /api/state,
@@ -43,8 +44,10 @@ export function useCourt() {
   return c;
 }
 
-export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, children }: {
+export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, base, children }: {
   initial: CourtState; version: number; recap: Recap | null; dirty: OwnedKey[]; nowIso: string; children: React.ReactNode;
+  base?: unknown; // the saved document as loaded (before rollover), for the two-device merge; unknown counts as empty,
+                  // so every change on this device is kept
 }) {
   const [st, setSt] = useState(initial);
   const [now, setNow] = useState(() => sgt(new Date(nowIso)));
@@ -58,6 +61,8 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
 
   const stRef = useRef(st);
   const ver = useRef(version);
+  // What this device last knew the server had, per key (round 22, two devices): updated after every save.
+  const known = useRef<CourtState>(normalize(base ?? {}, sgt(new Date(nowIso)).key));
   const pending = useRef(new Set<OwnedKey>(dirty));
   const timer = useRef<number | undefined>(undefined);
   const inFlight = useRef(false);
@@ -78,9 +83,24 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
       // (browsers cap keepalive bodies at 64KB; a bigger one fails here and is retried when she is back)
       const r = await fetch("/api/state", { method: "POST", keepalive: document.visibilityState === "hidden", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ version: ver.current, patch }) });
       if (r.status === 401) { signedOut.current = true; keys.forEach((x) => pending.current.add(x)); setSave("signedout"); return; }
+      // Out of date: another device saved first. Merge its newer copy with this device's changes, key by key
+      // (merge3: ticks on both devices are kept), show the result, and save what still differs.
+      const sj = r.status === 409 ? await r.json().catch(() => null) : null;
+      if (sj?.stale && typeof sj.version === "number") {
+        const remote = normalize(sj.data ?? {}, sgt(new Date()).key), cur = stRef.current;
+        const merged = { ...cur } as Record<string, unknown>;
+        for (const key of OWNED_KEYS) merged[key] = merge3(known.current[key], cur[key], remote[key]) ?? remote[key];
+        stRef.current = merged as CourtState;
+        setSt(stRef.current);
+        known.current = remote;
+        ver.current = sj.version;
+        for (const key of OWNED_KEYS) if (!same(merged[key], remote[key])) pending.current.add(key);
+        return;
+      }
       if (!r.ok) throw new Error(String(r.status));
       const j = await r.json();
       ver.current = j.version;
+      known.current = { ...known.current, ...patch } as CourtState;
       setSave("saved");
     } catch {
       keys.forEach((x) => pending.current.add(x));

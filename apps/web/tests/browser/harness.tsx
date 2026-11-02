@@ -89,7 +89,7 @@ export function buildTree(d: Data) {
   };
   return (
     <InboxProvider briefs={docs.map((x) => ({ key: x.key, label: x.label, at: x.at }))} review={docOf("review")?.at ?? null}>
-    <CourtProvider initial={boot.st} version={0} recap={boot.recap} dirty={boot.dirty} nowIso={d.nowIso}>
+    <CourtProvider initial={boot.st} base={d.raw} version={0} recap={boot.recap} dirty={boot.dirty} nowIso={d.nowIso}>
       <OwnerProvider value={owner}>
       <AlertsProvider>
       <CalendarLoader />
@@ -125,7 +125,8 @@ export function buildTree(d: Data) {
 export async function run(name: string) {
   const orig = window.fetch.bind(window);
   const seen: string[] = ((window as unknown as { __urls: string[] }).__urls = []);
-  window.fetch = ((u: RequestInfo | URL, o: RequestInit = {}) => (seen.push(String(u)), orig)(u, { ...o, headers: { ...(o.headers as Record<string, string>), "x-case": name.split("-")[0] } })) as typeof fetch;
+  const bodies: { u: string; b: string }[] = ((window as unknown as { __bodies: typeof bodies }).__bodies = []);
+  window.fetch = ((u: RequestInfo | URL, o: RequestInit = {}) => (seen.push(String(u)), typeof o.body === "string" && bodies.push({ u: String(u), b: o.body }), orig)(u, { ...o, headers: { ...(o.headers as Record<string, string>), "x-case": name.split("-")[0] } })) as typeof fetch;
   const w = window as unknown as { __DATA__?: Data; __SSR__?: boolean };
   const data = w.__DATA__ ?? (await loadData(name, async (p) => (await orig(p)).json()));
   const root = document.getElementById("root")!;

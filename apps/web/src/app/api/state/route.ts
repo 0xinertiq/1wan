@@ -24,7 +24,8 @@ export async function POST(req: Request) {
   const check = mergePatch({}, patch, OWNED);
   if (!check.ok) return NextResponse.json({ error: check.error }, { status: 400 });
 
-  // Two tries: if another tab saved in between, merge onto the newer document and try again.
+  // Two tries: if another tab saved between the read and the write, read again; that copy is then newer than the
+  // page's, so the page gets it back (409, stale) to merge.
   for (let attempt = 0; attempt < 2; attempt++) {
     const { data: row, error } = await supabase.from("user_state").select("data, version").eq("user_id", user.id).maybeSingle();
     if (error) return NextResponse.json({ error: "Could not read state" }, { status: 500 });
@@ -35,6 +36,11 @@ export async function POST(req: Request) {
       continue;
     }
 
+    // Round 22: saved from an out-of-date copy (another device saved first): write nothing and send the newer copy,
+    // so the page merges both devices' changes (lib/court/merge.ts merge3) and saves again.
+    if (typeof body.version === "number" && body.version !== row.version) {
+      return NextResponse.json({ error: "Out of date", stale: true, version: row.version, data: row.data }, { status: 409 });
+    }
     const m = mergePatch(row.data, patch, OWNED);
     if (!m.ok) return NextResponse.json({ error: m.error }, { status: 400 });
     const merged = m.merged;
@@ -46,7 +52,7 @@ export async function POST(req: Request) {
       .eq("version", row.version)
       .select("version");
     if (upErr) return NextResponse.json({ error: "Could not save" }, { status: 500 });
-    if (upd && upd.length) return NextResponse.json({ ok: true, version: next, stale: body.version !== row.version });
+    if (upd && upd.length) return NextResponse.json({ ok: true, version: next });
   }
   return NextResponse.json({ error: "Busy, try again" }, { status: 409 });
 }
