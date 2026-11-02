@@ -71,7 +71,9 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
     for (const key of keys) patch[key] = stRef.current[key];
     setSave("saving");
     try {
-      const r = await fetch("/api/state", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ version: ver.current, patch }) });
+      // keepalive while the tab is going away, so a tick made just before closing still reaches the server
+      // (browsers cap keepalive bodies at 64KB; a bigger one fails here and is retried when she is back)
+      const r = await fetch("/api/state", { method: "POST", keepalive: document.visibilityState === "hidden", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ version: ver.current, patch }) });
       if (!r.ok) throw new Error(String(r.status));
       const j = await r.json();
       ver.current = j.version;
