@@ -23,7 +23,7 @@ export default function LoginPage() {
       setError("That email and password didn't match.");
       return;
     }
-    router.replace("/");
+    router.replace("/dashboard"); // straight to Today (the root page is the older briefs list)
     router.refresh();
   }
 
