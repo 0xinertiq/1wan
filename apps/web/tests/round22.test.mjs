@@ -32,3 +32,16 @@ test("friends never fetch the release calendar or see prices, Telegram or the we
   assert.match(set, /\{owner && <Card title="News and Telegram">/);
   assert.match(set, /\{owner && <Card title="Kumo's weekly review"/);
 });
+
+test("switching the tables on copies this device's records into the account, never deleting the device copy", async () => {
+  const { toMove } = await import("../src/lib/vault.ts");
+  const r = (id, up) => ({ id, at: "2026-10-01T00:00:00Z", up });
+  const local = [r("a", "2026-10-05"), r("b", "2026-10-02"), r("c", "2026-10-09")];
+  const inDb = [r("b", "2026-10-03"), r("c", "2026-10-01")];
+  assert.deepEqual(toMove(local, inDb).map((x) => x.id), ["a", "c"], "new here, or newer here; an older copy never overwrites the account");
+  assert.deepEqual(toMove([], inDb), []);
+  const v = src("lib/vault.ts");
+  assert.ok(!/localStorage\.removeItem/.test(v), "the device copy is never deleted");
+  assert.match(v, /if \(localStorage\.getItem\(movedKey\(uid, t\)\)\) return inDb;/, "copied once per account");
+  assert.match(v, /if \(error\) return inDb;/, "a failed copy is tried again next load");
+});

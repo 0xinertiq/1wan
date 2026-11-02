@@ -77,6 +77,33 @@ function fromDb(x: { id: string; data: Record<string, unknown> | null; created_a
   return { ...(x.data ?? {}), ...(x.kind ? { kind: x.kind } : {}), id: x.id, at: x.created_at, up: x.updated_at };
 }
 
+// Round 22: the first time an account loads a table from Supabase on this device, the records this device kept in
+// preview storage are copied into the account (any not there yet, or newer here), so nobody loses anything when the
+// tables are switched on. The device copy is never deleted; a per-account flag stops it being copied twice.
+export function toMove(local: VRow[], inDb: VRow[]): VRow[] {
+  const have = new Map(inDb.map((r) => [r.id, r]));
+  return local.filter((r) => !have.has(r.id) || (r.up || "") > (have.get(r.id)!.up || ""));
+}
+const movedKey = (uid: string, t: Table) => "1wanvault.v1.moved." + uid + "." + t;
+async function moveDevice(t: Table, inDb: VRow[]): Promise<VRow[]> {
+  let local: VRow[] = [];
+  try { local = readDevice(t); } catch {}
+  if (!local.length) return inDb;
+  const sb = createClient();
+  const uid = (await sb.auth.getSession()).data.session?.user?.id;
+  if (!uid) return inDb;
+  try { if (localStorage.getItem(movedKey(uid, t))) return inDb; } catch { return inDb; }
+  const now = new Date().toISOString();
+  const todo = toMove(local, inDb).map((r) => ({ ...r, at: r.at || now, up: r.up || now }));
+  if (todo.length) {
+    const { error } = await sb.from(t).upsert(todo.map((r) => toDb(t, r)), { onConflict: "user_id,id" });
+    if (error) return inDb; // tried again next time the page loads; nothing lost either way
+  }
+  try { localStorage.setItem(movedKey(uid, t), now); } catch {}
+  const ids = new Set(todo.map((r) => r.id));
+  return [...todo, ...inDb.filter((r) => !ids.has(r.id))].sort((a, b) => (b.up || "").localeCompare(a.up || ""));
+}
+
 function load(t: Table): Promise<void> {
   if (cache.has(t)) return Promise.resolve();
   if (loading.has(t)) return loading.get(t)!;
@@ -85,7 +112,8 @@ function load(t: Table): Promise<void> {
     try {
       const { data, error } = await createClient().from(t).select("*").order("updated_at", { ascending: false }).limit(MAX);
       if (error) failed.add(t); else failed.delete(t);
-      cache.set(t, error ? [] : cleanRows(t, (data ?? []).map(fromDb)));
+      const rows = error ? [] : cleanRows(t, (data ?? []).map(fromDb));
+      cache.set(t, error ? rows : await moveDevice(t, rows).catch(() => rows));
     } catch { failed.add(t); cache.set(t, []); }
   })().finally(() => { loading.delete(t); ping(t); });
   loading.set(t, p);
