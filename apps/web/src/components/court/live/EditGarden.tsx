@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { QUESTS } from "@/lib/court/quests";
+import { QUESTS, forViewer } from "@/lib/court/quests";
+import { useOwner } from "../Owner";
 import { wdName, wdOf } from "@/lib/court/time";
 import { newId } from "@/lib/vault";
 import { LABEL_MAX, MINE_MAX, MY_ANCHOR, MY_MILESTONE, NAME_MAX, TARGET_MAX, anchorRows, ladderItems, moveShown, myMilestones, ordered, split, toggle, type AnchorMeta, type Freq, type GardenEdit } from "@/lib/court/gardenEdit";
@@ -71,7 +72,7 @@ function HabitsTab({ onAdd }: { onAdd: () => void }) {
 
 function QuestsTab() {
   const { st, set } = useEdit();
-  const e = st.gedit, list = ordered(QUESTS, (q) => q.id, e.quests.order), { shown, folded } = split(list, (q) => q.id, st.questsOff);
+  const e = st.gedit, all = forViewer(QUESTS, useOwner()), list = ordered(all, (q) => q.id, e.quests.order), { shown, folded } = split(list, (q) => q.id, st.questsOff);
   const ids = shown.map((q) => q.id);
   const row = (q: (typeof QUESTS)[number], off: boolean, i: number) => (
     <Row key={q.id} name={e.quests.names[q.id] ?? q.title} label={q.title} folded={off} first={i === 0} last={i === ids.length - 1}
@@ -83,7 +84,7 @@ function QuestsTab() {
   );
   return (
     <>
-      <div className="kge-head"><span className="kge-tag">QUESTS</span><span className="note">{shown.length} of {QUESTS.length} on</span></div>
+      <div className="kge-head"><span className="kge-tag">QUESTS</span><span className="note">{shown.length} of {all.length} on</span></div>
       {shown.map((q, i) => row(q, false, i))}
       <Folded n={folded.length} what="switched off">{folded.map((q, i) => row(q, true, i))}</Folded>
       <p className="note">Your own quests are your habits (Habits tab). A new name is for display; what each quest counts and awards stays the same.</p>

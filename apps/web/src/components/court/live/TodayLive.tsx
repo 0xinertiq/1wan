@@ -9,7 +9,8 @@ import { useCourt } from "../CourtState";
 import { SprintLive } from "./SprintLive";
 import { logQuest } from "@/lib/court/actions";
 import { quoteOfDay } from "@/lib/court/quotes";
-import { QUESTS } from "@/lib/court/quests";
+import { QUESTS, forViewer } from "@/lib/court/quests";
+import { useOwner } from "../Owner";
 import {
   dayQ, dueList, eventsOn, isDone, momoIdeas, money, openQuests, qScore, weekHab, whenText, type CalEvent,
 } from "@/lib/court/state";
@@ -155,7 +156,8 @@ export function KumoPick() {
   const { st, k, nm, update, levelUp } = useCourt();
   const [pickI, setPickI] = useState(0);
   const canRest = st.restDay !== k && st.restWeek !== weekKey(k);
-  const picks = openQuests(st, k, nm).filter((q) => !st.questsOff.includes(q.id) && qScore(q, k, nm) < 60 && !q.auto).slice(0, 3);
+  const owner = useOwner();
+  const picks = forViewer(openQuests(st, k, nm), owner).filter((q) => !st.questsOff.includes(q.id) && qScore(q, k, nm) < 60 && !q.auto).slice(0, 3);
   const pick = picks.length ? picks[pickI % picks.length] : null;
   return (
     <div className="pick">
@@ -196,7 +198,9 @@ function CalPill() {
 /** Round 7: Momo on the Court's Today card says one thing only: ideas for your free time today. */
 export function MomoIdeas() {
   const { st, k, nm, events } = useCourt();
-  const ideas = momoIdeas(st, k, k, eventsOn(events, k), nm, events);
+  const owner = useOwner();
+  // round 22: a friend is never offered the chart review (her trading quest)
+  const ideas = momoIdeas(st, k, k, eventsOn(events, k), nm, events).filter((x) => owner || x.id !== "charts");
   return (
     <div className="kmomo-ideas">
       <div className="sec-h"><Mini name="momo" />Momo: ideas for your free time</div>
@@ -215,7 +219,8 @@ export function MomoCard() {
   const [hide, setHide] = useState<string[]>([]);
   const shown = events.filter((e) => !hide.includes(e.cal));
   const evs = eventsOn(shown, k);
-  const ideas = momoIdeas(st, k, k, evs, nm, shown);
+  const owner = useOwner();
+  const ideas = momoIdeas(st, k, k, evs, nm, shown).filter((x) => owner || x.id !== "charts");
   const rows: React.ReactNode[] = [];
   let marked = false;
   evs.forEach((e, i) => {
@@ -404,17 +409,18 @@ function SkyPanel() {
 
 function WeekPanel() {
   const { st, k } = useCourt();
+  const owner = useOwner();
   const wk = weekKey(k);
   const days = Array.from({ length: 7 }, (_, i) => addDays(wk, i));
   return (
     <div>
       <ul className="evl">
         {days.map((d) => {
-          const rec = d === k ? { d: dayQ(k).filter((q) => isDone(st, q.id)).length, t: dayQ(k).length } : st.days[d];
+          const rec = d === k ? { d: forViewer(dayQ(k), owner).filter((q) => isDone(st, q.id)).length, t: forViewer(dayQ(k), owner).length } : st.days[d];
           return <li key={d}><time>{prettyDay(d)}</time><span className="t">{d > k ? "Still ahead" : rec ? `${rec.d} of ${rec.t} habits` : "No record"}</span>{d === k && <small>today</small>}</li>;
         })}
       </ul>
-      <p className="note">Weekly quests: {QUESTS.filter((q) => q.cad === "Weekly").map((q) => `${q.title}${isDone(st, q.id) ? " (done)" : ""}`).join(" · ")}</p>
+      <p className="note">Weekly quests: {forViewer(QUESTS, owner).filter((q) => q.cad === "Weekly").map((q) => `${q.title}${isDone(st, q.id) ? " (done)" : ""}`).join(" · ")}</p>
     </div>
   );
 }

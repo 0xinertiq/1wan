@@ -23,4 +23,8 @@ export const QUESTS: Quest[] = [
 
 export const QPRI = ["m1", "k7", "o1", "l2", "k2", "k1", "f1", "c1", "k5", "o2", "c2"];
 export const CKPRI = ["k1", "f1", "c1", "o2", "c2"];
+// Round 22: her trading quests (macro calendar, pre-entry checklist, weekly bias). A friend never sees them; display
+// only, so what quests count and award is unchanged.
+export const TRADING_Q = ["o1", "f1", "o2"];
+export const forViewer = <T extends { id: string }>(qs: T[], owner: boolean) => (owner ? qs : qs.filter((q) => !TRADING_Q.includes(q.id)));
 export const needFor = (lvl: number) => 60 + lvl * 20;

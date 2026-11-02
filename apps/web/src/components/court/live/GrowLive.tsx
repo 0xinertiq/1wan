@@ -6,7 +6,8 @@ import { PixelSprite, type SpriteName } from "@/components/PixelSprite";
 import { useCourt } from "../CourtState";
 import { AGENTS } from "../agents";
 import { logQuest } from "@/lib/court/actions";
-import { QUESTS, needFor } from "@/lib/court/quests";
+import { QUESTS, forViewer, needFor } from "@/lib/court/quests";
+import { useOwner } from "../Owner";
 import {
   STAGES, activeQ, dayQ, eventsOn, gardenWeek, isDone, manualOpen, openQuests, progOf, qScore, seedInfo, weekHab, winTally,
   type CourtState, type SeedInfo,
@@ -40,7 +41,8 @@ export function QuestLive() {
   const [all, setAll] = useState(false);
   const [qf, setQf] = useState("all");
   // round 12: built-in quests she switched off are hidden here (display only; what quests award is unchanged)
-  const aq = activeQ(st, k).filter((q) => !st.questsOff.includes(q.id)), done = aq.filter((q) => isDone(st, q.id)).length;
+  const owner = useOwner();
+  const aq = forViewer(activeQ(st, k).filter((q) => !st.questsOff.includes(q.id)), owner), done = aq.filter((q) => isDone(st, q.id)).length;
   const today = eventsOn(events, k);
   const calReady = (re?: RegExp) => !!re && today.some((e) => !e.allDay && re.test(e.t) && e.b <= nm);
   const log = (id: string) => update((d) => { const r = logQuest(d, id); if (r.leveled) levelUp(r.leveled); }, [...QKEYS]);
@@ -49,7 +51,7 @@ export function QuestLive() {
   if (all) {
     const l = ordered(aq, (q) => q.id, st.gedit.quests.order).filter((q) => qf === "all" || q.crew === qf);
     list = l.filter((q) => !isDone(st, q.id)).concat(l.filter((q) => isDone(st, q.id)));
-  } else list = openQuests(st, k, nm).filter((q) => !st.questsOff.includes(q.id) && qScore(q, k, nm) < 60 && (q.auto || q.cal || q.calCat)).slice(0, 3);
+  } else list = forViewer(openQuests(st, k, nm), owner).filter((q) => !st.questsOff.includes(q.id) && qScore(q, k, nm) < 60 && (q.auto || q.cal || q.calCat)).slice(0, 3);
   const ck = manualOpen(st, k);
   // the Daily anchors quest shows today's live count and target (the same numbers as the Garden's anchors card)
   const anchorItems = st.defs.swins?.phases.find((p) => p.daily)?.items ?? [], k1 = anchorCount(anchorItems, st.gedit, wdOf(k), st.swins.log[k] || []);
@@ -439,9 +441,10 @@ function DiaryEdit({ day, onDone }: { day: string; onDone: () => void }) {
 
 export function DiaryLive({ open }: { open?: boolean }) {
   const { st, k } = useCourt();
+  const owner = useOwner(), dq = forViewer(dayQ(k), owner);
   const [joyI, setJoyI] = useState(0);
   const [edit, setEdit] = useState("");
-  const auto = dayQ(k).filter((q) => isDone(st, q.id)).map((q) => q.title), T = winTally(st, k);
+  const auto = dq.filter((q) => isDone(st, q.id)).map((q) => q.title), T = winTally(st, k);
 
   const praise: string[] = [];
   Object.keys(st.wins).sort().reverse().forEach((d) => { const e = st.wins[d]; if (e.w) praise.push(`${prettyDay(d)}, you wrote: "${e.w}"`); if (e.g) praise.push(`${prettyDay(d)}, you were grateful for: "${e.g}"`); });
@@ -455,7 +458,7 @@ export function DiaryLive({ open }: { open?: boolean }) {
   const ms: number[] = [];
   for (let i = 0; i < 7; i++) {
     const d = addDays(wk, i); if (d > k) break; days++;
-    const r = d === k ? { d: auto.length, t: dayQ(k).length } : st.days[d];
+    const r = d === k ? { d: auto.length, t: dq.length } : st.days[d];
     if (r) { done += r.d; tot += r.t; if (r.d > bestN) { bestN = r.d; bestK = d; } }
     if (st.wins[d]?.w || st.wins[d]?.g) wd++;
     if (st.mood[d]) ms.push(st.mood[d].m);
@@ -467,12 +470,12 @@ export function DiaryLive({ open }: { open?: boolean }) {
 
   const cells = []; let best = 0, bk = "";
   for (let i = 27; i >= 0; i--) {
-    const d = addDays(k, -i), r = d === k ? { d: auto.length, t: dayQ(k).length } : st.days[d], p = r && r.t ? Math.round((r.d / r.t) * 100) : -1;
+    const d = addDays(k, -i), r = d === k ? { d: auto.length, t: dq.length } : st.days[d], p = r && r.t ? Math.round((r.d / r.t) * 100) : -1;
     if (r && r.d > best) { best = r.d; bk = d; }
     cells.push(<span key={d} className="jc" style={{ "--p": p > 0 ? Math.round(35 + p * 0.65) : 0 } as React.CSSProperties} title={prettyDay(d) + (p < 0 ? ": no record" : `: ${r!.d} of ${r!.t}`)} data-e={p < 0 ? "1" : undefined}></span>);
   }
   const mk = Object.keys(st.mood).sort().slice(-14);
-  const rows = diaryDays(st, k).slice(0, 30).map((d) => ({ d, w: st.wins[d] ?? {}, m: st.mood[d], r: d === k ? { d: auto.length, t: dayQ(k).length, n: auto } : st.days[d] }))
+  const rows = diaryDays(st, k).slice(0, 30).map((d) => ({ d, w: st.wins[d] ?? {}, m: st.mood[d], r: d === k ? { d: auto.length, t: dq.length, n: auto } : st.days[d] }))
     .filter((x) => x.w.w || x.w.g || x.w.n || x.m || (x.r && x.r.d > 0));
 
   return (
