@@ -77,6 +77,9 @@
 /* Court home (New look only; Classic renders the v52 columns instead). 12 columns, 24px gaps:
    banner; Today / Needs you now / Kingdom progress / Quick capture (equal height); Luna's forecast; More. */
 :root[data-ui="new"] .khome{display:grid;gap:var(--sp-6)}
+/* Foundations F9: phones and tablets only. The one Court column may shrink to the screen (a grid track otherwise grows to
+   its widest no-wrap line, e.g. the "Next:" release line, and the whole page scrolled sideways at 390px). Desktop unchanged. */
+@media (max-width:979px){:root[data-ui="new"] .khome{grid-template-columns:minmax(0,1fr)}:root[data-ui="new"] .khome>*{min-width:0}}
 :root[data-ui="new"] .khome>.statusline{margin:calc(-1 * var(--sp-3)) var(--sp-1) 0;font:600 14px var(--kumo-font-body);color:var(--ink-soft)}
 :root[data-ui="new"] .krow{display:grid;gap:var(--sp-6);grid-template-columns:repeat(12,minmax(0,1fr));align-items:stretch}
 :root[data-ui="new"] .krow>*{grid-column:span 12;height:100%;margin:0}
@@ -904,6 +907,8 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kfull{grid-column:1/-1}
 :root[data-ui="new"] .kcard .win-title{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap}
 :root[data-ui="new"] .kcard-act{margin-left:auto;display:flex;gap:var(--sp-2)}
+/* Foundations F9: on phones a card header's pill group stays inside the card (it scrolls inside itself, as .kseg already allows). */
+@media (max-width:979px){:root[data-ui="new"] .kcard-act{min-width:0;max-width:100%}}
 :root[data-ui="new"] .kcard .win-body{display:grid;gap:var(--sp-3)}
 :root[data-ui="new"] .kchip{display:inline-flex;align-items:center;gap:var(--sp-1);padding:var(--sp-1) var(--sp-2);border-radius:var(--r-chip);font:700 var(--fs-cap)/1.3 var(--k-font-body);color:var(--k-chip-text);background:var(--k-tint-lav)}
 :root[data-ui="new"] .kchip.t-sakura{background:var(--k-tint-sakura)}

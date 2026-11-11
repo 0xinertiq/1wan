@@ -272,10 +272,10 @@
    "id": "fnd",
    "group": "Game loop and phone",
    "title": "1. Foundations (one quest list, done-day streak, journal, money, clean new accounts)",
-   "status": "partial",
+   "status": "done",
    "expect": "Same desktop screens; the game rules underneath change one step at a time.",
-   "you_do": "",
-   "note": "F1 done: one Quests list from Habit Quests, Daily anchors and My habits (nothing copied or moved). F2 done: the day changes at 4am in your time zone; the streak counts done days (your 3 core quests all ticked), your number carried over. F3 done: XP only (stars stay at your last number), +10 when your 3 core quests are done, streak bonus up to +50%, a comeback day counts double, new accounts get double XP in week one; the level curve is unchanged. F4 done: one journal record per day (win, thanks, mood), synced; picking today's mood now also counts Luna's mood quest. F5 done: one Home list (tasks, routines, life admin) ready for the phone; the money card was already one tracker. F6 done: friends start clean (their own name, never 'Queen'; no Study block quest or your personal ideas; starter quest templates ready). F7 done: Court Briefs are Today's briefings (Intel, then Pulse) | Crypto scan; News opens on the headlines with Today's briefing as one closed row. F8 done: the Classic look is retired (code kept); the Settings Look card keeps Day or night."
+   "you_do": "Look at the preview once it is pushed; apply migrations 0006 to 0009 before friends join.",
+   "note": "F1 done: one Quests list from Habit Quests, Daily anchors and My habits (nothing copied or moved). F2 done: the day changes at 4am in your time zone; the streak counts done days (your 3 core quests all ticked), your number carried over. F3 done: XP only (stars stay at your last number), +10 when your 3 core quests are done, streak bonus up to +50%, a comeback day counts double, new accounts get double XP in week one; the level curve is unchanged. F4 done: one journal record per day (win, thanks, mood), synced; picking today's mood now also counts Luna's mood quest. F5 done: one Home list (tasks, routines, life admin) ready for the phone; the money card was already one tracker. F6 done: friends start clean (their own name, never 'Queen'; no Study block quest or your personal ideas; starter quest templates ready). F7 done: Court Briefs are Today's briefings (Intel, then Pulse) | Crypto scan; News opens on the headlines with Today's briefing as one closed row. F8 done: the Classic look is retired (code kept); the Settings Look card keeps Day or night. F9 done: no page scrolls sideways on a phone (375, 390, 430)."
   }
  ]
 }
