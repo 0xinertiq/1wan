@@ -18,7 +18,9 @@ export type QItem = {
   done: boolean;         // ticked today
 };
 export type QMeta = { pillar?: number; tiny?: string };
-export type QuestList = { core: string[]; auto: boolean; meta: Record<string, QMeta>; sv?: number };   // sv: 1 once the streak counts done days (F2)
+// sv: 1 once the streak counts done days (F2). F3: bd = the day the done-day bonus was last given, ld = the last done day,
+// start = a new account's first day (week-one double XP; absent for accounts that already had history).
+export type QuestList = { core: string[]; auto: boolean; meta: Record<string, QMeta>; sv?: number; bd?: string; ld?: string; start?: string };
 
 export const CORE_N = 3, TINY_MAX = 60, AUTO_DAYS = 28;
 // The Daily anchors quest (k1) only counts the anchors, which are now in the list themselves.
@@ -42,7 +44,9 @@ export function normQuestList(v: unknown): QuestList {
     if (typeof o.tiny === "string" && o.tiny.trim()) x.tiny = o.tiny.trim().slice(0, TINY_MAX);
     return [id, x];
   }).filter(([, x]) => Object.keys(x as QMeta).length).slice(0, 400)) as Record<string, QMeta>;
-  return { core, auto: r.auto === false && core.length === CORE_N ? false : true, meta, ...(r.sv === 1 ? { sv: 1 } : {}) };
+  const day = (x: unknown) => (typeof x === "string" && /^\d{4}-\d{2}-\d{2}$/.test(x) ? x : undefined);
+  const bd = day(r.bd), ld = day(r.ld), start = day(r.start);
+  return { core, auto: r.auto === false && core.length === CORE_N ? false : true, meta, ...(r.sv === 1 ? { sv: 1 } : {}), ...(bd ? { bd } : {}), ...(ld ? { ld } : {}), ...(start ? { start } : {}) };
 }
 
 type St = Pick<CourtState, "q" | "days" | "swins" | "hab" | "gedit" | "defs" | "questsOff"> & { ql?: QuestList };

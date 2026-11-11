@@ -90,7 +90,7 @@ export function buildTree(d: Data) {
   };
   return (
     <InboxProvider briefs={docs.map((x) => ({ key: x.key, label: x.label, at: x.at }))} review={docOf("review")?.at ?? null}>
-    <CourtProvider initial={boot.st} base={d.raw} version={0} recap={boot.recap} dirty={boot.dirty} nowIso={d.nowIso}>
+    <CourtProvider initial={boot.st} base={d.raw} version={0} recap={boot.recap} dirty={boot.dirty} nowIso={d.nowIso} owner={owner}>
       <OwnerProvider value={owner}>
       <AlertsProvider>
       <CalendarLoader />

@@ -5,6 +5,7 @@ import type { CalEvent, CourtState, OwnedKey, Recap } from "@/lib/court/state";
 import type { PriceResult } from "@/lib/prices";
 import { OWNED_KEYS, normalize, tendGarden } from "@/lib/court/state";
 import { merge3, same } from "@/lib/court/merge";
+import { awardDoneDay } from "@/lib/court/actions";
 import { gameKey, sgt } from "@/lib/court/time";
 
 // Foundations F2: key = the game day (changes at 4am in her own time zone); min = real minutes since Singapore midnight.
@@ -50,8 +51,9 @@ export function useCourt() {
   return c;
 }
 
-export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, base, children }: {
+export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, base, owner = true, children }: {
   initial: CourtState; version: number; recap: Recap | null; dirty: OwnedKey[]; nowIso: string; children: React.ReactNode;
+  owner?: boolean; // F3: which quests count as core for the done-day bonus (friends never have her trading quests)
   base?: unknown; // the saved document as loaded (before rollover), for the two-device merge; unknown counts as empty,
                   // so every change on this device is kept
 }) {
@@ -128,13 +130,16 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
   const update = useCallback((fn: (d: CourtState) => void, keys: OwnedKey[]) => {
     const d = structuredClone(stRef.current);
     fn(d);
+    const today = clock(new Date(), d.prefs.tz).key;
     // Habit watering follows every change (v52 autoWater ran on each save).
-    if (tendGarden(d, clock(new Date(), d.prefs.tz).key) && !keys.includes("gd")) keys = [...keys, "gd"];
+    if (tendGarden(d, today) && !keys.includes("gd")) keys = [...keys, "gd"];
+    // F3: the first time today's 3 core quests are all ticked, the done-day bonus (once a day).
+    if (d.day === today) { const a = awardDoneDay(d, today, owner); if (a.xp) { keys = [...new Set([...keys, "xp", "lvl", "ql"] as OwnedKey[])]; if (a.leveled) window.setTimeout(() => lvlRef.current(a.leveled!), 0); } }
     stRef.current = d;
     setSt(d);
     keys.forEach((x) => pending.current.add(x));
     schedule();
-  }, [schedule]);
+  }, [schedule, owner]);
 
   // Save what loading changed (rollover, morning-brief quest, garden).
   useEffect(() => { if (pending.current.size) schedule(); }, [schedule]);
@@ -159,6 +164,7 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
     return () => window.clearTimeout(t);
   }, [now.key, flush]);
 
+  const lvlRef = useRef<(lvl: number) => void>(() => {});
   const levelUp = useCallback((lvl: number) => {
     const b = document.getElementById("lvlBanner"), t = document.getElementById("lvlTxt"), s = document.getElementById("lvlSub");
     if (!b || !t) return;
@@ -167,6 +173,7 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
     b.hidden = false;
     window.setTimeout(() => { b.hidden = true; }, 2800);
   }, []);
+  lvlRef.current = levelUp;
 
   const value = useMemo<Ctx>(() => ({
     st, k: now.key, nm: now.min, recap, clearRecap: () => setRecap(null), update, levelUp, save,

@@ -121,7 +121,7 @@ export default async function Dashboard() {
 
   return (
     <InboxProvider briefs={docs.map((d) => ({ key: d.key, label: d.label, at: d.at }))} review={docOf("review")?.at ?? null}>
-    <CourtProvider initial={boot.st} base={row?.data ?? {}} version={row?.version ?? 0} recap={boot.recap} dirty={boot.dirty} nowIso={now.toISOString()}>
+    <CourtProvider initial={boot.st} base={row?.data ?? {}} version={row?.version ?? 0} recap={boot.recap} dirty={boot.dirty} nowIso={now.toISOString()} owner={owner}>
     <OwnerProvider value={owner}>
     <AlertsProvider>
     <CalendarLoader />

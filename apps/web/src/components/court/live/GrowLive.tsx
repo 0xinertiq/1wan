@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { PixelSprite, type SpriteName } from "@/components/PixelSprite";
 import { useCourt } from "../CourtState";
 import { AGENTS } from "../agents";
-import { logQuest } from "@/lib/court/actions";
+import { logQuest, questXP } from "@/lib/court/actions";
 import { QUESTS, forViewer, needFor } from "@/lib/court/quests";
 import { useOwner } from "../Owner";
 import {
@@ -90,7 +90,7 @@ export function QuestLive() {
                   <span><span className={q.cad === "Weekly" ? "q-tag wk" : "q-tag"}>{q.cad}</span>{short(q.crew)} · {live ? (k1.target ? `Your ${k1.target} Small Wins anchor${k1.target === 1 ? "" : "s"} for today, ticked in the Garden.` : "No anchors are due today.") : q.sub}{goal > 1 && !isD ? ` (${p}/${goal})` : ""}</span>
                   <span className="q-src">{isD ? (q.auto ? "Counted by Kumo" : "Logged") : live ? (k1.target ? `Counts your anchor ticks, n/${k1.target}` : "Nothing to count today") : q.ck}</span>
                 </div>
-                <div className="q-r"><span className="xp">+{q.xp} EXP</span>{right}</div>
+                <div className="q-r"><span className="xp">+{questXP(st, q.xp, k)} EXP</span>{right}</div>
               </div>
             );
           }) : <div className="empty">Today&apos;s habits are done. Lovely.</div>}
