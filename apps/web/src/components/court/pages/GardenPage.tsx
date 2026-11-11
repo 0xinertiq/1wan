@@ -12,6 +12,8 @@ import { HAB_PREFIX, habitPhase, habitQuests, habitWeek } from "@/lib/court/habi
 import { newId } from "@/lib/vault";
 import type { Habit } from "@/lib/court/state";
 import { Btn, Card, Chip, EmptyState, PageHead, confirmDelete } from "../ui";
+import { useOwner } from "../Owner";
+import { questItems } from "@/lib/court/questList";
 
 // Garden (round 7): the pixel sakura garden on top, then two columns of cards (Daily anchors, My habits | Branches,
 // Quests, Wins ladder). My habits is the one place to add or edit her habits; Quests and the Wins ladder read the
@@ -98,6 +100,14 @@ function HabitQuests() {
 
 export { habitWeek };
 
+/** Foundations F2: one line naming today's 3 core quests (a done day = all 3 ticked). Text only, no layout change. */
+function CoreNote() {
+  const { st, k } = useCourt(), owner = useOwner();
+  const core = questItems(st, k, owner).filter((x) => x.core);
+  if (core.length < 3) return null;
+  return <p className="note">Your 3 core quests: {core.map((x) => x.name).join(", ")}. A done day is all 3 ticked{st.ql.auto ? "; picked from your most-ticked until you choose your own" : ""}.</p>;
+}
+
 export function GardenPage() {
   // round 13: one Edit garden button; its panel (Habits, Quests, Anchors, Wins ladder) opens under the title. The
   // built-in quest switches of round 12 (questsOff) moved into its Quests tab, unchanged.
@@ -110,7 +120,7 @@ export function GardenPage() {
       <GardenLive slots={{
         pick: <div className="kpick-in"><div className="sec-h">Kumo&apos;s pick</div><KumoPick /></div>,
         habits: <Card title="My habits" sub="the one place to add or edit">{<HabitEditor />}</Card>,
-        quests: <><HabitQuests /><p className="note">Add your own in My habits. Switch off, rename or reorder quests in Edit garden.</p></>,
+        quests: <><HabitQuests /><CoreNote /><p className="note">Add your own in My habits. Switch off, rename or reorder quests in Edit garden.</p></>,
         wins: <Card title="Wins ladder" className="kfull"><WinsLadder /></Card>,
       }} />
     </div>

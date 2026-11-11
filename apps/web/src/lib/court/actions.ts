@@ -1,12 +1,11 @@
 import { QUESTS, needFor, type Quest } from "./quests";
 import { isDone, progOf, rollover, tendGarden, type CourtState, type OwnedKey, type Recap } from "./state";
 
-// Quest completion from v52 completeQuest/addXP: stars, streak (morning brief only), EXP and level-ups.
+// Quest completion from v52 completeQuest/addXP: stars, EXP and level-ups (the streak counts done days since F2, in rollover).
 // Mutates st. Returns the new level if she levelled up.
 export function completeQuest(st: CourtState, q: Quest): number | null {
   st.q[q.id] = [1, q.goal];
   st.stars += q.star;
-  if (q.streak) st.streak += 1;
   st.xp += q.xp;
   let leveled: number | null = null;
   while (st.xp >= needFor(st.lvl)) { st.xp -= needFor(st.lvl); st.lvl += 1; leveled = st.lvl; }
@@ -32,11 +31,14 @@ export function questEvt(st: CourtState, evt: string): boolean {
 
 // What happens on load (v52 applyState + selfChecks): day rollover, garden seeding and watering,
 // and the morning-brief quest. Pure, so the server can render the result without a flash.
-export function bootState(start: CourtState, k: string): { st: CourtState; recap: Recap | null; dirty: OwnedKey[] } {
-  const r = rollover(start, k);
+export function bootState(start: CourtState, k: string, owner = true): { st: CourtState; recap: Recap | null; dirty: OwnedKey[] } {
+  const r = rollover(start, k, owner);
   const st = structuredClone(r.st);
   const dirty = new Set<OwnedKey>();
-  if (r.recap) ["v", "day", "week", "days", "streak", "q", "prev", "last", "restDay"].forEach((x) => dirty.add(x as OwnedKey));
+  if (r.recap) ["v", "day", "week", "days", "streak", "q", "prev", "last", "restDay", "ql"].forEach((x) => dirty.add(x as OwnedKey));
+  // Foundations F2, first load on the same day: the old rule had already counted today's morning brief, but today now
+  // counts once its 3 core quests are ticked, so the saved streak becomes "done days up to yesterday" (never below 0).
+  if (st.ql.sv !== 1) { if (isDone(st, "m1")) st.streak = Math.max(0, st.streak - 1); st.ql = { ...st.ql, sv: 1 }; dirty.add("streak"); dirty.add("ql"); }
   if (questEvt(st, "brief")) ["q", "stars", "streak", "xp", "lvl"].forEach((x) => dirty.add(x as OwnedKey));
   if (tendGarden(st, k)) dirty.add("gd");
   return { st, recap: r.recap, dirty: [...dirty] };

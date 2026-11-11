@@ -26,6 +26,7 @@ import { habitWeek, gardenStage, GROW_AT } from "@/lib/court/habits";
 import { branchProgress, chartBranches } from "@/lib/court/branchChart";
 import { anchorCount, anchorRows, ordered, questName } from "@/lib/court/gardenEdit";
 import { Card as GCard } from "../ui";
+import { useStreak } from "../useStreak";
 
 // Growth column from dashboard-v52: Sakura Garden (with Habit Quests inside), Gratitude (round 11 name),
 // Dungeon with the weekly recap, and the "You" status card. Everything saves to her state.
@@ -336,6 +337,7 @@ function winLines(st: CourtState, k: string) {
 // key, quest and XP behaviour as before; only the name changed). The Dungeon keeps them as the Gratitude log.
 export function WinsLive({ onDone }: { onDone?: () => void }) {
   const { st, k, nm, update } = useCourt();
+  const streak = useStreak();
   const saved = st.wins[k] ?? {};
   const [w, setW] = useState(saved.w ?? "");
   const [g, setG] = useState(saved.g ?? "");
@@ -354,7 +356,7 @@ export function WinsLive({ onDone }: { onDone?: () => void }) {
     ["Plans and trades logged", String(cnt("plan") + cnt("trade"))],
     ["Spending lines", String(cnt("spending"))],
     ["Posts this week", String(T.posts)],
-    ["Streak", `${st.streak} day${st.streak === 1 ? "" : "s"}`],
+    ["Streak", `${streak} day${streak === 1 ? "" : "s"}`],
   ];
   const save = () => { update((d) => { d.wins[k] = { ...d.wins[k], w: w.slice(0, 2000), g: g.slice(0, 2000), n: n.slice(0, 6000) }; }, ["wins"]); };
   return (
@@ -441,6 +443,7 @@ function DiaryEdit({ day, onDone }: { day: string; onDone: () => void }) {
 
 export function DiaryLive({ open }: { open?: boolean }) {
   const { st, k } = useCourt();
+  const streak = useStreak();
   const owner = useOwner(), dq = forViewer(dayQ(k), owner);
   const [joyI, setJoyI] = useState(0);
   const [edit, setEdit] = useState("");
@@ -449,7 +452,7 @@ export function DiaryLive({ open }: { open?: boolean }) {
   const praise: string[] = [];
   Object.keys(st.wins).sort().reverse().forEach((d) => { const e = st.wins[d]; if (e.w) praise.push(`${prettyDay(d)}, you wrote: "${e.w}"`); if (e.g) praise.push(`${prettyDay(d)}, you were grateful for: "${e.g}"`); });
   if (T.wsum > 0) praise.push(`This week you have finished ${T.wsum} quests. Nobody made you. You did.`);
-  if (st.streak > 1) praise.push(`${st.streak} days in a row. You keep coming back, and that is the whole secret.`);
+  if (streak > 1) praise.push(`${streak} days in a row. You keep coming back, and that is the whole secret.`);
   praise.push("You are building a business, a brand and a mind that sees far ahead. That is not nothing.");
 
   // This week (v52 joyWeek): the weekly recap.
@@ -497,7 +500,7 @@ export function DiaryLive({ open }: { open?: boolean }) {
           {wd > 0 && <li>{wd} day{wd === 1 ? "" : "s"} with gratitude written</li>}
           {gw.water > 0 && <li>{gw.water} seed watering{gw.water === 1 ? "" : "s"} in the garden</li>}
           {gw.rel > 0 && <li>{gw.rel} thing{gw.rel === 1 ? "" : "s"} let go. That is progress too.</li>}
-          <li>{st.streak}-day streak · {wn} things that went well and {gn} things you are grateful for, logged so far</li>
+          <li>{streak}-day streak · {wn} things that went well and {gn} things you are grateful for, logged so far</li>
           {T.posts > 0 && <li>{T.posts} post{T.posts === 1 ? "" : "s"} counted</li>}
           {ms.length > 0 && <li>Average mood {(ms.reduce((a, b) => a + b, 0) / ms.length).toFixed(1)} of 5</li>}
         </ul><p><b>{say}</b></p></div>
@@ -547,13 +550,14 @@ export function Archive() {
 /* ---------- You (v52 status card: "You · The Queen") ---------- */
 export function StatusLive() {
   const { st, k, save } = useCourt();
+  const streak = useStreak();
   const need = needFor(st.lvl), wh = weekHab(st, k);
   return (
     <section className="win status" aria-label="Your status">
       <div className="lvbadge"><small>LV</small><b id="lv">{st.lvl}</b></div>
       <div>
         <p className="who-line"><svg className="crown" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18l1.5-10 5 4.5L12 5l2.5 7.5 5-4.5L21 18z" fill="#FFD95E" stroke="#A34876" strokeWidth="1.8" strokeLinejoin="round" /></svg>You <span>· The Queen</span></p>
-        <p className="realm" id="realm">{st.stars} stars · {st.streak} day streak</p>
+        <p className="realm" id="realm">{st.stars} stars · {streak} day streak</p>
         <div className="bars">
           <div className="bar exp"><label>EXP <em id="expTxt">{st.xp} / {need}</em></label><div className="track"><i id="expBar" style={{ width: (st.xp / need) * 100 + "%" }}></i></div></div>
           <div className="bar mp vf"><label>Habits this week <em id="mpTxt">{wh.d} / {wh.t}</em></label><div className="track"><i id="mpBar" style={{ width: (wh.t ? (wh.d / wh.t) * 100 : 0) + "%" }}></i></div></div>

@@ -10,6 +10,7 @@ import { Archive, downloadDiary } from "../live/GrowLive";
 import { DungeonStudy } from "@/components/kumo/decor/room2Dungeon";
 import { Boundary } from "../Boundary";
 import { Btn, Callout, Card, Chip, EmptyState, PageHead, SectionLabel, StoreNote, TabPills } from "../ui";
+import { useStreak } from "../useStreak";
 
 // Dungeon (round 6, private journal): left, the month calendar and a text-only list with search; middle, the
 // day's entry (Inter) with autosave and an honest saved status, plus the Gratitude sheet and its log; right, mood,
@@ -194,8 +195,9 @@ function TodaysGratitude() {
 
 export function WeeklyLookBack() {
   const { st, k } = useCourt();
+  const streak = useStreak();
   const v = useVault<Entry>("journal_entries");
-  const L = lookBack(v.rows, st.wins, st.mood, k, st.streak, st.days);
+  const L = lookBack(v.rows, st.wins, st.mood, k, streak, st.days);
   return (
     <Sec title="Weekly look-back" sub="rule-based, private" id="dungeon-week" className="kd-week">
       <ul className="rv-sug">

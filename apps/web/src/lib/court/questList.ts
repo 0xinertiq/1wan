@@ -18,7 +18,7 @@ export type QItem = {
   done: boolean;         // ticked today
 };
 export type QMeta = { pillar?: number; tiny?: string };
-export type QuestList = { core: string[]; auto: boolean; meta: Record<string, QMeta> };
+export type QuestList = { core: string[]; auto: boolean; meta: Record<string, QMeta>; sv?: number };   // sv: 1 once the streak counts done days (F2)
 
 export const CORE_N = 3, TINY_MAX = 60, AUTO_DAYS = 28;
 // The Daily anchors quest (k1) only counts the anchors, which are now in the list themselves.
@@ -42,7 +42,7 @@ export function normQuestList(v: unknown): QuestList {
     if (typeof o.tiny === "string" && o.tiny.trim()) x.tiny = o.tiny.trim().slice(0, TINY_MAX);
     return [id, x];
   }).filter(([, x]) => Object.keys(x as QMeta).length).slice(0, 400)) as Record<string, QMeta>;
-  return { core, auto: r.auto === false && core.length === CORE_N ? false : true, meta };
+  return { core, auto: r.auto === false && core.length === CORE_N ? false : true, meta, ...(r.sv === 1 ? { sv: 1 } : {}) };
 }
 
 type St = Pick<CourtState, "q" | "days" | "swins" | "hab" | "gedit" | "defs" | "questsOff"> & { ql?: QuestList };
@@ -101,4 +101,15 @@ export function questItems(st: St, k: string, owner: boolean): QItem[] {
   const core = coreIds(st, k, owner), base = baseItems(st, k, owner);
   const pick = core.map((id) => base.find((x) => x.id === id)).filter((x): x is Omit<QItem, "core"> => !!x).map((x) => ({ ...x, core: true }));
   return [...pick, ...base.filter((x) => !core.includes(x.id)).map((x) => ({ ...x, core: false }))];
+}
+
+/** Foundations F2: a done day = all 3 core quests ticked that day. */
+export function coreDoneOn(st: St, d: string, today: string, owner = true): boolean {
+  const core = coreIds(st, d, owner), base = baseItems(st, d, owner);
+  const items = core.map((id) => base.find((x) => x.id === id)).filter((x): x is Omit<QItem, "core"> => !!x);
+  return items.length === CORE_N && items.every((x) => doneOn(st, x, d, today));
+}
+/** The streak to show: done days up to yesterday (saved), plus today once its 3 core quests are ticked. */
+export function streakNow(st: St & { streak: number }, k: string, owner = true): number {
+  return st.streak + (coreDoneOn(st, k, k, owner) ? 1 : 0);
 }

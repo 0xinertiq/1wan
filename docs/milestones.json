@@ -275,7 +275,7 @@
    "status": "partial",
    "expect": "Same desktop screens; the game rules underneath change one step at a time.",
    "you_do": "",
-   "note": "F1 done: one Quests list built from Habit Quests, Daily anchors and My habits (nothing copied or moved); your 3 core quests are picked automatically from your most-ticked until you choose."
+   "note": "F1 done: one Quests list from Habit Quests, Daily anchors and My habits (nothing copied or moved). F2 done: the day changes at 4am in your time zone; the streak counts done days (your 3 core quests all ticked), your number carried over."
   }
  ]
 }

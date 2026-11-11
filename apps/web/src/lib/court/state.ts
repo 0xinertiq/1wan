@@ -3,7 +3,7 @@ import { QUESTS, QPRI, CKPRI, needFor, type Quest } from "./quests";
 import { addDays, dayGap, domDate, prettyDay, wdOf, weekKey, wdName } from "./time";
 import { normGridDefs, type GridDefs } from "./harada";
 import { normGardenEdit, type GardenEdit } from "./gardenEdit";
-import { normQuestList, type QuestList } from "./questList";
+import { coreDoneOn, normQuestList, type QuestList } from "./questList";
 
 // Her state document from the old dashboard (user_state.data), typed for the keys this UI reads and writes.
 // Every other key in the document is left exactly as it is.
@@ -217,8 +217,8 @@ export function manualOpen(st: CourtState, k: string) {
 export const doneToday = (st: CourtState, k: string) => dayQ(k).filter((q) => isDone(st, q.id));
 
 // Daily and weekly rollover (v52 rollover): summarise the last day, reset what resets,
-// keep the streak only if the morning brief was opened or a rest day was used.
-export function rollover(st: CourtState, today: string): { st: CourtState; recap: Recap | null } {
+// keep the streak only for a done day (3 core quests) or a rest day (Foundations F2).
+export function rollover(st: CourtState, today: string, owner = true): { st: CourtState; recap: Recap | null } {
   if (!st.day || st.day === today) return { st, recap: null };
   const old = st.day, wkNew = weekKey(today) !== (st.week || weekKey(old));
   const daily = dayQ(old), done = daily.filter((x) => isDone(st, x.id));
@@ -227,12 +227,21 @@ export function rollover(st: CourtState, today: string): { st: CourtState; recap
   const ks = Object.keys(days).sort();
   while (ks.length > 30) delete days[ks.shift()!];
   let streak = st.streak, lost = false;
-  if (!m1 && !restY && streak > 0) { streak = 0; lost = true; }
+  // Foundations F2: the streak counts done days (all 3 core quests ticked). The first rollover after the change
+  // still uses the old morning-brief rule once, so her number carries over instead of dropping on the switch.
+  const rest = (d: string) => st.restDay === d || st.restWeek === weekKey(d);
+  if (st.ql.sv !== 1) { if (!m1 && !restY && streak > 0) { streak = 0; lost = true; } }
+  else {
+    if (coreDoneOn(st, old, old, owner)) streak += 1;
+    else if (!rest(old) && streak > 0) { streak = 0; lost = true; }
+    // days with the app closed in between could not be done days (rest days excepted)
+    for (let d = addDays(old, 1); d < today && streak > 0; d = addDays(d, 1)) if (!rest(d)) { streak = 0; lost = true; }
+  }
   const q: CourtState["q"] = {};
   for (const x of QUESTS) if (!(x.cad === "Daily" || wkNew) && st.q[x.id]) q[x.id] = st.q[x.id];
   const prev = st.last && Object.keys(st.last).length ? { ...st.last, day: old } : null;
   return {
-    st: { ...st, day: today, week: weekKey(today), days, streak, q, prev, last: {}, restDay: null },
+    st: { ...st, day: today, week: weekKey(today), days, streak, q, prev, last: {}, restDay: null, ql: { ...st.ql, sv: 1 } },
     recap: { old, done: done.length, total: daily.length, newWeek: wkNew, lost, restY },
   };
 }

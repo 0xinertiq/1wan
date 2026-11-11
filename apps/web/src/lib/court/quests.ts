@@ -8,7 +8,7 @@ export type Quest = {
 };
 
 export const QUESTS: Quest[] = [
-  { id: "m1", crew: "momo", cad: "Daily", title: "Open the morning brief", sub: "Your daily check-in. Keeps the streak.", xp: 10, star: 2, goal: 1, auto: true, evt: "brief", streak: true, ck: "Counted when the brief opens" },
+  { id: "m1", crew: "momo", cad: "Daily", title: "Open the morning brief", sub: "Your daily check-in.", xp: 10, star: 2, goal: 1, auto: true, evt: "brief", streak: true, ck: "Counted when the brief opens" },
   { id: "k7", crew: "kumo", cad: "Daily", title: "One 25-minute focus sprint", sub: "One thing, one timer, pings held.", xp: 25, star: 3, goal: 1, auto: true, evt: "sprint", ck: "Kumo times it" },
   { id: "k2", crew: "kumo", cad: "Daily", title: "Study block, 1.5 hours", sub: "Your Mon to Thu course session.", xp: 25, star: 3, goal: 1, auto: true, cal: /study/i, days: [1, 2, 3, 4], ck: "Logs itself when the block ends" },
   { id: "o1", crew: "olli", cad: "Daily", title: "Check the macro calendar before the open", sub: "Know which US data releases land today.", xp: 15, star: 2, goal: 1, auto: true, evt: "macro", ck: "Counted when the live release list loads" },

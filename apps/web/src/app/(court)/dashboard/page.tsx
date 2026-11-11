@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { gameKey } from "@/lib/court/time";
 import { createClient } from "@/lib/supabase/server";
 import { PixelDefs } from "@/components/PixelSprite";
 import { CourtDefs } from "@/components/court/CourtDefs";
@@ -108,13 +109,15 @@ export default async function Dashboard() {
   // A failed read must not boot an empty state: its first save would write blanks over her real streak and garden.
   // Throwing shows the dashboard's error screen (error.tsx) with Try again. No row at all is a new user, which is fine.
   if (stateErr) throw new Error("Could not load your saved state");
-  const today = dayKey(now);
-  const boot = bootState(normalize(row?.data ?? {}, today), today);
+  // Foundations F2: the game day (quests, ticks, streak) changes at 4am in her own time zone; briefs keep the real date.
+  const realToday = dayKey(now);
+  const today = gameKey(now, (row?.data as { prefs?: { tz?: unknown } } | null)?.prefs?.tz);
+  const boot = bootState(normalize(row?.data ?? {}, today), today, owner);
   // What each desk has learned (her agent memory, read-only under RLS), for the Briefs card.
   const { data: memRows } = owner ? await supabase.from("agent_memory").select("key, data") : { data: [] };
   const mem: Record<string, DeskMem> = Object.fromEntries((memRows ?? []).map((m) => [m.key, cleanMem((m.data ?? {}) as DeskMem)]));
   // Today's briefs still waiting for a rating: one line in Needs you now.
-  const unrated = docs.filter((d) => ["pulse", "intel", "scan"].includes(d.key) && !d.vote && dayKey(new Date(d.at)) === today).map((d) => d.label);
+  const unrated = docs.filter((d) => ["pulse", "intel", "scan"].includes(d.key) && !d.vote && dayKey(new Date(d.at)) === realToday).map((d) => d.label);
 
   return (
     <InboxProvider briefs={docs.map((d) => ({ key: d.key, label: d.label, at: d.at }))} review={docOf("review")?.at ?? null}>

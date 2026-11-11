@@ -15,6 +15,7 @@ import {
   dayQ, dueList, eventsOn, isDone, momoIdeas, money, openQuests, qScore, weekHab, whenText, type CalEvent,
 } from "@/lib/court/state";
 import { addDays, dur, greetWord, hm, prettyDay, weekKey } from "@/lib/court/time";
+import { useStreak } from "../useStreak";
 
 // Today window from dashboard-v52: since yesterday, glance strip, recap, up next, Momo's day,
 // ideas for free time, Coming up and Park a thought. All from her saved state.
@@ -28,6 +29,7 @@ function Mini({ name }: { name: "momo" | "coco" | "kumo" }) {
 export function TodayLive({ bare = false }: { bare?: boolean }) {
   const [tab, setTab] = useState<"brief" | "sky" | "week">("brief");
   const { st, k } = useCourt();
+  const streak = useStreak();
   const dateLabel = prettyDay(k);
   const yd = st.days[addDays(k, -1)];
   const Wrap = bare ? "div" : "section";
@@ -39,7 +41,7 @@ export function TodayLive({ bare = false }: { bare?: boolean }) {
         <div className="sec-h">Since yesterday</div>
         <div className="win-line">
           <span className="pillx">{yd ? `Yesterday ${yd.d} of ${yd.t} habits` : "No record for yesterday"}</span>
-          <span className={st.streak > 0 ? "pillx ok" : "pillx"}>{st.streak} day streak</span>
+          <span className={streak > 0 ? "pillx ok" : "pillx"}>{streak} day streak</span>
         </div>
       </div>}
       <div className="tabs" role="tablist" aria-label="Today views">
@@ -73,6 +75,7 @@ export function TodayLive({ bare = false }: { bare?: boolean }) {
 // The glance numbers and Since yesterday as one compact row (New look's Today card).
 export function TodayChips() {
   const { st, k, events } = useCourt();
+  const streak = useStreak();
   // Round 6: her tasks and routines due within 3 days count too.
   const tasks = useVault("tasks"), routines = useVault("routines");
   const wh = weekHab(st, k), due = dueList(st, k, events).filter((x) => x.dd <= 3).length + dueSoon(tasks.rows as never, routines.rows as never, k, 3).length;
@@ -80,7 +83,7 @@ export function TodayChips() {
   return (
     <div className="tchips" role="group" aria-label="Today at a glance">
       <span className="tchip"><i>Due soon</i><b>{due}</b></span>
-      <span className="tchip"><i>Streak</i><b>{st.streak}</b></span>
+      <span className="tchip"><i>Streak</i><b>{streak}</b></span>
       <span className="tchip"><i>Habits this week</i><b>{wh.d}/{wh.t}</b></span>
       <span className="tchip"><i>Yesterday</i><b>{yd ? `${yd.d}/${yd.t}` : "–"}</b></span>
     </div>
@@ -89,12 +92,13 @@ export function TodayChips() {
 
 function Strip() {
   const { st, k, events } = useCourt();
+  const streak = useStreak();
   const wh = weekHab(st, k), due = dueList(st, k, events).filter((x) => x.dd <= 3).length;
   return (
     <div id="stripBox">
       <div className="strip" role="group" aria-label="Today at a glance">
         <span className="sc"><i>Due soon</i><b>{due}</b></span>
-        <span className="sc"><i>Streak</i><b>{st.streak}</b></span>
+        <span className="sc"><i>Streak</i><b>{streak}</b></span>
         <span className="sc"><i>Habits this week</i><b>{wh.d}/{wh.t}</b></span>
       </div>
       <figure className="qod">

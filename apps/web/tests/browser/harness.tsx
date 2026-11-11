@@ -38,7 +38,7 @@ import { CourtSheet } from "@/components/court/CourtSheet";
 import { mdLite } from "@/components/court/mdLite";
 import { normalize } from "@/lib/court/state";
 import { bootState } from "@/lib/court/actions";
-import { addDays, sgtKeyOf, stampAge } from "@/lib/court/time";
+import { addDays, gameKey, sgtKeyOf, stampAge } from "@/lib/court/time";
 import { canonKind } from "@/lib/briefKinds";
 import { noBigdata } from "@/lib/noBigdata";
 import type { BriefDoc } from "@/components/court/BriefTabs";
@@ -78,7 +78,7 @@ export async function loadData(name: string, get: (p: string) => Promise<any>, n
 
 export function buildTree(d: Data) {
   const owner = d.owner !== false;
-  const k = sgtKeyOf(d.nowIso), boot = bootState(normalize(d.raw, k), k), docs = d.docs;
+  const k = gameKey(new Date(d.nowIso), (d.raw as { prefs?: { tz?: unknown } } | null)?.prefs?.tz), boot = bootState(normalize(d.raw, k), k, owner), docs = d.docs;
   const docOf = (kk: string) => docs.find((x) => x.key === kk) ?? null;
   const filed = Object.fromEntries(docs.map((x) => [x.key, x.at]));
   const latest = Object.fromEntries(docs.map((x) => [x.key, { title: x.title, at: x.at }]));

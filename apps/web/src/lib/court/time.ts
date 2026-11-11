@@ -13,6 +13,20 @@ export function sgt(d: Date): { key: string; min: number } {
   return { key: `${o.year}-${o.month}-${o.day}`, min: (+o.hour % 24) * 60 + +o.minute };
 }
 export const todayKey = () => sgt(new Date()).key;
+// Foundations F2: the game day (quests, ticks, streak) changes at 4am in the account's own time zone, so a late
+// night still counts for the day before. Calendars, briefs and clocks keep the real date.
+export const DAY_START_MIN = 240;
+export const validTz = (tz: unknown): string => {
+  if (typeof tz !== "string" || !tz) return SGT;
+  try { new Intl.DateTimeFormat("en-GB", { timeZone: tz }); return tz; } catch { return SGT; }
+};
+export function gameKey(d: Date, tz?: unknown): string {
+  if (!(d instanceof Date) || !Number.isFinite(d.getTime())) return "";
+  const o: Record<string, string> = {};
+  new Intl.DateTimeFormat("en-GB", { timeZone: validTz(tz), year: "numeric", month: "2-digit", day: "2-digit" })
+    .formatToParts(new Date(d.getTime() - DAY_START_MIN * 60000)).forEach((x) => { o[x.type] = x.value; });
+  return `${o.year}-${o.month}-${o.day}`;
+}
 export const nowMin = () => sgt(new Date()).min;
 
 const p2 = (n: number) => (n < 10 ? "0" : "") + n;

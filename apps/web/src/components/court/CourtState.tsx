@@ -5,7 +5,10 @@ import type { CalEvent, CourtState, OwnedKey, Recap } from "@/lib/court/state";
 import type { PriceResult } from "@/lib/prices";
 import { OWNED_KEYS, normalize, tendGarden } from "@/lib/court/state";
 import { merge3, same } from "@/lib/court/merge";
-import { sgt } from "@/lib/court/time";
+import { gameKey, sgt } from "@/lib/court/time";
+
+// Foundations F2: key = the game day (changes at 4am in her own time zone); min = real minutes since Singapore midnight.
+const clock = (d: Date, tz: unknown) => ({ key: gameKey(d, tz), min: sgt(d).min });
 
 // One client store for her state document. Changes save in the background (debounced) to /api/state,
 // sending only the keys that changed, with the version she loaded.
@@ -53,7 +56,7 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
                   // so every change on this device is kept
 }) {
   const [st, setSt] = useState(initial);
-  const [now, setNow] = useState(() => sgt(new Date(nowIso)));
+  const [now, setNow] = useState(() => clock(new Date(nowIso), initial.prefs.tz));
   const [recap, setRecap] = useState(recap0);
   const [save, setSave] = useState<SaveState>("idle");
   const [events, setEvents] = useState<CalEvent[]>([]);
@@ -65,7 +68,7 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
   const stRef = useRef(st);
   const ver = useRef(version);
   // What this device last knew the server had, per key (round 22, two devices): updated after every save.
-  const known = useRef<CourtState>(normalize(base ?? {}, sgt(new Date(nowIso)).key));
+  const known = useRef<CourtState>(normalize(base ?? {}, clock(new Date(nowIso), initial.prefs.tz).key));
   const pending = useRef(new Set<OwnedKey>(dirty));
   const timer = useRef<number | undefined>(undefined);
   const inFlight = useRef(false);
@@ -90,7 +93,7 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
       // (merge3: ticks on both devices are kept), show the result, and save what still differs.
       const sj = r.status === 409 ? await r.json().catch(() => null) : null;
       if (sj?.stale && typeof sj.version === "number") {
-        const remote = normalize(sj.data ?? {}, sgt(new Date()).key), cur = stRef.current;
+        const remote = normalize(sj.data ?? {}, clock(new Date(), stRef.current.prefs.tz).key), cur = stRef.current;
         const merged = { ...cur } as Record<string, unknown>;
         for (const key of OWNED_KEYS) merged[key] = merge3(known.current[key], cur[key], remote[key]) ?? remote[key];
         stRef.current = merged as CourtState;
@@ -126,7 +129,7 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
     const d = structuredClone(stRef.current);
     fn(d);
     // Habit watering follows every change (v52 autoWater ran on each save).
-    if (tendGarden(d, sgt(new Date()).key) && !keys.includes("gd")) keys = [...keys, "gd"];
+    if (tendGarden(d, clock(new Date(), d.prefs.tz).key) && !keys.includes("gd")) keys = [...keys, "gd"];
     stRef.current = d;
     setSt(d);
     keys.forEach((x) => pending.current.add(x));
@@ -138,8 +141,8 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
 
   // Clock, and a save before the tab goes away.
   useEffect(() => {
-    const t = window.setInterval(() => setNow(sgt(new Date())), 30000);
-    setNow(sgt(new Date()));
+    const t = window.setInterval(() => setNow(clock(new Date(), stRef.current.prefs.tz)), 30000);
+    setNow(clock(new Date(), stRef.current.prefs.tz));
     const hide = () => { if (document.visibilityState === "hidden") flush(); };
     // back on this tab after signing in again (the button opens the login screen in a new tab): save what waited
     const back = () => { if (signedOut.current && document.visibilityState === "visible") { signedOut.current = false; flush(); } };
@@ -149,7 +152,7 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
     return () => { window.clearInterval(t); document.removeEventListener("visibilitychange", hide); document.removeEventListener("visibilitychange", back); window.removeEventListener("focus", back); };
   }, [flush]);
 
-  // Past midnight in Singapore with the page still open: save, then reload so the rollover runs.
+  // Past 4am (her time zone) with the page still open: save, then reload so the rollover runs.
   useEffect(() => {
     if (now.key === stRef.current.day) return;
     const t = window.setTimeout(async () => { await flush(); window.location.reload(); }, 3000);
