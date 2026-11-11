@@ -77,9 +77,10 @@
 /* Court home (New look only; Classic renders the v52 columns instead). 12 columns, 24px gaps:
    banner; Today / Needs you now / Kingdom progress / Quick capture (equal height); Luna's forecast; More. */
 :root[data-ui="new"] .khome{display:grid;gap:var(--sp-6)}
-/* Foundations F9: phones and tablets only. The one Court column may shrink to the screen (a grid track otherwise grows to
-   its widest no-wrap line, e.g. the "Next:" release line, and the whole page scrolled sideways at 390px). Desktop unchanged. */
-@media (max-width:979px){:root[data-ui="new"] .khome{grid-template-columns:minmax(0,1fr)}:root[data-ui="new"] .khome>*{min-width:0}}
+/* The one Court column is as wide as the page, never wider (F9, widened 11 Nov). A grid column otherwise grows to its
+   widest no-wrap line: on a phone the "Next:" release line, on any screen a long watchlist in the prices strip (hers made
+   the page 1867px wide at 1440, pushing the clock, level and Luna off screen). The strip now scrolls inside itself. */
+:root[data-ui="new"] .khome{grid-template-columns:minmax(0,1fr)}:root[data-ui="new"] .khome>*{min-width:0}
 :root[data-ui="new"] .khome>.statusline{margin:calc(-1 * var(--sp-3)) var(--sp-1) 0;font:600 14px var(--kumo-font-body);color:var(--ink-soft)}
 :root[data-ui="new"] .krow{display:grid;gap:var(--sp-6);grid-template-columns:repeat(12,minmax(0,1fr));align-items:stretch}
 :root[data-ui="new"] .krow>*{grid-column:span 12;height:100%;margin:0}
@@ -530,7 +531,9 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
    Needs you now cards, Briefs contrast and one reading layout, Luna's card. */
 .hdate{display:none}
 :root[data-ui="new"] .hdate{display:inline-flex;flex-direction:column;align-items:flex-end;justify-content:center;font:700 14px/1.2 var(--kumo-font-body);color:var(--ink);white-space:nowrap}
-:root[data-ui="new"] .hrest{font:600 12px/1.3 var(--kumo-font-body);color:var(--ink-soft)}
+/* 11 Nov: the rest-day note hangs under the clock without pushing it up, so the header pills stay on one line */
+:root[data-ui="new"] .hbadge-wrap{position:relative}
+:root[data-ui="new"] .hrest{position:absolute;top:100%;left:0;right:0;margin-top:var(--sp-1);text-align:center;white-space:nowrap;font:600 12px/1.3 var(--kumo-font-body);color:var(--ink-soft)}
 .lw-greet{background:none!important;padding:0!important;font:600 20px/1.3 var(--kumo-font-display)!important;color:var(--k-plum-900);text-shadow:0 1px 0 var(--k-glass-hi),0 0 10px var(--k-glass-hi)}
 .lw.ph-night .lw-greet,.lw.ph-dusk .lw-greet{color:var(--k-cream-50);text-shadow:0 1px 2px var(--k-scene-shadow-night),0 0 10px var(--k-scene-shadow-night)}
 .lw-badge{background:var(--k-glass);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
@@ -677,7 +680,9 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kreview .rv-sug{font-size:var(--fs-ui)}
 /* News tab dot while a weekly review is unread */
 .nav-dot{display:none}
-:root[data-ui="new"] .nav-dot{display:inline-block;width:var(--sp-2);height:var(--sp-2);margin-left:calc(-1 * var(--sp-1));align-self:flex-start;border-radius:var(--r-pill);background:var(--k-accent)}
+/* 11 Nov: the dot sits on the corner and takes no space, so every menu tab keeps the same spacing */
+:root[data-ui="new"] :is(.tabnav-new button,.nav-more,[role="menuitem"]){position:relative}
+:root[data-ui="new"] .nav-dot{display:inline-block;position:absolute;top:var(--sp-1);left:var(--sp-1);width:var(--sp-2);height:var(--sp-2);border-radius:var(--r-pill);background:var(--k-accent)}
 
 /* Luna: two soft blocks side by side (stacked when narrow); the chart contacts stay quiet below them */
 :root[data-ui="new"] .kluna-two{display:grid;gap:var(--sp-3);grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
@@ -1016,6 +1021,8 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 
 /* Phone bar order: Home, Calendar, Hub, Diary, then More */
 @media (max-width:979px){:root[data-ui="new"] .tabnav-new>button{order:var(--ord,9)}:root[data-ui="new"] .tabnav-new>.nav-more{order:10}}
+/* 11 Nov: desktop menu icons sit at the top of each tab, so a two-line label (Kingdom Mode) no longer lifts its icon */
+@media (min-width:980px){:root[data-ui="new"] :is(.tabnav-new>button,.tabnav-new>.nav-more){justify-content:flex-start;padding-top:var(--sp-1)}}
 
 /* ---------- Round 7: pilot room (Calendar: the clock tower), drag or swipe sideways; a little taller than banners ---------- */
 :root[data-ui="new"] .kroom{position:relative;aspect-ratio:4/1;min-height:140px;max-width:100%;border:var(--bw-2) solid var(--k-outline);border-radius:var(--r-card);overflow:hidden;background:var(--k-surface-2)}
@@ -1136,6 +1143,17 @@ a.pb-chip:focus-visible{outline:3px solid var(--k-focus);outline-offset:-3px}
 :root[data-ui="new"] .kbrief{margin:0;padding-left:var(--sp-6);display:grid;gap:var(--sp-2)}
 :root[data-ui="new"] .kbrief li{display:grid;gap:var(--sp-1);font:400 var(--fs-body)/1.45 var(--k-font-body);color:var(--k-text)}
 :root[data-ui="new"] .kbrief a{font-weight:700}
+/* Pulse and Intelligence on the Court, easy to read (11 Nov): a short lead, then headline, short why, small sources */
+:root[data-ui="new"] .kread{display:grid;gap:var(--sp-4)}
+:root[data-ui="new"] .kread-lead{margin:0;padding:var(--sp-3) var(--sp-4);border-left:3px solid var(--k-accent);border-radius:var(--r-control);background:var(--k-surface);font:500 var(--fs-body)/1.5 var(--k-font-body);color:var(--k-text)}
+:root[data-ui="new"] .kread-g{display:grid;gap:var(--sp-2)}
+:root[data-ui="new"] .kread-list{margin:0;padding:0;list-style:none;display:grid;gap:var(--sp-4)}
+:root[data-ui="new"] .kread-list li{display:grid;gap:var(--sp-1)}
+:root[data-ui="new"] .kread-t{font:700 var(--fs-body)/1.35 var(--k-font-body);color:var(--k-text)}
+:root[data-ui="new"] .kread-why{margin:0;font:400 14px/1.45 var(--k-font-body);color:var(--ink-soft);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+:root[data-ui="new"] .kread-src{margin:0;display:flex;flex-wrap:wrap;gap:var(--sp-3);font:600 12px/1.4 var(--k-font-body)}
+:root[data-ui="new"] .kread-src a{color:var(--ink-soft);text-decoration:none}
+:root[data-ui="new"] .kread-src a:hover{text-decoration:underline}
 /* Settings: the Look card on one grid (label left, buttons in a row) */
 :root[data-ui="new"] .klook{display:grid;grid-template-columns:max-content minmax(0,1fr);align-items:center;gap:var(--sp-3) var(--sp-4)}
 :root[data-ui="new"] .klook-l{font:700 var(--fs-ui)/1.3 var(--k-font-body);color:var(--k-text)}

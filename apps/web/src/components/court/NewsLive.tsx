@@ -84,14 +84,13 @@ export function NewsLive({ top5 = [], follow = false }: { top5?: string[]; follo
   const shown = more ? list : list.slice(0, 8);
   const down = (Array.isArray(data?.feeds) ? data.feeds : []).filter((f) => f && !f.ok).map((f) => f.name);
 
-  // round 8: on the News tab, Today's briefing (rules only) sits above the headlines. Foundations F7 (her decision 2b):
-  // it is one closed row (the same open/close card as Needs you now), so News opens on the headlines.
+  // round 8: on the News tab, Today's briefing (rules only) sits above the headlines (kept open, her choice 11 Nov)
   const brief = follow && data && !lensOff ? briefing(clusters, st.lenses) : null;
   return (
     <>
     {brief && (
-      <details className="win kcard" id="briefingWin">
-        <summary className="win-title"><h2 id="bfT">Today&apos;s briefing</h2><span className="sub">Pip · {brief.stories.length} {brief.stories.length === 1 ? "story" : "stories"} · tap to open</span></summary>
+      <section className="win kcard" id="briefingWin" aria-labelledby="bfT">
+        <div className="win-title"><h2 id="bfT">Today&apos;s briefing</h2><span className="sub">Pip · by rules, from the headlines</span></div>
         <div className="win-body">
           {!brief.stories.length ? <p className="note">No stories in your lenses right now.</p> : (
             <ol className="kbrief">
@@ -106,7 +105,7 @@ export function NewsLive({ top5 = [], follow = false }: { top5?: string[]; follo
           )}
           <p className="note">{brief.stories.length} {brief.stories.length === 1 ? "story" : "stories"} from {brief.headlines} headlines, ranked by score. Not advice.</p>
         </div>
-      </details>
+      </section>
     )}
     <section className="win" id="newsWin" aria-labelledby="nwT">
       <div className="win-title"><h2 id="nwT">Headlines</h2><span className="sub">Pip {items.length > 0 && <span className="badge" id="newsCount">{items.length}</span>}</span></div>

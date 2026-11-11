@@ -6,17 +6,10 @@ import fs from "node:fs";
 import path from "node:path";
 const css = fs.readFileSync(path.resolve(import.meta.dirname, "../src/app/(court)/kumo-new.css"), "utf8");
 
-test("the Court column may shrink to the screen on phones (the no-wrap 'Next:' line no longer widens the page)", () => {
-  assert.match(css, /@media \(max-width:979px\)\{:root\[data-ui="new"\] \.khome\{grid-template-columns:minmax\(0,1fr\)\}:root\[data-ui="new"\] \.khome>\*\{min-width:0\}\}/);
+test("the Court column is never wider than the page, at any width (a long watchlist made it 1867px at 1440)", () => {
+  assert.match(css, /:root\[data-ui="new"\] \.khome\{grid-template-columns:minmax\(0,1fr\)\}:root\[data-ui="new"\] \.khome>\*\{min-width:0\}/);
 });
 
-test("a card header's pill group stays inside the card on phones", () => {
+test("a card header's pill group stays inside the card on phones (phone-only rule)", () => {
   assert.match(css, /@media \(max-width:979px\)\{:root\[data-ui="new"\] \.kcard-act\{min-width:0;max-width:100%\}\}/);
-});
-
-test("both fixes sit only under 980px", () => {
-  for (const sel of [".khome{grid-template-columns", ".kcard-act{min-width:0"]) {
-    const i = css.indexOf(sel); assert.ok(i > 0, sel);
-    assert.equal(css.lastIndexOf("@media (max-width:979px){", i), css.lastIndexOf("@media", i), sel + " is inside the phone rule");
-  }
 });

@@ -3,7 +3,8 @@
 import { useId, useState } from "react";
 import { BriefFeedback } from "./BriefFeedback";
 import { SourcesLine, type BriefDoc } from "./BriefTabs";
-import { briefSections, isNoMovers, scanCourt, type Headline } from "@/components/kumo/briefParse";
+import { briefSections, isNoMovers, scanCourt, todaysPlan, topFive, type Headline } from "@/components/kumo/briefParse";
+import { dayGap, prettyDay, sgtKeyOf } from "@/lib/court/time";
 import { mdLite } from "./mdLite";
 import { useReview } from "@/components/kumo/reviewRead";
 import { clock } from "@/lib/court/time";
@@ -33,14 +34,14 @@ function Items({ items }: { items: Headline[] }) {
 // the Intelligence Top 5 as a numbered list). Show more / Show less, then Useful / Needs work, the one-line
 // change box and "What this desk has learned" (her agent memory, read-only). Midday movers live in Trades.
 export type DeskMem = { lessons?: string[]; sourceNotes?: string[]; selfCheck?: string; stats?: { n?: number; up?: number; down?: number } };
-// Foundations F7 (her decisions 1a and 14b): two pills, Today's briefings | Crypto scan. Today's briefings shows the
-// Daily Intel Brief and the Pulse brief one above the other (Intel first), each with its own ratings and desk notes.
-const TABS = [{ key: "today", label: "Today's briefings" }, { key: "scan", label: "Crypto scan" }] as const;
+// 11 Nov (her request): the three pills stay. Pulse and Intelligence open in an easy-to-read view (ReadPane): one short
+// lead line, then each story as a bold headline, a short muted "why" and small sources; the full brief is one tap away.
+const TABS = [{ key: "pulse", label: "Pulse" }, { key: "intel", label: "Intelligence" }, { key: "scan", label: "Crypto scan" }] as const;
 
 export function BriefsBlock({ docs, mem }: { docs: Partial<Record<"pulse" | "intel" | "scan", BriefDoc | null>>; mem: Record<string, DeskMem> }) {
-  const [tab, setTab] = useState<"today" | "scan">(docs.intel || docs.pulse || !docs.scan ? "today" : "scan");
-  const today = (["intel", "pulse"] as const).map((k) => [k, docs[k] ?? null] as const).filter(([, x]) => x);
-  const d = docs.scan ?? null;
+  const first = (["intel", "scan", "pulse"] as const).find((k) => docs[k]) ?? "intel";
+  const [tab, setTab] = useState<"pulse" | "intel" | "scan">(first);
+  const d = docs[tab] ?? null;
   return (
     <section className="win kbriefs" aria-labelledby="kbT">
       <div className="win-title"><h2 id="kbT">Briefs</h2><span className="sub">Your scheduled tasks</span></div>
@@ -48,11 +49,57 @@ export function BriefsBlock({ docs, mem }: { docs: Partial<Record<"pulse" | "int
         <div className="kseg pills" role="tablist" aria-label="Briefs">
           {TABS.map((t) => <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} className={tab === t.key ? "on" : ""} onClick={() => setTab(t.key)}>{t.label}</button>)}
         </div>
-        {tab === "today"
-          ? (today.length ? today.map(([k, x]) => <BriefPane key={x!.key + x!.at} d={x!} mem={mem[k]} />) : <p className="note">No briefing yet. The Daily Intel Brief lands at 07:52 and the Pulse brief at 07:27.</p>)
-          : d ? <BriefPane key={d.key + d.at} d={d} mem={mem.scan} /> : <p className="note">No scan yet. The 03:50 scan lands here.</p>}
+        {!d ? <p className="note">{tab === "scan" ? "No scan yet. The 03:50 scan lands here." : tab === "pulse" ? "No Pulse brief yet. It lands at 07:27." : "No intelligence brief yet. The 07:52 brief lands here."}</p>
+          : tab === "scan" ? <BriefPane key={d.key + d.at} d={d} mem={mem.scan} /> : <ReadPane key={d.key + d.at} d={d} mem={mem[tab]} />}
       </div>
     </section>
+  );
+}
+
+type Group = { title: string; items: Headline[] };
+/** The stories to show, kept short: Intelligence = its Top 5; Pulse = up to 4 sections of up to 3 stories each. */
+export function readGroups(key: string, body: string): Group[] {
+  if (key === "intel") { const t = topFive(body).items; if (t.length) return [{ title: "", items: t.slice(0, 5) }]; }
+  return briefSections(body).sections.map((s) => ({ title: s.title, items: s.items.filter((x) => x.title).slice(0, 3) })).filter((g) => g.items.length).slice(0, 4);
+}
+/** One short lead line: the brief's own summary (its intro or read-through), never a repeat of the first headline. */
+export function readLead(body: string, groups: Group[]): string {
+  const raw = (briefSections(body).intro || todaysPlan(body).readThrough || "").replace(/\s+/g, " ").replace(/^(read-?through|bottom line|summary)\s*:\s*/i, "").trim();
+  const first = groups[0]?.items[0]?.title ?? "";
+  if (!raw || /^top \d+ headlines/i.test(raw) || (first && raw.toLowerCase().includes(first.slice(0, 40).toLowerCase()))) return "";
+  return raw.length > 260 ? raw.slice(0, 257).replace(/\s+\S*$/, "") + "…" : raw;
+}
+function ReadPane({ d, mem }: { d: BriefDoc; mem?: DeskMem }) {
+  const { k: now } = useCourt();
+  const [full, setFull] = useState(false);
+  const groups = readGroups(d.key, d.body ?? "");
+  if (!groups.length) return <BriefPane d={d} mem={mem} />;   // nothing to pick from: the brief as filed
+  const day = sgtKeyOf(d.at), old = !!day && dayGap(day, now) > 1;
+  const lead = readLead(d.body ?? "", groups);
+  return (
+    <div className="bpane kread">
+      <Head d={d} />
+      {old && <p className="note">Not filed since {prettyDay(day)}; these stories are from then.</p>}
+      {lead && <p className="kread-lead">{lead}</p>}
+      {groups.map((g, gi) => (
+        <section key={gi} className="kread-g" aria-label={g.title || "Top stories"}>
+          {g.title && <h3 className="sec-h">{g.title}</h3>}
+          <ol className="kread-list">
+            {g.items.map((h, i) => (
+              <li key={i}>
+                <b className="kread-t">{h.title}</b>
+                {h.why && <p className="kread-why">{h.why}</p>}
+                {h.links.length > 0 && <p className="kread-src">{h.links.slice(0, 3).map((l, li) => <a key={li} href={l.url} target="_blank" rel="noopener noreferrer">{l.text || "source"}</a>)}</p>}
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+      <button className="btn sm ghost" type="button" aria-expanded={full} onClick={() => setFull(!full)}>{full ? "Hide the full brief" : "Read the full brief"}</button>
+      {full && <div className="brb kbrb open" dangerouslySetInnerHTML={{ __html: mdLite(d.body ?? "", { srcLine: true, numberTop5: true }) }} />}
+      <BriefFeedback key={d.key + d.at} kind={d.key} at={d.at} initial={d.vote} />
+      <DeskLearned m={mem} />
+    </div>
   );
 }
 
