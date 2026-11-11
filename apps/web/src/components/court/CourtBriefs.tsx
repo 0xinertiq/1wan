@@ -33,12 +33,14 @@ function Items({ items }: { items: Headline[] }) {
 // the Intelligence Top 5 as a numbered list). Show more / Show less, then Useful / Needs work, the one-line
 // change box and "What this desk has learned" (her agent memory, read-only). Midday movers live in Trades.
 export type DeskMem = { lessons?: string[]; sourceNotes?: string[]; selfCheck?: string; stats?: { n?: number; up?: number; down?: number } };
-const TABS = [{ key: "pulse", label: "Pulse" }, { key: "intel", label: "Intelligence" }, { key: "scan", label: "Crypto scan" }] as const;
+// Foundations F7 (her decisions 1a and 14b): two pills, Today's briefings | Crypto scan. Today's briefings shows the
+// Daily Intel Brief and the Pulse brief one above the other (Intel first), each with its own ratings and desk notes.
+const TABS = [{ key: "today", label: "Today's briefings" }, { key: "scan", label: "Crypto scan" }] as const;
 
 export function BriefsBlock({ docs, mem }: { docs: Partial<Record<"pulse" | "intel" | "scan", BriefDoc | null>>; mem: Record<string, DeskMem> }) {
-  const first = (["intel", "scan", "pulse"] as const).find((k) => docs[k]) ?? "intel";
-  const [tab, setTab] = useState<"pulse" | "intel" | "scan">(first);
-  const d = docs[tab] ?? null;
+  const [tab, setTab] = useState<"today" | "scan">(docs.intel || docs.pulse || !docs.scan ? "today" : "scan");
+  const today = (["intel", "pulse"] as const).map((k) => [k, docs[k] ?? null] as const).filter(([, x]) => x);
+  const d = docs.scan ?? null;
   return (
     <section className="win kbriefs" aria-labelledby="kbT">
       <div className="win-title"><h2 id="kbT">Briefs</h2><span className="sub">Your scheduled tasks</span></div>
@@ -46,7 +48,9 @@ export function BriefsBlock({ docs, mem }: { docs: Partial<Record<"pulse" | "int
         <div className="kseg pills" role="tablist" aria-label="Briefs">
           {TABS.map((t) => <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} className={tab === t.key ? "on" : ""} onClick={() => setTab(t.key)}>{t.label}</button>)}
         </div>
-        {d ? <BriefPane key={d.key + d.at} d={d} mem={mem[tab]} /> : <p className="note">{tab === "scan" ? "No scan yet. The 03:50 scan lands here." : tab === "pulse" ? "No Pulse brief yet. It lands at 07:27." : "No intelligence brief yet. The 07:52 brief lands here."}</p>}
+        {tab === "today"
+          ? (today.length ? today.map(([k, x]) => <BriefPane key={x!.key + x!.at} d={x!} mem={mem[k]} />) : <p className="note">No briefing yet. The Daily Intel Brief lands at 07:52 and the Pulse brief at 07:27.</p>)
+          : d ? <BriefPane key={d.key + d.at} d={d} mem={mem.scan} /> : <p className="note">No scan yet. The 03:50 scan lands here.</p>}
       </div>
     </section>
   );
