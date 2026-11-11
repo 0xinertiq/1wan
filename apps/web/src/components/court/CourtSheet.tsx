@@ -14,6 +14,7 @@ import { TAILS, earned, tailSvg } from "@/lib/court/tails";
 import { LunaSky } from "./live/LunaSky";
 import { useUi } from "@/components/kumo/useUi";
 import { PacketLive } from "./live/PacketLive";
+import { wroteOn } from "@/lib/court/journal";
 
 // One overlay for the crew detail (tap a character on the Court) and Settings (header menu).
 // Crew detail shows role, latest output, last-updated time and next scheduled run, and nothing else.
@@ -59,7 +60,7 @@ export function CourtSheet({ latest }: { latest: Latest }) {
 
   // The Gratitude sheet opens once at 21:30 SGT if nothing is saved for today yet.
   useEffect(() => {
-    if (nm < 1290 || st.wins[k] || sheet) return;
+    if (nm < 1290 || wroteOn(st.wins[k]) || sheet) return;
     const key = "1wan-wins-asked";
     try { if (localStorage.getItem(key) === k) return; localStorage.setItem(key, k); } catch { return; }
     openSheet({ kind: "wins" });

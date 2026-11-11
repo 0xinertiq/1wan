@@ -9,7 +9,7 @@ import { coreDoneOn, normQuestList, type QuestList } from "./questList";
 // Every other key in the document is left exactly as it is.
 
 export type Day = { d: number; t: number; n?: string[] };
-export type Win = { w?: string; g?: string; n?: string; s?: string };   // s: one small win (round 12, Today's gratitude)
+export type Win = { w?: string; g?: string; n?: string; s?: string; m?: number };   // s: one small win (round 12, Today's gratitude); m: mood 1-5 (F4, one journal record)
 export type Dump = { id: string; t: string; done: boolean; ts: number };
 export type LifeRule =
   | { type: "dom"; d: number; from?: string }

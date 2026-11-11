@@ -275,7 +275,7 @@
    "status": "partial",
    "expect": "Same desktop screens; the game rules underneath change one step at a time.",
    "you_do": "",
-   "note": "F1 done: one Quests list from Habit Quests, Daily anchors and My habits (nothing copied or moved). F2 done: the day changes at 4am in your time zone; the streak counts done days (your 3 core quests all ticked), your number carried over. F3 done: XP only (stars stay at your last number), +10 when your 3 core quests are done, streak bonus up to +50%, a comeback day counts double, new accounts get double XP in week one; the level curve is unchanged."
+   "note": "F1 done: one Quests list from Habit Quests, Daily anchors and My habits (nothing copied or moved). F2 done: the day changes at 4am in your time zone; the streak counts done days (your 3 core quests all ticked), your number carried over. F3 done: XP only (stars stay at your last number), +10 when your 3 core quests are done, streak bonus up to +50%, a comeback day counts double, new accounts get double XP in week one; the level curve is unchanged. F4 done: one journal record per day (win, thanks, mood), synced; picking today's mood now also counts Luna's mood quest."
   }
  ]
 }

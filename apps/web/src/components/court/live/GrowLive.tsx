@@ -27,6 +27,7 @@ import { branchProgress, chartBranches } from "@/lib/court/branchChart";
 import { anchorCount, anchorRows, ordered, questName } from "@/lib/court/gardenEdit";
 import { Card as GCard } from "../ui";
 import { useStreak } from "../useStreak";
+import { wroteOn } from "@/lib/court/journal";
 
 // Growth column from dashboard-v52: Sakura Garden (with Habit Quests inside), Gratitude (round 11 name),
 // Dungeon with the weekly recap, and the "You" status card. Everything saves to her state.
@@ -395,7 +396,7 @@ export function WinsButton() {
   return (
     <div className="tcard">
       <h3><Mini name="coco" />Tonight&apos;s gratitude</h3>
-      <p className="note">{st.wins[k] ? "Saved for today. You can look again or add more." : "Opens by itself at 21:30, or any time now."}</p>
+      <p className="note">{wroteOn(st.wins[k]) ? "Saved for today. You can look again or add more." : "Opens by itself at 21:30, or any time now."}</p>
       <div className="rep-act"><button className="btn sm" type="button" onClick={() => openSheet({ kind: "wins" })}>Gratitude</button></div>
     </div>
   );

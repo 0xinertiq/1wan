@@ -11,6 +11,8 @@ import { DungeonStudy } from "@/components/kumo/decor/room2Dungeon";
 import { Boundary } from "../Boundary";
 import { Btn, Callout, Card, Chip, EmptyState, PageHead, SectionLabel, StoreNote, TabPills } from "../ui";
 import { useStreak } from "../useStreak";
+import { moodOf, moodsToCopy, setMood } from "@/lib/court/journal";
+import { questEvt } from "@/lib/court/actions";
 
 // Dungeon (round 6, private journal): left, the month calendar and a text-only list with search; middle, the
 // day's entry (Inter) with autosave and an honest saved status, plus the Gratitude sheet and its log; right, mood,
@@ -42,7 +44,7 @@ const idOf = (day: string) => "j" + day;
 export function lookBack(entries: Entry[], wins: Record<string, { w?: string; g?: string; n?: string }>, oldMood: Record<string, { m: number }>, k: string, streak: number, questDays: Record<string, { d: number; t: number }> = {}) {
   const wk = weekKey(k), days = Array.from({ length: 7 }, (_, i) => addDays(wk, i)).filter((d) => d <= k);
   const mine = entries.filter((e) => days.includes(e.day) && (e.text?.trim() || e.mood));
-  const moods = days.map((d) => mine.find((e) => e.day === d)?.mood ?? oldMood[d]?.m).filter((m): m is number => typeof m === "number" && m >= 1 && m <= 5);
+  const moods = days.map((d) => moodOf({ wins, mood: oldMood } as never, d, mine.find((e) => e.day === d)?.mood)).filter((m): m is number => typeof m === "number" && m >= 1 && m <= 5);
   const tags = new Map<string, number>();
   for (const e of mine) for (const t of e.tags ?? []) tags.set(t, (tags.get(t) ?? 0) + 1);
   return {
@@ -80,20 +82,21 @@ function Editor({ day, e, put, status, storeNote }: { day: string; e: Entry | un
 // Mood and tags, then the trade reflection (right column). Round 12: research notes left the Dungeon; any notes
 // already attached to a page stay in its record (the notes field) and in Export my data.
 function Side({ day, e, put }: { day: string; e: Entry | undefined; put: (x: Partial<Entry> & { id: string }) => void }) {
-  const { st } = useCourt();
+  const { st, k, update } = useCourt();
   const [tag, setTag] = useState("");
   const [trades, setTrades] = useState<{ id: string; inst?: string; date?: string }[]>([]);
   useEffect(() => { getOnce<{ trades?: { id: string }[] }>("/api/ledger").then((j) => setTrades(Array.isArray(j?.trades) ? j.trades.slice(0, 40) : [])).catch(() => {}); }, []);
   const base = { id: idOf(day), day };
   const cur = e ?? ({ tags: [], notes: [] } as unknown as Entry);
-  const old = st.mood[day];
+  // F4: the mood lives in the day's journal record (synced); picking today's mood also counts Luna's mood quest
+  const mood = moodOf(st, day, cur.mood);
+  const pick = (m: number) => update((d) => { setMood(d, day, m); if (day === k) questEvt(d, "mood"); }, ["wins", "q", "xp", "lvl"]);
   return (
     <>
       <Sec title="Mood and tags">
         <div className="kmood" role="group" aria-label="Mood">
-          {MOODS.map((m, i) => <button key={m} type="button" className="chipb" aria-pressed={(cur.mood ?? old?.m) === i + 1} onClick={() => put({ ...base, mood: i + 1 })}>{m}</button>)}
+          {MOODS.map((m, i) => <button key={m} type="button" className="chipb" aria-pressed={mood === i + 1} onClick={() => pick(i + 1)}>{m}</button>)}
         </div>
-        {old && !cur.mood && <p className="note">From your old diary: {MOODS[old.m - 1]}</p>}
         <div className="kchips">{(cur.tags ?? []).map((t) => <button key={t} type="button" className="chipb" aria-label={`Remove tag ${t}`} onClick={() => put({ ...base, tags: cur.tags.filter((x) => x !== t) })}>#{t} ×</button>)}</div>
         <form className="kform-row" onSubmit={(ev) => { ev.preventDefault(); const t = tag.trim().toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 24); if (t && !(cur.tags ?? []).includes(t)) put({ ...base, tags: [...(cur.tags ?? []), t].slice(0, 12) }); setTag(""); }}>
           <input aria-label="Add a tag" placeholder="Add a tag" value={tag} onChange={(ev) => setTag(ev.target.value)} /><button className="btn sm" type="submit">Add</button>
@@ -216,8 +219,11 @@ export function WeeklyLookBack() {
 const DUN_FIT = false;
 
 export function DungeonPage() {
-  const { st, k } = useCourt();
+  const { st, k, update } = useCourt();
   const v = useVault<Entry>("journal_entries");
+  // F4: moods picked on a Dungeon page before the change were kept on this device only; copy them into the synced
+  // journal record once (a day that already has a mood is never overwritten).
+  useEffect(() => { const c = moodsToCopy(st, v.rows); if (c.length) update((d) => c.forEach(([day, m]) => setMood(d, day, m)), ["wins"]); }, [v.rows]); // eslint-disable-line react-hooks/exhaustive-deps
   const [day, setDay] = useState(k);
   const [q, setQ] = useState("");
   const [tab, setTab] = useState<"list" | "month">("month");
