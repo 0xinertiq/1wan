@@ -3,6 +3,7 @@ import { QUESTS, QPRI, CKPRI, needFor, type Quest } from "./quests";
 import { addDays, dayGap, domDate, prettyDay, wdOf, weekKey, wdName } from "./time";
 import { normGridDefs, type GridDefs } from "./harada";
 import { normGardenEdit, type GardenEdit } from "./gardenEdit";
+import { normQuestList, type QuestList } from "./questList";
 
 // Her state document from the old dashboard (user_state.data), typed for the keys this UI reads and writes.
 // Every other key in the document is left exactly as it is.
@@ -78,6 +79,7 @@ export type CourtState = {
   lenses: LensId[];   // round 7: the news lenses she follows (several at once)
   gridDefs2027: GridDefs; grid2027done: Record<string, boolean>;   // round 10: her separate 2027 chart and its own ticks
   questsOff: string[]; quotes: { mine: MyQuote[]; src: QuoteSrc };   // round 12: built-in quests she switched off; her quote library
+  ql: QuestList;   // foundations F1: which 3 quests are core, pillar tags and tiny versions; the quests themselves stay where they were
   gedit: GardenEdit;   // round 13: Edit garden (names, order, folded items, anchor days); never changes XP, stars, streak or tails
   spr: { run: { at: string; tag: "study" | "other" } | null; log: { at: string; tag: "study" | "other"; min: number }[] };   // focus sprints, tagged
   last: Record<string, unknown>; prev: Record<string, unknown> | null;
@@ -94,7 +96,7 @@ function lifeFlags(i: LifeItem): LifeItem {
   return o;
 }
 
-export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "news", "tg", "birth", "grid", "swins", "money", "samsara", "spr", "last", "prev", "prefs", "hab", "gridDefs", "lenses", "gridDefs2027", "grid2027done", "questsOff", "quotes", "gedit"] as const;
+export const OWNED_KEYS = ["v", "day", "week", "streak", "stars", "lvl", "xp", "q", "days", "wins", "dump", "life", "gd", "cad", "restDay", "restWeek", "mny", "tails", "lines", "packet", "news", "tg", "birth", "grid", "swins", "money", "samsara", "spr", "last", "prev", "prefs", "hab", "gridDefs", "lenses", "gridDefs2027", "grid2027done", "questsOff", "quotes", "gedit", "ql"] as const;
 export type OwnedKey = (typeof OWNED_KEYS)[number];
 
 export type Recap = { old: string; done: number; total: number; newWeek: boolean; lost: boolean; restY: boolean };
@@ -182,6 +184,7 @@ export function normalize(raw: unknown, today: string): CourtState {
     questsOff: [...new Set(arr<unknown>(r.questsOff).filter((x): x is string => typeof x === "string" && /^[a-z]\d{1,2}$/.test(x)))],
     quotes: normQuotes(r.quotes),
     gedit: normGardenEdit(r.gedit),
+    ql: normQuestList(r.ql),
     grid2027done: Object.fromEntries(Object.entries(obj<Record<string, unknown>>(r.grid2027done, {})).filter(([id, on]) => /^[1-8]\.[1-8]$/.test(id) && on === true)) as Record<string, boolean>,
     last: obj(r.last, {}), prev: r.prev && typeof r.prev === "object" ? (r.prev as Record<string, unknown>) : null,
   };
