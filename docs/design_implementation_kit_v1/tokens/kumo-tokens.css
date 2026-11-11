@@ -1,0 +1,20 @@
+/* Kumo design candidate tokens — scoped, do not import into production before review */
+.kumo-v2 {
+ --kumo-pink:#F65A9B; --kumo-pink-hover:#E6498A; --kumo-pink-soft:#FCE8F1;
+ --kumo-lavender:#A78BFA; --kumo-lavender-soft:#F0EAFF;
+ --kumo-sky:#7DA7FF; --kumo-sky-soft:#EAF2FF;
+ --kumo-canvas:#FFF8FB; --kumo-surface:#FFFFFF; --kumo-surface-muted:#F8F5FC;
+ --kumo-text:#2A2340; --kumo-text-muted:#655B78; --kumo-line:#E9DCE8;
+ --kumo-success:#21866F; --kumo-warning:#9B6300; --kumo-danger:#B83858;
+ --kumo-font-display:'Playfair Display',Georgia,serif;
+ --kumo-font-body:'Nunito',system-ui,sans-serif;
+ --kumo-space-1:4px; --kumo-space-2:8px; --kumo-space-3:12px;
+ --kumo-space-4:16px; --kumo-space-6:24px; --kumo-space-8:32px; --kumo-space-12:48px;
+ --kumo-radius-chip:8px; --kumo-radius-control:12px; --kumo-radius-card:16px; --kumo-radius-modal:24px;
+ --kumo-shadow-card:0 4px 20px rgba(42,35,64,.06);
+ --kumo-shadow-floating:0 12px 32px rgba(42,35,64,.12);
+ color:var(--kumo-text); background:var(--kumo-canvas); font-family:var(--kumo-font-body);
+}
+.kumo-v2 :focus-visible {outline:3px solid var(--kumo-lavender);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.kumo-v2 *, .kumo-v2 *::before,.kumo-v2 *::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+/* Dark theme values require a separate contrast-reviewed pass; do not overwrite existing dark theme blindly. */

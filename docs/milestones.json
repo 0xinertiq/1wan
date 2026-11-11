@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-27",
+ "updated": "2026-11-11",
  "note": "Claude Code updates this file after EVERY step (status, note, updated). The in-app Progress page reads it. Keep wording plain and calm. Never put personal figures here.",
  "milestones": [
   {
@@ -182,9 +182,10 @@
    "id": "l3",
    "group": "Later",
    "title": "Friends: invites, own calendars, empty templates",
-   "status": "todo",
+   "status": "partial",
    "expect": "Invite-only, private by default.",
-   "you_do": ""
+   "you_do": "Apply migrations 0006 to 0009 in Supabase, set up the Google sign-in keys, then test on your iPhone.",
+   "note": "Built on the preview (2 Nov): friends never see your briefs, trades, calendars or trading quests; safer saving on two devices and iPhone; friends can connect their own Google Calendar; a shared friend news feed. Waiting for the migrations, the Google keys and your new game loop and phone design before inviting friends."
   },
   {
    "id": "l4",

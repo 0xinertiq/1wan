@@ -1,0 +1,119 @@
+[
+  {
+    "board": "00_Visual_Language.png",
+    "reference_source_indices": [
+      18,
+      19,
+      20
+    ],
+    "design_rule": "Approved palette and typography; Playfair Display + Nunito; warm cream surfaces, dark plum text, restrained pink actions."
+  },
+  {
+    "board": "01_Home_Court.png",
+    "reference_source_indices": [
+      33,
+      34,
+      36
+    ],
+    "design_rule": "Compact panoramic kingdom header, actionable Now/Next/Later, priorities, quick capture; no duplicated calendar or ticker panels."
+  },
+  {
+    "board": "02_Kingdom_Progression.png",
+    "reference_source_indices": [
+      26,
+      27,
+      25
+    ],
+    "design_rule": "Beautiful uncluttered starter world; meaningful additive progression; fixed decorative slots and growth stages."
+  },
+  {
+    "board": "03_Clock_Tower.png",
+    "reference_source_indices": [
+      7,
+      23,
+      28
+    ],
+    "design_rule": "Calendar is source-of-truth, week/day/month, clear event labels, read-only iCal until secure user connections exist."
+  },
+  {
+    "board": "04_Sakura_Garden.png",
+    "reference_source_indices": [
+      22,
+      27,
+      5
+    ],
+    "design_rule": "Starter garden, calm growth cues, progress from existing activity; no repeated manual tracking."
+  },
+  {
+    "board": "05_Fox_Diary.png",
+    "reference_source_indices": [
+      8,
+      9,
+      35
+    ],
+    "design_rule": "Compact cozy header, readable writing area, autosave, text-only archive, privacy first."
+  },
+  {
+    "board": "06_Observatory.png",
+    "reference_source_indices": [
+      10,
+      11,
+      24
+    ],
+    "design_rule": "Actionable research and brief cards, one watchlist, no duplicate prices, timestamp and source metadata."
+  },
+  {
+    "board": "07_Life_Hub.png",
+    "reference_source_indices": [
+      12,
+      16,
+      32
+    ],
+    "design_rule": "Goals, projects, personal progress and optional life modules, without copying the Today view."
+  },
+  {
+    "board": "08_Personalisation_Studio.png",
+    "reference_source_indices": [
+      25,
+      37,
+      26
+    ],
+    "design_rule": "Themes, companions, owned decoration inventory, locked shop items, preview and placement slots."
+  },
+  {
+    "board": "09_Notifications.png",
+    "reference_source_indices": [
+      1,
+      3,
+      14
+    ],
+    "design_rule": "Compact text-first inbox, filters, deduplication, source actions and quiet Kingdom Moments."
+  },
+  {
+    "board": "10_Onboarding.png",
+    "reference_source_indices": [
+      4,
+      14,
+      15
+    ],
+    "design_rule": "Five skippable stages, only working connections, secure per-user accounts and a replayable tour."
+  },
+  {
+    "board": "11_Mobile.png",
+    "reference_source_indices": [
+      1,
+      4,
+      15
+    ],
+    "design_rule": "Shorter scenery, quick capture, five or fewer bottom nav items, diary archive without thumbnails."
+  },
+  {
+    "board": "12_States_and_Components.png",
+    "reference_source_indices": [
+      18,
+      19,
+      29
+    ],
+    "design_rule": "Buttons, cards, modal, loading/empty/error, contrast, touch targets and reduced motion."
+  }
+]

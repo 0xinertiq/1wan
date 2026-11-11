@@ -1,0 +1,271 @@
+{
+  "version": "1.0.0",
+  "style": "illustrative vector kawaii, warm plum outlines, sakura palette",
+  "sourceDimensions": {
+    "width": 1600,
+    "height": 520
+  },
+  "layers": [
+    {
+      "id": "01_sky",
+      "file": "layers/01_sky.png",
+      "svg": "layers/01_sky.svg",
+      "zIndex": 0,
+      "fullCanvas": true
+    },
+    {
+      "id": "02_clouds",
+      "file": "layers/02_clouds.png",
+      "svg": "layers/02_clouds.svg",
+      "zIndex": 1,
+      "fullCanvas": true
+    },
+    {
+      "id": "03_floating_island",
+      "file": "layers/03_floating_island.png",
+      "svg": "layers/03_floating_island.svg",
+      "zIndex": 2,
+      "fullCanvas": true
+    },
+    {
+      "id": "04_castle",
+      "file": "layers/04_castle.png",
+      "svg": "layers/04_castle.svg",
+      "zIndex": 3,
+      "fullCanvas": true
+    },
+    {
+      "id": "05_trees",
+      "file": "layers/05_trees.png",
+      "svg": "layers/05_trees.svg",
+      "zIndex": 4,
+      "fullCanvas": true
+    },
+    {
+      "id": "06_foreground",
+      "file": "layers/06_foreground.png",
+      "svg": "layers/06_foreground.svg",
+      "zIndex": 5,
+      "fullCanvas": true
+    },
+    {
+      "id": "07_lanterns",
+      "file": "layers/07_lanterns.png",
+      "svg": "layers/07_lanterns.svg",
+      "zIndex": 6,
+      "fullCanvas": true
+    },
+    {
+      "id": "08_growth_additions",
+      "file": "layers/08_growth_additions.png",
+      "zIndex": 8,
+      "fullCanvas": true,
+      "unlockOnly": true
+    }
+  ],
+  "decorations": [
+    {
+      "id": "sakura_tree",
+      "file": "decorations/sakura_tree.png",
+      "svg": "decorations/sakura_tree.svg",
+      "dimensions": {
+        "width": 320,
+        "height": 320
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "allowedSlots": [
+        "garden_left",
+        "garden_right",
+        "front_left",
+        "front_right"
+      ]
+    },
+    {
+      "id": "small_sakura_tree",
+      "file": "decorations/small_sakura_tree.png",
+      "svg": "decorations/small_sakura_tree.svg",
+      "dimensions": {
+        "width": 260,
+        "height": 260
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "allowedSlots": [
+        "garden_left",
+        "garden_right",
+        "front_left",
+        "front_right"
+      ]
+    },
+    {
+      "id": "stone_lantern",
+      "file": "decorations/stone_lantern.png",
+      "svg": "decorations/stone_lantern.svg",
+      "dimensions": {
+        "width": 160,
+        "height": 190
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "allowedSlots": [
+        "garden_left",
+        "garden_right",
+        "front_left",
+        "front_right"
+      ]
+    },
+    {
+      "id": "flower_patch",
+      "file": "decorations/flower_patch.png",
+      "svg": "decorations/flower_patch.svg",
+      "dimensions": {
+        "width": 240,
+        "height": 120
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "allowedSlots": [
+        "garden_left",
+        "garden_right",
+        "front_left",
+        "front_right"
+      ]
+    },
+    {
+      "id": "tea_table",
+      "file": "decorations/tea_table.png",
+      "svg": "decorations/tea_table.svg",
+      "dimensions": {
+        "width": 240,
+        "height": 180
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "allowedSlots": [
+        "garden_left",
+        "garden_right",
+        "front_left",
+        "front_right"
+      ]
+    },
+    {
+      "id": "mushrooms",
+      "file": "decorations/mushrooms.png",
+      "svg": "decorations/mushrooms.svg",
+      "dimensions": {
+        "width": 220,
+        "height": 130
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "allowedSlots": [
+        "garden_left",
+        "garden_right",
+        "front_left",
+        "front_right"
+      ]
+    },
+    {
+      "id": "sakura_arch",
+      "file": "decorations/sakura_arch.png",
+      "svg": "decorations/sakura_arch.svg",
+      "dimensions": {
+        "width": 350,
+        "height": 320
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "allowedSlots": [
+        "garden_left",
+        "garden_right",
+        "front_left",
+        "front_right"
+      ]
+    },
+    {
+      "id": "pond",
+      "file": "decorations/pond.png",
+      "svg": "decorations/pond.svg",
+      "dimensions": {
+        "width": 380,
+        "height": 160
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "allowedSlots": [
+        "garden_left",
+        "garden_right",
+        "front_left",
+        "front_right"
+      ]
+    }
+  ],
+  "animation": {
+    "petals": {
+      "frames": [
+        "petals_frame_00.png",
+        "petals_frame_01.png",
+        "petals_frame_02.png",
+        "petals_frame_03.png",
+        "petals_frame_04.png",
+        "petals_frame_05.png",
+        "petals_frame_06.png",
+        "petals_frame_07.png"
+      ],
+      "fps": 4,
+      "loop": true,
+      "notes": "Example frames; CSS transforms of separate petals recommended for production."
+    }
+  },
+  "placementSlots": [
+    {
+      "id": "garden_left",
+      "xPct": 29,
+      "yPct": 70,
+      "allowedCategories": [
+        "decoration"
+      ]
+    },
+    {
+      "id": "garden_right",
+      "xPct": 72,
+      "yPct": 70,
+      "allowedCategories": [
+        "decoration"
+      ]
+    },
+    {
+      "id": "front_left",
+      "xPct": 40,
+      "yPct": 77,
+      "allowedCategories": [
+        "decoration"
+      ]
+    },
+    {
+      "id": "front_right",
+      "xPct": 63,
+      "yPct": 77,
+      "allowedCategories": [
+        "decoration"
+      ]
+    }
+  ]
+}

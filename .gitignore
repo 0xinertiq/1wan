@@ -15,3 +15,10 @@ __pycache__/
 
 .vercel
 .env*
+
+# Design reference images stay local (large); their text specs are committed
+docs/moodboards/
+docs/design_implementation_kit_v1/**/*.png
+docs/design_implementation_kit_v1/**/*.webp
+docs/existing_asset_pack_v1/**/*.png
+docs/existing_asset_pack_v1/**/*.webp

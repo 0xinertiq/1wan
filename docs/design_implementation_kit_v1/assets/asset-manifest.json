@@ -1,0 +1,54 @@
+{
+  "version": "1.0",
+  "status": "specification_only",
+  "items": [
+    {
+      "id": "kingdom-starter-desktop",
+      "format": "webp/avif",
+      "status": "needs_production_asset",
+      "notes": "1600x520 source target; crop-safe"
+    },
+    {
+      "id": "kingdom-starter-mobile",
+      "format": "webp/avif",
+      "status": "needs_production_asset",
+      "notes": "900x700 source target"
+    },
+    {
+      "id": "kingdom-growing-desktop",
+      "format": "webp/avif",
+      "status": "needs_production_asset",
+      "notes": "same perspective as starter"
+    },
+    {
+      "id": "kingdom-full-scene",
+      "format": "webp/avif",
+      "status": "needs_production_asset",
+      "notes": "1920x1080 source target"
+    },
+    {
+      "id": "sky-clouds-hills-castle-foreground",
+      "format": "transparent png/webp layers",
+      "status": "needs_production_asset",
+      "notes": "separate only if animation requires"
+    },
+    {
+      "id": "sakura-tree-stages",
+      "format": "transparent png/webp",
+      "status": "needs_production_asset",
+      "notes": "0..4 consistent anchor"
+    },
+    {
+      "id": "decoration-library",
+      "format": "transparent png/webp",
+      "status": "needs_production_asset",
+      "notes": "slot anchors, layer and collision metadata"
+    },
+    {
+      "id": "existing-pixel-sprites",
+      "format": "typescript/svg",
+      "status": "preserve_existing",
+      "notes": "PixelSprite.tsx, spriteDefs.ts; 32x32"
+    }
+  ]
+}

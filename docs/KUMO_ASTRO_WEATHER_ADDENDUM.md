@@ -1,0 +1,13 @@
+# Kumo aesthetic overhaul addendum — Luna's Daily Astro Weather
+
+## Intent and placement
+Daily Astro Weather is a permanent, functional Court dashboard card and a detailed seven-day section in Luna/Observatory. It is not a level-locked feature. The Court card sits after the date/daily overview and before quests/tasks when layout allows; it is compact and expandable, with a moon-phase/sign headline, up to three key events, atmosphere, short DO/DON'T guidance and a link to the full view. The Observatory presents daily accordions with complete event details and tomorrow's forecast. Match the approved Kumo design system: elegant typography, lavender/cream/plum celestial accents, subtle stars, accessible contrast, restrained motion, responsive layouts.
+
+## Data and functionality contract
+Reuse the existing authenticated, server-side read-only Google Calendar iCal infrastructure and its Astro feed. Never expose private feed URLs, invent interpretations, or add OAuth. Keep event titles, descriptions and attribution accessible even when parsing is imperfect. Use shared parsing/grouping logic for Court and Observatory, preserving multiple events per day, timed windows and original prose. Respect Asia/Singapore local dates; distinguish UTC timestamps embedded in descriptions from already-local calendar event times, avoid double conversion, and handle midnight rollover. Explicitly distinguish calendar-sourced interpretation from independently computed Luna astronomy. Show loading, stale/refreshed, empty and error states; don't fabricate a forecast if the feed is unavailable.
+
+## Current-state decision
+Before styling, inspect the current repository to determine whether the Astro Weather component and parser are already implemented. If implemented, **restyle only**, preserving its API, data model and behaviour. If missing, do not undertake a new data integration during the unattended visual pass: create a design-ready, clearly labelled visual placeholder using non-sensitive fixture data, document the missing functionality, and defer functional integration to a separately reviewed task. Never present fixture text as live astrology.
+
+## Safety and tests
+Do not modify iCal environment variables, calendar credentials, feed configuration, ingestion/scheduled tasks, Supabase migrations, authentication, XP/stars, or production deployment. Test collapsed/expanded state, mobile, missing data, full descriptions, attribution, timezone display and cross-midnight windows where existing functionality supports them. This feature remains available at every kingdom level; only cosmetic framing may unlock.
