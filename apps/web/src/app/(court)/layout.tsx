@@ -26,12 +26,13 @@ const nunito = Nunito({ subsets: ["latin"], weight: ["400", "600", "700"], displ
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], display: "swap", preload: false, variable: "--nf-inter" });
 const FONT_VARS = [baloo, atkinson, silkscreen, quicksand, maShan, notoSerif, playfair, nunito, inter].map((f) => f.variable).join(" ");
 
-// Before paint: day or night (her saved choice wins, otherwise the system setting), and the design
-// version, "new" by default ("classic" only if she switched back in Settings). "?ui=new" or "?ui=classic" in the address switches and remembers it.
+// Before paint: day or night (her saved choice wins, otherwise the system setting). Foundations F8 (her decision 15a):
+// the Classic look is retired; everyone is on the New look and an old "classic" choice is forgotten. The Classic code is
+// kept (data-ui="classic" still renders it if set by hand), but no switch or address sets it any more.
 const BOOT =
   "try{var d=document.documentElement,t=localStorage.getItem('kumo.theme');if(t==='dark'||t==='light')d.setAttribute('data-theme',t);" +
-  "var q=new URLSearchParams(location.search).get('ui');if(q==='new'||q==='classic')localStorage.setItem('kumo.ui',q);" +
-  "d.setAttribute('data-ui',localStorage.getItem('kumo.ui')==='classic'?'classic':'new');}catch(e){}";
+  "if(localStorage.getItem('kumo.ui')==='classic')localStorage.removeItem('kumo.ui');" +
+  "d.setAttribute('data-ui','new');}catch(e){}";
 
 export default function CourtLayout({ children }: { children: React.ReactNode }) {
   return (

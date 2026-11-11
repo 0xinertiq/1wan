@@ -111,7 +111,6 @@ export function SettingsLive({ open = false }: { open?: boolean }) {
     <details className="win" id="moreDet" open={open}>
       <summary className="win-title"><h2>Settings</h2><span className="sub">Life admin, your data</span></summary>
       <div className="win-body">
-        <LookSwitch />
         <div className="sec-h">Your data</div>
         <p className="note xd">Everything here is private to you. Download a full copy any time.</p>
         <div className="rep-act"><a className="btn sm ghost" href="/api/export">Export my data</a></div>

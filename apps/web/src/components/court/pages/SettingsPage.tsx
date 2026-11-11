@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useCourt } from "../CourtState";
 import { useOwner } from "../Owner";
-import { BirthForm, LookSwitch, NewsLens, NewsSettings, SourceHealth } from "../live/SettingsLive";
+import { BirthForm, NewsLens, NewsSettings, SourceHealth } from "../live/SettingsLive";
 import { PacketLive } from "../live/PacketLive";
 import { createClient } from "@/lib/supabase/client";
 import { resetDevice } from "@/lib/court/store";
@@ -149,7 +149,6 @@ export function SettingsPage({ review }: { review?: React.ReactNode }) {
           <Card title="Look">
             {/* round 8: label left, buttons in a row, on one shared grid */}
             <div className="klook">
-              <span className="klook-l">Version</span><LookSwitch bare />
               <span className="klook-l">Day or night</span><Theme />
             </div>
           </Card>
