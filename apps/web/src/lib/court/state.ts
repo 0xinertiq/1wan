@@ -421,6 +421,9 @@ export function freeWindows(evs: DayEvent[], fromMin: number) {
 }
 
 export type Idea = { a: number; b: number; id: string; act: "dump" | null; title: string; why: string[] };
+// Ideas built on her own routine (chart review, her course study block, her feed check for Poppy): owner only.
+export const OWNER_IDEAS = ["charts", "study", "feeds-am", "feeds-pm"];
+export const ideaFor = (owner: boolean) => (x: { id: string }) => owner || !OWNER_IDEAS.includes(x.id);
 type Cand = { id: string; act?: "dump"; t: (c: Slot) => string; sc: (c: Slot) => number; why: (c: Slot) => string[] };
 type Slot = { a: number; b: number; len: number };
 

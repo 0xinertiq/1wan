@@ -19,6 +19,8 @@ import { PixelSprite } from "@/components/PixelSprite";
 import { TONEMSG, enrich, explain, lunaDay, lunaRange, nextIngress } from "@/lib/court/luna";
 import { Boundary } from "../Boundary";
 import { useOwner } from "../Owner";
+import { useTitle } from "../useTitle";
+import { withTitle } from "@/lib/court/title";
 
 // The Court tab. Classic: the v52 three columns, exactly as before. New look (COURT_SPEC): the world, Park a
 // thought, prices, the "Next:" liquidity line, Briefs (Pulse | Intelligence | Crypto scan) beside a rail
@@ -166,6 +168,7 @@ function WeekView() {
 // calendar's DO / DON'T text only feeds Luna's own phrases (enrich); its words are not shown here. Without a
 // calendar entry the calculated reading stands alone, as in v52. No colour coding; times in SGT.
 function LunaCard() {
+  const title = useTitle();
   const { k, events } = useCourt();
   const base = lunaDay(k);
   const ast = eventsOn(events, k, true).filter((e) => isAstro(e)).map((e) => astroParts(e.desc));
@@ -179,7 +182,7 @@ function LunaCard() {
           <div className="kluna-chips">
             <span>Moon in {w.moon}</span><span>{w.el[0].toUpperCase() + w.el.slice(1)} Moon</span><span>{w.phase}</span><span>{w.tone}</span>{w.mrx && <span>Mercury Rx</span>}
           </div>
-          <p>{TONEMSG[w.tone]} The Moon is {w.mood}.</p>
+          <p>{withTitle(TONEMSG[w.tone] ?? "", title)} The Moon is {w.mood}.</p>
           {ing && <p className="kluna-sm">Moon moves into {ing.s} {ing.day === k ? "" : `on ${prettyDay(ing.day)} `}at {ing.t} SGT.</p>}
           <div className="kluna-strips">
             <p className="kluna-strip lean"><b>The day leans toward</b><span>{w.lean.join(" · ")}</span></p>

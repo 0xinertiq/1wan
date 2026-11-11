@@ -1,4 +1,4 @@
-import { QUESTS, TRADING_Q } from "./quests";
+import { QUESTS, FRIEND_HIDDEN_Q } from "./quests";
 import { anchorOn, split, ordered } from "./gardenEdit";
 import type { CourtState } from "./state";
 import { addDays, wdOf } from "./time";
@@ -55,7 +55,7 @@ type St = Pick<CourtState, "q" | "days" | "swins" | "hab" | "gedit" | "defs" | "
 function baseItems(st: St, k: string, owner: boolean): Omit<QItem, "core">[] {
   const ql = st.ql ?? normQuestList(undefined), wd = wdOf(k);
   const meta = (id: string) => ql.meta[id] ?? {};
-  const quests = QUESTS.filter((x) => !GROUP_Q.includes(x.id) && !st.questsOff.includes(x.id) && (owner || !TRADING_Q.includes(x.id)))
+  const quests = QUESTS.filter((x) => !GROUP_Q.includes(x.id) && !st.questsOff.includes(x.id) && (owner || !FRIEND_HIDDEN_Q.includes(x.id)))
     .map((x) => { const id = "q:" + x.id; return { id, src: "quest" as const, ref: x.id, name: st.gedit.quests.names[x.id] ?? x.title, cad: x.cad,
       pillar: meta(id).pillar ?? null, tiny: meta(id).tiny ?? TINY[x.id] ?? null, xp: x.xp, on: !x.days || x.days.includes(wd), done: !!st.q[x.id]?.[0] }; });
   const e = st.gedit, imported = st.defs.swins?.phases.find((p) => p.daily)?.items ?? [], ticked = [...(st.swins.log[k] ?? []), ...(e.anchors.log[k] ?? [])];

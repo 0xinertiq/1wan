@@ -12,10 +12,10 @@ import { quoteOfDay } from "@/lib/court/quotes";
 import { QUESTS, forViewer } from "@/lib/court/quests";
 import { useOwner } from "../Owner";
 import {
-  dayQ, dueList, eventsOn, isDone, momoIdeas, money, openQuests, qScore, weekHab, whenText, type CalEvent,
-} from "@/lib/court/state";
+  dayQ, dueList, eventsOn, isDone, momoIdeas, money, openQuests, qScore, weekHab, whenText, type CalEvent, ideaFor } from "@/lib/court/state";
 import { addDays, dur, greetWord, hm, prettyDay, weekKey } from "@/lib/court/time";
 import { useStreak } from "../useStreak";
+import { useTitle } from "../useTitle";
 
 // Today window from dashboard-v52: since yesterday, glance strip, recap, up next, Momo's day,
 // ideas for free time, Coming up and Park a thought. All from her saved state.
@@ -110,12 +110,13 @@ function Strip() {
 }
 
 export function RecapBox() {
+  const title = useTitle();
   const { recap: r, clearRecap, nm } = useCourt();
   if (!r) return <div id="recapBox"></div>;
   return (
     <div id="recapBox">
       <div className="recap">
-        <b>{greetWord(nm)}, Queen.</b> <span>Last time was {prettyDay(r.old)}: you finished {r.done} of {r.total} daily habits.</span>
+        <b>{greetWord(nm)}, {title}.</b> <span>Last time was {prettyDay(r.old)}: you finished {r.done} of {r.total} daily habits.</span>
         {r.lost ? <> <span>Your streak reset. That is fine. Day one again, gently.</span></> : r.restY ? <> <span>Your rest pass kept the streak safe.</span></> : null}
         {r.newWeek && <> <span>New week: weekly quests are fresh.</span></>}
         <div className="rep-act"><button className="btn sm" type="button" onClick={clearRecap}>Start fresh</button></div>
@@ -204,7 +205,7 @@ export function MomoIdeas() {
   const { st, k, nm, events } = useCourt();
   const owner = useOwner();
   // round 22: a friend is never offered the chart review (her trading quest)
-  const ideas = momoIdeas(st, k, k, eventsOn(events, k), nm, events).filter((x) => owner || x.id !== "charts");
+  const ideas = momoIdeas(st, k, k, eventsOn(events, k), nm, events).filter(ideaFor(owner));
   return (
     <div className="kmomo-ideas">
       <div className="sec-h"><Mini name="momo" />Momo: ideas for your free time</div>
@@ -224,7 +225,7 @@ export function MomoCard() {
   const shown = events.filter((e) => !hide.includes(e.cal));
   const evs = eventsOn(shown, k);
   const owner = useOwner();
-  const ideas = momoIdeas(st, k, k, evs, nm, shown).filter((x) => owner || x.id !== "charts");
+  const ideas = momoIdeas(st, k, k, evs, nm, shown).filter(ideaFor(owner));
   const rows: React.ReactNode[] = [];
   let marked = false;
   evs.forEach((e, i) => {

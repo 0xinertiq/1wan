@@ -49,13 +49,15 @@ test("switching the tables on copies this device's records into the account, nev
 });
 
 test("friends never see her trading quests (display only; what quests count and award is unchanged)", async () => {
-  const { QUESTS, TRADING_Q, forViewer } = await import("../src/lib/court/quests.ts");
+  const { QUESTS, TRADING_Q, FRIEND_HIDDEN_Q, forViewer } = await import("../src/lib/court/quests.ts");
   assert.deepEqual(TRADING_Q, ["o1", "f1", "o2"]);
   assert.equal(forViewer(QUESTS, true).length, QUESTS.length, "her own list is unchanged");
-  assert.deepEqual(forViewer(QUESTS, false).map((q) => q.id), QUESTS.map((q) => q.id).filter((id) => !TRADING_Q.includes(id)));
+  // Foundations F6: her course quest (Study block) is hidden from friends too
+  assert.deepEqual(FRIEND_HIDDEN_Q, [...TRADING_Q, "k2"]);
+  assert.deepEqual(forViewer(QUESTS, false).map((q) => q.id), QUESTS.map((q) => q.id).filter((id) => !FRIEND_HIDDEN_Q.includes(id)));
   assert.ok(!/forViewer|TRADING_Q/.test(src("lib/court/actions.ts") + src("lib/court/state.ts")), "the XP, stars and streak rules never read it");
   const today = src("components/court/live/TodayLive.tsx");
-  assert.equal((today.match(/filter\(\(x\) => owner \|\| x\.id !== "charts"\)/g) ?? []).length, 2, "no chart review idea for a friend");
+  assert.equal((today.match(/filter\(ideaFor\(owner\)\)/g) ?? []).length, 2, "no chart review (or other personal) idea for a friend");
   assert.match(src("components/court/live/EditGarden.tsx"), /all = forViewer\(QUESTS, useOwner\(\)\)/);
 });
 

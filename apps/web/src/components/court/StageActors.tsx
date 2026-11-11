@@ -8,6 +8,8 @@ import type { WaterEvt } from "@/lib/court/garden";
 import { getOnce } from "@/lib/court/once";
 import { AGENTS, NODES } from "./agents";
 import { useCourt } from "./CourtState";
+import { useTitle } from "./useTitle";
+import { withTitle } from "@/lib/court/title";
 
 // Walking crew from dashboard-v52 (bfs over the platform graph, walk and hop segments).
 // Change from v52: positions follow real events only (lib/court/duty.ts). Everyone starts inside the palace;
@@ -51,6 +53,7 @@ type Actor = {
 };
 
 export function StageActors({ filed }: { filed: Partial<Record<BriefKind, string>> }) {
+  const title = useTitle();
   const rootRef = useRef<HTMLDivElement>(null);
   const { openSheet, st, k } = useCourt();
   const [water, setWater] = useState<WaterEvt[]>([]);
@@ -157,7 +160,7 @@ export function StageActors({ filed }: { filed: Partial<Record<BriefKind, string
     apply.current(dutyRef.current);
 
     const clicks = actors.map((a) => {
-      const h = () => say(a, a.why || a.hello);
+      const h = () => say(a, a.why || withTitle(a.hello, title));
       a.el.addEventListener("click", h);
       return () => a.el.removeEventListener("click", h);
     });

@@ -2,6 +2,7 @@ import { PixelSprite } from "@/components/PixelSprite";
 import { HeaderMenu } from "./HeaderMenu";
 import { HeaderClock, HeaderProgress, HeaderStats } from "./live/SettingsLive";
 import { clock } from "@/lib/court/time";
+import { Greet } from "./useTitle";
 
 // Pixel clock icon from dashboard-v52 pxClock(): X outline, o face, H hands.
 const CLOCK_GRID = ["XX.XXXXX.XX", ".XoooooooX.", "XooooHooooX", "XooooHooooX", "XooooHooooX", "XooooHHHooX", "XoooooooooX", "XoooooooooX", ".XoooooooX.", "..XXXXXXX..", ".X.......X."];
@@ -20,7 +21,7 @@ export function Header() {
         <div className="brand-mini" id="brandMini" aria-hidden="true"><PixelSprite name="kumo" /></div>
         <div>
           <h1>The Kumo High Court</h1>
-          <p id="greet">Good day, Queen. Chief Kumo has your day.</p>
+          <Greet />
         </div>
       </div>
       <div className="pills">

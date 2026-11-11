@@ -124,7 +124,7 @@ export function MoneyPorted({ d: raw, loggedToday }: { d: MoneyDefs; loggedToday
 
       <div className="sec-h">Open items ({d.open.filter(([id]) => s.done[id]).length} / {d.open.length} sorted)</div>
       <List items={d.open} />
-      <p className="note">The Q4 wins ladder is on Life, Grid & Wins. SGD unless noted.</p>
+      <p className="note">{st.defs.money ? "The Q4 wins ladder is on Life, Grid & Wins. " : ""}SGD unless noted.</p>
     </>
   );
 }

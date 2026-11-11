@@ -18,6 +18,7 @@ import { useCourt } from "../CourtState";
 import { AlertMark } from "../Alerts";
 import { useSprint } from "./SprintLive";
 import { SPRINT_MIN, type SprintTag } from "@/lib/court/sprint";
+import { useTitle } from "../useTitle";
 
 // The Living World (COURT_SPEC Part 1 and 4): the code-drawn pixel kingdom at the top of the New-look Court.
 // Places are links to the same tabs as the rail. The crew walk to their place when their desk has run today
@@ -34,6 +35,7 @@ const CREW = ["olli", "pip", "fenn", "tilly", "luna", "momo", "coco", "poppy", "
 const isNums = (v: unknown): v is number[] => Array.isArray(v) && v.every((n) => Number.isInteger(n) && n >= 0);
 
 export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string>> }) {
+  const title = useTitle();
   const { st, k, nm } = useCourt();
   const box = useRef<HTMLDivElement>(null), cvRef = useRef<HTMLCanvasElement>(null);
   const [wh, setWh] = useState<[number, number] | null>(null);
@@ -126,7 +128,7 @@ export function LivingWorld({ filed }: { filed: Partial<Record<BriefKind, string
         {L && <WorldFox perches={L.perches} s={L.s} px={L.foxH} cheer={cheer} />}
         <div className="lw-hud">
           <SprintIcon />
-          <p className="lw-greet">{greetWord(nm)}, Queen</p>
+          <p className="lw-greet">{greetWord(nm)}, {title}</p>
           <div className="lw-badges">
             <span className="lw-badge">Lv {st.lvl}</span>
             <span className="lw-badge">{at} at work</span>
