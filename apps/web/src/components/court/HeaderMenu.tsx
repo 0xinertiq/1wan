@@ -25,7 +25,7 @@ export function HeaderMenu() {
   const [open, setOpen] = useState(false);
   const [dark, setDark] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
-  const { openSheet } = useCourt();
+  const { openSheet, st, update } = useCourt();
 
   useEffect(() => {
     setDark(effTheme() === "dark");
@@ -70,6 +70,9 @@ export function HeaderMenu() {
         <button className="icon-btn" id="birthBtn" data-lbl="Birth details" type="button" aria-label="Birth details for Luna" onClick={() => { setOpen(false); if (document.documentElement.getAttribute("data-ui") === "classic") openSheet({ kind: "birth" }); else window.location.hash = "settings"; }}><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 4.5a8 8 0 1 0 4 10.6A6.5 6.5 0 0 1 15.5 4.5z" fill="#E7DEFF" stroke="#A34876" strokeWidth="2" strokeLinejoin="round" /><path d="M18 3l.7 1.6L20.3 5.3l-1.6.7L18 7.6l-.7-1.6-1.6-.7 1.6-.7z" fill="#FFD95E" /></svg></button>
         <button className="icon-btn" id="packetBtn" data-lbl="Weekly review (Kumo)" type="button" aria-label="Kumo's weekly review packet" onClick={() => { setOpen(false); if (document.documentElement.getAttribute("data-ui") === "classic") openSheet({ kind: "packet" }); else window.location.hash = "review-card"; }}><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3.5" width="14" height="17" rx="2.5" fill="#FFF4D6" stroke="#A34876" strokeWidth="2" /><path d="M8.5 9h7M8.5 12.5h7M8.5 16h4" stroke="#A34876" strokeWidth="2" strokeLinecap="round" /></svg></button>
         <button className="icon-btn" id="themeBtn" data-lbl="Day or night" type="button" aria-label="Switch between day and night" onClick={toggleTheme}>{dark ? SUN : MOON}</button>
+        <button className="icon-btn" id="soundBtn" data-lbl={st.prefs.mute ? "Sound off" : "Sound on"} type="button" aria-pressed={!!st.prefs.mute} aria-label={st.prefs.mute ? "Sound is off, turn it on" : "Sound is on, mute it"} title="Tick sounds" onClick={() => update((d) => { if (d.prefs.mute) delete d.prefs.mute; else d.prefs.mute = true; }, ["prefs"])}>
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="#FFD3E5" stroke="#A34876" strokeWidth="2" strokeLinejoin="round" />{st.prefs.mute ? <path d="M16 9l5 6M21 9l-5 6" stroke="#A34876" strokeWidth="2.2" strokeLinecap="round" /> : <path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11" fill="none" stroke="#A34876" strokeWidth="2.2" strokeLinecap="round" />}</svg>
+        </button>
         <a className="icon-btn" id="progBtn" data-lbl="Progress" href="/progress" aria-label="Progress" title="Build progress"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V13M10 19V8M16 19v-4M22 19H2" fill="none" stroke="#A34876" strokeWidth="2.4" strokeLinecap="round" /></svg></a>
         <a className="icon-btn" id="expBtn" data-lbl="Export my data" href="/api/export" aria-label="Export my data" title="Export my data"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10m0 0l-4-4m4 4l4-4M5 19h14" fill="none" stroke="#A34876" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg></a>
       </div>

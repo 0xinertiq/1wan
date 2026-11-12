@@ -52,7 +52,7 @@ export type Money = { inc: MLine[]; fixed: MLine[]; funds: MFund[]; nw: MAsset[]
 // prefs: market lens, rooms switched on in onboarding, notification choices, onboarding done, name and timezone.
 // hab: her own habits from the Garden's habit editor (separate from the fixed quests, XP and streak logic).
 export type Lens = "trading" | "local" | "any" | "off";
-export type Prefs = { lens?: Lens; rooms?: Record<string, boolean>; notif?: Record<string, boolean>; onboarded?: string; name?: string; tz?: string; companion?: string };
+export type Prefs = { lens?: Lens; rooms?: Record<string, boolean>; notif?: Record<string, boolean>; onboarded?: string; name?: string; tz?: string; companion?: string; mute?: boolean };
 export type Habit = { id: string; name: string; days: number[]; paused?: boolean; at: string };
 // Round 7 (new optional key lenses): the news lenses she follows, several at once. Absent in older documents, where
 // it is read from her old single market lens (prefs.lens) and nothing else changes. "any" and "off" stand alone.
@@ -115,6 +115,7 @@ export function normPrefs(v: unknown): Prefs {
   if (p.rooms !== undefined) o.rooms = bools(p.rooms);
   if (p.notif !== undefined) o.notif = bools(p.notif);
   for (const k of ["onboarded", "name", "tz", "companion"] as const) if (typeof p[k] === "string") o[k] = (p[k] as string).slice(0, 60);
+  if (p.mute === true) o.mute = true; // game loop G1: sound is on unless she muted it
   return o;
 }
 const FROM_OLD: Record<string, LensId[]> = { trading: ["crypto", "macro", "markets"], local: ["local"], any: ["any"], off: ["off"] };

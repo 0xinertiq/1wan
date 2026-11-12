@@ -7,6 +7,8 @@ import { OWNED_KEYS, normalize, tendGarden } from "@/lib/court/state";
 import { merge3, same } from "@/lib/court/merge";
 import { awardDoneDay } from "@/lib/court/actions";
 import { gameKey, sgt } from "@/lib/court/time";
+import { doneCount, fireTick, isRecent } from "@/lib/court/feel";
+import { TickBurst } from "./TickBurst";
 
 // Foundations F2: key = the game day (changes at 4am in her own time zone); min = real minutes since Singapore midnight.
 const clock = (d: Date, tz: unknown) => ({ key: gameKey(d, tz), min: sgt(d).min });
@@ -68,6 +70,7 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
   const [sheet, openSheet] = useState<Sheet>(null);
 
   const stRef = useRef(st);
+  const touch = useRef({ x: 0, y: 0, t: 0 });
   const ver = useRef(version);
   // What this device last knew the server had, per key (round 22, two devices): updated after every save.
   const known = useRef<CourtState>(normalize(base ?? {}, clock(new Date(nowIso), initial.prefs.tz).key));
@@ -129,8 +132,11 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
 
   const update = useCallback((fn: (d: CourtState) => void, keys: OwnedKey[]) => {
     const d = structuredClone(stRef.current);
+    const doneBefore = doneCount(d, d.day, owner);
     fn(d);
     const today = clock(new Date(), d.prefs.tz).key;
+    // G1: a tick she just made (she touched the page a moment ago) gets a small burst and a soft sound.
+    if (d.day === today && isRecent(touch.current.t, Date.now()) && doneCount(d, d.day, owner) > doneBefore) fireTick({ x: touch.current.x, y: touch.current.y }, d.prefs.mute);
     // Habit watering follows every change (v52 autoWater ran on each save).
     if (tendGarden(d, today) && !keys.includes("gd")) keys = [...keys, "gd"];
     // F3: the first time today's 3 core quests are all ticked, the done-day bonus (once a day).
@@ -164,6 +170,16 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
     return () => window.clearTimeout(t);
   }, [now.key, flush]);
 
+  // G1: where and when she last touched the page (pointer, or the focused control for the keyboard).
+  useEffect(() => {
+    const at = (x: number, y: number) => { touch.current = { x, y, t: Date.now() }; };
+    const ptr = (e: PointerEvent) => at(e.clientX, e.clientY);
+    const key = () => { const r = document.activeElement?.getBoundingClientRect(); if (r) at(r.left + r.width / 2, r.top + r.height / 2); };
+    window.addEventListener("pointerdown", ptr, true);
+    window.addEventListener("keydown", key, true);
+    return () => { window.removeEventListener("pointerdown", ptr, true); window.removeEventListener("keydown", key, true); };
+  }, []);
+
   const lvlRef = useRef<(lvl: number) => void>(() => {});
   const levelUp = useCallback((lvl: number) => {
     const b = document.getElementById("lvlBanner"), t = document.getElementById("lvlTxt"), s = document.getElementById("lvlSub");
@@ -181,5 +197,5 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
     prices, setPrices, pxBusy, setPxBusy, sheet, openSheet,
   }), [st, now, recap, update, levelUp, save, events, cal, prices, pxBusy, sheet]);
 
-  return <CourtCtx.Provider value={value}>{children}</CourtCtx.Provider>;
+  return <CourtCtx.Provider value={value}>{children}<TickBurst /></CourtCtx.Provider>;
 }
