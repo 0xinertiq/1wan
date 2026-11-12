@@ -5,10 +5,12 @@ import type { CalEvent, CourtState, OwnedKey, Recap } from "@/lib/court/state";
 import type { PriceResult } from "@/lib/prices";
 import { OWNED_KEYS, normalize, tendGarden } from "@/lib/court/state";
 import { merge3, same } from "@/lib/court/merge";
-import { awardDoneDay } from "@/lib/court/actions";
+import { awardDoneDay, DONE_BONUS, weekOne } from "@/lib/court/actions";
+import { streakNow } from "@/lib/court/questList";
 import { gameKey, sgt } from "@/lib/court/time";
-import { doneCount, fireTick, isRecent } from "@/lib/court/feel";
+import { doneCount, fireDayDone, fireTick, isRecent } from "@/lib/court/feel";
 import { TickBurst } from "./TickBurst";
+import { DayComplete } from "./DayComplete";
 
 // Foundations F2: key = the game day (changes at 4am in her own time zone); min = real minutes since Singapore midnight.
 const clock = (d: Date, tz: unknown) => ({ key: gameKey(d, tz), min: sgt(d).min });
@@ -140,7 +142,9 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
     // Habit watering follows every change (v52 autoWater ran on each save).
     if (tendGarden(d, today) && !keys.includes("gd")) keys = [...keys, "gd"];
     // F3: the first time today's 3 core quests are all ticked, the done-day bonus (once a day).
-    if (d.day === today) { const a = awardDoneDay(d, today, owner); if (a.xp) { keys = [...new Set([...keys, "xp", "lvl", "ql"] as OwnedKey[])]; if (a.leveled) window.setTimeout(() => lvlRef.current(a.leveled!), 0); } }
+    if (d.day === today) { const a = awardDoneDay(d, today, owner); if (a.xp) { keys = [...new Set([...keys, "xp", "lvl", "ql"] as OwnedKey[])]; if (a.leveled) window.setTimeout(() => lvlRef.current(a.leveled!), 0);
+      // G2: the day-complete sheet, only for a done day she just made herself (a touch a moment ago)
+      if (isRecent(touch.current.t, Date.now())) fireDayDone({ xp: a.xp, streak: streakNow(d, today, owner), comeback: a.xp > DONE_BONUS * (weekOne(d, today) ? 2 : 1), level: a.leveled }, d.prefs.mute); } }
     stRef.current = d;
     setSt(d);
     keys.forEach((x) => pending.current.add(x));
@@ -197,5 +201,5 @@ export function CourtProvider({ initial, version, recap: recap0, dirty, nowIso, 
     prices, setPrices, pxBusy, setPxBusy, sheet, openSheet,
   }), [st, now, recap, update, levelUp, save, events, cal, prices, pxBusy, sheet]);
 
-  return <CourtCtx.Provider value={value}>{children}<TickBurst /></CourtCtx.Provider>;
+  return <CourtCtx.Provider value={value}>{children}<TickBurst /><DayComplete /></CourtCtx.Provider>;
 }

@@ -34,6 +34,38 @@ export function playTick(mute: boolean | undefined) {
   } catch { /* no audio on this device: the tick still counts */ }
 }
 
+// Game loop G2: the day-complete sheet. Shown once per game day, the moment the 3 core quests are all ticked by her.
+// "Once" comes from the done-day bonus itself (ql.bd, set by awardDoneDay), so undoing and re-ticking never shows it twice.
+export type DayDoneDetail = { xp: number; streak: number; comeback: boolean; level: number | null };
+export const DAY_EVENT = "kumo:daydone";
+
+/** Four rising notes, just after the tick burst. Silent when muted or when the device has no audio. */
+export function playDone(mute: boolean | undefined) {
+  if (mute || typeof window === "undefined") return;
+  try {
+    const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AC) return;
+    ctx = ctx ?? new AC();
+    if (ctx.state === "suspended") void ctx.resume();
+    const t0 = ctx.currentTime + 0.35;
+    [[523, 0], [659, 0.1], [784, 0.2], [1047, 0.32]].forEach(([f, d]) => {
+      const o = ctx!.createOscillator(), g = ctx!.createGain();
+      o.type = "triangle"; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t0 + d);
+      g.gain.exponentialRampToValueAtTime(0.07, t0 + d + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + d + 0.28);
+      o.connect(g); g.connect(ctx!.destination);
+      o.start(t0 + d); o.stop(t0 + d + 0.3);
+    });
+  } catch { /* no audio: the sheet still shows */ }
+}
+
+export function fireDayDone(detail: DayDoneDetail, mute: boolean | undefined) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent<DayDoneDetail>(DAY_EVENT, { detail }));
+  playDone(mute);
+}
+
 export type TickDetail = { x: number; y: number };
 export const TICK_EVENT = "kumo:tick";
 
