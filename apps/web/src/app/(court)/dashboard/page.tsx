@@ -9,7 +9,7 @@ import { mdLite } from "@/components/court/mdLite";
 import { topThree } from "@/lib/briefTop";
 import type { BriefDoc } from "@/components/court/BriefTabs";
 import { ScanWin } from "@/components/court/ScanWin";
-import { loadBriefs, kindLabel, type BriefRow, type Vote } from "@/lib/briefs";
+import { loadBriefs, loadSharedBriefs, kindLabel, type BriefRow, type Vote } from "@/lib/briefs";
 import { BriefWin } from "@/components/court/Windows";
 import { NeedsNow, WeatherLine, WeekAhead, WeekStrip } from "@/components/court/live/CourtHome";
 import { CalendarTab } from "@/components/court/live/CalendarTab";
@@ -56,6 +56,7 @@ import { Boundary } from "@/components/court/Boundary";
 import { OwnerProvider } from "@/components/court/Owner";
 import { FriendNews } from "@/components/court/FriendNews";
 import { isOwner } from "@/lib/owner";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -92,6 +93,12 @@ export default async function Dashboard() {
   const owner = await isOwner(user.id);
   const { rows, freshest, votes, all } = owner ? await loadBriefs(supabase, user.id) : { rows: [] as BriefRow[], freshest: "", votes: {} as Record<string, Vote>, all: [] as BriefRow[] };
   const docs = rows.map((b) => toDoc(b, now, votes[b.kind] ?? null));
+  // A friend reads only the two shared briefs (Pulse, Intelligence), through the server (lib/briefs.ts loadSharedBriefs).
+  const adminDb = owner ? null : createAdminClient();
+  const shared = adminDb ? await loadSharedBriefs(adminDb, supabase, user.id) : { rows: [] as BriefRow[], votes: {} as Record<string, Vote> };
+  const sharedDocs = shared.rows.map((b) => toDoc(b, now, shared.votes[b.kind] ?? null));
+  const sharedOf = (k: string) => sharedDocs.find((d) => d.key === k) ?? null;
+  const friendBriefs = <BriefsBlock shared docs={{ pulse: sharedOf("pulse"), intel: sharedOf("intel") }} mem={{}} />;
   // Brief history for the News tab (and the movers card): every row already read, newest first.
   const history = all.map((b) => toDoc(b, now, b.at === rows.find((r) => r.kind === b.kind)?.at ? votes[b.kind] ?? null : null));
   const initial = freshest; // v52 opens the freshest brief.
@@ -143,7 +150,7 @@ export default async function Dashboard() {
           welcome: <NewOnly><WelcomePage /></NewOnly>,
           news: (
             <NewOnly>
-              {owner ? <NewsPage headlines={<NewsLive top5={top5} follow />} /> : <NewsPage friend headlines={<FriendNews />} />}
+              {owner ? <NewsPage headlines={<NewsLive top5={top5} follow />} /> : <NewsPage friend headlines={<>{friendBriefs}<FriendNews /></>} />}
             </NewOnly>
           ),
         }}
@@ -166,7 +173,7 @@ export default async function Dashboard() {
                 news: owner ? <NewsLive /> : <FriendNews compact />,
                 needs: <NeedsNow unrated={unrated} />,
                 status: <StatusLive />,
-                briefs: owner ? <BriefsBlock docs={{ pulse: docOf("pulse"), intel: docOf("intel"), scan: scanDoc }} mem={mem} /> : <FriendNews compact />,
+                briefs: owner ? <BriefsBlock docs={{ pulse: docOf("pulse"), intel: docOf("intel"), scan: scanDoc }} mem={mem} /> : friendBriefs,
                 world: <LivingWorld filed={filed} />,
                 roster: <CrewRoster filed={filed} />,
               }}

@@ -44,3 +44,28 @@ export async function loadBriefs(supabase: SupabaseClient, userId: string) {
 }
 
 export const kindLabel = (k: BriefKind) => BRIEF_KINDS[k].label;
+
+// Friends read only the two shared briefs that are written for everyone (Pulse and Intelligence). The Crypto scan,
+// movers and Kumo's weekly review stay hers: the filter is here AND in the database (migration 0009 keeps the other
+// shared rows owner-only), and this read happens on the server with the service key, never in the browser.
+export const FRIEND_KINDS: BriefKind[] = ["pulse", "intel"];
+export function sharedRows(raw: { kind: string; title: string; body: string; at: string; meta?: unknown; user_id?: string | null }[]): BriefRow[] {
+  const latest = new Map<BriefKind, BriefRow>();
+  for (const r of raw) {
+    const k = canonKind(r.kind);
+    if (!k || !FRIEND_KINDS.includes(k) || r.user_id || latest.has(k)) continue;
+    latest.set(k, { kind: k, title: r.title, body: r.body, at: r.at, sources: sourcesOf(r.body ?? "", r.meta) });
+  }
+  return FRIEND_KINDS.filter((k) => latest.has(k)).map((k) => latest.get(k)!);
+}
+export async function loadSharedBriefs(db: SupabaseClient, supabase: SupabaseClient, userId: string) {
+  const { data } = await db.from("briefs").select("kind, title, body, at, meta, user_id").is("user_id", null).order("at", { ascending: false }).limit(60);
+  const rows = sharedRows((data ?? []) as Parameters<typeof sharedRows>[0]);
+  const votes: Record<string, Vote> = {};
+  const { data: fb } = await supabase.from("feedback").select("brief_kind, items").eq("user_id", userId);
+  for (const f of fb ?? []) {
+    const items = Array.isArray(f.items) ? (f.items as { at: string; vote: "up" | "down"; note?: string }[]) : [];
+    for (const r of rows) if (r.kind === canonKind(f.brief_kind)) { const it = items.find((x) => x.at === r.at); if (it) votes[r.kind] = { vote: it.vote, note: it.note ?? "" }; }
+  }
+  return { rows, votes };
+}

@@ -38,16 +38,18 @@ export type DeskMem = { lessons?: string[]; sourceNotes?: string[]; selfCheck?: 
 // lead line, then each story as a bold headline, a short muted "why" and small sources; the full brief is one tap away.
 const TABS = [{ key: "pulse", label: "Pulse" }, { key: "intel", label: "Intelligence" }, { key: "scan", label: "Crypto scan" }] as const;
 
-export function BriefsBlock({ docs, mem }: { docs: Partial<Record<"pulse" | "intel" | "scan", BriefDoc | null>>; mem: Record<string, DeskMem> }) {
-  const first = (["intel", "scan", "pulse"] as const).find((k) => docs[k]) ?? "intel";
+export function BriefsBlock({ docs, mem, shared = false }: { docs: Partial<Record<"pulse" | "intel" | "scan", BriefDoc | null>>; mem: Record<string, DeskMem>; shared?: boolean }) {
+  // shared: a friend's card. Same card and view, only Pulse and Intelligence (the scan is the owner's).
+  const tabs = shared ? TABS.filter((t) => t.key !== "scan") : TABS;
+  const first = (["intel", "scan", "pulse"] as const).find((k) => docs[k] && (!shared || k !== "scan")) ?? "intel";
   const [tab, setTab] = useState<"pulse" | "intel" | "scan">(first);
   const d = docs[tab] ?? null;
   return (
     <section className="win kbriefs" aria-labelledby="kbT">
-      <div className="win-title"><h2 id="kbT">Briefs</h2><span className="sub">Your scheduled tasks</span></div>
+      <div className="win-title"><h2 id="kbT">Briefs</h2><span className="sub">{shared ? "Shared with every friend" : "Your scheduled tasks"}</span></div>
       <div className="win-body">
         <div className="kseg pills" role="tablist" aria-label="Briefs">
-          {TABS.map((t) => <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} className={tab === t.key ? "on" : ""} onClick={() => setTab(t.key)}>{t.label}</button>)}
+          {tabs.map((t) => <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} className={tab === t.key ? "on" : ""} onClick={() => setTab(t.key)}>{t.label}</button>)}
         </div>
         {!d ? <p className="note">{tab === "scan" ? "No scan yet. The 03:50 scan lands here." : tab === "pulse" ? "No Pulse brief yet. It lands at 07:27." : "No intelligence brief yet. The 07:52 brief lands here."}</p>
           : tab === "scan" ? <BriefPane key={d.key + d.at} d={d} mem={mem.scan} /> : <ReadPane key={d.key + d.at} d={d} mem={mem[tab]} />}
