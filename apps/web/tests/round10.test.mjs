@@ -39,8 +39,10 @@ test("mini month, last week of the month: one number per cell, the heart sits be
 test("trade reflection: no 'Not a trade' option, and no selector without trades", async () => {
   const d = src("components/court/pages/Dungeon.tsx");
   assert.ok(!/Not about a trade|Not a trade/.test(d));
-  assert.match(d, /\{trades\.length > 0 && <select aria-label="Link a trade"/);
-  assert.match(d, /\{!cur\.tradeId && <option value="" disabled>Pick a trade<\/option>\}/, "any trade, the newest included, can be picked and saved");
+  // the trade log now sits in the reflection card: no list without trades, any trade can be linked, and a Save button exists
+  assert.match(d, /!trades\.length \? <p className="note">No trades logged yet/);
+  assert.match(d, /put\(\{ \.\.\.base, tradeId: on \? "" : t\.id \}\)/, "any trade, the newest included, can be linked or unlinked");
+  assert.match(d, /Save reflection/);
 });
 
 test("the 2027 chart is its own: separate key and ticks, blank to start, 2026 untouched", async () => {

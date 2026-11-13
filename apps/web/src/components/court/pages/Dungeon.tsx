@@ -79,13 +79,47 @@ function Editor({ day, e, put, status, storeNote }: { day: string; e: Entry | un
   );
 }
 
+type LogTrade = { id: string; inst?: string; date?: string; dir?: string; entry?: unknown; exit?: unknown };
+
+// Trade reflection: the three prompts with an explicit Save button (they also save when she leaves a box), and her
+// recent trade log right here so she can pick the trade this page is about without leaving the Dungeon.
+function TradeReflection({ day, cur, trades, put }: { day: string; cur: Entry; trades: LogTrade[]; put: (x: Partial<Entry> & { id: string }) => void }) {
+  const [f, setF] = useState({ plan: cur.plan ?? "", feel: cur.feel ?? "", change: cur.change ?? "" });
+  const [saved, setSaved] = useState(false);
+  const base = { id: idOf(day), day };
+  const dirty = f.plan !== (cur.plan ?? "") || f.feel !== (cur.feel ?? "") || f.change !== (cur.change ?? "");
+  const save = () => { if (!dirty) return; put({ ...base, ...f }); setSaved(true); };
+  const set = (key: keyof typeof f) => (ev: React.ChangeEvent<HTMLTextAreaElement>) => { setF({ ...f, [key]: ev.target.value }); setSaved(false); };
+  const num = (v: unknown) => (v == null || v === "" ? null : Number(v));
+  return (
+    <Sec title="Trade reflection" sub={saved && !dirty ? "saved ✓" : "before and after a trade"}>
+      <label className="kform">Before: what is the plan?<textarea maxLength={1000} value={f.plan} onChange={set("plan")} onBlur={save} /></label>
+      <label className="kform">How do you feel about it?<textarea maxLength={1000} value={f.feel} onChange={set("feel")} onBlur={save} /></label>
+      <label className="kform">After: what would you change?<textarea maxLength={1000} value={f.change} onChange={set("change")} onBlur={save} /></label>
+      <div className="kbtn-row"><button className="btn sm" type="button" onClick={save} disabled={!dirty}>Save reflection</button><span className="note">Private, saved with this day&apos;s page.</span></div>
+      <SectionLabel>Trade log · tap a trade to link it to this page</SectionLabel>
+      {!trades.length ? <p className="note">No trades logged yet. Add them on the Trades page.</p>
+        : trades.slice(0, 8).map((t) => {
+          const on = cur.tradeId === t.id, ex = num(t.exit);
+          return (
+            <button key={t.id} type="button" className="krow klink-row" aria-pressed={on} onClick={() => put({ ...base, tradeId: on ? "" : t.id })}>
+              <span className="krow-main"><b>{String(t.inst ?? "")}</b> {t.dir === "short" ? "Short" : "Long"} <Chip tone={ex == null ? "peach" : "lav"}>{ex == null ? "Open" : "Closed"}</Chip>{on ? <> · <b>linked</b></> : null}
+                <br /><span className="note">{t.date ? prettyDay(String(t.date)) : ""}{num(t.entry) != null ? ` · entry ${num(t.entry)}` : ""}{ex != null ? ` · exit ${ex}` : ""}</span></span>
+            </button>
+          );
+        })}
+      <a className="note" href="#trades">Add or edit trades on the Trades page →</a>
+    </Sec>
+  );
+}
+
 // Mood and tags, then the trade reflection (right column). Round 12: research notes left the Dungeon; any notes
 // already attached to a page stay in its record (the notes field) and in Export my data.
 function Side({ day, e, put }: { day: string; e: Entry | undefined; put: (x: Partial<Entry> & { id: string }) => void }) {
   const { st, k, update } = useCourt();
   const [tag, setTag] = useState("");
-  const [trades, setTrades] = useState<{ id: string; inst?: string; date?: string }[]>([]);
-  useEffect(() => { getOnce<{ trades?: { id: string }[] }>("/api/ledger").then((j) => setTrades(Array.isArray(j?.trades) ? j.trades.slice(0, 40) : [])).catch(() => {}); }, []);
+  const [trades, setTrades] = useState<LogTrade[]>([]);
+  useEffect(() => { getOnce<{ trades?: LogTrade[] }>("/api/ledger").then((j) => setTrades(Array.isArray(j?.trades) ? j.trades.slice(0, 40) : [])).catch(() => {}); }, []);
   const base = { id: idOf(day), day };
   const cur = e ?? ({ tags: [], notes: [] } as unknown as Entry);
   // F4: the mood lives in the day's journal record (synced); picking today's mood also counts Luna's mood quest
@@ -102,15 +136,7 @@ function Side({ day, e, put }: { day: string; e: Entry | undefined; put: (x: Par
           <input aria-label="Add a tag" placeholder="Add a tag" value={tag} onChange={(ev) => setTag(ev.target.value)} /><button className="btn sm" type="submit">Add</button>
         </form>
       </Sec>
-      <Sec title="Trade reflection" sub="before and after a trade">
-        {trades.length > 0 && <select aria-label="Link a trade" value={cur.tradeId ?? ""} onChange={(ev) => ev.target.value && put({ ...base, tradeId: ev.target.value })}>
-          {!cur.tradeId && <option value="" disabled>Pick a trade</option>}
-          {trades.map((t) => <option key={t.id} value={t.id}>{String(t.inst ?? "")} {t.date ? prettyDay(String(t.date)) : ""}</option>)}
-        </select>}
-        <label className="kform">Before: what is the plan?<textarea key={day + "p"} maxLength={1000} defaultValue={cur.plan ?? ""} onBlur={(ev) => ev.target.value !== (cur.plan ?? "") && put({ ...base, plan: ev.target.value })} /></label>
-        <label className="kform">How do you feel about it?<textarea key={day + "f"} maxLength={1000} defaultValue={cur.feel ?? ""} onBlur={(ev) => ev.target.value !== (cur.feel ?? "") && put({ ...base, feel: ev.target.value })} /></label>
-        <label className="kform">After: what would you change?<textarea key={day + "c"} maxLength={1000} defaultValue={cur.change ?? ""} onBlur={(ev) => ev.target.value !== (cur.change ?? "") && put({ ...base, change: ev.target.value })} /></label>
-      </Sec>
+      <TradeReflection key={day} day={day} cur={cur} trades={trades} put={put} />
     </>
   );
 }
