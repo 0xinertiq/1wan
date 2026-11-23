@@ -1,0 +1,7 @@
+Midday Movers, Mon 23 Nov 14:42 SGT
+
+**A31 -2.2% today, -20.9% week**
+
+Addvalue Technologies fell about 21% over the week with no clear cause in the headlines found; the latest items are positive (H1 profit doubled on strong demand, revenue up 97%, and a confidential draft registration with the U.S. SEC for its space unit), so the selloff looks unexplained, possible low-liquidity move. Price 0.087 sits below both EMA50 (0.1245) and EMA200 (0.1232), RSI 25.2 (oversold). Retest EMA50 0.1245, breakout above High.1M 0.121. — [Reuters](https://www.tradingview.com/news/reuters.com,2026:newsml_L2N46R0DI:0-singapore-s-addvalue-technologies-h1-profit-doubles-on-strong-demand/), [Quartr](https://www.tradingview.com/news/urn:summary_document_report:quartr.com:4358495:0-addvalue-technologies-revenue-rose-97-and-profit-more-than-doubled-as-spc-and-adr-growth-lifted-orders-above-us-20-23m/)
+
+Not financial advice. Pumps reverse fast; size to a stop.
